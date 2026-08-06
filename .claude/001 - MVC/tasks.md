@@ -1,7 +1,7 @@
-# Fase 01: Fundação visual e shell []
-- [] Task 01: Tokens de design, fontes e reset global em `styles.scss` + `index.html`
-- [] Task 02: Shell da aplicação e rota lazy da landing page
-- [] Task 03: Componentes base de UI (painel e botão pixel)
+# Fase 01: Fundação visual e shell [x]
+- [x] Task 01: Tokens de design, fontes e reset global em `styles.scss` + `index.html`
+- [x] Task 02: Shell da aplicação e rota lazy da landing page
+- [x] Task 03: Componentes base de UI (painel e botão pixel)
 
 # Fase 02: Domínio e dados []
 - [] Task 01: Modelos de domínio do perfil
