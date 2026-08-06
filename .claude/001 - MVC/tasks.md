@@ -18,6 +18,6 @@
 - [x] Task 02: Animações `animate.enter` / `animate.leave` e revelação por scroll
 - [x] Task 03: Responsividade mobile-first, acessibilidade e reduced motion
 
-# Fase 05: Validação []
-- [] Task 01: Build de produção e suíte de testes
-- [] Task 02: Verificação visual no Chrome (mobile e desktop)
+# Fase 05: Validação [x]
+- [x] Task 01: Build de produção e suíte de testes
+- [x] Task 02: Verificação visual no Chrome (mobile e desktop)
