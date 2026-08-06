@@ -13,10 +13,10 @@
 - [x] Task 02: Cartão de treinador e caixa de diálogo com digitação
 - [x] Task 03: Chips de tecnologia, item de linha do tempo e links de contato
 
-# Fase 04: Página e animações []
-- [] Task 01: Montagem da `LandingPage` com todas as seções
-- [] Task 02: Animações `animate.enter` / `animate.leave` e revelação por scroll
-- [] Task 03: Responsividade mobile-first, acessibilidade e reduced motion
+# Fase 04: Página e animações [x]
+- [x] Task 01: Montagem da `LandingPage` com todas as seções
+- [x] Task 02: Animações `animate.enter` / `animate.leave` e revelação por scroll
+- [x] Task 03: Responsividade mobile-first, acessibilidade e reduced motion
 
 # Fase 05: Validação []
 - [] Task 01: Build de produção e suíte de testes

@@ -220,6 +220,24 @@ h4 {
   animation: anim-out 220ms steps(4, end) both;
 }
 
+/* Estado inicial de quem só aparece ao entrar na viewport. */
+.reveal-idle {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.delay-1 {
+  animation-delay: 120ms;
+}
+
+.delay-2 {
+  animation-delay: 240ms;
+}
+
+.delay-3 {
+  animation-delay: 360ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
