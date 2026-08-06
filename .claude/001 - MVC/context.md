@@ -7,6 +7,11 @@
 >    `anchorScrolling` do Router sozinho não posicionava a seção.
 > 3. Incluída a seção "Placar" com os números de impacto do currículo, para provar resultado antes
 >    de pedir contato.
+> 4. **Cargo:** "Engenheiro de Software" trocado por "Desenvolvedor Fullstack" em toda a página
+>    (cartão, resumo, BF Academy, `<title>` e meta description) — evita alegar formação/certificação
+>    que não existe.
+> 5. **Paleta:** trocada de quente (LCD verde + vermelho de cartucho) para fria, com acento
+>    `#00FFFA`. Tabela de cores abaixo já atualizada.
 ## Objetivo
 - Apresentar o Tech Educator Leno Borges em uma landing page morderna, responsiva, animada com tranições e visual retrô gamer.
 - Exibir tecnologias que domina e leciona
@@ -67,18 +72,26 @@ Inglês: Intermediário (B1)
 - **Idioma:** pt-BR.
 
 ## Direção de Design
-Conceito: **"Cartucho"** — a página se comporta como a tela de um Game Boy Color, não como fliperama neon.
-Nada de fundo preto com neon, nada de scanlines, nada de blur (regra 4).
+Conceito: **"Cartucho"** — a página se comporta como a tela de um portátil retrô, não como fliperama
+neon. Nada de fundo preto com neon, nada de scanlines, nada de blur (regra 4).
+A paleta é fria: LCD azulado claro com tinta naval e um único acento ciano.
 
 ### Cores (tokens)
 | Token | Hex | Uso |
 |---|---|---|
-| `--ink` | `#1B1B2E` | texto, bordas duras 4px |
-| `--screen` | `#DCE8A8` | fundo LCD (superfície base) |
-| `--screen-deep` | `#8FA857` | sombras sólidas, superfícies secundárias |
-| `--cartridge` | `#D8443C` | acento primário (ação/CTA) |
-| `--link-blue` | `#2F5FD0` | acento secundário (links, dev) |
-| `--coin` | `#F2C230` | destaque de dado/pontuação (educador) |
+| `--ink` | `#0B1B2E` | texto, bordas duras 4px, painéis escuros |
+| `--ink-soft` | `#46586E` | texto secundário |
+| `--screen` | `#B7D5DD` | fundo LCD (superfície base) |
+| `--screen-lit` | `#DBECF0` | superfícies claras internas |
+| `--screen-deep` | `#7FA3B0` | trama de pixels, chips de cloud |
+| `--accent` | `#00FFFA` | acento único: CTA, marca, números do placar, badge "ativo" |
+| `--accent-deep` | `#00B8B4` | sombra sólida sobre painéis escuros, marcador do diálogo |
+| `--link-blue` | `#1B4DE0` | links, chips de linguagem, anel de foco |
+| `--violet` | `#6B4EFF` | chips de framework |
+| `--paper` | `#F2F7F9` | fundo de cartões |
+
+Regra de uso do acento: `#00FFFA` só aparece sobre `--ink` ou com texto `--ink` em cima —
+ciano sobre superfície clara não passa em contraste.
 
 ### Tipografia
 - **Display:** `Pixelify Sans` — só títulos e rótulos curtos (uso contido, nunca em parágrafo).

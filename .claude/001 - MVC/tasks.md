@@ -21,3 +21,8 @@
 # Fase 05: Validação [x]
 - [x] Task 01: Build de produção e suíte de testes
 - [x] Task 02: Verificação visual no Chrome (mobile e desktop)
+
+# Fase 06: Ajustes de identidade [x]
+- [x] Task 01: Trocar "Engenheiro de Software" por "Desenvolvedor Fullstack" em toda a página
+- [x] Task 02: Migrar a paleta para tons frios com acento `#00FFFA`
+- [x] Task 03: Revalidar contraste, build e suíte de testes

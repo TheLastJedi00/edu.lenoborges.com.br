@@ -16,7 +16,7 @@ import { Stat } from '../../models/profile.model';
       border: var(--border-w) solid var(--ink);
       border-radius: var(--radius);
       background: var(--ink);
-      box-shadow: 4px 4px 0 var(--screen-deep);
+      box-shadow: 4px 4px 0 var(--accent-deep);
       color: var(--screen-lit);
     }
 
@@ -25,7 +25,7 @@ import { Stat } from '../../models/profile.model';
       font-size: var(--step-2);
       font-weight: 700;
       line-height: 1.1;
-      color: var(--coin);
+      color: var(--accent);
     }
 
     .label {
