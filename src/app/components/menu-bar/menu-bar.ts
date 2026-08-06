@@ -16,7 +16,9 @@ interface MenuItem {
       <nav aria-label="Seções da página">
         <ul class="menu u-mono">
           @for (item of items; track item.href) {
-            <li><a [href]="item.href">{{ item.label }}</a></li>
+            <li>
+              <a [href]="item.href" (click)="goTo($event, item.href)">{{ item.label }}</a>
+            </li>
           }
         </ul>
       </nav>
@@ -100,4 +102,19 @@ export class MenuBar {
     { href: '#formacao', label: 'Formação' },
     { href: '#contato', label: 'Contato' }
   ];
+
+  /** Leva até a seção e move o foco para ela, mantendo o link utilizável sem JavaScript. */
+  protected goTo(event: Event, href: string): void {
+    const target = document.querySelector<HTMLElement>(href);
+    if (!target) {
+      return;
+    }
+
+    event.preventDefault();
+    const reducedMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+    target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
+    history.replaceState(null, '', href);
+  }
 }

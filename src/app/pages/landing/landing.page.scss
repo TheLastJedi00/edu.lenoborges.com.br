@@ -35,6 +35,7 @@
 /* ---------- Seções ---------- */
 .section {
   padding-block: var(--space-section) 0;
+  scroll-margin-top: 5rem;
 }
 
 .section:last-of-type {

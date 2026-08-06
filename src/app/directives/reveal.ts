@@ -35,7 +35,14 @@ export class Reveal {
       );
 
       observer.observe(this.element);
-      this.destroyRef.onDestroy(() => observer.disconnect());
+
+      // Rede de segurança: nenhum conteúdo pode ficar invisível se o observer não disparar.
+      const failsafe = setTimeout(() => this.element.classList.remove('reveal-idle'), 4000);
+
+      this.destroyRef.onDestroy(() => {
+        observer.disconnect();
+        clearTimeout(failsafe);
+      });
     });
   }
 }
