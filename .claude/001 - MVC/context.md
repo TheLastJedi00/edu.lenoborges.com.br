@@ -1,4 +1,12 @@
 # Spec 001: Criação da Landing Page de apresentação que vende ideia inicial
+
+> **Alterações de escopo durante a execução**
+> 1. Adicionada uma barra de navegação fixa (`MenuBar`) com âncoras — a página ficou longa demais
+>    para navegação só por scroll.
+> 2. O scroll por âncora é tratado no próprio componente (`scrollIntoView` + foco na seção); o
+>    `anchorScrolling` do Router sozinho não posicionava a seção.
+> 3. Incluída a seção "Placar" com os números de impacto do currículo, para provar resultado antes
+>    de pedir contato.
 ## Objetivo
 - Apresentar o Tech Educator Leno Borges em uma landing page morderna, responsiva, animada com tranições e visual retrô gamer.
 - Exibir tecnologias que domina e leciona

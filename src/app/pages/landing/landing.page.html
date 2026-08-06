@@ -1,0 +1,112 @@
+<app-menu-bar />
+
+<main id="conteudo">
+  <section class="hero u-shell" id="topo">
+    <div class="hero__grid">
+      <app-trainer-card [identity]="identity()" animate.enter="animate-enter" />
+
+      <div class="hero__talk" animate.enter="animate-enter delay-1">
+        <app-dialog-box [text]="identity().summary" />
+        <div class="hero__actions">
+          <app-pixel-button [href]="primaryLink().url" [external]="true">
+            Falar comigo
+          </app-pixel-button>
+          <app-pixel-button [href]="portfolioLink().url" [external]="true" variant="ghost">
+            Ver portfólio
+          </app-pixel-button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section u-shell" aria-labelledby="placar-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">Resultados medidos em produção</p>
+      <h2 id="placar-titulo" class="section__title">Placar</h2>
+    </header>
+    <div class="grid grid--3">
+      @for (stat of stats(); track stat.label) {
+        <app-stat-tile [stat]="stat" appReveal />
+      }
+    </div>
+  </section>
+
+  <section class="section u-shell" id="stack" aria-labelledby="stack-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">O que uso em produção e levo para a sala de aula</p>
+      <h2 id="stack-titulo" class="section__title">Stack</h2>
+    </header>
+    <div class="grid grid--2">
+      @for (group of stack(); track group.id) {
+        <app-stack-group [group]="group" appReveal />
+      }
+    </div>
+  </section>
+
+  <section class="section u-shell" id="dev" aria-labelledby="dev-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">Out 2025 &rarr; hoje</p>
+      <h2 id="dev-titulo" class="section__title">Como desenvolvedor</h2>
+      <p class="section__lead">
+        Plataformas SaaS e EdTech construídas de ponta a ponta, do modelo de dados à esteira de
+        deploy.
+      </p>
+    </header>
+    <ol class="timeline">
+      @for (item of devExperiences(); track item.id) {
+        <li appReveal><app-timeline-entry [experience]="item" /></li>
+      }
+    </ol>
+  </section>
+
+  <section class="section u-shell" id="ensino" aria-labelledby="ensino-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">Dez 2025 &rarr; hoje</p>
+      <h2 id="ensino-titulo" class="section__title">Como educador</h2>
+      <p class="section__lead">
+        Da primeira linha de código de um adolescente à capacitação sob medida de times e
+        executivos.
+      </p>
+    </header>
+    <ol class="timeline">
+      @for (item of educatorExperiences(); track item.id) {
+        <li appReveal><app-timeline-entry [experience]="item" /></li>
+      }
+    </ol>
+  </section>
+
+  <section class="section u-shell" id="formacao" aria-labelledby="formacao-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">Uniasselvi · T-Systems / ProWay</p>
+      <h2 id="formacao-titulo" class="section__title">Formação</h2>
+    </header>
+    <div class="grid grid--2">
+      @for (item of education(); track item.id) {
+        <app-pixel-panel tone="lit" appReveal>
+          <p class="u-mono edu__period">{{ item.period }}</p>
+          <h3 class="edu__title">{{ item.title }}</h3>
+          <p class="edu__org">{{ item.org }}</p>
+          <p class="edu__detail">{{ item.detail }}</p>
+        </app-pixel-panel>
+      }
+    </div>
+  </section>
+
+  <section class="section u-shell" id="contato" aria-labelledby="contato-titulo">
+    <app-pixel-panel tone="ink">
+      <header class="section__head" appReveal>
+        <p class="u-mono section__eyebrow section__eyebrow--light">Escolha o canal</p>
+        <h2 id="contato-titulo" class="section__title">Vamos construir ou ensinar algo</h2>
+        <p class="section__lead section__lead--light">
+          Aberto a projetos de plataforma, mentoria técnica e turmas fechadas para empresas.
+        </p>
+      </header>
+      <app-contact-links [links]="identity().links" appReveal />
+    </app-pixel-panel>
+  </section>
+
+  <footer class="footer u-shell u-mono">
+    <p>{{ identity().name }} — Blumenau, SC</p>
+    <p>Angular {{ angularVersion }} · sem dependências de UI</p>
+  </footer>
+</main>
