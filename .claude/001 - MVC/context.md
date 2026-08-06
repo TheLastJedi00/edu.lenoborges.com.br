@@ -12,6 +12,10 @@
 >    que não existe.
 > 5. **Paleta:** trocada de quente (LCD verde + vermelho de cartucho) para fria, com acento
 >    `#00FFFA`. Tabela de cores abaixo já atualizada.
+> 6. **Copy da trilha de educador:** o cargo no bootcamp passou de "Mentor técnico da turma" para
+>    "Referência Técnica da turma", e o destaque final passou a dizer que o reconhecimento
+>    "resultou em um convite direto" para o quadro de instrutores da ProWay — mesma redação do
+>    currículo, sem sugerir cargo formal de mentor.
 ## Objetivo
 - Apresentar o Tech Educator Leno Borges em uma landing page morderna, responsiva, animada com tranições e visual retrô gamer.
 - Exibir tecnologias que domina e leciona
