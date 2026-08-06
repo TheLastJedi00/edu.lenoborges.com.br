@@ -8,10 +8,10 @@
 - [x] Task 02: Spec do `ProfileService` (TDD, antes da lógica)
 - [x] Task 03: Implementação do `ProfileService` com os dados do currículo
 
-# Fase 03: Componentes de apresentação []
-- [] Task 01: Ícones SVG componentizados
-- [] Task 02: Cartão de treinador e caixa de diálogo com digitação
-- [] Task 03: Chips de tecnologia, item de linha do tempo e links de contato
+# Fase 03: Componentes de apresentação [x]
+- [x] Task 01: Ícones SVG componentizados
+- [x] Task 02: Cartão de treinador e caixa de diálogo com digitação
+- [x] Task 03: Chips de tecnologia, item de linha do tempo e links de contato
 
 # Fase 04: Página e animações []
 - [] Task 01: Montagem da `LandingPage` com todas as seções
