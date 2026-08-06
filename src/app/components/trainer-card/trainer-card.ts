@@ -47,8 +47,8 @@ import { IconCartridge } from '../icons/icon-cartridge';
     .card__eyebrow {
       padding: 0.5rem 1rem;
       border-bottom: var(--border-w) solid var(--ink);
-      background: var(--cartridge);
-      color: var(--paper);
+      background: var(--ink);
+      color: var(--accent);
       font-weight: 700;
     }
 

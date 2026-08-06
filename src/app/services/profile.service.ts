@@ -4,10 +4,10 @@ import { Experience, Profile } from '../models/profile.model';
 const PROFILE: Profile = {
   identity: {
     name: 'Leno Borges',
-    role: 'Engenheiro de Software & Instrutor Técnico',
+    role: 'Desenvolvedor Fullstack & Instrutor Técnico',
     tagline: 'Construo plataformas SaaS e formo quem vai mantê-las.',
     summary:
-      'Engenheiro fullstack com Angular, NestJS e Java/Spring. Traduzo regra de negócio complexa ' +
+      'Desenvolvedor fullstack com Angular, NestJS e Java/Spring. Traduzo regra de negócio complexa ' +
       'em arquitetura modular, integro IA generativa para automatizar operação e aplico FinOps ' +
       'para escalar produto com custo de infraestrutura perto de zero. Em sala de aula, ensino ' +
       'o mesmo que entrego em produção.',
@@ -121,7 +121,7 @@ const PROFILE: Profile = {
     },
     {
       id: 'bf-academy',
-      role: 'Cofundador — Eng. de Software',
+      role: 'Cofundador — Desenvolvedor Fullstack',
       org: 'BF Academy',
       mode: 'Remoto',
       period: 'Out 2025 — presente',

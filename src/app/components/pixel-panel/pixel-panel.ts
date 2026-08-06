@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-export type PanelTone = 'screen' | 'lit' | 'ink' | 'coin';
+export type PanelTone = 'screen' | 'lit' | 'ink' | 'accent';
 
 /** Superfície base do sistema: borda sólida, sombra deslocada, sem blur. */
 @Component({
@@ -30,11 +30,11 @@ export type PanelTone = 'screen' | 'lit' | 'ink' | 'coin';
     :host(.tone-ink) {
       background: var(--ink);
       color: var(--screen-lit);
-      box-shadow: 6px 6px 0 var(--screen-deep);
+      box-shadow: 6px 6px 0 var(--accent-deep);
     }
 
-    :host(.tone-coin) {
-      background: var(--coin);
+    :host(.tone-accent) {
+      background: var(--accent);
     }
 
     @media (min-width: 48rem) {

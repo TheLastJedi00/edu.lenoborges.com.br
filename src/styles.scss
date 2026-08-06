@@ -4,17 +4,17 @@
    ========================================================================= */
 
 :root {
-  /* Cores */
-  --ink: #1b1b2e;
-  --ink-soft: #4a4a63;
-  --screen: #dce8a8;
-  --screen-lit: #eaf2c8;
-  --screen-deep: #8fa857;
-  --cartridge: #d8443c;
-  --cartridge-dark: #a32f28;
-  --link-blue: #2f5fd0;
-  --coin: #f2c230;
-  --paper: #f7f8ee;
+  /* Cores — LCD frio com acento ciano */
+  --ink: #0b1b2e;
+  --ink-soft: #46586e;
+  --screen: #b7d5dd;
+  --screen-lit: #dbecf0;
+  --screen-deep: #7fa3b0;
+  --accent: #00fffa;
+  --accent-deep: #00b8b4;
+  --link-blue: #1b4de0;
+  --violet: #6b4eff;
+  --paper: #f2f7f9;
 
   /* Tipografia */
   --font-display: 'Pixelify Sans', 'Trebuchet MS', sans-serif;
@@ -106,8 +106,13 @@ h4 {
 
 /* ---------- Foco visível ---------- */
 :focus-visible {
-  outline: 3px solid var(--cartridge);
+  outline: 3px solid var(--link-blue);
   outline-offset: 3px;
+}
+
+/* Sobre superfícies escuras o anel de foco vira o acento. */
+.tone-ink :focus-visible {
+  outline-color: var(--accent);
 }
 
 /* ---------- Utilitários ---------- */
