@@ -43,6 +43,7 @@ import { IconCaret } from '../icons/icon-caret';
     }
 
     .line {
+      max-width: 58ch;
       min-height: 9.5rem;
       font-size: var(--step-0);
       line-height: 1.7;

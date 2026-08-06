@@ -8,6 +8,7 @@ import { StackGroupCard } from '../../components/stack-group/stack-group';
 import { StatTile } from '../../components/stat-tile/stat-tile';
 import { TimelineEntry } from '../../components/timeline-entry/timeline-entry';
 import { TrainerCard } from '../../components/trainer-card/trainer-card';
+import { Reveal } from '../../directives/reveal';
 import { ProfileService } from '../../services/profile.service';
 
 @Component({
@@ -21,7 +22,8 @@ import { ProfileService } from '../../services/profile.service';
     StatTile,
     StackGroupCard,
     TimelineEntry,
-    ContactLinks
+    ContactLinks,
+    Reveal
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './landing.page.html',

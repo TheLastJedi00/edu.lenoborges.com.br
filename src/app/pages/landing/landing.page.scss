@@ -12,11 +12,24 @@
   gap: 1.5rem;
 }
 
+.hero__talk {
+  display: flex;
+  flex-direction: column;
+}
+
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1.25rem;
+}
+
+@media (min-width: 48rem) {
+  /* No desktop as ações descem para o rodapé da coluna, alinhadas ao cartão. */
+  .hero__actions {
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
 }
 
 /* ---------- Seções ---------- */
@@ -110,7 +123,7 @@
   .hero__grid {
     grid-template-columns: 5fr 7fr;
     gap: 2rem;
-    align-items: start;
+    align-items: stretch;
   }
 
   .grid--2 {
@@ -125,5 +138,6 @@
 
   .timeline {
     gap: 1.75rem;
+    max-width: 54rem;
   }
 }

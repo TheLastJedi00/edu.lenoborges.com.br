@@ -38,7 +38,7 @@ import { StackGroup } from '../../models/profile.model';
 
     :host(.tone-cloud) {
       --chip-bg: var(--screen-deep);
-      --chip-fg: var(--paper);
+      --chip-fg: var(--ink);
     }
 
     :host(.tone-ai) {

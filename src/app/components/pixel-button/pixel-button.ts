@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 export type ButtonVariant = 'primary' | 'ghost';
@@ -5,8 +6,11 @@ export type ButtonVariant = 'primary' | 'ghost';
 /** Ação da página. Renderiza âncora quando recebe `href`, botão caso contrário. */
 @Component({
   selector: 'app-pixel-button',
+  imports: [NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <ng-template #label><ng-content /></ng-template>
+
     @if (href(); as target) {
       <a
         class="btn"
@@ -15,11 +19,11 @@ export type ButtonVariant = 'primary' | 'ghost';
         [attr.target]="external() ? '_blank' : null"
         [attr.rel]="external() ? 'noopener noreferrer' : null"
       >
-        <ng-content />
+        <ng-container [ngTemplateOutlet]="label" />
       </a>
     } @else {
       <button type="button" class="btn" [class.btn--ghost]="variant() === 'ghost'">
-        <ng-content />
+        <ng-container [ngTemplateOutlet]="label" />
       </button>
     }
   `,
