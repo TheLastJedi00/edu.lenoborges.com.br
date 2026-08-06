@@ -27,7 +27,7 @@ import { StackGroup } from '../../models/profile.model';
     }
 
     :host(.tone-framework) {
-      --chip-bg: var(--cartridge);
+      --chip-bg: var(--violet);
       --chip-fg: var(--paper);
     }
 
@@ -42,7 +42,7 @@ import { StackGroup } from '../../models/profile.model';
     }
 
     :host(.tone-ai) {
-      --chip-bg: var(--coin);
+      --chip-bg: var(--accent);
       --chip-fg: var(--ink);
     }
 

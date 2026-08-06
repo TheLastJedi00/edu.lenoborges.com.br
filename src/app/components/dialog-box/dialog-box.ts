@@ -63,7 +63,7 @@ import { IconCaret } from '../icons/icon-caret';
       position: absolute;
       right: 0.9rem;
       bottom: 0.75rem;
-      color: var(--cartridge);
+      color: var(--accent-deep);
       opacity: 0;
     }
 

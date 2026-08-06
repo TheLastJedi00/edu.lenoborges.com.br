@@ -60,8 +60,8 @@ interface MenuItem {
       flex: none;
       padding: 0.25rem 0.5rem;
       border: 3px solid var(--ink);
-      background: var(--cartridge);
-      color: var(--paper);
+      background: var(--accent);
+      color: var(--ink);
       font-family: var(--font-display);
       font-weight: 700;
       text-decoration: none;
@@ -90,7 +90,7 @@ interface MenuItem {
     }
 
     .menu a:hover {
-      border-bottom-color: var(--cartridge);
+      border-bottom-color: var(--link-blue);
     }
   `
 })

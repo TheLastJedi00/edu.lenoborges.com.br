@@ -61,7 +61,7 @@ import { IconPellet } from '../icons/icon-pellet';
     .badge {
       padding: 0.1rem 0.45rem;
       border: 2px solid var(--ink);
-      background: var(--coin);
+      background: var(--accent);
       color: var(--ink);
       font-size: 0.7rem;
     }
@@ -94,7 +94,7 @@ import { IconPellet } from '../icons/icon-pellet';
 
     .entry__list app-icon-pellet {
       margin-top: 0.45rem;
-      color: var(--cartridge);
+      color: var(--link-blue);
     }
 
     .entry__stack {

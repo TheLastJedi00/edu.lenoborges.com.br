@@ -10,7 +10,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       <g stroke="var(--ink)" stroke-width="4" stroke-linejoin="miter">
         <path
           d="M6 2h52v54H6zM6 56h12v10H6zM26 56h12v10H26zM46 56h12v10H46z"
-          fill="var(--cartridge)"
+          fill="var(--link-blue)"
         />
         <rect x="14" y="10" width="36" height="26" fill="var(--paper)" />
         <path d="M20 44h24" stroke-width="4" />
