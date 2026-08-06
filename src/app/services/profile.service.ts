@@ -137,7 +137,7 @@ const PROFILE: Profile = {
     },
     {
       id: 'bootcamp-mentor',
-      role: 'Mentor técnico da turma',
+      role: 'Referência Técnica da turma',
       org: 'Bootcamp AMS — T-Systems / ProWay',
       mode: 'Presencial',
       period: 'Dez 2025',
@@ -145,7 +145,7 @@ const PROFILE: Profile = {
       track: 'educator',
       highlights: [
         'Referência técnica e mentor dos colegas nos projetos práticos de Java, APIs e banco de dados.',
-        'O destaque técnico e didático virou convite direto para o quadro de instrutores da ProWay.'
+        'O destaque técnico e didático resultou em um convite direto para o quadro de instrutores da ProWay.'
       ],
       stack: ['Java', 'APIs', 'Bancos de dados']
     },
