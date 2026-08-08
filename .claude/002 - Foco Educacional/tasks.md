@@ -4,10 +4,10 @@
 - [x] Task 03: Suavizar timing/easing das animações globais (`anim-rise`, `anim-pop`, `anim-fade`, `anim-out`) preservando as classes `animate-enter`/`animate-leave` e `prefers-reduced-motion`
 - [x] Task 04: Integrar o `Logo` component (registrar `logo.scss`, ajustar host/tamanho responsivo) para uso no header e no hero
 
-# Fase 02: Modelo de dados do educador []
-- [] Task 01 (TDD): Escrever specs para os novos computeds de `ProfileService` (stacks ensinadas e CTAs de instituição/estudante) antes da implementação
-- [] Task 02: Estender `profile.model.ts` com o tipo de stack ensinada (id, label, ícone) e os CTAs (instituição/estudante)
-- [] Task 03: Atualizar `PROFILE` em `profile.service.ts` — identity (role/tagline/summary focados em professor particular), lista das 8 stacks ensinadas, CTAs, prova social dev condensada
+# Fase 02: Modelo de dados do educador [x]
+- [x] Task 01 (TDD): Escrever spec para o novo computed `teachingStack` de `ProfileService` antes da implementação
+- [x] Task 02: Estender `profile.model.ts` com `TeachingStackItem` (id, label) e remover `StackGroup`/`StackTone` (código morto) — CTAs não entram no modelo (ver alteração de escopo acima)
+- [x] Task 03: Atualizar `PROFILE` em `profile.service.ts` — identity (role/tagline/summary focados em professor particular), lista das 8 stacks ensinadas, remove o campo `stack` antigo e `StackGroupCard` (órfão sem o tipo), landing page ajustada para não quebrar o build
 
 # Fase 03: Ícones das stacks ensinadas []
 - [] Task 01: Criar ícones SVG de HTML & CSS, Java, TypeScript & JavaScript e SQL (`app-icon-*`, seguindo o padrão de `src/app/components/icons/`)
@@ -15,7 +15,7 @@
 
 # Fase 04: Componentes de apresentação []
 - [] Task 01: Restilizar `TrainerCard` para a identidade de professor (cargo, tagline, meta) com o novo visual moderno, e `IconCartridge` como selo/monograma de identidade
-- [] Task 02: Criar componente dumb `TeachingStackGrid` (grid de ícone + label das 8 stacks ensinadas)
+- [] Task 02: Criar componente dumb `TeachingStackGrid` (grid de ícone + label das 8 stacks ensinadas) — `StackGroupCard` já foi removido na Fase 02
 - [] Task 03: Criar componente dumb `CtaSplit` (dois CTAs lado a lado — instituição / estudante) reaproveitando `PixelButton` restilizado
 - [] Task 04: Restilizar `MenuBar`, `ContactLinks` e `PixelPanel` para o visual moderno
 - [] Task 05: Restilizar `StatTile`, `TimelineEntry` e `IconPellet` (marcador simples) para o visual moderno

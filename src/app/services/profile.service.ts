@@ -4,13 +4,13 @@ import { Experience, Profile } from '../models/profile.model';
 const PROFILE: Profile = {
   identity: {
     name: 'Leno Borges',
-    role: 'Desenvolvedor Fullstack & Instrutor Técnico',
-    tagline: 'Construo plataformas SaaS e formo quem vai mantê-las.',
+    role: 'Professor de Programação Particular',
+    tagline: 'Aulas particulares de programação, do primeiro código à vaga no mercado.',
     summary:
-      'Desenvolvedor fullstack com Angular, NestJS e Java/Spring. Traduzo regra de negócio complexa ' +
-      'em arquitetura modular, integro IA generativa para automatizar operação e aplico FinOps ' +
-      'para escalar produto com custo de infraestrutura perto de zero. Em sala de aula, ensino ' +
-      'o mesmo que entrego em produção.',
+      'Dou aulas particulares de HTML & CSS, Java, TypeScript & JavaScript, SQL, Angular, Spring, ' +
+      'NestJS e Git & GitHub, no ritmo de cada aluno. Também sou desenvolvedor fullstack em ' +
+      'produção: o que ensino é o que uso todos os dias para construir plataformas SaaS reais — ' +
+      'por isso a aula nunca fica só na teoria.',
     languages: ['Português nativo', 'Inglês B1'],
     links: [
       {
@@ -33,43 +33,15 @@ const PROFILE: Profile = {
       }
     ]
   },
-  stack: [
-    {
-      id: 'linguagens',
-      label: 'Linguagens',
-      tone: 'code',
-      items: ['Java', 'TypeScript', 'JavaScript', 'SQL']
-    },
-    {
-      id: 'frameworks',
-      label: 'Frameworks',
-      tone: 'framework',
-      items: ['Angular', 'Signals', 'RxJS', 'NestJS', 'Node.js', 'Spring Boot']
-    },
-    {
-      id: 'arquitetura',
-      label: 'Arquitetura',
-      tone: 'architecture',
-      items: ['Clean Architecture', 'CQRS', 'SOLID', 'Serverless', 'Design Patterns']
-    },
-    {
-      id: 'cloud',
-      label: 'Cloud & DevOps',
-      tone: 'cloud',
-      items: ['Google Cloud', 'Firebase', 'Vercel', 'Docker', 'CI/CD', 'Git & GitHub']
-    },
-    {
-      id: 'ia',
-      label: 'Inteligência Artificial',
-      tone: 'ai',
-      items: ['Integração de LLMs', 'Gemini', 'AI Studio']
-    },
-    {
-      id: 'dados',
-      label: 'Dados',
-      tone: 'data',
-      items: ['PostgreSQL', 'MySQL', 'Firestore']
-    }
+  teachingStack: [
+    { id: 'html-css', label: 'HTML & CSS' },
+    { id: 'java', label: 'Java' },
+    { id: 'ts-js', label: 'TypeScript & JavaScript' },
+    { id: 'sql', label: 'SQL' },
+    { id: 'angular', label: 'Angular' },
+    { id: 'spring', label: 'Spring' },
+    { id: 'nestjs', label: 'NestJS' },
+    { id: 'git-github', label: 'Git & GitHub' }
   ],
   experiences: [
     {
@@ -193,6 +165,8 @@ export class ProfileService {
   private readonly source = signal<Profile>(PROFILE);
 
   readonly profile = this.source.asReadonly();
+
+  readonly teachingStack = computed(() => this.source().teachingStack);
 
   readonly devExperiences = computed<readonly Experience[]>(() =>
     this.source().experiences.filter((item) => item.track === 'dev')
