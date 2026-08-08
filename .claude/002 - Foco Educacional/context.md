@@ -110,6 +110,22 @@ um "sprite" e passa a ser um selo/monograma de identidade; `IconPellet` vira um 
 (ponto/check); `IconCaret` vira uma seta fina. `DialogBox` mantém o efeito de texto revelado
 progressivamente (não é, por si, um elemento retrô), só perde a moldura de tela dura.
 
+## Alteração de escopo — simplificação na Fase 02 (2026-08-08)
+Modelar um tipo `Cta` no domínio (`profile.model.ts`/`ProfileService`) para as duas chamadas
+(instituição/estudante) seria indireção sem necessidade: o rótulo e a descrição de cada CTA são
+cópia fixa, e o único dado dinâmico é a URL de destino — que já é resolvida a partir de
+`identity.links` exatamente como o botão do hero atual faz hoje (`primaryLink`). Decisão: CTAs não
+entram no `Profile`/`ProfileService`; viram inputs estáticos do componente dumb `CtaSplit`
+(rótulo, descrição, `href` recebido da smart page). Only `TeachingStackItem` (dado real, usado em
+`@for`) entra no modelo/serviço nesta fase.
+
+## Alteração de escopo — remoção de código morto (2026-08-08)
+A seção "Stacks que ensino" (`teachingStack`) substitui por completo a antiga seção de stack
+categorizada por tom, e nenhuma outra rota reaproveita esses dados/componente (a spec substitui a
+landing page atual). Logo, o campo `stack: StackGroup[]` do `Profile` e o componente
+`StackGroupCard` ficam órfãos após o redesign. Decisão: remover ambos (campo do modelo/dados na
+Fase 02, componente na Fase 04) em vez de deixá-los mortos no código.
+
 ## Fora de escopo nesta fase
 - Agendamento de aula com calendário/integração externa.
 - Depoimentos de alunos (sem dados disponíveis ainda).
