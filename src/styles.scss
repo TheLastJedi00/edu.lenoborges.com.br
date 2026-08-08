@@ -217,19 +217,19 @@ h4 {
 }
 
 .animate-enter {
-  animation: anim-rise 420ms steps(6, end) both;
+  animation: anim-rise 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-enter--pop {
-  animation: anim-pop 320ms steps(5, end) both;
+  animation: anim-pop 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-enter--fade {
-  animation: anim-fade 300ms ease-out both;
+  animation: anim-fade 380ms ease-out both;
 }
 
 .animate-leave {
-  animation: anim-out 220ms steps(4, end) both;
+  animation: anim-out 260ms ease-in both;
 }
 
 /* Estado inicial de quem só aparece ao entrar na viewport. */
