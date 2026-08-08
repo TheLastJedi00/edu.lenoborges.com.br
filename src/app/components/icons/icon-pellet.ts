@@ -1,19 +1,18 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-/** Pastilha usada como marcador de lista. */
+/** Marcador simples usado em listas. */
 @Component({
   selector: 'app-icon-pellet',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { 'aria-hidden': 'true' },
   template: `
-    <svg viewBox="0 0 8 8" width="10" height="10" fill="currentColor" focusable="false">
-      <path d="M2 0h4v2H2zM0 2h8v4H0zM2 6h4v2H2z" />
+    <svg viewBox="0 0 8 8" width="8" height="8" fill="currentColor" focusable="false">
+      <circle cx="4" cy="4" r="4" />
     </svg>
   `,
   styles: `
     :host {
       display: inline-flex;
-      shape-rendering: crispEdges;
     }
   `
 })
