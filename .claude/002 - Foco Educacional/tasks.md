@@ -38,6 +38,20 @@ formação e contato renderizam corretamente, sem erros de console.
 - [x] Task 01: Revisar contraste de texto sobre gradientes e estados de foco visível na nova paleta — calculado contraste WCAG de todos os pares texto/fundo; corrigidos 4 casos abaixo de 4.5:1 (PixelButton, TrainerCard, TimelineEntry, CtaSplit) com `--gradient-accent-strong`
 - [x] Task 02: Revisar `Reveal`/animações com `prefers-reduced-motion` no novo timing — validado via Playwright com `reducedMotion: 'reduce'`: 0 elementos presos em `opacity:0`; foco visível confirmado (outline 3px `#2563eb`, 5.17:1)
 
-# Fase 07: Validação []
-- [] Task 01: Rodar suíte de testes (`ng test`) e testar mobile-first no Chrome (breakpoints do `styles.scss`)
-- [] Task 02: Build de produção (`ng build`) e checklist final da spec
+# Fase 07: Validação [x]
+- [x] Task 01: Rodar suíte de testes (`ng test`) e testar mobile-first no Chrome (breakpoints do `styles.scss`) — 11/11 specs verdes no Chrome real (Karma); validado com screenshots Playwright em 360px, 768px, 1280px e 1440px; grid do hero e das stacks confirmados via `getComputedStyle` no breakpoint de 48rem
+- [x] Task 02: Build de produção (`ng build --configuration production`) e checklist final da spec
+
+## Checklist final
+- [x] `ng build --configuration production` sem erros
+- [x] `ng test` — 11/11 specs verdes
+- [x] Visual moderno com gradientes suaves ao redor do azul do Logo (substitui o sistema retrô anterior)
+- [x] Logo integrado como marca do site (variante `mark` no header)
+- [x] Educador em primeiro plano: hero, CTAs e stacks ensinadas dominam a página
+- [x] CTA para instituições e CTA para estudantes (`CtaSplit`) no hero e na seção de contato
+- [x] 8 stacks ensinadas com ícone SVG próprio (HTML & CSS, Java, TypeScript & JavaScript, SQL, Angular, Spring, NestJS, Git & GitHub)
+- [x] Prova social como desenvolvedor condensada (sem timeline completa)
+- [x] Contraste AA revisado e corrigido onde necessário
+- [x] `prefers-reduced-motion` respeitado (Reveal e animações)
+- [x] Mobile first validado em 360/768/1280/1440px
+- [x] Sem emojis; SVGs componentizados; dumb components / smart page mantidos
