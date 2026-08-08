@@ -33,6 +33,8 @@ export type ButtonVariant = 'primary' | 'ghost';
     }
 
     .btn {
+      position: relative;
+      overflow: hidden;
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
@@ -53,6 +55,19 @@ export type ButtonVariant = 'primary' | 'ghost';
         box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
     }
 
+    /* Brilho que atravessa o botão de tempos em tempos: o convite se mexe sozinho. */
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 35%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+      animation: anim-sheen 4.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
     .btn--ghost {
       background: var(--paper);
       box-shadow: none;
@@ -60,9 +75,13 @@ export type ButtonVariant = 'primary' | 'ghost';
       border: var(--border-w) solid var(--border-soft);
     }
 
+    .btn--ghost::after {
+      display: none;
+    }
+
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: var(--shadow-hard);
+      box-shadow: var(--shadow-glow);
     }
 
     .btn:active {

@@ -23,7 +23,7 @@ import { IconCartridge } from '../icons/icon-cartridge';
       <dl class="card__meta u-mono">
         <div>
           <dt>Base</dt>
-          <dd>Blumenau, SC — remoto</dd>
+          <dd>Blumenau, SC e remoto</dd>
         </div>
         <div>
           <dt>Idiomas</dt>
@@ -43,6 +43,8 @@ import { IconCartridge } from '../icons/icon-cartridge';
       background: var(--paper);
       box-shadow: var(--shadow-hard);
       overflow: hidden;
+      /* Respiração contínua: o cartão nunca fica totalmente parado. */
+      animation: anim-float 7s ease-in-out infinite alternate;
     }
 
     .card__eyebrow {

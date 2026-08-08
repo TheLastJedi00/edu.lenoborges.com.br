@@ -20,7 +20,9 @@ import { PixelButton } from '../pixel-button/pixel-button';
       <article class="option option--accent">
         <p class="option__eyebrow u-mono">Para estudantes</p>
         <h3 class="option__title">Quer aprender programação com aula particular?</h3>
-        <p class="option__desc">Aulas individuais, no seu ritmo, do primeiro código à vaga no mercado.</p>
+        <p class="option__desc">
+          Aulas individuais para criança, jovem ou adulto, no ritmo de cada aluno.
+        </p>
         <app-pixel-button [href]="studentHref()" [external]="true" variant="ghost">
           Agendar aula particular
         </app-pixel-button>
