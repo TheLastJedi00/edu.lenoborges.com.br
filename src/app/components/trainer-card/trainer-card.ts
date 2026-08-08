@@ -1,19 +1,24 @@
+import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { Identity } from '../../models/profile.model';
-import { IconCartridge } from '../icons/icon-cartridge';
 
 /** Cartão de treinador: identidade do topo da página. */
 @Component({
   selector: 'app-trainer-card',
-  imports: [IconCartridge],
+  imports: [NgOptimizedImage],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="card">
       <p class="u-mono card__eyebrow">Professor particular de programação</p>
       <div class="card__body">
-        <div class="badge">
-          <app-icon-cartridge />
-        </div>
+        <img
+          class="photo"
+          ngSrc="me.webp"
+          width="384"
+          height="384"
+          priority
+          alt="Leno Borges"
+        />
         <div>
           <h1 class="card__name">{{ identity().name }}</h1>
           <p class="card__role">{{ identity().role }}</p>
@@ -61,8 +66,14 @@ import { IconCartridge } from '../icons/icon-cartridge';
       padding: 1.25rem;
     }
 
-    .badge {
-      flex: 0 0 4.5rem;
+    /* O retrato é o primeiro sinal de que existe uma pessoa do outro lado da aula. */
+    .photo {
+      flex: none;
+      width: 5rem;
+      height: 5rem;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--accent);
     }
 
     .card__name {
@@ -106,8 +117,9 @@ import { IconCartridge } from '../icons/icon-cartridge';
         padding: 1.75rem;
       }
 
-      .badge {
-        flex-basis: 6.5rem;
+      .photo {
+        width: 7rem;
+        height: 7rem;
       }
 
       .card__meta {
