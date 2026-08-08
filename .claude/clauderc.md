@@ -2,8 +2,7 @@
 1. Nunca usar emojis, componentizar SVGs
 2. Focar em Mobile First
 3. testar no chrome sempre
-4. Evitar Blur
-5. Visual retrô gamer (Pac Man, Pokémon)
+5. Visual moderno com gradientes suaves e animações suaves (em .scss)
 6. Animações sempre com animate-enter e animate-leave
 7. Dumb Components e Smart Pages (Pages fazem requisição)
 8. Se uma página faz múltiplas requisições para popular conteúdo em tela, usar Promise.all se não prejudicar a lógica
