@@ -1,23 +1,29 @@
 /* =========================================================================
-   Cartucho — sistema visual da landing page do Leno Borges
-   Superfície de LCD de Game Boy: bordas sólidas, sombras deslocadas, zero blur.
+   Sistema visual da landing page do Leno Borges
+   Visual moderno: gradientes suaves ao redor do azul do Logo, sombras leves,
+   cantos arredondados, zero pixel-art.
    ========================================================================= */
 
 :root {
-  /* Cores — LCD frio com acento ciano */
-  --ink: #0b1b2e;
-  --ink-soft: #46586e;
-  --screen: #b7d5dd;
-  --screen-lit: #dbecf0;
-  --screen-deep: #7fa3b0;
-  --accent: #00fffa;
-  --accent-deep: #00b8b4;
-  --link-blue: #1b4de0;
-  --violet: #6b4eff;
-  --paper: #f2f7f9;
+  /* Cores — paleta moderna ao redor do azul do Logo (#488FFF → #3986FF) */
+  --ink: #101828;
+  --ink-soft: #55617a;
+  --screen: #dce8fb;
+  --screen-lit: #eef4ff;
+  --screen-deep: #b6c3da;
+  --accent: #3986ff;
+  --accent-deep: #1f5fe0;
+  --link-blue: #2563eb;
+  --violet: #7c5cff;
+  --paper: #ffffff;
+
+  /* Gradientes suaves — reservados para fundos, nunca para texto de leitura longa */
+  --gradient-accent: linear-gradient(135deg, #488fff 0%, #3986ff 55%, #6b6bff 100%);
+  --gradient-hero: radial-gradient(120% 120% at 12% 0%, #e9f1ff 0%, #f4f7fc 55%, #ffffff 100%);
+  --gradient-panel: linear-gradient(160deg, #eef4ff 0%, #ffffff 65%);
 
   /* Tipografia */
-  --font-display: 'Pixelify Sans', 'Trebuchet MS', sans-serif;
+  --font-display: 'Sora', 'Trebuchet MS', sans-serif;
   --font-body: 'Archivo', 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Consolas', monospace;
 
@@ -65,9 +71,7 @@ html {
 
 body {
   min-height: 100dvh;
-  background-color: var(--screen);
-  background-image: radial-gradient(var(--screen-deep) 1px, transparent 1px);
-  background-size: 8px 8px;
+  background: var(--gradient-hero) fixed;
   color: var(--ink);
   font-family: var(--font-body);
   font-size: var(--step-0);
