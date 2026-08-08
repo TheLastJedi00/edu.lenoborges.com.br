@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, VERSION, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { ContactLinks } from '../../components/contact-links/contact-links';
 import { CtaSplit } from '../../components/cta-split/cta-split';
 import { DialogBox } from '../../components/dialog-box/dialog-box';
@@ -35,8 +35,6 @@ import { ProfileService } from '../../services/profile.service';
 })
 export class LandingPage {
   private readonly profileService = inject(ProfileService);
-
-  protected readonly angularVersion = VERSION.major;
 
   protected readonly identity = computed(() => this.profileService.profile().identity);
   protected readonly teachingStack = this.profileService.teachingStack;
