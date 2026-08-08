@@ -13,10 +13,9 @@ import { Stat } from '../../models/profile.model';
     :host {
       display: block;
       padding: 1.1rem 1.25rem;
-      border: var(--border-w) solid var(--ink);
-      border-radius: var(--radius);
+      border-radius: var(--radius-lg);
       background: var(--ink);
-      box-shadow: 4px 4px 0 var(--accent-deep);
+      box-shadow: var(--shadow-hard-sm);
       color: var(--screen-lit);
     }
 

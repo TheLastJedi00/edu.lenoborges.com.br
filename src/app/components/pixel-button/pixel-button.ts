@@ -36,36 +36,38 @@ export type ButtonVariant = 'primary' | 'ghost';
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.75rem 1.25rem;
-      border: var(--border-w) solid var(--ink);
-      border-radius: var(--radius);
-      background: var(--accent);
+      padding: 0.85rem 1.5rem;
+      border: none;
+      border-radius: 999px;
+      background: var(--gradient-accent);
       box-shadow: var(--shadow-hard-sm);
-      color: var(--ink);
+      color: #fff;
       font-family: var(--font-display);
       font-size: var(--step-0);
       font-weight: 700;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.01em;
       text-decoration: none;
       cursor: pointer;
       transition:
-        transform 120ms steps(2, end),
-        box-shadow 120ms steps(2, end);
+        transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .btn--ghost {
       background: var(--paper);
+      box-shadow: none;
       color: var(--ink);
+      border: var(--border-w) solid var(--border-soft);
     }
 
     .btn:hover {
-      transform: translate(2px, 2px);
-      box-shadow: 2px 2px 0 var(--ink);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hard);
     }
 
     .btn:active {
-      transform: translate(4px, 4px);
-      box-shadow: 0 0 0 var(--ink);
+      transform: translateY(0);
+      box-shadow: var(--shadow-hard-sm);
     }
   `
 })

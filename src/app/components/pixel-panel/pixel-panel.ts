@@ -13,9 +13,9 @@ export type PanelTone = 'screen' | 'lit' | 'ink' | 'accent';
   styles: `
     :host {
       display: block;
-      border: var(--border-w) solid var(--ink);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-hard);
+      border: var(--border-w) solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-hard-sm);
       padding: 1.25rem;
     }
 
@@ -24,17 +24,20 @@ export type PanelTone = 'screen' | 'lit' | 'ink' | 'accent';
     }
 
     :host(.tone-lit) {
-      background: var(--screen-lit);
+      background: var(--gradient-panel);
     }
 
     :host(.tone-ink) {
+      border-color: transparent;
       background: var(--ink);
       color: var(--screen-lit);
-      box-shadow: 6px 6px 0 var(--accent-deep);
+      box-shadow: var(--shadow-hard);
     }
 
     :host(.tone-accent) {
-      background: var(--accent);
+      border-color: transparent;
+      background: var(--gradient-accent);
+      color: #fff;
     }
 
     @media (min-width: 48rem) {

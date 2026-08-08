@@ -35,10 +35,10 @@ import { IconCaret } from '../icons/icon-caret';
       display: block;
       position: relative;
       padding: 1.25rem 2.25rem 1.5rem 1.25rem;
-      border: var(--border-w) solid var(--ink);
-      border-radius: var(--radius);
+      border: var(--border-w) solid var(--border-soft);
+      border-radius: var(--radius-lg);
       background: var(--paper);
-      box-shadow: var(--shadow-hard);
+      box-shadow: var(--shadow-hard-sm);
       cursor: default;
     }
 

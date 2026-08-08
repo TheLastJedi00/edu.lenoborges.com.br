@@ -43,8 +43,8 @@ import { IconPellet } from '../icons/icon-pellet';
 
     .entry {
       padding: 1.25rem;
-      border: var(--border-w) solid var(--ink);
-      border-radius: var(--radius);
+      border: var(--border-w) solid var(--border-soft);
+      border-radius: var(--radius-lg);
       background: var(--paper);
       box-shadow: var(--shadow-hard-sm);
     }
@@ -59,10 +59,10 @@ import { IconPellet } from '../icons/icon-pellet';
     }
 
     .badge {
-      padding: 0.1rem 0.45rem;
-      border: 2px solid var(--ink);
-      background: var(--accent);
-      color: var(--ink);
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      background: var(--gradient-accent);
+      color: #fff;
       font-size: 0.7rem;
     }
 
@@ -103,7 +103,7 @@ import { IconPellet } from '../icons/icon-pellet';
       gap: 0.4rem;
       margin: 1.1rem 0 0;
       padding-top: 0.9rem;
-      border-top: 2px dashed var(--screen-deep);
+      border-top: var(--border-w) solid var(--border-soft);
       list-style: none;
     }
 
