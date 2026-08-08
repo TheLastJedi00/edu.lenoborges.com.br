@@ -1,3 +1,32 @@
+# Alteração de escopo (2026-08-08) — Fase 08: convite, movimento e público
+
+Revisão do usuário depois da Fase 07: a página estava correta, mas **estática e curricular**. Ela
+listava credenciais em cards brancos sobre fundo branco, sem movimento depois da animação de
+entrada, e não funcionava como convite a agendar aula ou contratar o serviço. Decisões:
+
+- **Movimento persistente** (novo, além de `animate-enter`/`animate-leave`): auroras que vagam
+  atrás do hero e do contato, ponto de status pulsando, brilho atravessando o CTA primário e
+  flutuação defasada nos ícones das stacks. Tudo decorativo e coberto por `prefers-reduced-motion`.
+- **Timeline dinâmica**: novo componente `LessonTrack`, com traço vertical desenhado conforme o
+  scroll (`animation-timeline: view()`, com queda para traço inteiro onde não houver suporte).
+  A sequência é dado real (`LessonStep.order`), não numeração decorativa.
+- **Hero invertido**: manchete como tese ("Aprenda a programar com quem programa em produção") com
+  status de agenda e dois botões diretos, no lugar do cartão de identidade + parágrafo longo. O
+  `CtaSplit` completo fica só na seção de contato; o `DialogBox` migra para a seção do professor.
+- **Público**: a copy não posiciona mais o Leno como professor de adolescentes. O trabalho vai do
+  **pedagógico ao andragógico** (criança, jovem e adulto), e as metas deixam de ser só "vaga no
+  mercado" (também portfólio e faculdade).
+- **Sem travessões** (`—`) em texto visível: vírgula, dois-pontos ou `·` no lugar.
+- **Favicon** passa a ser a marca do Logo (`public/favicon.svg`), com o `.ico` como fallback.
+- Paleta **inalterada**: todo o movimento usa os tokens que já existiam (`--accent`, `--violet`),
+  mais `--aurora-*` e `--shadow-glow` derivados deles.
+
+Correção de bug encontrada na validação: a barra de navegação empurrava a página no mobile (item
+flex sem `min-width: 0`, o que impedia o `overflow-x` do menu de agir) e o brilho do contato
+alargava o documento. Ambos corrigidos, sem scroll horizontal em 390px.
+
+---
+
 # Alteração de escopo (2026-08-07, atualizado)
 
 O `clauderc.md` foi atualizado pelo usuário: a regra global 5 agora é "Visual moderno com
