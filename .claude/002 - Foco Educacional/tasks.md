@@ -34,9 +34,9 @@ commit (`feat(landing): ...`) em vez de 6 commits separados. Validado visualment
 Playwright em mobile (390px) e desktop (1440px): hero, stacks, credibilidade, prova social,
 formação e contato renderizam corretamente, sem erros de console.
 
-# Fase 06: Acessibilidade e revisão []
-- [] Task 01: Revisar contraste de texto sobre gradientes e estados de foco visível na nova paleta
-- [] Task 02: Revisar `Reveal`/animações com `prefers-reduced-motion` no novo timing
+# Fase 06: Acessibilidade e revisão [x]
+- [x] Task 01: Revisar contraste de texto sobre gradientes e estados de foco visível na nova paleta — calculado contraste WCAG de todos os pares texto/fundo; corrigidos 4 casos abaixo de 4.5:1 (PixelButton, TrainerCard, TimelineEntry, CtaSplit) com `--gradient-accent-strong`
+- [x] Task 02: Revisar `Reveal`/animações com `prefers-reduced-motion` no novo timing — validado via Playwright com `reducedMotion: 'reduce'`: 0 elementos presos em `opacity:0`; foco visível confirmado (outline 3px `#2563eb`, 5.17:1)
 
 # Fase 07: Validação []
 - [] Task 01: Rodar suíte de testes (`ng test`) e testar mobile-first no Chrome (breakpoints do `styles.scss`)

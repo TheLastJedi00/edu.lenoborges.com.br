@@ -46,7 +46,7 @@ import { PixelButton } from '../pixel-button/pixel-button';
     }
 
     .option--accent {
-      background: var(--gradient-accent);
+      background: var(--gradient-accent-strong);
       box-shadow: var(--shadow-hard);
     }
 
@@ -56,7 +56,7 @@ import { PixelButton } from '../pixel-button/pixel-button';
     }
 
     .option--accent .option__eyebrow {
-      color: rgba(255, 255, 255, 0.85);
+      color: #fff;
     }
 
     .option__title {
@@ -76,7 +76,7 @@ import { PixelButton } from '../pixel-button/pixel-button';
     }
 
     .option--accent .option__desc {
-      color: rgba(255, 255, 255, 0.85);
+      color: #fff;
     }
 
     .option app-pixel-button {
