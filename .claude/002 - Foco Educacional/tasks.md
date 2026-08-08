@@ -9,9 +9,9 @@
 - [x] Task 02: Estender `profile.model.ts` com `TeachingStackItem` (id, label) e remover `StackGroup`/`StackTone` (código morto) — CTAs não entram no modelo (ver alteração de escopo acima)
 - [x] Task 03: Atualizar `PROFILE` em `profile.service.ts` — identity (role/tagline/summary focados em professor particular), lista das 8 stacks ensinadas, remove o campo `stack` antigo e `StackGroupCard` (órfão sem o tipo), landing page ajustada para não quebrar o build
 
-# Fase 03: Ícones das stacks ensinadas []
-- [] Task 01: Criar ícones SVG de HTML & CSS, Java, TypeScript & JavaScript e SQL (`app-icon-*`, seguindo o padrão de `src/app/components/icons/`)
-- [] Task 02: Criar ícones SVG de Angular, Spring, NestJS e Git & GitHub
+# Fase 03: Ícones das stacks ensinadas [x]
+- [x] Task 01: Criar ícones SVG de HTML & CSS, Java, TypeScript & JavaScript e SQL (`app-icon-*`, seguindo o padrão de `src/app/components/icons/`)
+- [x] Task 02: Criar ícones SVG de Angular, Spring, NestJS e Git & GitHub
 
 # Fase 04: Componentes de apresentação []
 - [] Task 01: Restilizar `TrainerCard` para a identidade de professor (cargo, tagline, meta) com o novo visual moderno, e `IconCartridge` como selo/monograma de identidade
