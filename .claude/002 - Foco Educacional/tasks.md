@@ -13,13 +13,13 @@
 - [x] Task 01: Criar ícones SVG de HTML & CSS, Java, TypeScript & JavaScript e SQL (`app-icon-*`, seguindo o padrão de `src/app/components/icons/`)
 - [x] Task 02: Criar ícones SVG de Angular, Spring, NestJS e Git & GitHub
 
-# Fase 04: Componentes de apresentação []
-- [] Task 01: Restilizar `TrainerCard` para a identidade de professor (cargo, tagline, meta) com o novo visual moderno, e `IconCartridge` como selo/monograma de identidade
-- [] Task 02: Criar componente dumb `TeachingStackGrid` (grid de ícone + label das 8 stacks ensinadas) — `StackGroupCard` já foi removido na Fase 02
-- [] Task 03: Criar componente dumb `CtaSplit` (dois CTAs lado a lado — instituição / estudante) reaproveitando `PixelButton` restilizado
-- [] Task 04: Restilizar `MenuBar`, `ContactLinks` e `PixelPanel` para o visual moderno
-- [] Task 05: Restilizar `StatTile`, `TimelineEntry` e `IconPellet` (marcador simples) para o visual moderno
-- [] Task 06: Restilizar `DialogBox` e `IconCaret` (seta fina), mantendo o efeito de texto revelado progressivamente
+# Fase 04: Componentes de apresentação [x]
+- [x] Task 01: Restilizar `TrainerCard` para a identidade de professor (cargo, tagline, meta) com o novo visual moderno, e `IconCartridge` como selo/monograma de identidade
+- [x] Task 02: Criar componente dumb `TeachingStackGrid` (grid de ícone + label das 8 stacks ensinadas) — `StackGroupCard` já foi removido na Fase 02
+- [x] Task 03: Criar componente dumb `CtaSplit` (dois CTAs lado a lado — instituição / estudante) reaproveitando `PixelButton` restilizado
+- [x] Task 04: Restilizar `MenuBar` (com `Logo` integrado), `ContactLinks` e `PixelPanel` para o visual moderno
+- [x] Task 05: Restilizar `StatTile`, `TimelineEntry` e `IconPellet` (marcador simples) para o visual moderno
+- [x] Task 06: Restilizar `DialogBox` e `IconCaret` (seta fina), mantendo o efeito de texto revelado progressivamente
 
 # Fase 05: Montagem da landing page []
 - [] Task 01: Hero — identidade de professor + `CtaSplit`
