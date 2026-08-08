@@ -1,19 +1,24 @@
+import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { Identity } from '../../models/profile.model';
-import { IconCartridge } from '../icons/icon-cartridge';
 
 /** Cartão de treinador: identidade do topo da página. */
 @Component({
   selector: 'app-trainer-card',
-  imports: [IconCartridge],
+  imports: [NgOptimizedImage],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="card">
-      <p class="u-mono card__eyebrow">Cartão de treinador</p>
+      <p class="u-mono card__eyebrow">Professor particular de programação</p>
       <div class="card__body">
-        <div class="sprite">
-          <app-icon-cartridge />
-        </div>
+        <img
+          class="photo"
+          ngSrc="me.webp"
+          width="384"
+          height="384"
+          priority
+          alt="Leno Borges"
+        />
         <div>
           <h1 class="card__name">{{ identity().name }}</h1>
           <p class="card__role">{{ identity().role }}</p>
@@ -23,7 +28,7 @@ import { IconCartridge } from '../icons/icon-cartridge';
       <dl class="card__meta u-mono">
         <div>
           <dt>Base</dt>
-          <dd>Blumenau, SC — remoto</dd>
+          <dd>Blumenau, SC e remoto</dd>
         </div>
         <div>
           <dt>Idiomas</dt>
@@ -38,17 +43,19 @@ import { IconCartridge } from '../icons/icon-cartridge';
     }
 
     .card {
-      border: var(--border-w) solid var(--ink);
-      border-radius: var(--radius);
+      border: var(--border-w) solid var(--border-soft);
+      border-radius: var(--radius-lg);
       background: var(--paper);
       box-shadow: var(--shadow-hard);
+      overflow: hidden;
+      /* Respiração contínua: o cartão nunca fica totalmente parado. */
+      animation: anim-float 7s ease-in-out infinite alternate;
     }
 
     .card__eyebrow {
-      padding: 0.5rem 1rem;
-      border-bottom: var(--border-w) solid var(--ink);
-      background: var(--ink);
-      color: var(--accent);
+      padding: 0.6rem 1.25rem;
+      background: var(--gradient-accent-strong);
+      color: #fff;
       font-weight: 700;
     }
 
@@ -59,11 +66,14 @@ import { IconCartridge } from '../icons/icon-cartridge';
       padding: 1.25rem;
     }
 
-    .sprite {
-      flex: 0 0 4.5rem;
-      padding: 0.5rem;
-      border: var(--border-w) solid var(--ink);
-      background: var(--screen-lit);
+    /* O retrato é o primeiro sinal de que existe uma pessoa do outro lado da aula. */
+    .photo {
+      flex: none;
+      width: 5rem;
+      height: 5rem;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--accent);
     }
 
     .card__name {
@@ -72,7 +82,7 @@ import { IconCartridge } from '../icons/icon-cartridge';
 
     .card__role {
       margin-top: 0.35rem;
-      color: var(--ink-soft);
+      color: var(--accent-deep);
       font-weight: 600;
     }
 
@@ -81,13 +91,14 @@ import { IconCartridge } from '../icons/icon-cartridge';
       font-size: var(--step-1);
       font-weight: 500;
       line-height: 1.35;
+      color: var(--ink-soft);
     }
 
     .card__meta {
       display: grid;
       gap: 0.5rem;
       padding: 0.9rem 1.25rem;
-      border-top: var(--border-w) solid var(--ink);
+      border-top: var(--border-w) solid var(--border-soft);
       background: var(--screen-lit);
     }
 
@@ -106,8 +117,9 @@ import { IconCartridge } from '../icons/icon-cartridge';
         padding: 1.75rem;
       }
 
-      .sprite {
-        flex-basis: 6.5rem;
+      .photo {
+        width: 7rem;
+        height: 7rem;
       }
 
       .card__meta {

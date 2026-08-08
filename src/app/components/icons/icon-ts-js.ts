@@ -1,15 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-/** Marcador de avanço da caixa de diálogo. */
 @Component({
-  selector: 'app-icon-caret',
+  selector: 'app-icon-ts-js',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { 'aria-hidden': 'true' },
   template: `
     <svg
-      viewBox="0 0 12 8"
-      width="14"
-      height="10"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
       fill="none"
       stroke="currentColor"
       stroke-width="2"
@@ -17,13 +16,10 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       stroke-linejoin="round"
       focusable="false"
     >
-      <path d="M1 1l5 5 5-5" />
+      <path d="M9 3c-2 0-3 1-3 3v3c0 1-.7 1.5-2 1.5 1.3 0 2 .5 2 1.5v3c0 2 1 3 3 3" />
+      <path d="M15 3c2 0 3 1 3 3v3c0 1 .7 1.5 2 1.5-1.3 0-2 .5-2 1.5v3c0 2-1 3-3 3" />
     </svg>
   `,
-  styles: `
-    :host {
-      display: inline-flex;
-    }
-  `
+  styles: ':host { display: inline-flex; }'
 })
-export class IconCaret {}
+export class IconTsJs {}

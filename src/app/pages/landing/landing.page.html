@@ -1,78 +1,101 @@
 <app-menu-bar />
 
 <main id="conteudo">
-  <section class="hero u-shell" id="topo">
-    <div class="hero__grid">
-      <app-trainer-card [identity]="identity()" animate.enter="animate-enter" />
+  <section class="hero" id="topo">
+    <span class="aurora" aria-hidden="true"></span>
 
-      <div class="hero__talk" animate.enter="animate-enter delay-1">
-        <app-dialog-box [text]="identity().summary" />
-        <div class="hero__actions">
-          <app-pixel-button [href]="primaryLink().url" [external]="true">
-            Falar comigo
+    <div class="hero__grid u-shell">
+      <div class="hero__pitch">
+        <p class="u-mono hero__eyebrow" animate.enter="animate-enter">
+          Aula particular · Blumenau, SC &amp; remoto
+        </p>
+
+        <h1 class="hero__title" animate.enter="animate-enter delay-1">
+          Aprenda a programar com quem
+          <span class="hero__title-accent">programa em produção</span>
+        </h1>
+
+        <p class="hero__lead" animate.enter="animate-enter delay-2">{{ identity().tagline }}</p>
+
+        <p class="hero__status" animate.enter="animate-enter delay-3">
+          <span class="hero__dot" aria-hidden="true"></span>
+          Agenda aberta para novos alunos
+        </p>
+
+        <div class="hero__actions" animate.enter="animate-enter delay-4">
+          <app-pixel-button [href]="contactHref()" [external]="true">
+            Agendar aula particular
           </app-pixel-button>
-          <app-pixel-button [href]="portfolioLink().url" [external]="true" variant="ghost">
-            Ver portfólio
+          <app-pixel-button [href]="contactHref()" [external]="true" variant="ghost">
+            Falar sobre parceria
           </app-pixel-button>
         </div>
       </div>
+
+      <app-trainer-card
+        class="hero__card"
+        [identity]="identity()"
+        animate.enter="animate-enter delay-2"
+      />
     </div>
   </section>
 
-  <section class="section u-shell" aria-labelledby="placar-titulo">
+  <section class="section u-shell" id="stack" aria-labelledby="stack-titulo">
     <header class="section__head" appReveal>
-      <p class="u-mono section__eyebrow">Resultados medidos em produção</p>
-      <h2 id="placar-titulo" class="section__title">Placar</h2>
+      <p class="u-mono section__eyebrow">O que você pode aprender comigo</p>
+      <h2 id="stack-titulo" class="section__title">Stacks que ensino</h2>
+      <p class="section__lead">
+        Aulas particulares com o que uso todos os dias em produção, do primeiro código ao deploy.
+      </p>
+    </header>
+    <app-teaching-stack-grid [items]="teachingStack()" />
+  </section>
+
+  <section class="section u-shell" id="aulas" aria-labelledby="aulas-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">Da mensagem ao primeiro deploy</p>
+      <h2 id="aulas-titulo" class="section__title">Como começa a sua trilha</h2>
+      <p class="section__lead">
+        Quatro passos entre a sua primeira mensagem e o seu projeto no ar. Sem contrato longo, sem
+        turma esperando você.
+      </p>
+    </header>
+    <app-lesson-track [steps]="lessonSteps()" />
+  </section>
+
+  <section class="section u-shell" id="ensino" aria-labelledby="ensino-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">Do pedagógico ao andragógico</p>
+      <h2 id="ensino-titulo" class="section__title">Quem vai te ensinar</h2>
+      <p class="section__lead">
+        Ensino criança, jovem e adulto, cada um pelo caminho que funciona para a sua fase: da
+        primeira linha de código à capacitação sob medida de times e executivos.
+      </p>
+    </header>
+
+    <app-dialog-box class="ensino__voice" [text]="identity().summary" appReveal />
+
+    <ol class="timeline">
+      @for (item of educatorExperiences(); track item.id) {
+        <li appReveal><app-timeline-entry [experience]="item" /></li>
+      }
+    </ol>
+  </section>
+
+  <section class="section u-shell" id="dev" aria-labelledby="dev-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">Prova social</p>
+      <h2 id="dev-titulo" class="section__title">Também sou desenvolvedor em produção</h2>
+      <p class="section__lead">
+        O que ensino é o que uso para construir plataformas SaaS reais, e a aula nunca fica só na
+        teoria.
+      </p>
     </header>
     <div class="grid grid--3">
       @for (stat of stats(); track stat.label) {
         <app-stat-tile [stat]="stat" appReveal />
       }
     </div>
-  </section>
-
-  <section class="section u-shell" id="stack" aria-labelledby="stack-titulo">
-    <header class="section__head" appReveal>
-      <p class="u-mono section__eyebrow">O que uso em produção e levo para a sala de aula</p>
-      <h2 id="stack-titulo" class="section__title">Stack</h2>
-    </header>
-    <div class="grid grid--2">
-      @for (group of stack(); track group.id) {
-        <app-stack-group [group]="group" appReveal />
-      }
-    </div>
-  </section>
-
-  <section class="section u-shell" id="dev" aria-labelledby="dev-titulo">
-    <header class="section__head" appReveal>
-      <p class="u-mono section__eyebrow">Out 2025 &rarr; hoje</p>
-      <h2 id="dev-titulo" class="section__title">Como desenvolvedor</h2>
-      <p class="section__lead">
-        Plataformas SaaS e EdTech construídas de ponta a ponta, do modelo de dados à esteira de
-        deploy.
-      </p>
-    </header>
-    <ol class="timeline">
-      @for (item of devExperiences(); track item.id) {
-        <li appReveal><app-timeline-entry [experience]="item" /></li>
-      }
-    </ol>
-  </section>
-
-  <section class="section u-shell" id="ensino" aria-labelledby="ensino-titulo">
-    <header class="section__head" appReveal>
-      <p class="u-mono section__eyebrow">Dez 2025 &rarr; hoje</p>
-      <h2 id="ensino-titulo" class="section__title">Como educador</h2>
-      <p class="section__lead">
-        Da primeira linha de código de um adolescente à capacitação sob medida de times e
-        executivos.
-      </p>
-    </header>
-    <ol class="timeline">
-      @for (item of educatorExperiences(); track item.id) {
-        <li appReveal><app-timeline-entry [experience]="item" /></li>
-      }
-    </ol>
   </section>
 
   <section class="section u-shell" id="formacao" aria-labelledby="formacao-titulo">
@@ -92,21 +115,30 @@
     </div>
   </section>
 
-  <section class="section u-shell" id="contato" aria-labelledby="contato-titulo">
+  <section class="section section--glow u-shell" id="contato" aria-labelledby="contato-titulo">
+    <span class="aurora" aria-hidden="true"></span>
+
     <app-pixel-panel tone="ink">
       <header class="section__head" appReveal>
-        <p class="u-mono section__eyebrow section__eyebrow--light">Escolha o canal</p>
-        <h2 id="contato-titulo" class="section__title">Vamos construir ou ensinar algo</h2>
+        <p class="u-mono section__eyebrow section__eyebrow--light">Escolha o seu caminho</p>
+        <h2 id="contato-titulo" class="section__title">Vamos começar</h2>
         <p class="section__lead section__lead--light">
-          Aberto a projetos de plataforma, mentoria técnica e turmas fechadas para empresas.
+          Aula particular para estudantes ou parceria para instituições: o próximo passo é uma
+          mensagem.
         </p>
       </header>
-      <app-contact-links [links]="identity().links" appReveal />
+      <app-cta-split
+        class="contact__cta"
+        [institutionHref]="contactHref()"
+        [studentHref]="contactHref()"
+        appReveal
+      />
+      <app-contact-links class="contact__links" [links]="identity().links" appReveal />
     </app-pixel-panel>
   </section>
 
   <footer class="footer u-shell u-mono">
-    <p>{{ identity().name }} — Blumenau, SC</p>
-    <p>Angular {{ angularVersion }} · sem dependências de UI</p>
+    <p>{{ identity().name }} · Professor particular de programação</p>
+    <p>Blumenau, SC e aulas online</p>
   </footer>
 </main>

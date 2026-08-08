@@ -4,7 +4,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./pages/landing/landing.page').then((m) => m.LandingPage),
-    title: 'Leno Borges — Desenvolvedor Fullstack e Instrutor Técnico'
+    title: 'Leno Borges · Professor de Programação Particular'
   },
   { path: '**', redirectTo: '' }
 ];

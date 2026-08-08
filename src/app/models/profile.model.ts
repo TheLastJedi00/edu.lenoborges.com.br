@@ -16,14 +16,32 @@ export interface Identity {
   readonly links: readonly SocialLink[];
 }
 
-/** Categoria de tecnologia — o "tipo" que colore o chip. */
-export type StackTone = 'code' | 'framework' | 'architecture' | 'cloud' | 'ai' | 'data';
+/** Identifica o ícone SVG correspondente em `components/icons`. */
+export type TeachingStackId =
+  | 'html-css'
+  | 'java'
+  | 'ts-js'
+  | 'sql'
+  | 'angular'
+  | 'spring'
+  | 'nestjs'
+  | 'git-github';
 
-export interface StackGroup {
-  readonly id: string;
+export interface TeachingStackItem {
+  readonly id: TeachingStackId;
   readonly label: string;
-  readonly tone: StackTone;
-  readonly items: readonly string[];
+}
+
+/**
+ * Um passo da trilha entre a primeira mensagem e a primeira aula.
+ * `order` é dado, não enfeite: a sequência é o que o aluno precisa saber.
+ */
+export interface LessonStep {
+  readonly id: string;
+  readonly order: number;
+  readonly title: string;
+  readonly detail: string;
+  readonly meta: string;
 }
 
 export type ExperienceTrack = 'dev' | 'educator';
@@ -55,7 +73,8 @@ export interface Education {
 
 export interface Profile {
   readonly identity: Identity;
-  readonly stack: readonly StackGroup[];
+  readonly teachingStack: readonly TeachingStackItem[];
+  readonly lessonSteps: readonly LessonStep[];
   readonly experiences: readonly Experience[];
   readonly stats: readonly Stat[];
   readonly education: readonly Education[];

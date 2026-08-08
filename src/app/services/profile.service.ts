@@ -4,13 +4,14 @@ import { Experience, Profile } from '../models/profile.model';
 const PROFILE: Profile = {
   identity: {
     name: 'Leno Borges',
-    role: 'Desenvolvedor Fullstack & Instrutor Técnico',
-    tagline: 'Construo plataformas SaaS e formo quem vai mantê-las.',
+    role: 'Professor de Programação Particular',
+    tagline:
+      'Aulas particulares de programação para criança, jovem e adulto, no ritmo de cada aluno.',
     summary:
-      'Desenvolvedor fullstack com Angular, NestJS e Java/Spring. Traduzo regra de negócio complexa ' +
-      'em arquitetura modular, integro IA generativa para automatizar operação e aplico FinOps ' +
-      'para escalar produto com custo de infraestrutura perto de zero. Em sala de aula, ensino ' +
-      'o mesmo que entrego em produção.',
+      'Dou aulas particulares de HTML & CSS, Java, TypeScript & JavaScript, SQL, Angular, Spring, ' +
+      'NestJS e Git & GitHub, no ritmo de cada aluno. Também sou desenvolvedor fullstack em ' +
+      'produção: o que ensino é o que uso todos os dias para construir plataformas SaaS reais, e ' +
+      'por isso a aula nunca fica só na teoria.',
     languages: ['Português nativo', 'Inglês B1'],
     links: [
       {
@@ -33,42 +34,48 @@ const PROFILE: Profile = {
       }
     ]
   },
-  stack: [
+  teachingStack: [
+    { id: 'html-css', label: 'HTML & CSS' },
+    { id: 'java', label: 'Java' },
+    { id: 'ts-js', label: 'TypeScript & JavaScript' },
+    { id: 'sql', label: 'SQL' },
+    { id: 'angular', label: 'Angular' },
+    { id: 'spring', label: 'Spring' },
+    { id: 'nestjs', label: 'NestJS' },
+    { id: 'git-github', label: 'Git & GitHub' }
+  ],
+  lessonSteps: [
     {
-      id: 'linguagens',
-      label: 'Linguagens',
-      tone: 'code',
-      items: ['Java', 'TypeScript', 'JavaScript', 'SQL']
+      id: 'contato',
+      order: 1,
+      title: 'Você me manda uma mensagem',
+      detail:
+        'Conte o que quer aprender e onde está hoje. Atendo criança, jovem e adulto, do zero absoluto a quem já programa e travou em algum ponto.',
+      meta: 'Resposta no mesmo dia'
     },
     {
-      id: 'frameworks',
-      label: 'Frameworks',
-      tone: 'framework',
-      items: ['Angular', 'Signals', 'RxJS', 'NestJS', 'Node.js', 'Spring Boot']
+      id: 'diagnostico',
+      order: 2,
+      title: 'Aula diagnóstica',
+      detail:
+        'Uma conversa com código na tela para medir seu ponto de partida e definir aonde você quer chegar.',
+      meta: '1 hora, online'
     },
     {
-      id: 'arquitetura',
-      label: 'Arquitetura',
-      tone: 'architecture',
-      items: ['Clean Architecture', 'CQRS', 'SOLID', 'Serverless', 'Design Patterns']
+      id: 'plano',
+      order: 3,
+      title: 'Plano no seu ritmo',
+      detail:
+        'Monto a trilha das stacks que você precisa, com exercícios e projeto próprio entre uma aula e outra.',
+      meta: 'Semanal ou quinzenal'
     },
     {
-      id: 'cloud',
-      label: 'Cloud & DevOps',
-      tone: 'cloud',
-      items: ['Google Cloud', 'Firebase', 'Vercel', 'Docker', 'CI/CD', 'Git & GitHub']
-    },
-    {
-      id: 'ia',
-      label: 'Inteligência Artificial',
-      tone: 'ai',
-      items: ['Integração de LLMs', 'Gemini', 'AI Studio']
-    },
-    {
-      id: 'dados',
-      label: 'Dados',
-      tone: 'data',
-      items: ['PostgreSQL', 'MySQL', 'Firestore']
+      id: 'projeto',
+      order: 4,
+      title: 'Você publica seu projeto',
+      detail:
+        'A meta de toda trilha é código seu rodando de verdade: o projeto que vira portfólio, nota na faculdade ou a primeira vaga.',
+      meta: 'Do editor ao deploy'
     }
   ],
   experiences: [
@@ -77,7 +84,7 @@ const PROFILE: Profile = {
       role: 'Desenvolvedor Fullstack',
       org: 'Tichr',
       mode: 'Remoto',
-      period: 'Abr 2026 — presente',
+      period: 'Abr 2026 até hoje',
       current: true,
       track: 'dev',
       highlights: [
@@ -93,11 +100,11 @@ const PROFILE: Profile = {
       role: 'Instrutor Técnico',
       org: 'ProWay',
       mode: 'Part-time',
-      period: 'Jan 2026 — presente',
+      period: 'Jan 2026 até hoje',
       current: true,
       track: 'educator',
       highlights: [
-        'Introdução à programação e pensamento computacional para adolescentes.',
+        'Introdução à programação e pensamento computacional para o público infantojuvenil.',
         'Treinamento técnico intensivo para jovens e adultos em transição de carreira ou especialização.',
         'Consultoria e capacitação sob medida para empresas, empresários e executivos.'
       ],
@@ -108,7 +115,7 @@ const PROFILE: Profile = {
       role: 'Desenvolvedor',
       org: 'Freelancer',
       mode: 'Remoto',
-      period: 'Jan 2026 — Mar 2026',
+      period: 'Jan 2026 a Mar 2026',
       current: false,
       track: 'dev',
       highlights: [
@@ -121,10 +128,10 @@ const PROFILE: Profile = {
     },
     {
       id: 'bf-academy',
-      role: 'Cofundador — Desenvolvedor Fullstack',
+      role: 'Cofundador e Desenvolvedor Fullstack',
       org: 'BF Academy',
       mode: 'Remoto',
-      period: 'Out 2025 — presente',
+      period: 'Out 2025 até hoje',
       current: true,
       track: 'dev',
       highlights: [
@@ -138,7 +145,7 @@ const PROFILE: Profile = {
     {
       id: 'bootcamp-mentor',
       role: 'Referência Técnica da turma',
-      org: 'Bootcamp AMS — T-Systems / ProWay',
+      org: 'Bootcamp AMS · T-Systems / ProWay',
       mode: 'Presencial',
       period: 'Dez 2025',
       current: false,
@@ -154,7 +161,7 @@ const PROFILE: Profile = {
       role: 'Desenvolvedor',
       org: 'Autônomo',
       mode: 'Blumenau, SC',
-      period: 'Out 2025 — Nov 2025',
+      period: 'Out 2025 a Nov 2025',
       current: false,
       track: 'dev',
       highlights: [
@@ -193,6 +200,10 @@ export class ProfileService {
   private readonly source = signal<Profile>(PROFILE);
 
   readonly profile = this.source.asReadonly();
+
+  readonly teachingStack = computed(() => this.source().teachingStack);
+
+  readonly lessonSteps = computed(() => this.source().lessonSteps);
 
   readonly devExperiences = computed<readonly Experience[]>(() =>
     this.source().experiences.filter((item) => item.track === 'dev')

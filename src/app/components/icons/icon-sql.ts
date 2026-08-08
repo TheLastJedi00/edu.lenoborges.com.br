@@ -1,15 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-/** Marcador de avanço da caixa de diálogo. */
 @Component({
-  selector: 'app-icon-caret',
+  selector: 'app-icon-sql',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { 'aria-hidden': 'true' },
   template: `
     <svg
-      viewBox="0 0 12 8"
-      width="14"
-      height="10"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
       fill="none"
       stroke="currentColor"
       stroke-width="2"
@@ -17,13 +16,11 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       stroke-linejoin="round"
       focusable="false"
     >
-      <path d="M1 1l5 5 5-5" />
+      <ellipse cx="12" cy="6" rx="7" ry="3" />
+      <path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6" />
+      <path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3" />
     </svg>
   `,
-  styles: `
-    :host {
-      display: inline-flex;
-    }
-  `
+  styles: ':host { display: inline-flex; }'
 })
-export class IconCaret {}
+export class IconSql {}

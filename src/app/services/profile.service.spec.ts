@@ -27,11 +27,30 @@ describe('ProfileService', () => {
     links.forEach((link) => expect(link.url).toMatch(/^https:\/\//));
   });
 
-  it('agrupa a stack sem categorias vazias', () => {
-    const groups = service.profile().stack;
+  it('lista as 8 stacks ensinadas para estudantes, sem repetição', () => {
+    const teachingStack = service.teachingStack();
 
-    expect(groups.length).toBeGreaterThan(3);
-    groups.forEach((group) => expect(group.items.length).toBeGreaterThan(0));
+    expect(teachingStack.length).toBe(8);
+    const ids = teachingStack.map((item) => item.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    teachingStack.forEach((item) => expect(item.label.length).toBeGreaterThan(0));
+  });
+
+  it('descreve a trilha da primeira aula como uma sequência ordenada e sem lacunas', () => {
+    const steps = service.lessonSteps();
+
+    expect(steps.length).toBeGreaterThanOrEqual(3);
+    steps.forEach((step, index) => {
+      expect(step.order).toBe(index + 1);
+      expect(step.title.length).toBeGreaterThan(0);
+      expect(step.detail.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('mantém identificadores únicos entre os passos da trilha', () => {
+    const ids = service.lessonSteps().map((step) => step.id);
+
+    expect(new Set(ids).size).toBe(ids.length);
   });
 
   it('lista experiências de desenvolvedor da mais recente para a mais antiga', () => {
