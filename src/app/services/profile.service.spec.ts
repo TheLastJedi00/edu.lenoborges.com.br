@@ -27,11 +27,13 @@ describe('ProfileService', () => {
     links.forEach((link) => expect(link.url).toMatch(/^https:\/\//));
   });
 
-  it('agrupa a stack sem categorias vazias', () => {
-    const groups = service.profile().stack;
+  it('lista as 8 stacks ensinadas para estudantes, sem repetição', () => {
+    const teachingStack = service.teachingStack();
 
-    expect(groups.length).toBeGreaterThan(3);
-    groups.forEach((group) => expect(group.items.length).toBeGreaterThan(0));
+    expect(teachingStack.length).toBe(8);
+    const ids = teachingStack.map((item) => item.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    teachingStack.forEach((item) => expect(item.label.length).toBeGreaterThan(0));
   });
 
   it('lista experiências de desenvolvedor da mais recente para a mais antiga', () => {
