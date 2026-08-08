@@ -31,18 +31,6 @@
     </div>
   </section>
 
-  <section class="section u-shell" id="stack" aria-labelledby="stack-titulo">
-    <header class="section__head" appReveal>
-      <p class="u-mono section__eyebrow">O que uso em produção e levo para a sala de aula</p>
-      <h2 id="stack-titulo" class="section__title">Stack</h2>
-    </header>
-    <div class="grid grid--2">
-      @for (group of stack(); track group.id) {
-        <app-stack-group [group]="group" appReveal />
-      }
-    </div>
-  </section>
-
   <section class="section u-shell" id="dev" aria-labelledby="dev-titulo">
     <header class="section__head" appReveal>
       <p class="u-mono section__eyebrow">Out 2025 &rarr; hoje</p>
