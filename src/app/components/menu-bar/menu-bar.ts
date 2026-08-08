@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Logo } from '../../shared/logo/logo';
 
 interface MenuItem {
   readonly href: string;
@@ -8,11 +9,14 @@ interface MenuItem {
 /** Barra fixa de navegação por âncoras. */
 @Component({
   selector: 'app-menu-bar',
+  imports: [Logo],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <a class="skip" href="#conteudo">Ir para o conteúdo</a>
     <div class="bar u-shell">
-      <a class="mark" href="#topo">LB</a>
+      <a class="mark" href="#topo" aria-label="Leno Borges — início">
+        <app-logo variant="mark" />
+      </a>
       <nav aria-label="Seções da página">
         <ul class="menu u-mono">
           @for (item of items; track item.href) {
@@ -30,8 +34,10 @@ interface MenuItem {
       position: sticky;
       top: 0;
       z-index: 10;
-      border-bottom: var(--border-w) solid var(--ink);
-      background: var(--screen-lit);
+      border-bottom: var(--border-w) solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .skip {
@@ -39,8 +45,9 @@ interface MenuItem {
       left: -999px;
       top: 0.5rem;
       padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-sm);
       background: var(--ink);
-      color: var(--screen-lit);
+      color: #fff;
     }
 
     .skip:focus {
@@ -58,12 +65,7 @@ interface MenuItem {
 
     .mark {
       flex: none;
-      padding: 0.25rem 0.5rem;
-      border: 3px solid var(--ink);
-      background: var(--accent);
-      color: var(--ink);
-      font-family: var(--font-display);
-      font-weight: 700;
+      display: inline-flex;
       text-decoration: none;
     }
 
@@ -82,15 +84,17 @@ interface MenuItem {
     }
 
     .menu a {
-      color: var(--ink);
+      color: var(--ink-soft);
       font-weight: 700;
       text-decoration: none;
       white-space: nowrap;
-      border-bottom: 3px solid transparent;
+      border-bottom: 2px solid transparent;
+      transition: color 160ms ease-out, border-color 160ms ease-out;
     }
 
     .menu a:hover {
-      border-bottom-color: var(--link-blue);
+      color: var(--accent-deep);
+      border-bottom-color: var(--accent);
     }
   `
 })

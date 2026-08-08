@@ -40,20 +40,20 @@ import { IconSocial } from '../icons/icon-social';
       gap: 0.85rem;
       align-items: center;
       padding: 0.9rem 1rem;
-      border: var(--border-w) solid var(--ink);
+      border: var(--border-w) solid var(--border-soft);
       border-radius: var(--radius);
       background: var(--paper);
       box-shadow: var(--shadow-hard-sm);
       color: var(--ink);
       text-decoration: none;
       transition:
-        transform 120ms steps(2, end),
-        box-shadow 120ms steps(2, end);
+        transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .link:hover {
-      transform: translate(2px, 2px);
-      box-shadow: 2px 2px 0 var(--ink);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hard);
     }
 
     .link__text {
