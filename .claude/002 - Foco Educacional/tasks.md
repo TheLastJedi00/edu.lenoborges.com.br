@@ -42,6 +42,16 @@ formação e contato renderizam corretamente, sem erros de console.
 - [x] Task 01: Rodar suíte de testes (`ng test`) e testar mobile-first no Chrome (breakpoints do `styles.scss`) — 11/11 specs verdes no Chrome real (Karma); validado com screenshots Playwright em 360px, 768px, 1280px e 1440px; grid do hero e das stacks confirmados via `getComputedStyle` no breakpoint de 48rem
 - [x] Task 02: Build de produção (`ng build --configuration production`) e checklist final da spec
 
+# Fase 08: Convite, movimento persistente e público [x]
+- [x] Task 01: Sistema de movimento ambiente em `styles.scss` (auroras, ping, sheen, float, draw) com tokens `--aurora-*`/`--shadow-glow` derivados da paleta atual e override de `prefers-reduced-motion`
+- [x] Task 02 (TDD): Spec de `lessonSteps` no `ProfileService` (sequência ordenada, sem lacunas, ids únicos) antes do modelo/dados
+- [x] Task 03: Componente dumb `LessonTrack` com traço desenhado pelo scroll (`animation-timeline: view()`) e queda para traço inteiro sem suporte
+- [x] Task 04: Hero reescrito como convite (manchete-tese, status de agenda pulsando, dois botões diretos), `CtaSplit` só no contato e `DialogBox` movido para a seção do professor
+- [x] Task 05: Movimento nos componentes (sheen no `PixelButton`, flutuação do `TrainerCard`, ícones defasados no `TeachingStackGrid`, brilho no contato)
+- [x] Task 06: Copy revisada — público do pedagógico ao andragógico, sem travessões
+- [x] Task 07: Favicon a partir da marca do Logo (`public/favicon.svg` + fallback `.ico`)
+- [x] Task 08: Validação — 13/13 specs, build de produção, mobile 390px sem scroll horizontal (corrigidos `min-width: 0` no nav e recorte do brilho do contato)
+
 ## Checklist final
 - [x] `ng build --configuration production` sem erros
 - [x] `ng test` — 11/11 specs verdes

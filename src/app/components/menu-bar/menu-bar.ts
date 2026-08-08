@@ -14,7 +14,7 @@ interface MenuItem {
   template: `
     <a class="skip" href="#conteudo">Ir para o conteúdo</a>
     <div class="bar u-shell">
-      <a class="mark" href="#topo" aria-label="Leno Borges — início">
+      <a class="mark" href="#topo" aria-label="Leno Borges, início">
         <app-logo variant="mark" />
       </a>
       <nav aria-label="Seções da página">
@@ -69,6 +69,12 @@ interface MenuItem {
       text-decoration: none;
     }
 
+    /* Sem min-width 0 o item flex não encolhe abaixo do conteúdo e o
+       overflow-x do menu nunca entra em ação: a barra empurra a página. */
+    .bar nav {
+      min-width: 0;
+    }
+
     .menu {
       display: flex;
       gap: 0.85rem;
@@ -101,8 +107,9 @@ interface MenuItem {
 export class MenuBar {
   protected readonly items: readonly MenuItem[] = [
     { href: '#stack', label: 'Stack' },
+    { href: '#aulas', label: 'Aulas' },
+    { href: '#ensino', label: 'Professor' },
     { href: '#dev', label: 'Dev' },
-    { href: '#ensino', label: 'Ensino' },
     { href: '#formacao', label: 'Formação' },
     { href: '#contato', label: 'Contato' }
   ];
