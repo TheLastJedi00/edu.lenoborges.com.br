@@ -61,8 +61,11 @@ import { PixelButton } from '../pixel-button/pixel-button';
       color: #fff;
     }
 
+    /* Cor explícita: o card claro pode estar dentro de um painel escuro, e sem
+       isto o título herda o texto claro do painel e some no próprio fundo. */
     .option__title {
       margin-top: 0.5rem;
+      color: var(--ink);
       font-size: var(--step-1);
       line-height: 1.3;
     }
