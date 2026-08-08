@@ -36,10 +36,13 @@
   --step-4: 2.6rem;
 
   /* Estrutura */
-  --border-w: 4px;
-  --radius: 4px;
-  --shadow-hard: 6px 6px 0 var(--ink);
-  --shadow-hard-sm: 4px 4px 0 var(--ink);
+  --border-w: 1px;
+  --border-soft: rgba(16, 24, 40, 0.08);
+  --radius-sm: 0.6rem;
+  --radius: 1rem;
+  --radius-lg: 1.5rem;
+  --shadow-hard: 0 20px 45px -18px rgba(16, 24, 40, 0.32);
+  --shadow-hard-sm: 0 10px 24px -14px rgba(16, 24, 40, 0.24);
   --space-section: 4rem;
   --content-max: 68rem;
 }
