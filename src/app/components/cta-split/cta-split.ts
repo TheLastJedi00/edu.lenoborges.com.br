@@ -20,7 +20,9 @@ import { PixelButton } from '../pixel-button/pixel-button';
       <article class="option option--accent">
         <p class="option__eyebrow u-mono">Para estudantes</p>
         <h3 class="option__title">Quer aprender programação com aula particular?</h3>
-        <p class="option__desc">Aulas individuais, no seu ritmo, do primeiro código à vaga no mercado.</p>
+        <p class="option__desc">
+          Aulas individuais para criança, jovem ou adulto, no ritmo de cada aluno.
+        </p>
         <app-pixel-button [href]="studentHref()" [external]="true" variant="ghost">
           Agendar aula particular
         </app-pixel-button>
@@ -59,8 +61,11 @@ import { PixelButton } from '../pixel-button/pixel-button';
       color: #fff;
     }
 
+    /* Cor explícita: o card claro pode estar dentro de um painel escuro, e sem
+       isto o título herda o texto claro do painel e some no próprio fundo. */
     .option__title {
       margin-top: 0.5rem;
+      color: var(--ink);
       font-size: var(--step-1);
       line-height: 1.3;
     }

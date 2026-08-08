@@ -2,6 +2,7 @@
 1. Nunca usar emojis, componentizar SVGs
 2. Focar em Mobile First
 3. testar no chrome sempre
+4. Não use travesssões nos textos
 5. Visual moderno com gradientes suaves e animações suaves (em .scss)
 6. Animações sempre com animate-enter e animate-leave
 7. Dumb Components e Smart Pages (Pages fazem requisição)

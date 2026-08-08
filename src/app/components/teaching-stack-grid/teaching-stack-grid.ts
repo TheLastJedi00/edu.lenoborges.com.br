@@ -85,11 +85,14 @@ import { IconTsJs } from '../icons/icon-ts-js';
       border-radius: var(--radius);
       background: var(--gradient-panel);
       box-shadow: var(--shadow-hard-sm);
-      transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+      transition:
+        transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .tile:hover {
-      transform: translateY(-3px);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-glow);
     }
 
     .tile__icon {
@@ -99,6 +102,20 @@ import { IconTsJs } from '../icons/icon-ts-js';
       border-radius: var(--radius-sm);
       background: var(--gradient-accent);
       color: #fff;
+      /* Cada ícone flutua fora de fase: a grade ondula em vez de pulsar junta. */
+      animation: anim-float 5s ease-in-out infinite alternate;
+    }
+
+    .tile:nth-child(4n + 2) .tile__icon {
+      animation-delay: -1.2s;
+    }
+
+    .tile:nth-child(4n + 3) .tile__icon {
+      animation-delay: -2.4s;
+    }
+
+    .tile:nth-child(4n) .tile__icon {
+      animation-delay: -3.6s;
     }
 
     .tile__label {

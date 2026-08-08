@@ -32,6 +32,18 @@ export interface TeachingStackItem {
   readonly label: string;
 }
 
+/**
+ * Um passo da trilha entre a primeira mensagem e a primeira aula.
+ * `order` é dado, não enfeite: a sequência é o que o aluno precisa saber.
+ */
+export interface LessonStep {
+  readonly id: string;
+  readonly order: number;
+  readonly title: string;
+  readonly detail: string;
+  readonly meta: string;
+}
+
 export type ExperienceTrack = 'dev' | 'educator';
 
 export interface Experience {
@@ -62,6 +74,7 @@ export interface Education {
 export interface Profile {
   readonly identity: Identity;
   readonly teachingStack: readonly TeachingStackItem[];
+  readonly lessonSteps: readonly LessonStep[];
   readonly experiences: readonly Experience[];
   readonly stats: readonly Stat[];
   readonly education: readonly Education[];

@@ -45,8 +45,13 @@
   --radius-lg: 1.5rem;
   --shadow-hard: 0 20px 45px -18px rgba(16, 24, 40, 0.32);
   --shadow-hard-sm: 0 10px 24px -14px rgba(16, 24, 40, 0.24);
+  --shadow-glow: 0 18px 40px -16px rgba(57, 134, 255, 0.55);
   --space-section: 4rem;
   --content-max: 68rem;
+
+  /* Atmosfera ambiente — mesmas cores da paleta, só que difusas e em movimento. */
+  --aurora-1: rgba(72, 143, 255, 0.42);
+  --aurora-2: rgba(124, 92, 255, 0.3);
 }
 
 @media (min-width: 48rem) {
@@ -252,6 +257,124 @@ h4 {
   animation-delay: 360ms;
 }
 
+.delay-4 {
+  animation-delay: 480ms;
+}
+
+.delay-5 {
+  animation-delay: 600ms;
+}
+
+/* ---------- Movimento ambiente (persistente) ----------
+   Animações que nunca terminam: dão vida à página sem pedir interação.
+   Todas são decorativas — nenhuma informação depende delas. */
+
+/* Manchas de luz que vagam devagar atrás do conteúdo. */
+@keyframes anim-aurora-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(6%, 8%, 0) scale(1.18);
+  }
+}
+
+@keyframes anim-aurora-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.12);
+  }
+
+  to {
+    transform: translate3d(-8%, -6%, 0) scale(1);
+  }
+}
+
+/* Anel que expande a partir do ponto de status. */
+@keyframes anim-ping {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+/* Brilho que atravessa a superfície de tempos em tempos. */
+@keyframes anim-sheen {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+
+  55%,
+  100% {
+    transform: translateX(320%) skewX(-18deg);
+  }
+}
+
+/* Flutuação mínima: o card respira. */
+@keyframes anim-float {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-6px);
+  }
+}
+
+/* Traço da trilha: usado com `animation-timeline: view()` quando disponível. */
+@keyframes anim-draw {
+  from {
+    transform: scaleY(0);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* Camada de atmosfera: use em um elemento posicionado, com `aria-hidden`. */
+.aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Gradiente radial em vez de círculo desfocado: a luz morre sozinha antes da
+   borda, então o recorte da seção nunca aparece como aresta reta. */
+.aurora::before,
+.aurora::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.aurora::before {
+  width: 46rem;
+  height: 46rem;
+  top: -22rem;
+  left: -16rem;
+  background: radial-gradient(circle, var(--aurora-1) 0%, transparent 68%);
+  animation: anim-aurora-a 19s ease-in-out infinite alternate;
+}
+
+.aurora::after {
+  width: 40rem;
+  height: 40rem;
+  right: -16rem;
+  bottom: -20rem;
+  background: radial-gradient(circle, var(--aurora-2) 0%, transparent 68%);
+  animation: anim-aurora-b 24s ease-in-out infinite alternate;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -263,5 +386,12 @@ h4 {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* A trilha é desenhada pelo scroll, então a duração acima não a alcança:
+     sem movimento ela já nasce inteira. */
+  .track__spine::after {
+    animation: none !important;
+    transform: scaleY(1) !important;
   }
 }
