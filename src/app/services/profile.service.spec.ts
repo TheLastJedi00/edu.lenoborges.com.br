@@ -36,6 +36,23 @@ describe('ProfileService', () => {
     teachingStack.forEach((item) => expect(item.label.length).toBeGreaterThan(0));
   });
 
+  it('descreve a trilha da primeira aula como uma sequência ordenada e sem lacunas', () => {
+    const steps = service.lessonSteps();
+
+    expect(steps.length).toBeGreaterThanOrEqual(3);
+    steps.forEach((step, index) => {
+      expect(step.order).toBe(index + 1);
+      expect(step.title.length).toBeGreaterThan(0);
+      expect(step.detail.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('mantém identificadores únicos entre os passos da trilha', () => {
+    const ids = service.lessonSteps().map((step) => step.id);
+
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it('lista experiências de desenvolvedor da mais recente para a mais antiga', () => {
     const dev = service.devExperiences();
 
