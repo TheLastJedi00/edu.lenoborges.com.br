@@ -9,9 +9,9 @@ import { IconCartridge } from '../icons/icon-cartridge';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="card">
-      <p class="u-mono card__eyebrow">Cartão de treinador</p>
+      <p class="u-mono card__eyebrow">Professor particular de programação</p>
       <div class="card__body">
-        <div class="sprite">
+        <div class="badge">
           <app-icon-cartridge />
         </div>
         <div>
@@ -38,17 +38,17 @@ import { IconCartridge } from '../icons/icon-cartridge';
     }
 
     .card {
-      border: var(--border-w) solid var(--ink);
-      border-radius: var(--radius);
+      border: var(--border-w) solid var(--border-soft);
+      border-radius: var(--radius-lg);
       background: var(--paper);
       box-shadow: var(--shadow-hard);
+      overflow: hidden;
     }
 
     .card__eyebrow {
-      padding: 0.5rem 1rem;
-      border-bottom: var(--border-w) solid var(--ink);
-      background: var(--ink);
-      color: var(--accent);
+      padding: 0.6rem 1.25rem;
+      background: var(--gradient-accent);
+      color: #fff;
       font-weight: 700;
     }
 
@@ -59,11 +59,8 @@ import { IconCartridge } from '../icons/icon-cartridge';
       padding: 1.25rem;
     }
 
-    .sprite {
+    .badge {
       flex: 0 0 4.5rem;
-      padding: 0.5rem;
-      border: var(--border-w) solid var(--ink);
-      background: var(--screen-lit);
     }
 
     .card__name {
@@ -72,7 +69,7 @@ import { IconCartridge } from '../icons/icon-cartridge';
 
     .card__role {
       margin-top: 0.35rem;
-      color: var(--ink-soft);
+      color: var(--accent-deep);
       font-weight: 600;
     }
 
@@ -81,13 +78,14 @@ import { IconCartridge } from '../icons/icon-cartridge';
       font-size: var(--step-1);
       font-weight: 500;
       line-height: 1.35;
+      color: var(--ink-soft);
     }
 
     .card__meta {
       display: grid;
       gap: 0.5rem;
       padding: 0.9rem 1.25rem;
-      border-top: var(--border-w) solid var(--ink);
+      border-top: var(--border-w) solid var(--border-soft);
       background: var(--screen-lit);
     }
 
@@ -106,7 +104,7 @@ import { IconCartridge } from '../icons/icon-cartridge';
         padding: 1.75rem;
       }
 
-      .sprite {
+      .badge {
         flex-basis: 6.5rem;
       }
 

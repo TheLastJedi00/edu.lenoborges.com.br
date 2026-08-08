@@ -1,34 +1,32 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-/** Sprite do cartucho: retrato do cartão de treinador. */
+/** Selo de identidade: monograma sobre o gradiente de acento. */
 @Component({
   selector: 'app-icon-cartridge',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { 'aria-hidden': 'true' },
   template: `
-    <svg viewBox="0 0 64 76" width="100%" height="100%" focusable="false">
-      <g stroke="var(--ink)" stroke-width="4" stroke-linejoin="miter">
-        <path
-          d="M6 2h52v54H6zM6 56h12v10H6zM26 56h12v10H26zM46 56h12v10H46z"
-          fill="var(--link-blue)"
-        />
-        <rect x="14" y="10" width="36" height="26" fill="var(--paper)" />
-        <path d="M20 44h24" stroke-width="4" />
-      </g>
-      <g fill="var(--ink)">
-        <rect x="19" y="17" width="5" height="8" />
-        <rect x="34" y="17" width="5" height="8" />
-        <rect x="24" y="28" width="16" height="4" />
-        <rect x="10" y="60" width="4" height="4" />
-        <rect x="30" y="60" width="4" height="4" />
-        <rect x="50" y="60" width="4" height="4" />
-      </g>
+    <svg viewBox="0 0 64 64" width="100%" height="100%" focusable="false">
+      <circle cx="32" cy="32" r="31" fill="url(#monogram-gradient)" />
+      <text x="32" y="41" text-anchor="middle" class="mark">LB</text>
+      <defs>
+        <linearGradient id="monogram-gradient" x1="4" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#488fff" />
+          <stop offset="1" stop-color="#3986ff" />
+        </linearGradient>
+      </defs>
     </svg>
   `,
   styles: `
     :host {
       display: block;
-      shape-rendering: crispEdges;
+    }
+
+    .mark {
+      fill: #fff;
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
     }
   `
 })
