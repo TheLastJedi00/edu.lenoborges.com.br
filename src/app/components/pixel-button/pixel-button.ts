@@ -39,7 +39,7 @@ export type ButtonVariant = 'primary' | 'ghost';
       padding: 0.85rem 1.5rem;
       border: none;
       border-radius: 999px;
-      background: var(--gradient-accent);
+      background: var(--gradient-accent-strong);
       box-shadow: var(--shadow-hard-sm);
       color: #fff;
       font-family: var(--font-display);

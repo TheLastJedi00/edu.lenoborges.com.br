@@ -19,6 +19,8 @@
 
   /* Gradientes suaves — reservados para fundos, nunca para texto de leitura longa */
   --gradient-accent: linear-gradient(135deg, #488fff 0%, #3986ff 55%, #6b6bff 100%);
+  /* Variante mais escura: única com contraste AA (>=4.5:1) para texto branco pequeno/normal. */
+  --gradient-accent-strong: linear-gradient(135deg, #2f6fe0 0%, #1f5fe0 100%);
   --gradient-hero: radial-gradient(120% 120% at 12% 0%, #e9f1ff 0%, #f4f7fc 55%, #ffffff 100%);
   --gradient-panel: linear-gradient(160deg, #eef4ff 0%, #ffffff 65%);
 

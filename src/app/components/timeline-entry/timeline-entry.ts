@@ -61,7 +61,7 @@ import { IconPellet } from '../icons/icon-pellet';
     .badge {
       padding: 0.15rem 0.6rem;
       border-radius: 999px;
-      background: var(--gradient-accent);
+      background: var(--gradient-accent-strong);
       color: #fff;
       font-size: 0.7rem;
     }
