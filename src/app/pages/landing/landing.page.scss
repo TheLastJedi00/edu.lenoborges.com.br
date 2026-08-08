@@ -17,19 +17,25 @@
   flex-direction: column;
 }
 
-.hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+.hero__cta {
   margin-top: 1.25rem;
 }
 
 @media (min-width: 48rem) {
-  /* No desktop as ações descem para o rodapé da coluna, alinhadas ao cartão. */
-  .hero__actions {
+  /* No desktop o CTA desce para o rodapé da coluna, alinhado ao cartão. */
+  .hero__cta {
     margin-top: auto;
     padding-top: 1.5rem;
   }
+}
+
+.contact__cta {
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+.contact__links {
+  display: block;
 }
 
 /* ---------- Seções ---------- */
@@ -112,7 +118,7 @@
   gap: 0.5rem 1.5rem;
   justify-content: space-between;
   padding-block: 1.25rem;
-  border-top: var(--border-w) solid var(--ink);
+  border-top: var(--border-w) solid var(--border-soft);
   color: var(--ink-soft);
 }
 

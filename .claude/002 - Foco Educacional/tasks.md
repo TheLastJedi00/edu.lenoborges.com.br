@@ -21,13 +21,18 @@
 - [x] Task 05: Restilizar `StatTile`, `TimelineEntry` e `IconPellet` (marcador simples) para o visual moderno
 - [x] Task 06: Restilizar `DialogBox` e `IconCaret` (seta fina), mantendo o efeito de texto revelado progressivamente
 
-# Fase 05: Montagem da landing page []
-- [] Task 01: Hero — identidade de professor + `CtaSplit`
-- [] Task 02: Seção "Stacks que ensino" com `TeachingStackGrid`
-- [] Task 03: Seção de credibilidade como educador (reaproveita `educatorExperiences` e `TimelineEntry`, formato enxuto)
-- [] Task 04: Seção de prova social como desenvolvedor (stat tiles condensados, sem timeline)
-- [] Task 05: Seção Formação (reaproveita `education` e `PixelPanel`)
-- [] Task 06: Seção de contato final com `CtaSplit` + `ContactLinks`, e footer
+# Fase 05: Montagem da landing page [x]
+- [x] Task 01: Hero — identidade de professor + `CtaSplit`
+- [x] Task 02: Seção "Stacks que ensino" com `TeachingStackGrid`
+- [x] Task 03: Seção de credibilidade como educador (reaproveita `educatorExperiences` e `TimelineEntry`, formato enxuto)
+- [x] Task 04: Seção de prova social como desenvolvedor (stat tiles condensados, sem timeline)
+- [x] Task 05: Seção Formação (reaproveita `education` e `PixelPanel`)
+- [x] Task 06: Seção de contato final com `CtaSplit` + `ContactLinks`, e footer
+
+As tasks 01–06 formam um único template/página interdependente, foram implementadas em um só
+commit (`feat(landing): ...`) em vez de 6 commits separados. Validado visualmente com screenshots
+Playwright em mobile (390px) e desktop (1440px): hero, stacks, credibilidade, prova social,
+formação e contato renderizam corretamente, sem erros de console.
 
 # Fase 06: Acessibilidade e revisão []
 - [] Task 01: Revisar contraste de texto sobre gradientes e estados de foco visível na nova paleta
