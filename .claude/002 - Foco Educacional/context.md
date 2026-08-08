@@ -97,6 +97,19 @@ Decisões que seguem valendo para esta spec:
 - `StackGroupCard` (categorizado por tom) não é usado na nova seção "Stacks que ensino" — essa
   seção usa um grid novo de ícone + label.
 
+## Alteração de escopo — descoberta durante a Fase 01 (2026-08-07)
+Ao levantar os tokens visuais ficou claro que outros dumb components além dos citados em
+"Reaproveitamento de componentes" também dependem do sistema antigo (`--border-w`,
+`--shadow-hard*`, `--screen*`, `--paper`) ou carregam imagética retrô específica:
+- `PixelPanel`, `StatTile`, `TimelineEntry`, `DialogBox` — usam bordas duras/sombra deslocada.
+- `IconCartridge` (sprite de cartucho), `IconPellet` (pastilha do Pac-Man), `IconCaret` (seta em
+  blocos) — decorativos e explicitamente retrô.
+Decisão: mantém os mesmos nomes/seletores (sem renomear, conforme já registrado acima) e
+restilizam-se todos para o visual moderno dentro da Fase 04. `IconCartridge` deixa de representar
+um "sprite" e passa a ser um selo/monograma de identidade; `IconPellet` vira um marcador simples
+(ponto/check); `IconCaret` vira uma seta fina. `DialogBox` mantém o efeito de texto revelado
+progressivamente (não é, por si, um elemento retrô), só perde a moldura de tela dura.
+
 ## Fora de escopo nesta fase
 - Agendamento de aula com calendário/integração externa.
 - Depoimentos de alunos (sem dados disponíveis ainda).
