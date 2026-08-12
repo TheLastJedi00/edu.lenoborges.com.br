@@ -3,9 +3,9 @@
 - [x] Task 02: Criar `src/app/models/community.model.ts` com `TrackStage`, `TrackIconId`, `CommunityTier` e `CommunityHighlight`
 - [x] Task 03: Criar `CommunityService` (`providedIn: 'root'`) com os dados estáticos da Seita: 12 etapas da trilha com seus tópicos, faixas de Grau (1 a 5 gratuito, 5 a 33 por R$ 14,99), highlights e dados do Conclave
 
-# Fase 02: Lista de espera (service mockado) []
-- [] Task 01 (TDD): Spec de `WaitlistService` antes da lógica (sucesso com recibo, normalização de telefone e e-mail, recusa sem consentimento, propagação de erro)
-- [] Task 02: Implementar `WaitlistEntry`/`WaitlistReceipt` e `WaitlistService` com envio mockado e atraso simulado
+# Fase 02: Lista de espera (service mockado) [x]
+- [x] Task 01 (TDD): Spec de `WaitlistService` antes da lógica (sucesso com recibo, normalização de telefone e e-mail, recusa sem consentimento, propagação de erro)
+- [x] Task 02: Implementar `WaitlistEntry`/`WaitlistReceipt` e `WaitlistService` com envio mockado e atraso simulado
 
 # Fase 03: Ícones SVG []
 - [] Task 01: Criar `IconStacks`, `IconGcp` e `IconVercel` no padrão de `components/icons`
