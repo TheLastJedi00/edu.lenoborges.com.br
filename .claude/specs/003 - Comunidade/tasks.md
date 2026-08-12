@@ -7,9 +7,9 @@
 - [x] Task 01 (TDD): Spec de `WaitlistService` antes da lógica (sucesso com recibo, normalização de telefone e e-mail, recusa sem consentimento, propagação de erro)
 - [x] Task 02: Implementar `WaitlistEntry`/`WaitlistReceipt` e `WaitlistService` com envio mockado e atraso simulado
 
-# Fase 03: Ícones SVG []
-- [] Task 01: Criar `IconStacks`, `IconGcp` e `IconVercel` no padrão de `components/icons`
-- [] Task 02: Criar `IconDevops`, `IconWhatsapp` e `IconYoutube` no mesmo padrão
+# Fase 03: Ícones SVG [x]
+- [x] Task 01: Criar `IconStacks`, `IconGcp` e `IconVercel` no padrão de `components/icons`
+- [x] Task 02: Criar `IconDevops`, `IconWhatsapp` e `IconYoutube` no mesmo padrão, mais `IconRanking` e `IconShare` (os highlights "jogos com ranking" e "conhecimento compartilhado" também precisam de ícone próprio)
 
 # Fase 04: Componentes dumb da Seita []
 - [] Task 01: `TrackTimeline` (timeline vertical mobile first, cada etapa um accordion com `<details>`, ícone SVG por etapa e `IconCaret` como indicador)
