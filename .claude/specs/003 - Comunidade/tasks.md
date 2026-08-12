@@ -17,12 +17,12 @@
 - [x] Task 03: `WaitlistDialog` com `<dialog>` nativo, formulário reativo (nome, telefone, e-mail, consentimento), estados idle/sending/success/error, aviso legal de uso dos dados e acessibilidade (`aria-invalid`, `aria-describedby`, `aria-live`)
 - [x] Task 04: `MenuBar` passa a receber os itens por `input()` e a suportar item de rota (`routerLink`) além de âncora, sem quebrar o `goTo()` atual
 
-# Fase 05: Página /comunidade []
-- [] Task 01: Registrar a rota `comunidade` com lazy loading e title em `app.routes.ts`
-- [] Task 02: Hero da Seita Dev com selo de "em construção" e CTA de acesso antecipado, mais a seção "O que é a Seita" (grupo aberto, conhecimento compartilhado, jogos com ranking, conteúdo no YouTube)
-- [] Task 03: Seção dos 33 Graus com `GradeLadder` e seção da trilha com `TrackTimeline`
-- [] Task 04: Seção "Não é sobre certificado" e seção do Conclave (2h semanais para 4 alunos, R$ 150,00, feedback por exercício)
-- [] Task 05: Seção final de lista de espera, footer e ligação de todos os CTAs ao `WaitlistDialog` via `WaitlistService`
+# Fase 05: Página /comunidade [x]
+- [x] Task 01: Registrar a rota `comunidade` com lazy loading e title em `app.routes.ts`
+- [x] Task 02: Hero da Seita Dev com selo de "em construção" e CTA de acesso antecipado, mais a seção "O que é a Seita" (grupo aberto, conhecimento compartilhado, jogos com ranking, conteúdo no YouTube)
+- [x] Task 03: Seção dos 33 Graus com `GradeLadder` e seção da trilha com `TrackTimeline`
+- [x] Task 04: Seção "Não é sobre certificado" e seção do Conclave (2h semanais para 4 alunos, R$ 150,00, feedback por exercício)
+- [x] Task 05: Seção final de lista de espera, footer e ligação de todos os CTAs ao `WaitlistDialog` via `WaitlistService`
 
 # Fase 06: CTA na landing []
 - [] Task 01: Nova seção `#comunidade` na landing convidando para a Seita, com botão para `/comunidade` e atalho para o modal de lista de espera
