@@ -1,17 +1,25 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 export type ButtonVariant = 'primary' | 'ghost';
 
-/** Ação da página. Renderiza âncora quando recebe `href`, botão caso contrário. */
+/**
+ * Ação da página. Renderiza âncora de rota quando recebe `route`, âncora comum quando recebe
+ * `href`, e botão caso contrário.
+ */
 @Component({
   selector: 'app-pixel-button',
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ng-template #label><ng-content /></ng-template>
 
-    @if (href(); as target) {
+    @if (route(); as target) {
+      <a class="btn" [class.btn--ghost]="variant() === 'ghost'" [routerLink]="target">
+        <ng-container [ngTemplateOutlet]="label" />
+      </a>
+    } @else if (href(); as target) {
       <a
         class="btn"
         [class.btn--ghost]="variant() === 'ghost'"
@@ -92,6 +100,8 @@ export type ButtonVariant = 'primary' | 'ghost';
 })
 export class PixelButton {
   readonly href = input<string>();
+  /** Destino interno do site. Tem precedência sobre `href`. */
+  readonly route = input<string>();
   readonly variant = input<ButtonVariant>('primary');
   readonly external = input(false);
 }

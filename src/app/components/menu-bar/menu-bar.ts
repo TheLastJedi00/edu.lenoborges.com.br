@@ -1,27 +1,37 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Logo } from '../../shared/logo/logo';
 
-interface MenuItem {
-  readonly href: string;
+/**
+ * Um item do menu: âncora dentro da própria página (`href`) ou destino de rota (`route`).
+ * Os dois não convivem no mesmo item.
+ */
+export interface MenuItem {
   readonly label: string;
+  readonly href?: string;
+  readonly route?: string;
 }
 
-/** Barra fixa de navegação por âncoras. */
+/** Barra fixa de navegação. Cada página passa os seus próprios itens. */
 @Component({
   selector: 'app-menu-bar',
-  imports: [Logo],
+  imports: [Logo, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <a class="skip" href="#conteudo">Ir para o conteúdo</a>
     <div class="bar u-shell">
-      <a class="mark" href="#topo" aria-label="Leno Borges, início">
+      <a class="mark" [routerLink]="homeRoute()" aria-label="Leno Borges, início">
         <app-logo variant="mark" />
       </a>
       <nav aria-label="Seções da página">
         <ul class="menu u-mono">
-          @for (item of items; track item.href) {
+          @for (item of items(); track item.label) {
             <li>
-              <a [href]="item.href" (click)="goTo($event, item.href)">{{ item.label }}</a>
+              @if (item.route; as route) {
+                <a [routerLink]="route">{{ item.label }}</a>
+              } @else if (item.href; as href) {
+                <a [href]="href" (click)="goTo($event, href)">{{ item.label }}</a>
+              }
             </li>
           }
         </ul>
@@ -105,14 +115,10 @@ interface MenuItem {
   `
 })
 export class MenuBar {
-  protected readonly items: readonly MenuItem[] = [
-    { href: '#stack', label: 'Stack' },
-    { href: '#aulas', label: 'Aulas' },
-    { href: '#ensino', label: 'Professor' },
-    { href: '#dev', label: 'Dev' },
-    { href: '#formacao', label: 'Formação' },
-    { href: '#contato', label: 'Contato' }
-  ];
+  readonly items = input.required<readonly MenuItem[]>();
+
+  /** Destino da marca. A landing usa `/`, e as páginas internas voltam para lá. */
+  readonly homeRoute = input('/');
 
   /** Leva até a seção e move o foco para ela, mantendo o link utilizável sem JavaScript. */
   protected goTo(event: Event, href: string): void {

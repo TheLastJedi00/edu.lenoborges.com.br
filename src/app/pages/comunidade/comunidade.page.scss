@@ -12,8 +12,7 @@
 
 .hero__grid {
   display: grid;
-  gap: 2rem;
-  align-items: center;
+  max-width: 46rem;
 }
 
 .hero__eyebrow {
@@ -54,6 +53,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
+  width: fit-content;
   margin-top: 1.5rem;
   padding: 0.45rem 1rem 0.45rem 0.85rem;
   border: var(--border-w) solid var(--border-soft);
@@ -63,6 +63,7 @@
   -webkit-backdrop-filter: blur(8px);
   font-size: var(--step--1);
   font-weight: 700;
+  line-height: 1.35;
 }
 
 .hero__dot {
@@ -74,7 +75,7 @@
   background: var(--accent);
 }
 
-/* O anel que pulsa é o único sinal "ao vivo" da página — vale a atenção que atrai. */
+/* O anel pulsando é o sinal de que a comunidade está viva, mesmo antes de abrir. */
 .hero__dot::after {
   content: '';
   position: absolute;
@@ -91,17 +92,6 @@
   margin-top: 1.75rem;
 }
 
-/* A flutuação vive dentro do cartão: o host fica livre para a animação de entrada. */
-
-.contact__cta {
-  display: block;
-  margin-bottom: 1.5rem;
-}
-
-.contact__links {
-  display: block;
-}
-
 /* ---------- Seções ---------- */
 .section {
   padding-block: var(--space-section) 0;
@@ -112,14 +102,12 @@
   padding-bottom: var(--space-section);
 }
 
-/* A luz vaza por trás do painel escuro do contato, sem tocar no texto. */
 .section--glow {
   position: relative;
   isolation: isolate;
 }
 
-/* Continua recortando: solto, o brilho alargaria o documento e criaria scroll
-   horizontal no mobile. O gradiente já morre antes da borda, então não aparece corte. */
+/* Recorta o brilho: solto, ele alargaria o documento no mobile. */
 .section--glow .aurora {
   inset: 1rem 0;
 }
@@ -143,69 +131,131 @@
 }
 
 .section__lead {
-  max-width: 46ch;
+  max-width: 52ch;
   margin-top: 0.75rem;
   color: var(--ink-soft);
+  line-height: 1.55;
 }
 
 .section__lead--light {
   color: var(--screen);
 }
 
-/* ---------- Grades ---------- */
+/* ---------- O que é a Seita ---------- */
 .grid {
   display: grid;
   gap: 1rem;
-}
-
-.timeline {
-  display: grid;
-  gap: 1.25rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* A fala do professor abre a seção de credibilidade. */
-.ensino__voice {
-  display: block;
-  margin-bottom: 1.75rem;
+.card {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+  padding: 1.25rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: var(--shadow-hard-sm);
+  transition:
+    transform 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 240ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ---------- Convite para a Seita Dev ---------- */
-.seita__lead {
-  max-width: 58ch;
-  margin-top: 0.75rem;
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow);
+}
+
+.card__icon {
+  display: inline-flex;
+  padding: 0.55rem;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-accent);
+  color: #fff;
+  animation: anim-float 5s ease-in-out infinite alternate;
+}
+
+.card:nth-child(2n) .card__icon {
+  animation-delay: -1.6s;
+}
+
+.card:nth-child(3n) .card__icon {
+  animation-delay: -3.2s;
+}
+
+.card__title {
+  font-size: var(--step-1);
+  line-height: 1.25;
+}
+
+.card__detail {
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+/* ---------- Não é sobre certificado ---------- */
+.belief {
+  margin-top: 0.9rem;
+  max-width: 60ch;
   color: var(--ink-soft);
   line-height: 1.6;
 }
 
-.seita__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
+/* ---------- Conclave ---------- */
+.conclave {
+  display: grid;
+  gap: 1.25rem;
+  justify-items: start;
 }
 
-/* ---------- Formação ---------- */
-.edu__period {
+.conclave__facts {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  width: 100%;
+}
+
+.conclave__facts dt {
   color: var(--ink-soft);
+  font-size: var(--step--1);
   font-weight: 700;
 }
 
-.edu__title {
-  margin-top: 0.35rem;
+.conclave__facts dd {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
   font-size: var(--step-1);
+  font-weight: 700;
+  color: var(--ink);
 }
 
-.edu__org {
-  margin-top: 0.15rem;
-  font-weight: 600;
-}
-
-.edu__detail {
-  margin-top: 0.75rem;
+.conclave__perks {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   color: var(--ink-soft);
+}
+
+.conclave__perks li {
+  position: relative;
+  padding-left: 1rem;
+  line-height: 1.55;
+}
+
+.conclave__perks li::before {
+  content: '';
+  position: absolute;
+  top: 0.65em;
+  left: 0;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
 /* ---------- Rodapé ---------- */
@@ -219,14 +269,15 @@
   color: var(--ink-soft);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .card__icon {
+    animation: none;
+  }
+}
+
 @media (min-width: 48rem) {
   .hero {
     padding-block: 5rem 2rem;
-  }
-
-  .hero__grid {
-    grid-template-columns: 7fr 5fr;
-    gap: 3rem;
   }
 
   .grid--2 {
@@ -234,13 +285,11 @@
     gap: 1.5rem;
   }
 
-  .grid--3 {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+  .card {
+    padding: 1.6rem;
   }
 
-  .timeline {
-    gap: 1.75rem;
-    max-width: 54rem;
+  .conclave__facts {
+    grid-template-columns: repeat(4, 1fr);
   }
 }

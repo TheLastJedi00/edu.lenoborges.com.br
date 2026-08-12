@@ -338,6 +338,13 @@ h4 {
   }
 }
 
+/* Indicador de espera: usado enquanto uma ação está em andamento. */
+@keyframes anim-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Camada de atmosfera: use em um elemento posicionado, com `aria-hidden`. */
 .aurora {
   position: absolute;
