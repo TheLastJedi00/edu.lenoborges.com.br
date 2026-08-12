@@ -28,20 +28,29 @@
 - [x] Task 01: Nova seção `#comunidade` na landing convidando para a Seita, com botão para `/comunidade` e atalho para o modal de lista de espera
 - [x] Task 02: Item "Comunidade" no `MenuBar` da landing usando o novo suporte a rota
 
-# Fase 07: Acessibilidade e validação []
-- [] Task 01: Revisar contraste, foco visível, navegação por teclado no accordion e no `<dialog>`, e `prefers-reduced-motion` nas novas animações
-- [] Task 02: Rodar `ng test`, validar no Chrome em 390px, 768px e 1440px sem scroll horizontal e sem erro de console
-- [] Task 03: Build de produção (`ng build --configuration production`) e checklist final da spec
+# Fase 07: Acessibilidade e validação [x]
+- [x] Task 01: Revisar contraste, foco visível, navegação por teclado no accordion e no `<dialog>`, e `prefers-reduced-motion` nas novas animações
+- [x] Task 02: Rodar `ng test`, validar no Chrome em 390px, 768px e 1440px sem scroll horizontal e sem erro de console
+- [x] Task 03: Build de produção (`ng build --configuration production`) e checklist final da spec
 
 ## Checklist final
-- [] `ng build --configuration production` sem erros
-- [] `ng test` verde, incluindo as specs TDD de `CommunityService` e `WaitlistService`
-- [] Rota `/comunidade` com lazy loading e CTA na landing levando até ela
-- [] Trilha com as 12 etapas em timeline accordion, cada uma com ícone SVG próprio
-- [] 33 Graus explicados: gratuito até o Grau 5, R$ 14,99 do 5 em diante
-- [] Conclave apresentado com valor, formato e feedback por exercício
-- [] Posicionamento "não é sobre certificado" presente
-- [] Modal de lista de espera funcional com aviso legal de uso dos dados e envio mockado
-- [] Nenhum link externo inventado para WhatsApp ou YouTube
-- [] Sem emojis, sem travessões em texto visível, SVGs componentizados
-- [] Mobile first validado em 390/768/1440px, `prefers-reduced-motion` respeitado
+- [x] `ng build --configuration production` sem erros
+- [x] `ng test` verde, incluindo as specs TDD de `CommunityService` e `WaitlistService`
+- [x] Rota `/comunidade` com lazy loading e CTA na landing levando até ela
+- [x] Trilha com as 12 etapas em timeline accordion, cada uma com ícone SVG próprio
+- [x] 33 Graus explicados: gratuito até o Grau 5, R$ 14,99 do 5 em diante
+- [x] Conclave apresentado com valor, formato e feedback por exercício
+- [x] Posicionamento "não é sobre certificado" presente
+- [x] Modal de lista de espera funcional com aviso legal de uso dos dados e envio mockado
+- [x] Nenhum link externo inventado para WhatsApp ou YouTube
+- [x] Sem emojis, sem travessões em texto visível, SVGs componentizados
+- [x] Mobile first validado em 390/768/1440px, `prefers-reduced-motion` respeitado
+
+## Validação executada (2026-08-12)
+- `ng test` no Chrome real: 28/28 specs verdes (13 anteriores, 9 de `CommunityService`, 6 de `WaitlistService`).
+- `ng build --configuration production` sem erros; `comunidade-page` sai em chunk lazy próprio (31,83 kB).
+- Playwright em 390px, 768px e 1440px: sem scroll horizontal, sem erro de console, nenhum elemento preso em `reveal-idle`.
+- Contraste WCAG dos pares novos entre 4,90:1 e 17,75:1 (mínimo AA de 4,5:1), medindo o stop mais escuro dos gradientes.
+- Teclado: accordion abre com Enter, `<dialog>` recebe e devolve o foco, fecha com Esc; foco visível com outline de 3px.
+- `prefers-reduced-motion: reduce`: nenhum elemento preso em `opacity: 0`.
+- Fluxo da lista de espera ponta a ponta: validação inline, envio, estado de sucesso e fechamento.
