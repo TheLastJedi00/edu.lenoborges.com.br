@@ -1,3 +1,16 @@
+# Alteração de escopo (2026-08-12) — Fase 06: `PixelButton` ganha destino de rota
+
+Com a segunda rota, o botão da landing que leva para `/comunidade` precisava navegar pelo router
+sem recarregar a página. Aplicar `routerLink` no host `<app-pixel-button>` navegaria no clique, mas
+o elemento clicável continuaria sendo um `<button>` sem `href`: sem abrir em nova aba, sem menu de
+contexto e sem destino visível na barra de status.
+
+Decisão: o `PixelButton` recebe um input `route`, e quando ele existe o componente renderiza
+`<a [routerLink]>` em vez de `<button>`. `href` continua para links externos e o `<button>` segue
+como padrão. Nenhum uso existente muda.
+
+---
+
 # CTA na landing e Page Dedicada a apresentar comunidade
 
 ## Sobre a Comunidade

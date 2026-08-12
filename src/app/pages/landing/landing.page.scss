@@ -172,6 +172,21 @@
   margin-bottom: 1.75rem;
 }
 
+/* ---------- Convite para a Seita Dev ---------- */
+.seita__lead {
+  max-width: 58ch;
+  margin-top: 0.75rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.seita__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
 /* ---------- Formação ---------- */
 .edu__period {
   color: var(--ink-soft);

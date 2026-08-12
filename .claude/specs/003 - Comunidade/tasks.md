@@ -24,9 +24,9 @@
 - [x] Task 04: Seção "Não é sobre certificado" e seção do Conclave (2h semanais para 4 alunos, R$ 150,00, feedback por exercício)
 - [x] Task 05: Seção final de lista de espera, footer e ligação de todos os CTAs ao `WaitlistDialog` via `WaitlistService`
 
-# Fase 06: CTA na landing []
-- [] Task 01: Nova seção `#comunidade` na landing convidando para a Seita, com botão para `/comunidade` e atalho para o modal de lista de espera
-- [] Task 02: Item "Comunidade" no `MenuBar` da landing usando o novo suporte a rota
+# Fase 06: CTA na landing [x]
+- [x] Task 01: Nova seção `#comunidade` na landing convidando para a Seita, com botão para `/comunidade` e atalho para o modal de lista de espera
+- [x] Task 02: Item "Comunidade" no `MenuBar` da landing usando o novo suporte a rota
 
 # Fase 07: Acessibilidade e validação []
 - [] Task 01: Revisar contraste, foco visível, navegação por teclado no accordion e no `<dialog>`, e `prefers-reduced-motion` nas novas animações
