@@ -3,7 +3,7 @@ import { ContactLinks } from '../../components/contact-links/contact-links';
 import { CtaSplit } from '../../components/cta-split/cta-split';
 import { DialogBox } from '../../components/dialog-box/dialog-box';
 import { LessonTrack } from '../../components/lesson-track/lesson-track';
-import { MenuBar } from '../../components/menu-bar/menu-bar';
+import { MenuBar, MenuItem } from '../../components/menu-bar/menu-bar';
 import { PixelButton } from '../../components/pixel-button/pixel-button';
 import { PixelPanel } from '../../components/pixel-panel/pixel-panel';
 import { StatTile } from '../../components/stat-tile/stat-tile';
@@ -35,6 +35,15 @@ import { ProfileService } from '../../services/profile.service';
 })
 export class LandingPage {
   private readonly profileService = inject(ProfileService);
+
+  protected readonly menuItems: readonly MenuItem[] = [
+    { href: '#stack', label: 'Stack' },
+    { href: '#aulas', label: 'Aulas' },
+    { href: '#ensino', label: 'Professor' },
+    { href: '#dev', label: 'Dev' },
+    { href: '#formacao', label: 'Formação' },
+    { href: '#contato', label: 'Contato' }
+  ];
 
   protected readonly identity = computed(() => this.profileService.profile().identity);
   protected readonly teachingStack = this.profileService.teachingStack;

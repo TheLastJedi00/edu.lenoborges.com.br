@@ -11,11 +11,11 @@
 - [x] Task 01: Criar `IconStacks`, `IconGcp` e `IconVercel` no padrão de `components/icons`
 - [x] Task 02: Criar `IconDevops`, `IconWhatsapp` e `IconYoutube` no mesmo padrão, mais `IconRanking` e `IconShare` (os highlights "jogos com ranking" e "conhecimento compartilhado" também precisam de ícone próprio)
 
-# Fase 04: Componentes dumb da Seita []
-- [] Task 01: `TrackTimeline` (timeline vertical mobile first, cada etapa um accordion com `<details>`, ícone SVG por etapa e `IconCaret` como indicador)
-- [] Task 02: `GradeLadder` (progressão dos 33 Graus com os 5 gratuitos destacados e o que a assinatura simbólica destrava)
-- [] Task 03: `WaitlistDialog` com `<dialog>` nativo, formulário reativo (nome, telefone, e-mail, consentimento), estados idle/sending/success/error, aviso legal de uso dos dados e acessibilidade (`aria-invalid`, `aria-describedby`, `aria-live`)
-- [] Task 04: `MenuBar` passa a receber os itens por `input()` e a suportar item de rota (`routerLink`) além de âncora, sem quebrar o `goTo()` atual
+# Fase 04: Componentes dumb da Seita [x]
+- [x] Task 01: `TrackTimeline` (timeline vertical mobile first, cada etapa um accordion com `<details>`, ícone SVG por etapa e `IconCaret` como indicador)
+- [x] Task 02: `GradeLadder` (progressão dos 33 Graus com os 5 gratuitos destacados e o que a assinatura simbólica destrava)
+- [x] Task 03: `WaitlistDialog` com `<dialog>` nativo, formulário reativo (nome, telefone, e-mail, consentimento), estados idle/sending/success/error, aviso legal de uso dos dados e acessibilidade (`aria-invalid`, `aria-describedby`, `aria-live`)
+- [x] Task 04: `MenuBar` passa a receber os itens por `input()` e a suportar item de rota (`routerLink`) além de âncora, sem quebrar o `goTo()` atual
 
 # Fase 05: Página /comunidade []
 - [] Task 01: Registrar a rota `comunidade` com lazy loading e title em `app.routes.ts`
