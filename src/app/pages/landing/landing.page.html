@@ -1,4 +1,4 @@
-<app-menu-bar />
+<app-menu-bar [items]="menuItems" />
 
 <main id="conteudo">
   <section class="hero" id="topo">
@@ -98,6 +98,24 @@
     </div>
   </section>
 
+  <section class="section u-shell" id="comunidade" aria-labelledby="comunidade-titulo">
+    <app-pixel-panel tone="lit" class="seita" appReveal>
+      <p class="u-mono section__eyebrow">Seita Dev</p>
+      <h2 id="comunidade-titulo" class="section__title">A comunidade que estuda junto</h2>
+      <p class="seita__lead">
+        Além das aulas particulares eu mantenho a Seita Dev, um grupo aberto para compartilhar
+        conhecimento. São 33 Graus de progressão, jogos de conhecimento com ranking e uma trilha que
+        vai da primeira variável ao deploy, sempre explicando como o mercado usa cada ferramenta.
+      </p>
+      <div class="seita__actions">
+        <app-pixel-button route="/comunidade">Conhecer a Seita Dev</app-pixel-button>
+        <app-pixel-button variant="ghost" (click)="openWaitlist()">
+          Entrar na lista de espera
+        </app-pixel-button>
+      </div>
+    </app-pixel-panel>
+  </section>
+
   <section class="section u-shell" id="formacao" aria-labelledby="formacao-titulo">
     <header class="section__head" appReveal>
       <p class="u-mono section__eyebrow">Uniasselvi · T-Systems / ProWay</p>
@@ -142,3 +160,5 @@
     <p>Blumenau, SC e aulas online</p>
   </footer>
 </main>
+
+<app-waitlist-dialog [state]="waitlistState()" (submitted)="register($event)" />

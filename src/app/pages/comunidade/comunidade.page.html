@@ -1,0 +1,164 @@
+<app-menu-bar [items]="menuItems" />
+
+<main id="conteudo">
+  <section class="hero" id="topo">
+    <span class="aurora" aria-hidden="true"></span>
+
+    <div class="hero__grid u-shell">
+      <p class="u-mono hero__eyebrow" animate.enter="animate-enter">Comunidade aberta</p>
+
+      <h1 class="hero__title" animate.enter="animate-enter delay-1">
+        {{ identity().name }}:
+        <span class="hero__title-accent">entender, não decorar</span>
+      </h1>
+
+      <p class="hero__lead" animate.enter="animate-enter delay-2">{{ identity().tagline }}</p>
+
+      <p class="hero__status" animate.enter="animate-enter delay-3">
+        <span class="hero__dot" aria-hidden="true"></span>
+        {{ identity().status }}
+      </p>
+
+      <div class="hero__actions" animate.enter="animate-enter delay-4">
+        <app-pixel-button (click)="openWaitlist()">Quero acesso antecipado</app-pixel-button>
+        <app-pixel-button variant="ghost" href="#trilha">Ver a trilha completa</app-pixel-button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section u-shell" id="seita" aria-labelledby="seita-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">O que é a Seita</p>
+      <h2 id="seita-titulo" class="section__title">Uma seita de gente que estuda junto</h2>
+      <p class="section__lead">{{ identity().summary }}</p>
+    </header>
+
+    <ul class="grid grid--2">
+      @for (item of highlights(); track item.id) {
+        <li class="card" appReveal>
+          <span class="card__icon" aria-hidden="true">
+            @switch (item.icon) {
+              @case ('whatsapp') {
+                <app-icon-whatsapp />
+              }
+              @case ('youtube') {
+                <app-icon-youtube />
+              }
+              @case ('ranking') {
+                <app-icon-ranking />
+              }
+              @case ('share') {
+                <app-icon-share />
+              }
+            }
+          </span>
+          <h3 class="card__title">{{ item.title }}</h3>
+          <p class="card__detail">{{ item.detail }}</p>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="section u-shell" id="graus" aria-labelledby="graus-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">A progressão</p>
+      <h2 id="graus-titulo" class="section__title">Os 33 Graus</h2>
+      <p class="section__lead">
+        Você sobe de Grau jogando e acertando o que entendeu. Os cinco primeiros são livres para
+        qualquer pessoa, sem assinatura e sem prazo.
+      </p>
+    </header>
+
+    <app-grade-ladder [progress]="grades()" [tiers]="tiers()" />
+  </section>
+
+  <section class="section u-shell" id="trilha" aria-labelledby="trilha-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">Da primeira variável ao deploy</p>
+      <h2 id="trilha-titulo" class="section__title">A trilha de aprendizado</h2>
+      <p class="section__lead">
+        Doze etapas, cada uma explicando como o mercado usa a ferramenta. Toque em uma etapa para
+        ver o que ela cobre.
+      </p>
+    </header>
+
+    <app-track-timeline [stages]="trackStages()" />
+  </section>
+
+  <section class="section u-shell" id="certificado" aria-labelledby="certificado-titulo">
+    <app-pixel-panel tone="lit" appReveal>
+      <p class="u-mono section__eyebrow">Por que aqui é diferente</p>
+      <h2 id="certificado-titulo" class="section__title">Não é sobre certificado</h2>
+      <p class="belief">
+        A trilha não existe para te entregar um papel no fim. Ela existe para você conseguir
+        discutir, debater e opinar sobre o assunto com quem já trabalha na área. Isso vale mais do
+        que qualquer currículo ou certificado, porque aparece na primeira conversa técnica.
+      </p>
+      <p class="belief">
+        Por isso nada aqui é decorar sintaxe. Cada etapa começa pela pergunta que importa: por que o
+        mercado usa essa ferramenta, e o que acontece quando ela é usada errado.
+      </p>
+    </app-pixel-panel>
+  </section>
+
+  <section class="section u-shell" id="conclave" aria-labelledby="conclave-titulo">
+    <header class="section__head" appReveal>
+      <p class="u-mono section__eyebrow">Mentoria da Seita</p>
+      <h2 id="conclave-titulo" class="section__title">{{ conclave().title }}</h2>
+      <p class="section__lead">{{ conclave().summary }}</p>
+    </header>
+
+    <app-pixel-panel tone="screen" class="conclave" appReveal>
+      <dl class="conclave__facts">
+        <div>
+          <dt class="u-mono">Investimento</dt>
+          <dd>{{ conclave().price }}</dd>
+        </div>
+        <div>
+          <dt class="u-mono">Encontro</dt>
+          <dd>{{ conclave().duration }}</dd>
+        </div>
+        <div>
+          <dt class="u-mono">Frequência</dt>
+          <dd>{{ conclave().cadence }}</dd>
+        </div>
+        <div>
+          <dt class="u-mono">Turma</dt>
+          <dd>{{ conclave().seats }} alunos</dd>
+        </div>
+      </dl>
+
+      <ul class="conclave__perks">
+        @for (perk of conclave().perks; track perk) {
+          <li>{{ perk }}</li>
+        }
+      </ul>
+
+      <app-pixel-button (click)="openWaitlist()">Quero uma vaga no Conclave</app-pixel-button>
+    </app-pixel-panel>
+  </section>
+
+  <section class="section section--glow u-shell" id="lista" aria-labelledby="lista-titulo">
+    <span class="aurora" aria-hidden="true"></span>
+
+    <app-pixel-panel tone="ink">
+      <header class="section__head" appReveal>
+        <p class="u-mono section__eyebrow section__eyebrow--light">Antes de todo mundo</p>
+        <h2 id="lista-titulo" class="section__title">A Seita ainda está sendo construída</h2>
+        <p class="section__lead section__lead--light">
+          Deixe seu contato e você entra no dia em que ela abrir, com acesso antecipado gratuito.
+          Sem cobrança agora e sem mensagem de propaganda.
+        </p>
+      </header>
+
+      <app-pixel-button (click)="openWaitlist()">Entrar na lista de espera</app-pixel-button>
+    </app-pixel-panel>
+  </section>
+
+  <footer class="footer u-shell u-mono">
+    <p>Seita Dev · Comunidade de programação do Leno Borges</p>
+    <p>Blumenau, SC e online</p>
+  </footer>
+</main>
+
+<app-waitlist-dialog [state]="waitlistState()" (submitted)="register($event)" />
