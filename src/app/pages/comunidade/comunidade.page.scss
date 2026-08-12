@@ -1,0 +1,295 @@
+:host {
+  display: block;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  isolation: isolate;
+  padding-block: 3rem 1rem;
+  overflow: hidden;
+}
+
+.hero__grid {
+  display: grid;
+  max-width: 46rem;
+}
+
+.hero__eyebrow {
+  color: var(--accent-deep);
+  font-weight: 700;
+}
+
+.hero__title {
+  margin-top: 0.9rem;
+  font-size: var(--step-4);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* O gradiente recorta só o trecho de ênfase; a cor sólida é o piso se o clip falhar. */
+.hero__title-accent {
+  color: var(--accent-deep);
+  background: linear-gradient(115deg, var(--accent) 0%, var(--violet) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .hero__title-accent {
+    color: transparent;
+  }
+}
+
+.hero__lead {
+  max-width: 42ch;
+  margin-top: 1.1rem;
+  font-size: var(--step-1);
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.hero__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: fit-content;
+  margin-top: 1.5rem;
+  padding: 0.45rem 1rem 0.45rem 0.85rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: var(--step--1);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.hero__dot {
+  position: relative;
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* O anel pulsando é o sinal de que a comunidade está viva, mesmo antes de abrir. */
+.hero__dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--accent);
+  animation: anim-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+/* ---------- Seções ---------- */
+.section {
+  padding-block: var(--space-section) 0;
+  scroll-margin-top: 5rem;
+}
+
+.section:last-of-type {
+  padding-bottom: var(--space-section);
+}
+
+.section--glow {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Recorta o brilho: solto, ele alargaria o documento no mobile. */
+.section--glow .aurora {
+  inset: 1rem 0;
+}
+
+.section__head {
+  margin-bottom: 1.5rem;
+}
+
+.section__eyebrow {
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.section__eyebrow--light {
+  color: var(--screen-deep);
+}
+
+.section__title {
+  margin-top: 0.35rem;
+  font-size: var(--step-3);
+}
+
+.section__lead {
+  max-width: 52ch;
+  margin-top: 0.75rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.section__lead--light {
+  color: var(--screen);
+}
+
+/* ---------- O que é a Seita ---------- */
+.grid {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+  padding: 1.25rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: var(--shadow-hard-sm);
+  transition:
+    transform 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow);
+}
+
+.card__icon {
+  display: inline-flex;
+  padding: 0.55rem;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-accent);
+  color: #fff;
+  animation: anim-float 5s ease-in-out infinite alternate;
+}
+
+.card:nth-child(2n) .card__icon {
+  animation-delay: -1.6s;
+}
+
+.card:nth-child(3n) .card__icon {
+  animation-delay: -3.2s;
+}
+
+.card__title {
+  font-size: var(--step-1);
+  line-height: 1.25;
+}
+
+.card__detail {
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+/* ---------- Não é sobre certificado ---------- */
+.belief {
+  margin-top: 0.9rem;
+  max-width: 60ch;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+/* ---------- Conclave ---------- */
+.conclave {
+  display: grid;
+  gap: 1.25rem;
+  justify-items: start;
+}
+
+.conclave__facts {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  width: 100%;
+}
+
+.conclave__facts dt {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.conclave__facts dd {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.conclave__perks {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-soft);
+}
+
+.conclave__perks li {
+  position: relative;
+  padding-left: 1rem;
+  line-height: 1.55;
+}
+
+.conclave__perks li::before {
+  content: '';
+  position: absolute;
+  top: 0.65em;
+  left: 0;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ---------- Rodapé ---------- */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+  padding-block: 1.25rem;
+  border-top: var(--border-w) solid var(--border-soft);
+  color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card__icon {
+    animation: none;
+  }
+}
+
+@media (min-width: 48rem) {
+  .hero {
+    padding-block: 5rem 2rem;
+  }
+
+  .grid--2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .card {
+    padding: 1.6rem;
+  }
+
+  .conclave__facts {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
