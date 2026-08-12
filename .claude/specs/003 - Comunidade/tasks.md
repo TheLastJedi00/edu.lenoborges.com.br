@@ -1,7 +1,7 @@
-# Fase 01: Domínio da Seita Dev []
-- [] Task 01 (TDD): Spec de `CommunityService` antes da implementação (trilha com 12 etapas, `order` sem lacunas e ids únicos, tiers dos 33 Graus, highlights)
-- [] Task 02: Criar `src/app/models/community.model.ts` com `TrackStage`, `TrackIconId`, `CommunityTier` e `CommunityHighlight`
-- [] Task 03: Criar `CommunityService` (`providedIn: 'root'`) com os dados estáticos da Seita: 12 etapas da trilha com seus tópicos, faixas de Grau (1 a 5 gratuito, 5 a 33 por R$ 14,99), highlights e dados do Conclave
+# Fase 01: Domínio da Seita Dev [x]
+- [x] Task 01 (TDD): Spec de `CommunityService` antes da implementação (trilha com 12 etapas, `order` sem lacunas e ids únicos, tiers dos 33 Graus, highlights)
+- [x] Task 02: Criar `src/app/models/community.model.ts` com `TrackStage`, `TrackIconId`, `CommunityTier` e `CommunityHighlight`
+- [x] Task 03: Criar `CommunityService` (`providedIn: 'root'`) com os dados estáticos da Seita: 12 etapas da trilha com seus tópicos, faixas de Grau (1 a 5 gratuito, 5 a 33 por R$ 14,99), highlights e dados do Conclave
 
 # Fase 02: Lista de espera (service mockado) []
 - [] Task 01 (TDD): Spec de `WaitlistService` antes da lógica (sucesso com recibo, normalização de telefone e e-mail, recusa sem consentimento, propagação de erro)
