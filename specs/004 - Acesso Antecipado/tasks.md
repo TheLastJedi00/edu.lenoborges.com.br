@@ -62,10 +62,10 @@ Branch: `feat/004-validacao`
 - [x] Task 05: Validar no Chrome em 390px, 768px e 1440px, sem scroll horizontal e sem erro de
   console, e rodar `ng build --configuration production`.
 
-# Fase 06: Release []
-- [] Task 01: Abrir `release/004-acesso-antecipado` unindo as `feat/004-*`.
-- [] Task 02: Merge da release em `dev`.
-- [] Task 03: PR contra a `main` (se houver origin; se não, merge local de `dev` em `main`).
+# Fase 06: Release [x]
+- [x] Task 01: Abrir `release/004-acesso-antecipado` unindo as `feat/004-*`.
+- [x] Task 02: Merge da release em `dev`.
+- [x] Task 03: PR contra a `main` (se houver origin; se não, merge local de `dev` em `main`).
 
 ## Checklist final
 - [x] `WaitlistService` chamando `POST /waitlist` de verdade, sem mock e sem `delay` simulado
