@@ -161,4 +161,4 @@
   </footer>
 </main>
 
-<app-waitlist-dialog [state]="waitlistState()" (submitted)="register($event)" />
+<app-waitlist-dialog [state]="waitlistState()" [errorMessage]="waitlistError()" (submitted)="register($event)" />

@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { WaitlistEntry } from '../../models/waitlist.model';
+import { WAITLIST_ERROR_DEFAULT } from '../../services/waitlist-error';
 
 export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
 
@@ -136,9 +137,7 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
           </label>
 
           @if (state() === 'error') {
-            <p class="form__error" role="alert">
-              Não consegui registrar agora. Tente de novo em instantes.
-            </p>
+            <p class="form__error" role="alert">{{ errorMessage() }}</p>
           }
 
           <button class="submit" type="submit" [disabled]="form.invalid || state() === 'sending'">
@@ -374,6 +373,12 @@ export class WaitlistDialog {
 
   /** Estado do envio, controlado pela página que faz a requisição. */
   readonly state = input<WaitlistState>('idle');
+
+  /**
+   * Texto exibido quando o estado é 'error'. Vem pronto da página: o componente é dumb e
+   * não conhece HTTP, então quem traduz status em mensagem é quem fez a requisição.
+   */
+  readonly errorMessage = input<string>(WAITLIST_ERROR_DEFAULT);
 
   readonly submitted = output<WaitlistEntry>();
   readonly closed = output<void>();
