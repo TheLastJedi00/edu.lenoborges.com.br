@@ -1,41 +1,43 @@
-import { Injectable, signal } from '@angular/core';
-import { Observable, defer, delay, of, throwError } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable, map, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { WaitlistEntry, WaitlistReceipt } from '../models/waitlist.model';
-
-/** Atraso simulado para o estado de envio ser visível na interface. */
-const NETWORK_DELAY_MS = 600;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/** O backend serializa em JSON, então receivedAt chega como string ISO. */
+interface WaitlistReceiptResponse {
+  readonly id: string;
+  readonly receivedAt: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class WaitlistService {
-  private readonly entries = signal<readonly WaitlistEntry[]>([]);
-
-  /** Inscrições confirmadas nesta sessão. Enquanto não há API, é o único registro que existe. */
-  readonly sent = this.entries.asReadonly();
+  private readonly http = inject(HttpClient);
 
   /**
    * Registra o interesse em entrar na Seita Dev.
-   * O envio é mockado: não há API por trás ainda, só o contrato que a API futura deve cumprir.
+   *
+   * E-mail repetido não é erro: o backend é idempotente e devolve o recibo original,
+   * então quem clica duas vezes vê sucesso.
    */
   submit(entry: WaitlistEntry): Observable<WaitlistReceipt> {
-    return defer(() => {
-      const normalized = this.normalize(entry);
-      const failure = this.validate(normalized);
+    const normalized = this.normalize(entry);
+    const failure = this.validate(normalized);
 
-      if (failure) {
-        return throwError(() => new Error(failure));
-      }
+    if (failure) {
+      return throwError(() => new Error(failure));
+    }
 
-      const receipt: WaitlistReceipt = {
-        id: this.newId(),
-        receivedAt: new Date()
-      };
-
-      this.entries.update((current) => [...current, normalized]);
-
-      return of(receipt).pipe(delay(NETWORK_DELAY_MS));
-    });
+    return this.http
+      .post<WaitlistReceiptResponse>(`${environment.apiUrl}/waitlist`, normalized)
+      .pipe(
+        map((response) => ({
+          id: response.id,
+          receivedAt: new Date(response.receivedAt)
+        }))
+      );
   }
 
   private normalize(entry: WaitlistEntry): WaitlistEntry {
@@ -47,7 +49,10 @@ export class WaitlistService {
     };
   }
 
-  /** O formulário já bloqueia entrada inválida; o service não confia no chamador. */
+  /**
+   * O formulário já bloqueia entrada inválida; o service não confia no chamador.
+   * Barrar aqui também evita gastar uma das 5 requisições por minuto que o backend permite.
+   */
   private validate(entry: WaitlistEntry): string | null {
     if (!entry.consent) {
       return 'É preciso dar consentimento para o uso dos dados.';
@@ -66,9 +71,5 @@ export class WaitlistService {
     }
 
     return null;
-  }
-
-  private newId(): string {
-    return globalThis.crypto?.randomUUID?.() ?? `waitlist-${Date.now()}`;
   }
 }
