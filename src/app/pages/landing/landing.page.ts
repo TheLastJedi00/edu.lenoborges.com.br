@@ -15,6 +15,7 @@ import { Reveal } from '../../directives/reveal';
 import { WaitlistEntry } from '../../models/waitlist.model';
 import { ProfileService } from '../../services/profile.service';
 import { WaitlistService } from '../../services/waitlist.service';
+import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/waitlist-error';
 
 @Component({
   selector: 'app-landing-page',
@@ -54,6 +55,7 @@ export class LandingPage {
   ];
 
   protected readonly waitlistState = signal<WaitlistState>('idle');
+  protected readonly waitlistError = signal(WAITLIST_ERROR_DEFAULT);
 
   protected readonly identity = computed(() => this.profileService.profile().identity);
   protected readonly teachingStack = this.profileService.teachingStack;
@@ -64,6 +66,7 @@ export class LandingPage {
 
   protected openWaitlist(): void {
     this.waitlistState.set('idle');
+    this.waitlistError.set(WAITLIST_ERROR_DEFAULT);
     this.dialog().open();
   }
 
@@ -72,7 +75,10 @@ export class LandingPage {
 
     this.waitlistService.submit(entry).subscribe({
       next: () => this.waitlistState.set('success'),
-      error: () => this.waitlistState.set('error')
+      error: (error: unknown) => {
+        this.waitlistError.set(waitlistErrorMessage(error));
+        this.waitlistState.set('error');
+      }
     });
   }
 

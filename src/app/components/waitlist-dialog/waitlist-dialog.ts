@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { WaitlistEntry } from '../../models/waitlist.model';
+import { WAITLIST_ERROR_DEFAULT } from '../../services/waitlist-error';
 
 export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
 
@@ -123,8 +124,8 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
             <p>
               Não vendo nem compartilho esses dados com terceiros para publicidade. Você pode pedir
               consulta, correção ou exclusão a qualquer momento, e revogar o consentimento, pelos
-              canais de contato do Leno Borges. Enquanto a plataforma está em construção, o envio
-              fica registrado apenas nesta sessão do navegador, sem servidor de produção.
+              canais de contato do Leno Borges. Os dados são enviados e guardados no banco de dados
+              da Seita Dev enquanto durar a lista de espera, e apagados quando você pedir.
             </p>
           </div>
 
@@ -136,9 +137,7 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
           </label>
 
           @if (state() === 'error') {
-            <p class="form__error" role="alert">
-              Não consegui registrar agora. Tente de novo em instantes.
-            </p>
+            <p class="form__error" role="alert">{{ errorMessage() }}</p>
           }
 
           <button class="submit" type="submit" [disabled]="form.invalid || state() === 'sending'">
@@ -157,6 +156,8 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
     .modal {
       width: min(32rem, calc(100vw - 2rem));
       /* No mobile o formulário é mais alto que a tela: quem rola é o modal, não a página. */
+      inset: 0;
+      margin: auto;
       max-height: calc(100dvh - 2rem);
       overflow-y: auto;
       padding: 1.5rem 1.25rem;
@@ -374,6 +375,12 @@ export class WaitlistDialog {
 
   /** Estado do envio, controlado pela página que faz a requisição. */
   readonly state = input<WaitlistState>('idle');
+
+  /**
+   * Texto exibido quando o estado é 'error'. Vem pronto da página: o componente é dumb e
+   * não conhece HTTP, então quem traduz status em mensagem é quem fez a requisição.
+   */
+  readonly errorMessage = input<string>(WAITLIST_ERROR_DEFAULT);
 
   readonly submitted = output<WaitlistEntry>();
   readonly closed = output<void>();
