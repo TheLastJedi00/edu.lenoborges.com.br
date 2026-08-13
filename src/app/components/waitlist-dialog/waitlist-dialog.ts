@@ -124,8 +124,8 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
             <p>
               Não vendo nem compartilho esses dados com terceiros para publicidade. Você pode pedir
               consulta, correção ou exclusão a qualquer momento, e revogar o consentimento, pelos
-              canais de contato do Leno Borges. Enquanto a plataforma está em construção, o envio
-              fica registrado apenas nesta sessão do navegador, sem servidor de produção.
+              canais de contato do Leno Borges. Os dados são enviados e guardados no banco de dados
+              da Seita Dev enquanto durar a lista de espera, e apagados quando você pedir.
             </p>
           </div>
 
