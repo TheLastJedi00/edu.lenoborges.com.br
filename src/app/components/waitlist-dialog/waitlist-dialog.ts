@@ -156,6 +156,8 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
     .modal {
       width: min(32rem, calc(100vw - 2rem));
       /* No mobile o formulário é mais alto que a tela: quem rola é o modal, não a página. */
+      inset: 0;
+      margin: auto;
       max-height: calc(100dvh - 2rem);
       overflow-y: auto;
       padding: 1.5rem 1.25rem;
