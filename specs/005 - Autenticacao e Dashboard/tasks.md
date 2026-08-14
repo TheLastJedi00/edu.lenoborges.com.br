@@ -134,22 +134,22 @@ Branch: `feat/005-definir-senha`
   query; ler dos dois lugares evita que uma configuração errada de ambiente quebre a página em
   silêncio.
 
-# Fase 05: Onboarding obrigatório []
+# Fase 05: Onboarding obrigatório [x]
 Branch: `feat/005-onboarding`
 
-- [] Task 01: Criar a página. Arquivos:
+- [x] Task 01: Criar a página. Arquivos:
   `src/app/pages/completar-perfil/completar-perfil.page.{ts,html,scss}`. Objetivo: cartão centrado,
   só logo e formulário, sem aside e sem menu de navegação.
-- [] Task 02: Montar o formulário reativo. Arquivo: `completar-perfil.page.html`. Objetivo: nome de 2
+- [x] Task 02: Montar o formulário reativo. Arquivo: `completar-perfil.page.html`. Objetivo: nome de 2
   a 120, telefone com 10 ou 11 dígitos e bio de 10 a 500 com contador de caracteres visível, usando
   as **mesmas** regras do `WaitlistService` da spec 004 pelo utilitário da Fase 01.
-- [] Task 03: Pré-preencher com o que veio do backend. Arquivo: `completar-perfil.page.ts`.
+- [x] Task 03: Pré-preencher com o que veio do backend. Arquivo: `completar-perfil.page.ts`.
   Objetivo: `name` e `phone` vindos da lista de espera chegam preenchidos e editáveis, **sem selo e
   sem explicação**: é sugestão, não verdade.
-- [] Task 04: Ligar o envio. Arquivo: `completar-perfil.page.ts`. Objetivo: `PATCH /me/profile`,
+- [x] Task 04: Ligar o envio. Arquivo: `completar-perfil.page.ts`. Objetivo: `PATCH /me/profile`,
   sucesso marcando `profileCompleted` no store e navegando para `/dashboard`, erro mostrando a
   mensagem acima do botão e **mantendo tudo digitado**.
-- [] Task 05: Oferecer a única saída. Arquivo: `completar-perfil.page.html`. Objetivo: botão **Sair**
+- [x] Task 05: Oferecer a única saída. Arquivo: `completar-perfil.page.html`. Objetivo: botão **Sair**
   com o mesmo modal de confirmação do dashboard. Quem não quer preencher pode ir embora; não pode é
   entrar sem preencher.
 
