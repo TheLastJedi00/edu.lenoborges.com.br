@@ -226,26 +226,26 @@ Branch: `feat/005-dashboard-page`
   `--radius-lg`) em vez de inventar tema para a área logada, e nenhum travessão nos textos de tela
   (regra 4 do clauderc).
 
-# Fase 08: Validação ponta a ponta e documentação []
+# Fase 08: Validação ponta a ponta e documentação [x]
 Branch: `feat/005-validacao`
 
-- [] Task 01: Rodar `ng test`. Objetivo: suíte verde, incluindo as specs da spec 004 que passaram a
+- [x] Task 01: Rodar `ng test`. Objetivo: suíte verde, incluindo as specs da spec 004 que passaram a
   usar o utilitário de normalização.
-- [] Task 02: Validar o fluxo completo no Chrome, com o backend no ar. Objetivo: regra 3 do clauderc
+- [x] Task 02: Validar o fluxo completo no Chrome, com o backend no ar. Objetivo: regra 3 do clauderc
   — cadastrar, receber o e-mail, definir a senha, logar, preencher o onboarding e chegar ao
   dashboard, sem erro de CORS no console.
-- [] Task 03: Testar o F5 dentro do dashboard. Objetivo: recarregar em `/dashboard` e continuar
+- [x] Task 03: Testar o F5 dentro do dashboard. Objetivo: recarregar em `/dashboard` e continuar
   logado. É exatamente onde token em memória costuma falhar, e é o que a Task 10 da Fase 01 existe
   para resolver.
-- [] Task 04: Testar a expiração e o refresh. Objetivo: com o access token vencido, uma ação
+- [x] Task 04: Testar a expiração e o refresh. Objetivo: com o access token vencido, uma ação
   autenticada deve renovar em silêncio e concluir, e duas ações simultâneas devem provocar **um**
   refresh, não dois.
-- [] Task 05: Testar os guards pela URL. Objetivo: `/dashboard` sem sessão abre o modal de login;
+- [x] Task 05: Testar os guards pela URL. Objetivo: `/dashboard` sem sessão abre o modal de login;
   `/completar-perfil` com perfil já completo volta ao dashboard; depois do login, o usuário chega na
   URL que tentou antes.
-- [] Task 06: Testar no tamanho de celular. Objetivo: gaveta abrindo e fechando por Esc, por toque
+- [x] Task 06: Testar no tamanho de celular. Objetivo: gaveta abrindo e fechando por Esc, por toque
   fora e ao navegar, e nenhum estouro horizontal em 360px de largura.
-- [] Task 07: Atualizar o `README.md`. Arquivo: `README.md`. Objetivo: documentar as rotas novas, a
+- [x] Task 07: Atualizar o `README.md`. Arquivo: `README.md`. Objetivo: documentar as rotas novas, a
   variável `whatsappGroupUrl` e a dependência do backend da spec 005 para o app subir com sessão.
 
 # Fase 09: Release []
@@ -253,20 +253,20 @@ Branch: `feat/005-validacao`
 - [] Task 02: Merge da release em `dev` e PR contra a `main` (se houver origin; se não, merge local).
 
 ## Checklist final
-- [] Botão **Entrar na Seita Dev** no menu e no hero, virando **Ir para o painel** com sessão
-- [] Cadastro com dois campos de e-mail, sem senha, e estado de espera após o 202
-- [] Resposta do cadastro idêntica para e-mail novo e já cadastrado
-- [] `/definir-senha` lendo o token da URL sem exibi-lo e tratando link inválido
-- [] Onboarding obrigatório, com guard próprio e sem aside na tela
-- [] Guard inverso impedindo voltar ao onboarding depois de concluído
-- [] Dashboard recebendo pelo nome e exibindo o Grau vindo do backend
-- [] Quatro cartões presentes, três inertes com selo "Em breve", WhatsApp abrindo em nova aba
-- [] Aside expansível com os mesmos itens mais Home, e Sair no rodapé com confirmação
-- [] Aside como gaveta no celular e coluna fixa no desktop
-- [] Access token só em memória, nada de sessão em `localStorage`
-- [] F5 dentro do dashboard mantém a sessão
-- [] 401 simultâneo dispara um único refresh
-- [] Logout desloga mesmo com a requisição falhando
-- [] Nenhum `@supabase/supabase-js` nem chave do Supabase neste repositório
-- [] Nenhum emoji, SVG componentizado, animações em `.scss` e mobile first
-- [] `ng test` verde e fluxo validado no Chrome
+- [x] Botão **Entrar na Seita Dev** no menu e no hero, virando **Ir para o painel** com sessão
+- [x] Cadastro com dois campos de e-mail, sem senha, e estado de espera após o 202
+- [x] Resposta do cadastro idêntica para e-mail novo e já cadastrado
+- [x] `/definir-senha` lendo o token da URL sem exibi-lo e tratando link inválido
+- [x] Onboarding obrigatório, com guard próprio e sem aside na tela
+- [x] Guard inverso impedindo voltar ao onboarding depois de concluído
+- [x] Dashboard recebendo pelo nome e exibindo o Grau vindo do backend
+- [x] Quatro cartões presentes, três inertes com selo "Em breve", WhatsApp abrindo em nova aba
+- [x] Aside expansível com os mesmos itens mais Home, e Sair no rodapé com confirmação
+- [x] Aside como gaveta no celular e coluna fixa no desktop
+- [x] Access token só em memória, nada de sessão em `localStorage`
+- [x] F5 dentro do dashboard mantém a sessão
+- [x] 401 simultâneo dispara um único refresh
+- [x] Logout desloga mesmo com a requisição falhando
+- [x] Nenhum `@supabase/supabase-js` nem chave do Supabase neste repositório
+- [x] Nenhum emoji, SVG componentizado, animações em `.scss` e mobile first
+- [x] `ng test` verde e fluxo validado no Chrome
