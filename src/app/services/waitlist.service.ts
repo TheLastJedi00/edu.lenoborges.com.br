@@ -2,9 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { EMAIL_PATTERN, normalizeEmail, normalizeName, normalizePhone } from '../core/normalize';
 import { WaitlistEntry, WaitlistReceipt } from '../models/waitlist.model';
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /** O backend serializa em JSON, então receivedAt chega como string ISO. */
 interface WaitlistReceiptResponse {
@@ -42,9 +41,9 @@ export class WaitlistService {
 
   private normalize(entry: WaitlistEntry): WaitlistEntry {
     return {
-      name: entry.name.trim().replace(/\s+/g, ' '),
-      phone: entry.phone.replace(/\D/g, ''),
-      email: entry.email.trim().toLowerCase(),
+      name: normalizeName(entry.name),
+      phone: normalizePhone(entry.phone),
+      email: normalizeEmail(entry.email),
       consent: entry.consent
     };
   }

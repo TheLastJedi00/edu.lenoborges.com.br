@@ -11,7 +11,7 @@ lógica. Nada de tela até a sessão funcionar contra o backend real.
   `src/app/core/normalize.spec.ts`. Objetivo: mover trim com colapso de espaços do nome, dígitos do
   telefone e lowercase do e-mail para um único lugar, com os casos migrados de
   `waitlist.service.spec.ts`.
-- [] Task 03: Passar o `WaitlistService` a usar o utilitário. Arquivos:
+- [x] Task 03: Passar o `WaitlistService` a usar o utilitário. Arquivos:
   `src/app/services/waitlist.service.ts`, `src/app/services/waitlist.service.spec.ts`. Objetivo:
   remover a normalização duplicada sem alterar comportamento; a suíte da spec 004 continua verde sem
   mexer em expectativa.
