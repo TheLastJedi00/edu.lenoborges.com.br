@@ -248,9 +248,9 @@ Branch: `feat/005-validacao`
 - [x] Task 07: Atualizar o `README.md`. Arquivo: `README.md`. Objetivo: documentar as rotas novas, a
   variável `whatsappGroupUrl` e a dependência do backend da spec 005 para o app subir com sessão.
 
-# Fase 09: Release []
-- [] Task 01: Abrir `release/005-autenticacao` unindo as branches `feat/005-*`.
-- [] Task 02: Merge da release em `dev` e PR contra a `main` (se houver origin; se não, merge local).
+# Fase 09: Release [x]
+- [x] Task 01: Abrir `release/005-autenticacao` unindo as branches `feat/005-*`.
+- [x] Task 02: Merge da release em `dev` e PR contra a `main` (se houver origin; se não, merge local).
 
 ## Checklist final
 - [x] Botão **Entrar na Seita Dev** no menu e no hero, virando **Ir para o painel** com sessão
