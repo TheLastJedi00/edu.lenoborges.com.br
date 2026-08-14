@@ -1,9 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   HostListener,
+  computed,
+  inject,
   input,
-  output
+  output,
+  signal
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Logo } from '../../shared/logo/logo';
@@ -12,6 +16,13 @@ import { IconHome } from '../icons/icon-home';
 import { IconLogout } from '../icons/icon-logout';
 import { IconTrack } from '../icons/icon-track';
 import { IconUser } from '../icons/icon-user';
+
+/** Espelha o breakpoint do .scss onde a gaveta vira coluna fixa. */
+const MOBILE_QUERY = '(max-width: 63.999rem)';
+
+function matchesMobile(): boolean {
+  return globalThis.matchMedia?.(MOBILE_QUERY).matches ?? false;
+}
 
 export interface AsideNavItem {
   readonly id: string;
@@ -48,6 +59,7 @@ export interface AsideNavItem {
       class="aside"
       [class.aside--expanded]="expanded()"
       [class.aside--mobile-open]="mobileOpen()"
+      [attr.inert]="hidden() ? '' : null"
       aria-label="Menu do painel"
     >
       <div class="aside__head">
@@ -90,8 +102,9 @@ export interface AsideNavItem {
             <a
               routerLink="/dashboard"
               routerLinkActive="is-active"
+              #homeLink="routerLinkActive"
               [routerLinkActiveOptions]="{ exact: true }"
-              aria-current="page"
+              [attr.aria-current]="homeLink.isActive ? 'page' : null"
               class="aside__item"
               [title]="!expanded() ? 'Início do Painel' : ''"
               [attr.aria-label]="!expanded() ? 'Início do Painel' : null"
@@ -386,6 +399,28 @@ export class DashboardAside {
   readonly closeMobile = output<void>();
   readonly logout = output<void>();
   readonly navigate = output<string>();
+
+  /**
+   * No celular a gaveta continua no DOM quando fechada, apenas deslocada por
+   * `transform`. Sem `inert`, quem navega por teclado ou leitor de tela tabula
+   * para dentro de cinco controles invisíveis fora da tela, o Sair entre eles.
+   *
+   * O breakpoint espelha o do `.scss`, onde a gaveta vira coluna fixa.
+   */
+  private readonly isMobile = signal(matchesMobile());
+
+  protected readonly hidden = computed(() => this.isMobile() && !this.mobileOpen());
+
+  constructor() {
+    const query = globalThis.matchMedia?.(MOBILE_QUERY);
+    if (!query) {
+      return;
+    }
+
+    const onChange = (event: MediaQueryListEvent) => this.isMobile.set(event.matches);
+    query.addEventListener('change', onChange);
+    inject(DestroyRef).onDestroy(() => query.removeEventListener('change', onChange));
+  }
 
   @HostListener('window:keydown.escape')
   onEscape(): void {
