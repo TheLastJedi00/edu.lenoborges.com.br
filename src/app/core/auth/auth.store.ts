@@ -15,11 +15,27 @@ export class AuthStore {
    */
   readonly accessToken = signal<string | null>(null);
   readonly user = signal<MemberUser | null>(null);
+  /** Perfil completo, carregado por `GET /me`. Nulo até alguma page pedir. */
   readonly profile = signal<MemberProfile | null>(null);
   readonly status = signal<AuthStatus>('unknown');
 
+  /**
+   * `profileCompleted` e `grade` chegam na resposta da sessão, achatados, e são
+   * guardados aqui separados do perfil completo. Os guards rodam antes de
+   * qualquer page pedir `GET /me`, então precisam de uma resposta que já esteja
+   * em memória: sem isso, o F5 dentro do painel devolve o usuário ao onboarding.
+   */
+  private readonly sessionProfileCompleted = signal(false);
+  private readonly sessionGrade = signal(1);
+
   readonly isLoggedIn = computed(() => this.status() === 'authenticated');
-  readonly profileCompleted = computed(() => this.profile()?.profileCompleted ?? false);
+
+  /** O perfil carregado manda quando existe, porque é o dado mais recente. */
+  readonly profileCompleted = computed(
+    () => this.profile()?.profileCompleted ?? this.sessionProfileCompleted()
+  );
+
+  readonly grade = computed(() => this.profile()?.grade ?? this.sessionGrade());
 
   /** URL tentada por usuário não autenticado para redirecionamento pós-login. */
   readonly intendedUrl = signal<string | null>(null);
@@ -29,11 +45,20 @@ export class AuthStore {
   readonly authDialogTab = signal<'login' | 'signup'>('login');
 
   setSession(session: Session): void {
+    const trocouDeUsuario = this.user()?.id !== session.user.id;
+
     this.accessToken.set(session.accessToken);
     this.user.set(session.user);
-    this.profile.set(session.profile);
+    this.sessionProfileCompleted.set(session.profileCompleted);
+    this.sessionGrade.set(session.grade);
     this.status.set('authenticated');
     this.markSessionHint();
+
+    // Perfil de outra pessoa não pode sobreviver a um login novo. Num refresh do
+    // mesmo usuário ele é mantido, para a tela não piscar sem nome.
+    if (trocouDeUsuario) {
+      this.profile.set(null);
+    }
   }
 
   setProfile(profile: MemberProfile): void {
@@ -44,6 +69,8 @@ export class AuthStore {
     this.accessToken.set(null);
     this.user.set(null);
     this.profile.set(null);
+    this.sessionProfileCompleted.set(false);
+    this.sessionGrade.set(1);
     this.status.set('anonymous');
     this.clearSessionHint();
   }

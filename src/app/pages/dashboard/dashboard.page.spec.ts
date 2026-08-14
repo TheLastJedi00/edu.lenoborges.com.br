@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AuthStore } from '../../core/auth/auth.store';
@@ -11,21 +13,30 @@ describe('DashboardPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DashboardPage],
-      providers: [provideZonelessChangeDetection(), AuthStore]
+      providers: [
+        provideZonelessChangeDetection(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        AuthStore
+      ]
     }).compileComponents();
 
     authStore = TestBed.inject(AuthStore);
     authStore.setSession({
       accessToken: 'token-abc',
+      expiresIn: 3600,
       user: { id: 'u1', email: 'leno.borges@exemplo.com' },
-      profile: {
-        id: 'p1',
-        name: 'Leno Borges da Silva',
-        phone: '47999991234',
-        bio: 'Bio',
-        grade: 5,
-        profileCompleted: true
-      }
+      profileCompleted: true,
+      grade: 5
+    });
+    authStore.setProfile({
+      id: 'p1',
+      email: 'leno.borges@exemplo.com',
+      name: 'Leno Borges da Silva',
+      phone: '47999991234',
+      bio: 'Bio',
+      grade: 5,
+      profileCompleted: true
     });
 
     fixture = TestBed.createComponent(DashboardPage);

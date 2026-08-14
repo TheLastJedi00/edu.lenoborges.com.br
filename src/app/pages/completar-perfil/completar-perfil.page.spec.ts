@@ -18,6 +18,7 @@ describe('CompletarPerfilPage', () => {
 
   const initialProfile: MemberProfile = {
     id: 'p-1',
+    email: 'leno@exemplo.com',
     name: 'Leno Sugerido',
     phone: '47999991234',
     bio: '',
@@ -47,9 +48,14 @@ describe('CompletarPerfilPage', () => {
 
     authStore.setSession({
       accessToken: 'token',
+      expiresIn: 3600,
       user: { id: 'u1', email: 'leno@exemplo.com' },
-      profile: initialProfile
+      profileCompleted: false,
+      grade: 1
     });
+    // O perfil completo chega por GET /me, não pela sessão. A page pede sozinha
+    // quando o store está vazio; aqui já entregamos o resultado.
+    authStore.setProfile(initialProfile);
 
     fixture = TestBed.createComponent(CompletarPerfilPage);
     component = fixture.componentInstance;

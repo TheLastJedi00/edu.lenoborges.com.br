@@ -160,9 +160,17 @@ export class AuthService {
   }
 
   /**
-   * Consulta os dados do membro autenticado.
+   * Carrega o perfil completo do membro autenticado.
+   *
+   * A resposta é achatada, sem `user` nem `profile` aninhados. Quem chama são as
+   * pages que precisam de nome, telefone ou bio, dados que a resposta da sessão
+   * não carrega.
    */
-  getMe(): Observable<{ user: MemberUser; profile: MemberProfile }> {
-    return this.http.get<{ user: MemberUser; profile: MemberProfile }>(`${environment.apiUrl}/me`);
+  getMe(): Observable<MemberProfile> {
+    return this.http.get<MemberProfile>(`${environment.apiUrl}/me`).pipe(
+      tap((profile) => {
+        this.authStore.setProfile(profile);
+      })
+    );
   }
 }

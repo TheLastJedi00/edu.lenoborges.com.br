@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  viewChild
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -6,6 +16,7 @@ import { ConfirmDialog } from '../../components/confirm-dialog/confirm-dialog';
 import { AuthService } from '../../core/auth/auth.service';
 import { AuthStore } from '../../core/auth/auth.store';
 import { httpErrorMessage } from '../../core/http-error';
+import { MemberProfile } from '../../models/auth.model';
 import { Logo } from '../../shared/logo/logo';
 
 @Component({
@@ -20,6 +31,7 @@ export class CompletarPerfilPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly authStore = inject(AuthStore);
 
   private readonly logoutDialog = viewChild<ConfirmDialog>('logoutDialog');
@@ -36,19 +48,39 @@ export class CompletarPerfilPage implements OnInit {
 
   readonly bioLength = computed(() => this.form.controls.bio.value.length);
 
+  /**
+   * Carrega o perfil para pré-preencher com o que veio da lista de espera.
+   *
+   * A resposta da sessão não traz nome nem telefone, só `profileCompleted` e
+   * `grade`, então é preciso pedir `GET /me`. Antes isto lia o store e o store
+   * estava vazio, o que fazia o pré-preenchimento nunca acontecer.
+   */
   ngOnInit(): void {
-    // Pré-preenche com os dados vindos do backend (ex: pré-cadastro na lista de espera)
-    const profile = this.authStore.profile();
-    if (profile) {
-      if (profile.name) {
-        this.form.controls.name.setValue(profile.name);
-      }
-      if (profile.phone) {
-        this.form.controls.phone.setValue(profile.phone);
-      }
-      if (profile.bio) {
-        this.form.controls.bio.setValue(profile.bio);
-      }
+    const carregado = this.authStore.profile();
+    if (carregado) {
+      this.preencher(carregado);
+      return;
+    }
+
+    this.authService
+      .getMe()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (profile) => this.preencher(profile),
+        error: () => undefined
+      });
+  }
+
+  /** O dado da waitlist é sugestão editável, sem selo e sem aviso. */
+  private preencher(profile: MemberProfile): void {
+    if (profile.name) {
+      this.form.controls.name.setValue(profile.name);
+    }
+    if (profile.phone) {
+      this.form.controls.phone.setValue(profile.phone);
+    }
+    if (profile.bio) {
+      this.form.controls.bio.setValue(profile.bio);
     }
   }
 

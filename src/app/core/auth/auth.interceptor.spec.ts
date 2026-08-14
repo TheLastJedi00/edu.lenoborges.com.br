@@ -12,6 +12,7 @@ import { AuthStore } from './auth.store';
 
 const MOCK_PROFILE: MemberProfile = {
   id: 'prof-1',
+  email: 'leno@exemplo.com',
   name: 'Leno',
   phone: '47999991234',
   bio: 'Bio teste',
@@ -21,8 +22,10 @@ const MOCK_PROFILE: MemberProfile = {
 
 const MOCK_SESSION: Session = {
   accessToken: 'new-token-abc',
+  expiresIn: 3600,
   user: { id: 'u1', email: 'leno@exemplo.com' },
-  profile: MOCK_PROFILE
+  profileCompleted: true,
+  grade: 1
 };
 
 describe('authInterceptor (TDD)', () => {

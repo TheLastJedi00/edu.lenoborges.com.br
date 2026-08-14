@@ -27,15 +27,10 @@ describe('authGuard (TDD)', () => {
   it('permite acesso quando o usuário está logado', () => {
     store.setSession({
       accessToken: 'token-123',
+      expiresIn: 3600,
       user: { id: 'u1', email: 'test@example.com' },
-      profile: {
-        id: 'p1',
-        name: 'Leno',
-        phone: '47999991234',
-        bio: 'Bio',
-        grade: 1,
-        profileCompleted: true
-      }
+      profileCompleted: true,
+      grade: 1
     });
 
     const result = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState('/dashboard')));

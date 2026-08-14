@@ -28,15 +28,10 @@ describe('profile Guards (TDD)', () => {
     it('libera o acesso quando o perfil está completo', () => {
       store.setSession({
         accessToken: 'token-123',
+        expiresIn: 3600,
         user: { id: 'u1', email: 'test@example.com' },
-        profile: {
-          id: 'p1',
-          name: 'Leno',
-          phone: '47999991234',
-          bio: 'Bio',
-          grade: 1,
-          profileCompleted: true
-        }
+        profileCompleted: true,
+        grade: 1
       });
 
       const result = TestBed.runInInjectionContext(() => profileCompleteGuard(mockRoute, mockState('/dashboard')));
@@ -46,15 +41,10 @@ describe('profile Guards (TDD)', () => {
     it('redireciona para /completar-perfil quando o perfil está incompleto', () => {
       store.setSession({
         accessToken: 'token-123',
+        expiresIn: 3600,
         user: { id: 'u1', email: 'test@example.com' },
-        profile: {
-          id: 'p1',
-          name: 'Leno',
-          phone: '47999991234',
-          bio: '',
-          grade: 1,
-          profileCompleted: false
-        }
+        profileCompleted: false,
+        grade: 1
       });
 
       const result = TestBed.runInInjectionContext(() => profileCompleteGuard(mockRoute, mockState('/dashboard')));
@@ -67,15 +57,10 @@ describe('profile Guards (TDD)', () => {
     it('libera acesso ao onboarding quando perfil está incompleto', () => {
       store.setSession({
         accessToken: 'token-123',
+        expiresIn: 3600,
         user: { id: 'u1', email: 'test@example.com' },
-        profile: {
-          id: 'p1',
-          name: 'Leno',
-          phone: '47999991234',
-          bio: '',
-          grade: 1,
-          profileCompleted: false
-        }
+        profileCompleted: false,
+        grade: 1
       });
 
       const result = TestBed.runInInjectionContext(() =>
@@ -87,15 +72,10 @@ describe('profile Guards (TDD)', () => {
     it('redireciona perfil já completo de volta ao /dashboard para não reabrir onboarding', () => {
       store.setSession({
         accessToken: 'token-123',
+        expiresIn: 3600,
         user: { id: 'u1', email: 'test@example.com' },
-        profile: {
-          id: 'p1',
-          name: 'Leno',
-          phone: '47999991234',
-          bio: 'Bio completa',
-          grade: 1,
-          profileCompleted: true
-        }
+        profileCompleted: true,
+        grade: 1
       });
 
       const result = TestBed.runInInjectionContext(() =>

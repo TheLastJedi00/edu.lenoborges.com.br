@@ -10,6 +10,7 @@ import { AuthStore } from './auth.store';
 
 const MOCK_PROFILE: MemberProfile = {
   id: 'prof-123',
+  email: 'leno@exemplo.com',
   name: 'Leno Borges',
   phone: '47999991234',
   bio: 'Desenvolvedor e mentor de programação.',
@@ -19,11 +20,13 @@ const MOCK_PROFILE: MemberProfile = {
 
 const MOCK_SESSION: Session = {
   accessToken: 'jwt-access-token-123',
+  expiresIn: 3600,
   user: {
     id: 'user-123',
     email: 'leno@exemplo.com'
   },
-  profile: MOCK_PROFILE
+  profileCompleted: true,
+  grade: 1
 };
 
 describe('AuthService (TDD)', () => {
@@ -216,5 +219,89 @@ describe('AuthService (TDD)', () => {
     const result = await pending;
     expect(result.name).toBe('Maria Silva');
     expect(store.profile()?.name).toBe('Maria Silva');
+  });
+
+  describe('contrato da API', () => {
+    // Estes testes usam o corpo literal que o backend responde, copiado do
+    // context.md da spec 005. Os outros usam constantes do próprio front, e foi
+    // por isso que a divergência de formato passou por 118 testes verdes e só
+    // apareceu no teste manual: o front tipava um `profile` aninhado que a API
+    // nunca mandou, e o F5 dentro do painel devolvia o usuário ao onboarding.
+
+    it('9. refresh sozinho já responde profileCompleted, sem depender de GET /me', async () => {
+      const pending = firstValueFrom(service.refresh());
+
+      httpMock.expectOne(`${environment.apiUrl}/auth/refresh`).flush({
+        accessToken: 'token-novo',
+        expiresIn: 3600,
+        user: { id: 'user-123', email: 'leno@exemplo.com' },
+        profileCompleted: true,
+        grade: 7
+      });
+
+      await pending;
+
+      expect(store.profileCompleted()).toBeTrue();
+      expect(store.grade()).toBe(7);
+      expect(store.accessToken()).toBe('token-novo');
+      // O perfil completo não vem na sessão, e não pode ser inventado.
+      expect(store.profile()).toBeNull();
+    });
+
+    it('10. login com perfil incompleto responde profileCompleted falso', async () => {
+      const pending = firstValueFrom(
+        service.login({ email: 'novo@exemplo.com', password: 'senha-12345' })
+      );
+
+      httpMock.expectOne(`${environment.apiUrl}/auth/login`).flush({
+        accessToken: 'token-abc',
+        expiresIn: 3600,
+        user: { id: 'user-novo', email: 'novo@exemplo.com' },
+        profileCompleted: false,
+        grade: 1
+      });
+
+      await pending;
+
+      expect(store.profileCompleted()).toBeFalse();
+    });
+
+    it('11. GET /me devolve o perfil achatado e alimenta o store', async () => {
+      const pending = firstValueFrom(service.getMe());
+
+      httpMock.expectOne(`${environment.apiUrl}/me`).flush({
+        id: 'user-123',
+        email: 'leno@exemplo.com',
+        name: 'Leno Borges',
+        phone: '47999991234',
+        bio: 'Bio de teste com mais de dez caracteres.',
+        grade: 7,
+        profileCompleted: true
+      });
+
+      const profile = await pending;
+
+      expect(profile.name).toBe('Leno Borges');
+      expect(store.profile()?.name).toBe('Leno Borges');
+    });
+
+    it('12. perfil ainda vazio chega com name, phone e bio nulos', async () => {
+      const pending = firstValueFrom(service.getMe());
+
+      httpMock.expectOne(`${environment.apiUrl}/me`).flush({
+        id: 'user-123',
+        email: 'novo@exemplo.com',
+        name: null,
+        phone: null,
+        bio: null,
+        grade: 1,
+        profileCompleted: false
+      });
+
+      const profile = await pending;
+
+      expect(profile.name).toBeNull();
+      expect(store.profileCompleted()).toBeFalse();
+    });
   });
 });
