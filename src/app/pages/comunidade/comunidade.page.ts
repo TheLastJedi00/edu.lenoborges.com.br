@@ -1,14 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { GradeLadder } from '../../components/grade-ladder/grade-ladder';
 import { IconRanking } from '../../components/icons/icon-ranking';
 import { IconShare } from '../../components/icons/icon-share';
 import { IconWhatsapp } from '../../components/icons/icon-whatsapp';
 import { IconYoutube } from '../../components/icons/icon-youtube';
-import { MenuBar, MenuItem } from '../../components/menu-bar/menu-bar';
+import { MenuAction, MenuBar, MenuItem } from '../../components/menu-bar/menu-bar';
 import { PixelButton } from '../../components/pixel-button/pixel-button';
 import { PixelPanel } from '../../components/pixel-panel/pixel-panel';
 import { TrackTimeline } from '../../components/track-timeline/track-timeline';
 import { WaitlistDialog, WaitlistState } from '../../components/waitlist-dialog/waitlist-dialog';
+import { AuthStore } from '../../core/auth/auth.store';
 import { Reveal } from '../../directives/reveal';
 import { WaitlistEntry } from '../../models/waitlist.model';
 import { CommunityService } from '../../services/community.service';
@@ -17,6 +18,7 @@ import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/wai
 
 @Component({
   selector: 'app-comunidade-page',
+  standalone: true,
   imports: [
     MenuBar,
     PixelButton,
@@ -37,6 +39,7 @@ import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/wai
 export class ComunidadePage {
   private readonly communityService = inject(CommunityService);
   private readonly waitlistService = inject(WaitlistService);
+  readonly authStore = inject(AuthStore);
 
   private readonly dialog = viewChild.required(WaitlistDialog);
 
@@ -48,6 +51,12 @@ export class ComunidadePage {
     { route: '/', label: 'Aulas particulares' }
   ];
 
+  protected readonly menuAction = computed<MenuAction>(() =>
+    this.authStore.isLoggedIn()
+      ? { label: 'Ir para o painel', route: '/dashboard' }
+      : { label: 'Entrar na Seita Dev' }
+  );
+
   protected readonly identity = this.communityService.identity;
   protected readonly grades = this.communityService.grades;
   protected readonly tiers = this.communityService.tiers;
@@ -57,6 +66,10 @@ export class ComunidadePage {
 
   protected readonly waitlistState = signal<WaitlistState>('idle');
   protected readonly waitlistError = signal(WAITLIST_ERROR_DEFAULT);
+
+  protected openLogin(): void {
+    this.authStore.openAuthDialog('login');
+  }
 
   protected openWaitlist(): void {
     this.waitlistState.set('idle');

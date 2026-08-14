@@ -1,20 +1,22 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Logo } from '../../shared/logo/logo';
 
-/**
- * Um item do menu: âncora dentro da própria página (`href`) ou destino de rota (`route`).
- * Os dois não convivem no mesmo item.
- */
 export interface MenuItem {
   readonly label: string;
   readonly href?: string;
   readonly route?: string;
 }
 
+export interface MenuAction {
+  readonly label: string;
+  readonly route?: string;
+}
+
 /** Barra fixa de navegação. Cada página passa os seus próprios itens. */
 @Component({
   selector: 'app-menu-bar',
+  standalone: true,
   imports: [Logo, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -36,6 +38,20 @@ export interface MenuItem {
           }
         </ul>
       </nav>
+
+      @if (action(); as act) {
+        <div class="bar__action">
+          @if (act.route) {
+            <a class="action-btn u-mono" [routerLink]="act.route">
+              {{ act.label }}
+            </a>
+          } @else {
+            <button type="button" class="action-btn u-mono" (click)="actionClick.emit()">
+              {{ act.label }}
+            </button>
+          }
+        </div>
+      }
     </div>
   `,
   styles: `
@@ -79,8 +95,6 @@ export interface MenuItem {
       text-decoration: none;
     }
 
-    /* Sem min-width 0 o item flex não encolhe abaixo do conteúdo e o
-       overflow-x do menu nunca entra em ação: a barra empurra a página. */
     .bar nav {
       min-width: 0;
     }
@@ -112,15 +126,41 @@ export interface MenuItem {
       color: var(--accent-deep);
       border-bottom-color: var(--accent);
     }
+
+    .bar__action {
+      flex: none;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.4rem 0.85rem;
+      border: var(--border-w) solid var(--screen-deep);
+      border-radius: var(--radius-sm);
+      background: var(--screen);
+      color: var(--ink);
+      font-size: var(--step--1);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 160ms ease-out, border-color 160ms ease-out, color 160ms ease-out;
+    }
+
+    .action-btn:hover {
+      background: var(--screen-lit);
+      border-color: var(--accent);
+      color: var(--accent-deep);
+    }
   `
 })
 export class MenuBar {
   readonly items = input.required<readonly MenuItem[]>();
-
-  /** Destino da marca. A landing usa `/`, e as páginas internas voltam para lá. */
   readonly homeRoute = input('/');
+  readonly action = input<MenuAction | null>(null);
+  readonly actionClick = output<void>();
 
-  /** Leva até a seção e move o foco para ela, mantendo o link utilizável sem JavaScript. */
   protected goTo(event: Event, href: string): void {
     const target = document.querySelector<HTMLElement>(href);
     if (!target) {

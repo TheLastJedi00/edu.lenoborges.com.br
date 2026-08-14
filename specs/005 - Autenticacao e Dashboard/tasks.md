@@ -70,45 +70,45 @@ Branch: `feat/005-guards`
   `src/app/app.routes.ts`. Objetivo: a etapa obrigatória não pode exibir o aside com Home, Trilha e
   Jogos, porque seria oferecer saída de um caminho sem saída.
 
-# Fase 03: Modal de login e cadastro []
+# Fase 03: Modal de login e cadastro [x]
 Branch: `feat/005-auth-dialog`
 
-- [] Task 01: Criar o `AuthDialog` como componente burro. Arquivo:
+- [x] Task 01: Criar o `AuthDialog` como componente burro. Arquivo:
   `src/app/components/auth-dialog/auth-dialog.ts`. Objetivo: `<dialog>` nativo com `showModal()`,
   foco no primeiro campo, Esc fechando e `(close)` emitindo, copiando a acessibilidade do
   `WaitlistDialog` da spec 004 em vez de reinventá-la. Recebe `state` e emite `login`, `signup` e
   `closed`, sem conhecer o `AuthService` (regra 7 do clauderc).
-- [] Task 02: Montar a aba de login. Arquivo: mesmo componente. Objetivo: e-mail e senha com mínimo
+- [x] Task 02: Montar a aba de login. Arquivo: mesmo componente. Objetivo: e-mail e senha com mínimo
   de 8, mensagem de erro única acima do botão e, no 401, limpar o campo de senha e devolver o foco a
   ele.
-- [] Task 03: Montar a aba de cadastro. Arquivo: mesmo componente. Objetivo: **dois campos, ambos
+- [x] Task 03: Montar a aba de cadastro. Arquivo: mesmo componente. Objetivo: **dois campos, ambos
   e-mail**, sem campo de senha, com o botão escrito "Criar conta". A confirmação compara ignorando
   caixa e espaços nas pontas, do mesmo jeito que o backend normaliza antes de comparar, e **colar é
   permitido nos dois campos**: bloquear `paste` pune gerenciador de senha e teclado de celular sem
   evitar erro nenhum.
-- [] Task 04: Montar o estado enviado. Arquivo: mesmo componente. Objetivo: depois do 202, mostrar
+- [x] Task 04: Montar o estado enviado. Arquivo: mesmo componente. Objetivo: depois do 202, mostrar
   "Enviei um link para {e-mail}. Abra o e-mail para criar a sua senha." com `aria-live="polite"`, sem
   fechar sozinho, e **idêntico** para e-mail já cadastrado, já que o front não tenta descobrir a
   diferença que o backend esconde de propósito.
-- [] Task 05: Ligar a troca de abas. Arquivo: mesmo componente. Objetivo: trocar de aba limpa o erro
+- [x] Task 05: Ligar a troca de abas. Arquivo: mesmo componente. Objetivo: trocar de aba limpa o erro
   e **preserva o e-mail digitado**, porque quem errou a senha e foi criar conta não quer redigitar.
-- [] Task 06: Adicionar o "Esqueci minha senha". Arquivo: mesmo componente. Objetivo: link discreto
+- [x] Task 06: Adicionar o "Esqueci minha senha". Arquivo: mesmo componente. Objetivo: link discreto
   na aba de login que emite `signup` com o e-mail digitado, reusando o endpoint idempotente do
   backend, com a mesma tela de retorno do cadastro.
-- [] Task 07 (spec de comportamento): Testar o componente. Arquivo:
+- [x] Task 07 (spec de comportamento): Testar o componente. Arquivo:
   `src/app/components/auth-dialog/auth-dialog.spec.ts`. Objetivo: troca de aba limpando erro e
   preservando e-mail, submit emitindo o output certo e o estado enviado mostrando o e-mail de
   destino.
-- [] Task 08: Hospedar o modal no shell da aplicação. Arquivos: `src/app/app.ts`,
+- [x] Task 08: Hospedar o modal no shell da aplicação. Arquivos: `src/app/app.ts`,
   `src/app/core/auth/auth.store.ts`. Objetivo: uma única instância acima do `<router-outlet>`, com o
   estado de abertura no store, porque ele é aberto de três lugares e duplicá-lo por página faria três
   estados divergentes.
-- [] Task 09: Colocar o botão de entrar no menu. Arquivos:
+- [x] Task 09: Colocar o botão de entrar no menu. Arquivos:
   `src/app/components/menu-bar/menu-bar.ts`, `src/app/pages/landing/landing.page.html`,
   `src/app/pages/comunidade/comunidade.page.html`. Objetivo: input opcional `action` no `MenuBar`,
   para não chumbar autenticação dentro de um componente de navegação, exibindo **Entrar na Seita
   Dev** e, com sessão, **Ir para o painel**; o botão não some, muda de destino.
-- [] Task 10: Colocar o botão no hero da comunidade. Arquivo:
+- [x] Task 10: Colocar o botão no hero da comunidade. Arquivo:
   `src/app/pages/comunidade/comunidade.page.html`. Objetivo: **Entrar na Seita Dev** ao lado de
   "Quero acesso antecipado", reusando o `PixelButton`, sem remover o fluxo da lista de espera, que
   continua valendo nesta fase.
