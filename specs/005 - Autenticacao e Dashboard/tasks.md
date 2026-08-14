@@ -32,12 +32,12 @@ lógica. Nada de tela até a sessão funcionar contra o backend real.
 - [x] Task 07: Implementar o `AuthService`. Arquivo: `src/app/core/auth/auth.service.ts`. Objetivo:
   os sete métodos contra `environment.apiUrl`, reaproveitando o padrão do `WaitlistService` de
   normalizar e validar antes de gastar requisição.
-- [] Task 08 (TDD): Escrever a spec do interceptor. Arquivo:
+- [x] Task 08 (TDD): Escrever a spec do interceptor. Arquivo:
   `src/app/core/auth/auth.interceptor.spec.ts`. Objetivo: cobrir os 6 casos do `context.md`, com
   destaque para dois: **duas requisições em 401 simultâneo disparam um único refresh**, e **401 em
   `/auth/login` não dispara refresh**. O primeiro é o bug clássico desse desenho, já que o backend
   rotaciona o refresh a cada uso e o segundo disparo viria com token consumido.
-- [] Task 09: Implementar o `authInterceptor`. Arquivo: `src/app/core/auth/auth.interceptor.ts`.
+- [x] Task 09: Implementar o `authInterceptor`. Arquivo: `src/app/core/auth/auth.interceptor.ts`.
   Objetivo: injetar `Authorization` nas chamadas para `apiUrl`, `withCredentials` só nas rotas de
   `/auth` (o cookie tem `Path=/auth`), e refazer a requisição após um refresh compartilhado por
   `shareReplay`.
