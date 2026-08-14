@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { AuthStore } from '../../core/auth/auth.store';
+import { httpErrorMessage, httpStatus } from '../../core/http-error';
 import { Logo } from '../../shared/logo/logo';
 
 export type DefinirSenhaState = 'invalid_link' | 'form' | 'submitting' | 'success' | 'expired_error';
@@ -112,13 +113,16 @@ export class DefinirSenhaPage implements OnInit {
         })
       );
       this.state.set('success');
-    } catch (error: any) {
-      if (error?.status === 400 || error?.status === 404 || error?.status === 422) {
+    } catch (error: unknown) {
+      const status = httpStatus(error);
+      const linkRecusado = status === 400 || status === 404 || status === 422;
+
+      if (linkRecusado) {
         this.state.set('expired_error');
       } else {
         this.state.set('form');
         this.errorMessage.set(
-          error?.message || 'Não foi possível salvar a senha. Tente novamente em instantes.'
+          httpErrorMessage(error, 'Não foi possível salvar a senha. Tente novamente em instantes.')
         );
       }
     }
