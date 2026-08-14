@@ -211,22 +211,40 @@ em bloqueio de renderização.
 
 ---
 
-## Ordem sugerida de correção
+## Status das correções
 
-| # | achado | branch sugerida |
-|---|--------|------------------|
-| 1 | A1, A2, A3, A4 (mesmo arquivo, mesmo bloco) | `fix/005-interceptor-sessao` |
-| 2 | A5 (**depende de decisão do usuário**) | `fix/005-lgpd-vinculo-waitlist` |
-| 3 | A6 | `fix/005-mensagens-de-erro` |
-| 4 | A7, B8 | `fix/005-boot-sem-bloqueio` |
-| 5 | A8, B5 | `fix/005-a11y-aside` |
-| 6 | B1, B2, B3, B4, B6, B7 | `fix/005-ajustes-menores` |
+**Os 16 achados estão corrigidos.** As seis branches estão unidas em
+`release/005-correcoes-do-review`, com a suíte em 118 testes verdes (eram 93) e build limpo.
 
-O item 1 sai numa branch só porque os quatro achados são do mesmo bloco de código, e um teste novo de
-"cancelamento não zera o refresh em voo" cobre A3 e parte de A1.
+| # | achado | branch | situação |
+|---|--------|--------|-----------|
+| 1 | A1, A2, A3, A4 | `fix/005-interceptor-sessao` | corrigido |
+| 2 | A5 | `fix/005-lgpd-vinculo-waitlist` | corrigido, com a decisão do usuário |
+| 3 | A6 | `fix/005-mensagens-de-erro` | corrigido |
+| 4 | A7, B8 | `fix/005-boot-sem-bloqueio` | corrigido |
+| 5 | A8, B5 | `fix/005-a11y-aside` | corrigido |
+| 6 | B1, B2, B3, B4, B6, B7 | `fix/005-ajustes-menores` | corrigido |
 
-O item 2 é o único que não é decisão técnica: mudar o texto do modal ou mudar o comportamento do
-backend. Precisa da resposta antes de qualquer coisa ir para produção.
+Notas de implementação que valem além do diff:
+
+- **A1 e A4 dependiam do backend.** O cookie só é guardado com `withCredentials` **e** com
+  `AUTH_COOKIE_SAMESITE`/`AUTH_COOKIE_SECURE` coerentes, corrigido no achado A4 do review de lá. Um
+  lado sozinho não resolve o F5 em produção.
+- **A7 trouxe um segundo uso de `localStorage`**, um booleano `eduleno.session`. Não é credencial e
+  não autentica nada: responde "vale a pena tentar o refresh na abertura?", pergunta que o app não
+  consegue responder sozinho porque o cookie é `HttpOnly`. Sem ela, todo visitante anônimo da landing
+  esperava uma requisição de sessão que nunca teria como dar certo.
+- **A6 virou `core/http-error.ts`**, com `httpErrorMessage` e `httpStatus`. Dois testes existentes
+  simulavam erro como objeto solto, formato que não acontece em produção e que era justamente o que
+  escondia a leitura da propriedade errada; passaram a usar `HttpErrorResponse` de verdade.
+- **B2 foi além do que o review pedia.** O `access_token` saiu da lista de candidatos a `tokenHash`
+  em vez de ganhar tratamento: ele é o JWT do template padrão do Supabase, e mandá-lo ao backend faz
+  o `verifyOtp` falhar de qualquer jeito. Cair em "link inválido" é mais honesto.
+
+### Validação pendente
+Falta o teste manual no Chrome com o backend no ar, que é a regra 3 do clauderc e a Fase 08 do
+`tasks.md`: cadastro, e-mail, senha, login, onboarding, dashboard, F5 dentro do painel e a gaveta no
+tamanho de celular.
 
 ## Contagem
 16 achados: 12 da spec 005, 3 da spec 004 e 1 (A5) que só existe no cruzamento das duas.
