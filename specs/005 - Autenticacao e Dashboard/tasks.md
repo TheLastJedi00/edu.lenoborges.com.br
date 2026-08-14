@@ -47,26 +47,26 @@ lógica. Nada de tela até a sessão funcionar contra o backend real.
   passo, todo F5 dentro do dashboard jogaria o usuário para fora, que é o defeito clássico de token
   em memória. O 401 aqui é resposta esperada e **não** aparece na tela.
 
-# Fase 02: Guards e rotas []
+# Fase 02: Guards e rotas [x]
 Branch: `feat/005-guards`
 
-- [] Task 01 (TDD): Escrever a spec dos guards. Arquivos: `src/app/core/auth/auth.guard.spec.ts` e
+- [x] Task 01 (TDD): Escrever a spec dos guards. Arquivos: `src/app/core/auth/auth.guard.spec.ts` e
   `src/app/core/auth/profile.guard.spec.ts`. Objetivo: cobrir os 4 casos do `context.md` — sessão
   ausente redirecionando e guardando a URL tentada, perfil incompleto indo para `/completar-perfil`,
   perfil completo liberado e perfil completo sendo devolvido ao dashboard pelo guard inverso.
-- [] Task 02: Implementar o `authGuard`. Arquivo: `src/app/core/auth/auth.guard.ts`. Objetivo:
+- [x] Task 02: Implementar o `authGuard`. Arquivo: `src/app/core/auth/auth.guard.ts`. Objetivo:
   `CanActivateFn` funcional que **lê estado e não dispara requisição**, guardando a URL tentada para
   o login levar o usuário até onde ele queria ir. Guard que faz `await` de rede pisca a tela errada
   antes de redirecionar.
-- [] Task 03: Implementar `profileCompleteGuard` e `onboardingPendingGuard`. Arquivo:
+- [x] Task 03: Implementar `profileCompleteGuard` e `onboardingPendingGuard`. Arquivo:
   `src/app/core/auth/profile.guard.ts`. Objetivo: o primeiro barra perfil incompleto no dashboard, o
   segundo impede que quem já preencheu volte ao onboarding pela URL, o que transformaria a etapa
   "obrigatória" em tela permanente no histórico.
-- [] Task 04: Declarar as rotas novas. Arquivo: `src/app/app.routes.ts`. Objetivo: `/definir-senha`
+- [x] Task 04: Declarar as rotas novas. Arquivo: `src/app/app.routes.ts`. Objetivo: `/definir-senha`
   pública, `/completar-perfil` com `authGuard` e `onboardingPendingGuard`, e `/dashboard` com
   `authGuard` e `profileCompleteGuard` carregando o shell com filho. Cada uma com `title` próprio,
   como as rotas existentes.
-- [] Task 05: Manter `/completar-perfil` fora do shell do dashboard. Arquivo:
+- [x] Task 05: Manter `/completar-perfil` fora do shell do dashboard. Arquivo:
   `src/app/app.routes.ts`. Objetivo: a etapa obrigatória não pode exibir o aside com Home, Trilha e
   Jogos, porque seria oferecer saída de um caminho sem saída.
 
