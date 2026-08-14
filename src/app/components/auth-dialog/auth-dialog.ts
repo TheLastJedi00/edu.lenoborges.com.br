@@ -13,6 +13,8 @@ import {
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Credentials, SignupRequest } from '../../models/auth.model';
 import { normalizeEmail } from '../../core/normalize';
+import { IconClose } from '../icons/icon-close';
+import { IconMail } from '../icons/icon-mail';
 
 export type AuthDialogState = 'idle' | 'sending' | 'sent' | 'error';
 export type AuthTab = 'login' | 'signup';
@@ -35,7 +37,7 @@ function emailMatchValidator(control: AbstractControl): ValidationErrors | null 
 @Component({
   selector: 'app-auth-dialog',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, IconClose, IconMail],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <dialog #dialog class="modal" (close)="onNativeClose()">
@@ -68,29 +70,14 @@ function emailMatchValidator(control: AbstractControl): ValidationErrors | null 
         </div>
 
         <button type="button" class="modal__close" aria-label="Fechar" (click)="close()">
-          <svg
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <path d="m6 6 12 12M18 6 6 18" />
-          </svg>
+          <app-icon-close />
         </button>
       </div>
 
       @if (state() === 'sent') {
         <div class="sent" role="status" aria-live="polite">
           <div class="sent__badge">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5C2 7 4 5 6.5 5H18c2.2 0 4 1.8 4 4v8Z" />
-              <polyline points="2,8 12,13 22,8" />
-            </svg>
+            <app-icon-mail />
           </div>
           <h2 class="sent__title">Verifique sua caixa de entrada</h2>
           <p class="sent__detail">
@@ -550,7 +537,21 @@ export class AuthDialog {
   }
 
   onNativeClose(): void {
+    this.resetForms();
     this.closed.emit();
+  }
+
+  /**
+   * Limpa o que foi digitado ao fechar, por qualquer caminho: botão, Esc ou
+   * clique fora. A senha não pode continuar preenchida ao reabrir, nem seguir
+   * viva no FormGroup pelo resto da sessão, ainda mais num dispositivo dividido
+   * com outra pessoa.
+   */
+  private resetForms(): void {
+    this.loginForm.reset();
+    this.signupForm.reset();
+    this.loginTouched.set(false);
+    this.signupTouched.set(false);
   }
 
   switchTab(newTab: AuthTab): void {

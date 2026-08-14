@@ -91,6 +91,17 @@ describe('AuthDialog', () => {
     });
   });
 
+  it('limpa o que foi digitado ao fechar, inclusive a senha', () => {
+    // Sem isso a senha continua preenchida ao reabrir e segue viva no FormGroup
+    // pelo resto da sessão, num dispositivo que pode não ser só do usuário.
+    component['loginForm'].setValue({ email: 'alguem@seita.dev', password: 'senha-secreta' });
+
+    component.onNativeClose();
+
+    expect(component['loginForm'].controls.password.value).toBe('');
+    expect(component['loginForm'].controls.email.value).toBe('');
+  });
+
   it('exibe o e-mail de destino quando o estado é sent', () => {
     fixture.componentRef.setInput('state', 'sent');
     fixture.componentRef.setInput('sentEmail', 'destino@seita.dev');
