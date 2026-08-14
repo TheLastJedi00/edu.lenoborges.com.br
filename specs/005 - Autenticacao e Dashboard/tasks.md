@@ -15,12 +15,12 @@ lógica. Nada de tela até a sessão funcionar contra o backend real.
   `src/app/services/waitlist.service.ts`, `src/app/services/waitlist.service.spec.ts`. Objetivo:
   remover a normalização duplicada sem alterar comportamento; a suíte da spec 004 continua verde sem
   mexer em expectativa.
-- [] Task 04: Criar o `AuthStore`. Arquivo: `src/app/core/auth/auth.store.ts`. Objetivo: guardar
+- [x] Task 04: Criar o `AuthStore`. Arquivo: `src/app/core/auth/auth.store.ts`. Objetivo: guardar
   `accessToken` num signal **em memória**, mais `user`, `profile` e `status` com os três valores
   `unknown | anonymous | authenticated`, além dos computed `isLoggedIn` e `profileCompleted`. O
   terceiro estado existe para o intervalo entre a abertura do app e a resposta do refresh silencioso;
   sem ele os guards leriam "anônimo" no primeiro instante e expulsariam quem tinha sessão.
-- [] Task 05: Garantir que nada de sessão toca o armazenamento do navegador. Arquivo:
+- [x] Task 05: Garantir que nada de sessão toca o armazenamento do navegador. Arquivo:
   `src/app/core/auth/auth.store.ts`. Objetivo: nenhum `localStorage` nem `sessionStorage` para token,
   porque token que o JS de terceiro lê é token que um XSS exfiltra; o refresh mora em cookie
   `HttpOnly` do backend.
