@@ -24,12 +24,12 @@ lógica. Nada de tela até a sessão funcionar contra o backend real.
   `src/app/core/auth/auth.store.ts`. Objetivo: nenhum `localStorage` nem `sessionStorage` para token,
   porque token que o JS de terceiro lê é token que um XSS exfiltra; o refresh mora em cookie
   `HttpOnly` do backend.
-- [] Task 06 (TDD): Escrever a spec do `AuthService` **antes** da lógica. Arquivo:
+- [x] Task 06 (TDD): Escrever a spec do `AuthService` **antes** da lógica. Arquivo:
   `src/app/core/auth/auth.service.spec.ts`. Objetivo: cobrir os 8 casos do `context.md` com
   `HttpTestingController` — signup normalizado, confirmação divergente falhando sem rede, login
   guardando o token, 401 sem guardar token, `setPassword`, `refresh`, `logout` limpando o store
   **mesmo com a requisição falhando** e `updateProfile`.
-- [] Task 07: Implementar o `AuthService`. Arquivo: `src/app/core/auth/auth.service.ts`. Objetivo:
+- [x] Task 07: Implementar o `AuthService`. Arquivo: `src/app/core/auth/auth.service.ts`. Objetivo:
   os sete métodos contra `environment.apiUrl`, reaproveitando o padrão do `WaitlistService` de
   normalizar e validar antes de gastar requisição.
 - [] Task 08 (TDD): Escrever a spec do interceptor. Arquivo:
