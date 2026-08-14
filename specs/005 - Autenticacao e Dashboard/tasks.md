@@ -1,4 +1,4 @@
-# Fase 01: Fundação do core de autenticação (TDD) []
+# Fase 01: Fundação do core de autenticação (TDD) [x]
 Branch: `feat/005-core-auth`
 
 Esta fase é toda serviço e nenhum pixel. É onde a regra 6 do clauderc morde: os specs vêm antes da
@@ -41,7 +41,7 @@ lógica. Nada de tela até a sessão funcionar contra o backend real.
   Objetivo: injetar `Authorization` nas chamadas para `apiUrl`, `withCredentials` só nas rotas de
   `/auth` (o cookie tem `Path=/auth`), e refazer a requisição após um refresh compartilhado por
   `shareReplay`.
-- [] Task 10: Registrar interceptor e refresh silencioso. Arquivos: `src/app/app.config.ts` e
+- [x] Task 10: Registrar interceptor e refresh silencioso. Arquivos: `src/app/app.config.ts` e
   `src/app/core/auth/session-init.ts`. Objetivo: `provideHttpClient(withInterceptors([...]))` e um
   `provideAppInitializer` que chama `POST /auth/refresh` antes do primeiro guard rodar. Sem esse
   passo, todo F5 dentro do dashboard jogaria o usuário para fora, que é o defeito clássico de token
