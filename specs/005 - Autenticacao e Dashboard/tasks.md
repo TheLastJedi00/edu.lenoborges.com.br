@@ -113,23 +113,23 @@ Branch: `feat/005-auth-dialog`
   "Quero acesso antecipado", reusando o `PixelButton`, sem remover o fluxo da lista de espera, que
   continua valendo nesta fase.
 
-# Fase 04: Página de definição de senha []
+# Fase 04: Página de definição de senha [x]
 Branch: `feat/005-definir-senha`
 
-- [] Task 01: Criar a página. Arquivos:
+- [x] Task 01: Criar a página. Arquivos:
   `src/app/pages/definir-senha/definir-senha.page.{ts,html,scss}`. Objetivo: página pública, fora do
   menu, com um cartão centrado e mobile first.
-- [] Task 02: Ler o token da URL sem exibi-lo. Arquivo: `definir-senha.page.ts`. Objetivo: pegar
+- [x] Task 02: Ler o token da URL sem exibi-lo. Arquivo: `definir-senha.page.ts`. Objetivo: pegar
   `token_hash` da query, guardar em campo privado e **nunca** renderizá-lo em tela nem em `title`.
-- [] Task 03: Tratar a ausência de token. Arquivo: `definir-senha.page.ts`. Objetivo: sem
+- [x] Task 03: Tratar a ausência de token. Arquivo: `definir-senha.page.ts`. Objetivo: sem
   `token_hash`, mostrar direto o estado de link inválido, sem formulário, em vez de deixar o usuário
   preencher para falhar depois.
-- [] Task 04: Montar o formulário. Arquivo: `definir-senha.page.html`. Objetivo: senha e confirmação
+- [x] Task 04: Montar o formulário. Arquivo: `definir-senha.page.html`. Objetivo: senha e confirmação
   com mínimo de 8, botão de revelar a senha e mensagem de erro acima do botão.
-- [] Task 05: Ligar ao backend. Arquivo: `definir-senha.page.ts`. Objetivo: `POST /auth/password` e,
+- [x] Task 05: Ligar ao backend. Arquivo: `definir-senha.page.ts`. Objetivo: `POST /auth/password` e,
   no 204, mostrar "Senha criada. Agora é só entrar." com um botão que abre o modal já na aba de
   login; no 400, "Esse link não vale mais. Peça um novo." com atalho para o cadastro.
-- [] Task 06: Cobrir o formato alternativo do link. Arquivo: `definir-senha.page.ts`. Objetivo: se o
+- [x] Task 06: Cobrir o formato alternativo do link. Arquivo: `definir-senha.page.ts`. Objetivo: se o
   template do painel do Supabase ainda estiver no padrão, os dados chegam no fragmento (`#`) e não na
   query; ler dos dois lugares evita que uma configuração errada de ambiente quebre a página em
   silêncio.
