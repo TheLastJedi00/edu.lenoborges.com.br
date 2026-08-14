@@ -7,7 +7,7 @@ lógica. Nada de tela até a sessão funcionar contra o backend real.
 - [x] Task 01: Criar os modelos do domínio. Arquivo: `src/app/models/auth.model.ts`. Objetivo:
   declarar `Credentials`, `SignupRequest`, `Session`, `MemberProfile` e as respostas HTTP, espelhando
   o contrato do backend sem inventar campo, como a spec 004 fez com `WaitlistReceipt`.
-- [] Task 02: Extrair a normalização compartilhada. Arquivos: `src/app/core/normalize.ts` e
+- [x] Task 02: Extrair a normalização compartilhada. Arquivos: `src/app/core/normalize.ts` e
   `src/app/core/normalize.spec.ts`. Objetivo: mover trim com colapso de espaços do nome, dígitos do
   telefone e lowercase do e-mail para um único lugar, com os casos migrados de
   `waitlist.service.spec.ts`.
