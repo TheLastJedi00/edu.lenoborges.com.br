@@ -117,22 +117,27 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
           <div class="legal" id="uso-dos-dados">
             <p class="legal__title">Como os seus dados são usados</p>
             <p>
-              Coleto nome, telefone e e-mail com uma finalidade única: avisar quando a Seita Dev
-              abrir e liberar o seu acesso antecipado gratuito. A base legal é o seu consentimento
-              (LGPD, art. 7º, inciso I).
+              Coleto nome, telefone e e-mail para duas coisas. A primeira é avisar quando a Seita
+              Dev abrir e liberar o seu acesso antecipado gratuito. A segunda é preencher o seu
+              perfil de membro, com o nome e o telefone que você deixa aqui, caso você venha a criar
+              uma conta com este mesmo e-mail, para não pedir tudo de novo. A base legal é o seu
+              consentimento (LGPD, art. 7º, inciso I).
             </p>
             <p>
-              Não vendo nem compartilho esses dados com terceiros para publicidade. Você pode pedir
+              Não vendo nem compartilho esses dados com terceiros para publicidade. Eles ficam no
+              banco de dados da Seita Dev enquanto durar a lista de espera. Se você criar conta, a
+              cópia que foi para o seu perfil passa a viver junto da conta, então apagar a sua
+              inscrição na lista não apaga o perfil: peça os dois quando for o caso. Você pode pedir
               consulta, correção ou exclusão a qualquer momento, e revogar o consentimento, pelos
-              canais de contato do Leno Borges. Os dados são enviados e guardados no banco de dados
-              da Seita Dev enquanto durar a lista de espera, e apagados quando você pedir.
+              canais de contato do Leno Borges.
             </p>
           </div>
 
           <label class="consent">
             <input type="checkbox" formControlName="consent" />
             <span>
-              Concordo com o uso dos meus dados para receber o aviso de abertura da Seita Dev.
+              Concordo com o uso dos meus dados para receber o aviso de abertura da Seita Dev e
+              para preencher o meu perfil, se eu criar uma conta.
             </span>
           </label>
 

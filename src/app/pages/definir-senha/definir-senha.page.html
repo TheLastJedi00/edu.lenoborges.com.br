@@ -1,0 +1,116 @@
+<div class="page">
+  <header class="page__header">
+    <a routerLink="/" aria-label="Ir para o início">
+      <app-logo variant="mark" />
+    </a>
+  </header>
+
+  <main class="card">
+    @if (state() === 'invalid_link') {
+      <div class="feedback" role="alert">
+        <div class="feedback__icon feedback__icon--error">
+          <app-icon-alert />
+        </div>
+        <h1 class="feedback__title">Link incompleto ou ausente</h1>
+        <p class="feedback__detail">
+          Não identificamos o código de segurança no link. Verifique se você copiou o endereço completo recebido por e-mail.
+        </p>
+        <button type="button" class="submit" (click)="requestNewLink()">
+          Pedir novo link
+        </button>
+      </div>
+    } @else if (state() === 'expired_error') {
+      <div class="feedback" role="alert">
+        <div class="feedback__icon feedback__icon--error">
+          <app-icon-alert />
+        </div>
+        <h1 class="feedback__title">Esse link não vale mais</h1>
+        <p class="feedback__detail">
+          O link de definição de senha expirou ou já foi utilizado. Peça um novo para continuar.
+        </p>
+        <button type="button" class="submit" (click)="requestNewLink()">
+          Pedir novo link
+        </button>
+      </div>
+    } @else if (state() === 'success') {
+      <div class="feedback" role="status" aria-live="polite">
+        <div class="feedback__icon">
+          <app-icon-check />
+        </div>
+        <h1 class="feedback__title">Senha criada com sucesso</h1>
+        <p class="feedback__detail">
+          Senha criada. Agora é só entrar na Seita Dev para acessar seu painel.
+        </p>
+        <button type="button" class="submit" (click)="goToLogin()">
+          Entrar na Seita Dev
+        </button>
+      </div>
+    } @else {
+      <header>
+        <h1 class="card__title">Definir nova senha</h1>
+        <p class="card__lead">
+          Crie uma senha forte para acessar sua conta na Seita Dev.
+        </p>
+      </header>
+
+      <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <label class="field">
+          <span class="field__label">Nova senha</span>
+          <div class="field__input-wrap">
+            <input
+              class="field__input"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              autocomplete="new-password"
+              placeholder="Mínimo de 8 caracteres"
+              [attr.aria-invalid]="isFieldInvalid('password') ? 'true' : null"
+              [attr.aria-describedby]="isFieldInvalid('password') ? 'erro-senha' : null"
+            />
+            <button
+              type="button"
+              class="field__toggle"
+              [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Exibir senha'"
+              (click)="togglePasswordVisibility()"
+            >
+              <app-icon-eye [off]="showPassword()" />
+            </button>
+          </div>
+          @if (isFieldInvalid('password')) {
+            <span class="field__error" id="erro-senha">A senha deve ter no mínimo 8 caracteres.</span>
+          }
+        </label>
+
+        <label class="field">
+          <span class="field__label">Confirmação da senha</span>
+          <div class="field__input-wrap">
+            <input
+              class="field__input"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="passwordConfirmation"
+              autocomplete="new-password"
+              placeholder="Repita a nova senha"
+              [attr.aria-invalid]="isConfirmationInvalid() ? 'true' : null"
+              [attr.aria-describedby]="isConfirmationInvalid() ? 'erro-conf-senha' : null"
+            />
+          </div>
+          @if (isConfirmationInvalid()) {
+            <span class="field__error" id="erro-conf-senha">As senhas digitadas devem ser iguais.</span>
+          }
+        </label>
+
+        @if (errorMessage()) {
+          <p class="form__error" role="alert">{{ errorMessage() }}</p>
+        }
+
+        <button class="submit" type="submit" [disabled]="form.invalid || state() === 'submitting'">
+          @if (state() === 'submitting') {
+            <span class="submit__spinner" aria-hidden="true"></span>
+            Salvando...
+          } @else {
+            Criar senha
+          }
+        </button>
+      </form>
+    }
+  </main>
+</div>

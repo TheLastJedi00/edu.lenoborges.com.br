@@ -1,0 +1,108 @@
+<div class="dashboard">
+  <header class="dashboard__head" animate.enter="animate-enter">
+    <div class="dashboard__greeting-row">
+      <h1 class="dashboard__title">Olá, {{ firstName() }}</h1>
+      <app-grade-badge [grade]="grade()" />
+    </div>
+    <p class="dashboard__lead">
+      Bem-vindo ao seu painel de membro da Seita Dev. Escolha um dos módulos abaixo para continuar seus estudos.
+    </p>
+  </header>
+
+  <section class="dashboard__grid" aria-label="Módulos do painel" animate.enter="animate-enter delay-1">
+    <!-- 1. Acessar trilha (Inerte) -->
+    <article class="card card--disabled" aria-disabled="true">
+      <div class="card__top">
+        <span class="card__icon-badge" aria-hidden="true">
+          <app-icon-track />
+        </span>
+        <span class="card__badge u-mono">Em breve</span>
+      </div>
+      <div class="card__body">
+        <h2 class="card__title">Acessar trilha</h2>
+        <p class="card__desc">
+          Doze etapas de aprendizado estruturado, da primeira variável ao deploy em produção.
+        </p>
+      </div>
+    </article>
+
+    <!-- 2. Grupo do WhatsApp (Ativo se houver URL, senão inerte) -->
+    @if (hasWhatsappUrl()) {
+      <a
+        class="card card--link"
+        [href]="whatsappUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Acessar o grupo da Seita Dev no WhatsApp em uma nova aba"
+      >
+        <div class="card__top">
+          <span class="card__icon-badge" aria-hidden="true">
+            <app-icon-whatsapp />
+          </span>
+          <span class="card__badge card__badge--active u-mono">Disponível</span>
+        </div>
+        <div class="card__body">
+          <h2 class="card__title">Grupo do WhatsApp</h2>
+          <p class="card__desc">
+            Entre na conversa com outros membros, tire dúvidas e compartilhe seus códigos.
+          </p>
+          <span class="card__action-text">
+            Entrar no grupo
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+          </span>
+        </div>
+      </a>
+    } @else {
+      <article class="card card--disabled" aria-disabled="true">
+        <div class="card__top">
+          <span class="card__icon-badge" aria-hidden="true">
+            <app-icon-whatsapp />
+          </span>
+          <span class="card__badge u-mono">Em breve</span>
+        </div>
+        <div class="card__body">
+          <h2 class="card__title">Grupo do WhatsApp</h2>
+          <p class="card__desc">
+            O link do grupo oficial está sendo preparado e estará disponível em breve.
+          </p>
+        </div>
+      </article>
+    }
+
+    <!-- 3. Meu Perfil (Inerte) -->
+    <article class="card card--disabled" aria-disabled="true">
+      <div class="card__top">
+        <span class="card__icon-badge" aria-hidden="true">
+          <app-icon-user />
+        </span>
+        <span class="card__badge u-mono">Em breve</span>
+      </div>
+      <div class="card__body">
+        <h2 class="card__title">Meu Perfil</h2>
+        <p class="card__desc">
+          Gerenciamento de dados cadastrais, preferências de notificações e histórico.
+        </p>
+      </div>
+    </article>
+
+    <!-- 4. Jogos (Inerte) -->
+    <article class="card card--disabled" aria-disabled="true">
+      <div class="card__top">
+        <span class="card__icon-badge" aria-hidden="true">
+          <app-icon-games />
+        </span>
+        <span class="card__badge u-mono">Em breve</span>
+      </div>
+      <div class="card__body">
+        <h2 class="card__title">Jogos</h2>
+        <p class="card__desc">
+          Desafios de conhecimento para testar seu raciocínio e subir no ranking da comunidade.
+        </p>
+      </div>
+    </article>
+  </section>
+</div>

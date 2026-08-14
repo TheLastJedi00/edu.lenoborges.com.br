@@ -1,4 +1,4 @@
-<app-menu-bar [items]="menuItems" />
+<app-menu-bar [items]="menuItems" [action]="menuAction()" (actionClick)="openLogin()" />
 
 <main id="conteudo">
   <section class="hero" id="topo">
@@ -20,7 +20,12 @@
       </p>
 
       <div class="hero__actions" animate.enter="animate-enter delay-4">
-        <app-pixel-button (click)="openWaitlist()">Quero acesso antecipado</app-pixel-button>
+        @if (authStore.isLoggedIn()) {
+          <app-pixel-button route="/dashboard">Ir para o painel</app-pixel-button>
+        } @else {
+          <app-pixel-button (click)="openLogin()">Entrar na Seita Dev</app-pixel-button>
+        }
+        <app-pixel-button variant="ghost" (click)="openWaitlist()">Quero acesso antecipado</app-pixel-button>
         <app-pixel-button variant="ghost" href="#trilha">Ver a trilha completa</app-pixel-button>
       </div>
     </div>

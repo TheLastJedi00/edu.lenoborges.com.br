@@ -1,4 +1,4 @@
-<app-menu-bar [items]="menuItems" />
+<app-menu-bar [items]="menuItems" [action]="menuAction()" (actionClick)="openLogin()" />
 
 <main id="conteudo">
   <section class="hero" id="topo">
