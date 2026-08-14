@@ -77,11 +77,15 @@ export class App {
       this.dialogState.set('idle');
       this.authStore.closeAuthDialog();
 
+      // O destino guardado pelo guard vale para este login e só para ele. Limpar
+      // apenas no ramo de perfil completo deixaria a URL presa no store, e um
+      // login futuro cairia numa rota antiga que ninguém pediu.
+      const intended = this.authStore.intendedUrl();
+      this.authStore.setIntendedUrl(null);
+
       if (!this.authStore.profileCompleted()) {
         await this.router.navigate(['/completar-perfil']);
       } else {
-        const intended = this.authStore.intendedUrl();
-        this.authStore.setIntendedUrl(null);
         await this.router.navigateByUrl(intended || '/dashboard');
       }
     } catch (error: unknown) {

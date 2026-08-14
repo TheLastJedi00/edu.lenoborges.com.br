@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+  viewChild
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GradeLadder } from '../../components/grade-ladder/grade-ladder';
 import { IconRanking } from '../../components/icons/icon-ranking';
 import { IconShare } from '../../components/icons/icon-share';
@@ -39,6 +48,7 @@ import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/wai
 export class ComunidadePage {
   private readonly communityService = inject(CommunityService);
   private readonly waitlistService = inject(WaitlistService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly authStore = inject(AuthStore);
 
   private readonly dialog = viewChild.required(WaitlistDialog);
@@ -80,12 +90,17 @@ export class ComunidadePage {
   protected register(entry: WaitlistEntry): void {
     this.waitlistState.set('sending');
 
-    this.waitlistService.submit(entry).subscribe({
-      next: () => this.waitlistState.set('success'),
-      error: (error: unknown) => {
-        this.waitlistError.set(waitlistErrorMessage(error));
-        this.waitlistState.set('error');
-      }
-    });
+    // takeUntilDestroyed: se o visitante navegar com o envio em voo, o callback
+    // nao pode escrever num signal de componente ja destruido.
+    this.waitlistService
+      .submit(entry)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.waitlistState.set('success'),
+        error: (error: unknown) => {
+          this.waitlistError.set(waitlistErrorMessage(error));
+          this.waitlistState.set('error');
+        }
+      });
   }
 }

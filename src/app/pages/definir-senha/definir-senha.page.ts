@@ -2,6 +2,9 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { IconAlert } from '../../components/icons/icon-alert';
+import { IconCheck } from '../../components/icons/icon-check';
+import { IconEye } from '../../components/icons/icon-eye';
 import { AuthService } from '../../core/auth/auth.service';
 import { AuthStore } from '../../core/auth/auth.store';
 import { httpErrorMessage, httpStatus } from '../../core/http-error';
@@ -27,7 +30,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
 @Component({
   selector: 'app-definir-senha-page',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, Logo],
+  imports: [ReactiveFormsModule, RouterLink, Logo, IconAlert, IconCheck, IconEye],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './definir-senha.page.html',
   styleUrl: './definir-senha.page.scss'
@@ -60,22 +63,46 @@ export class DefinirSenhaPage implements OnInit {
   }
 
   private extractToken(): void {
-    // 1. Tenta ler token_hash dos query params (formato recomendado)
+    // Só `token_hash` e `token`, que são o mesmo tipo de valor. `access_token`
+    // ficou de fora: é o JWT que o template padrão do Supabase devolve, e mandá-lo
+    // como tokenHash faz o verifyOtp do backend falhar. Aceitá-lo dava a impressão
+    // de cobrir aquele template sem cobrir de verdade, e trocava um "link
+    // inválido" honesto por um erro confuso lá na frente.
     const queryMap = this.route.snapshot.queryParamMap;
-    let token = queryMap.get('token_hash') || queryMap.get('token') || queryMap.get('access_token');
+    let token = queryMap.get('token_hash') || queryMap.get('token');
 
-    // 2. Caso venha no fragmento '#' (template padrão do Supabase)
+    // O link também pode chegar com os dados no fragmento, dependendo de como o
+    // template de e-mail estiver configurado no painel.
     if (!token && this.route.snapshot.fragment) {
       const fragmentParams = new URLSearchParams(this.route.snapshot.fragment);
-      token = fragmentParams.get('token_hash') || fragmentParams.get('access_token') || fragmentParams.get('token');
+      token = fragmentParams.get('token_hash') || fragmentParams.get('token');
     }
 
     if (!token) {
       this.state.set('invalid_link');
-    } else {
-      this.tokenHash = token;
-      this.state.set('form');
+      return;
     }
+
+    this.tokenHash = token;
+    this.state.set('form');
+    this.scrubTokenFromUrl();
+  }
+
+  /**
+   * Tira o token da barra de endereço assim que ele é lido.
+   *
+   * Deixá-lo ali o guarda no histórico do navegador e o vaza no cabeçalho
+   * Referer de qualquer requisição para outra origem. `replaceUrl` troca a
+   * entrada atual em vez de empilhar uma nova, então o botão voltar continua
+   * levando para onde levava.
+   */
+  private scrubTokenFromUrl(): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      fragment: undefined,
+      replaceUrl: true
+    });
   }
 
   togglePasswordVisibility(): void {

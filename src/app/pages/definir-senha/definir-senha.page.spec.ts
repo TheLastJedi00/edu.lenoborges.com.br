@@ -49,6 +49,27 @@ describe('DefinirSenhaPage', () => {
     fixture.detectChanges();
   };
 
+  it('tira o token da barra de endereço assim que o lê', async () => {
+    // O token na URL fica no histórico do navegador e vaza no cabeçalho Referer
+    // de qualquer requisição para outra origem.
+    await createComponentWithRoute({ token_hash: 'token-secreto' });
+
+    expect(router.navigate).toHaveBeenCalledWith(
+      [],
+      jasmine.objectContaining({ queryParams: {}, replaceUrl: true })
+    );
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('token-secreto');
+  });
+
+  it('recusa access_token, que não é o mesmo tipo de valor que token_hash', async () => {
+    // access_token é o JWT do template padrão do Supabase. Mandá-lo como tokenHash
+    // faz o verifyOtp do backend falhar, então aceitá-lo aqui só troca um "link
+    // inválido" honesto por um erro confuso lá na frente.
+    await createComponentWithRoute({ access_token: 'jwt-que-nao-serve' });
+
+    expect(component.state()).toBe('invalid_link');
+  });
+
   it('exibe estado de link inválido quando não há token na query nem no fragmento', async () => {
     await createComponentWithRoute({});
     expect(component.state()).toBe('invalid_link');
