@@ -195,33 +195,33 @@ Branch: `feat/005-dashboard-shell`
   /auth/logout`, limpeza do store e navegação para `/comunidade`, **deslogando mesmo se a chamada
   falhar**: deixar o usuário preso porque a rede caiu seria trocar segurança por teimosia.
 
-# Fase 07: Página do dashboard []
+# Fase 07: Página do dashboard [x]
 Branch: `feat/005-dashboard-page`
 
-- [] Task 01: Criar o `GradeBadge`. Arquivo: `src/app/components/grade-badge/grade-badge.ts`.
+- [x] Task 01: Criar o `GradeBadge`. Arquivo: `src/app/components/grade-badge/grade-badge.ts`.
   Objetivo: componente burro que exibe "Grau N" com a leitura "N de 33 Graus", puxando o total de
   `CommunityService.grades().totalGrades`, que existe desde a spec 003, para o número não ser escrito
   duas vezes no projeto.
-- [] Task 02: Criar a página. Arquivos:
+- [x] Task 02: Criar a página. Arquivos:
   `src/app/pages/dashboard/dashboard.page.{ts,html,scss}`. Objetivo: cabeçalho com
   "Olá, {primeiro nome}" e o `GradeBadge`, lendo do `AuthStore` sem nova requisição, já que o login e
   o refresh já trouxeram `profileCompleted` e `grade`.
-- [] Task 03: Montar os quatro cartões. Arquivo: `dashboard.page.html`. Objetivo: Acessar trilha,
+- [x] Task 03: Montar os quatro cartões. Arquivo: `dashboard.page.html`. Objetivo: Acessar trilha,
   Grupo do WhatsApp, Meu Perfil e Jogos, reusando o `PixelPanel`, um por linha no celular e grade de
   dois a partir de `48rem`.
-- [] Task 04: Tratar os três cartões inertes. Arquivo: `dashboard.page.html`. Objetivo:
+- [x] Task 04: Tratar os três cartões inertes. Arquivo: `dashboard.page.html`. Objetivo:
   `<button disabled>` com `aria-disabled="true"` e selo "Em breve" no canto, sem página de "em
   construção": um botão que parece clicável e não faz nada é pior que um declaradamente
   indisponível.
-- [] Task 05: Ligar o cartão do WhatsApp. Arquivos: `src/environments/environment.ts`,
+- [x] Task 05: Ligar o cartão do WhatsApp. Arquivos: `src/environments/environment.ts`,
   `src/environments/environment.production.ts`, `dashboard.page.html`. Objetivo: `whatsappGroupUrl`
   ao lado do `apiUrl` que já mora lá, abrindo em nova aba com `rel="noopener noreferrer"`. **Enquanto
   o usuário não fornecer o link, o valor fica vazio e o cartão se comporta como os inertes**, o que
   mantém a tela honesta em vez de publicar um link quebrado.
-- [] Task 06: Aplicar as animações. Arquivo: `dashboard.page.scss`. Objetivo: `animate-enter` e
+- [x] Task 06: Aplicar as animações. Arquivo: `dashboard.page.scss`. Objetivo: `animate-enter` e
   `animate-leave` como manda a regra 6 do clauderc, gradientes suaves da regra 5, tudo em `.scss` e
   respeitando `prefers-reduced-motion` como o `DialogBox` já faz.
-- [] Task 07: Conferir o sistema visual. Arquivos: `dashboard.page.scss`,
+- [x] Task 07: Conferir o sistema visual. Arquivos: `dashboard.page.scss`,
   `dashboard-aside.ts`. Objetivo: usar os tokens de `styles.scss` (`--ink`, `--paper`, `--accent-deep`,
   `--radius-lg`) em vez de inventar tema para a área logada, e nenhum travessão nos textos de tela
   (regra 4 do clauderc).

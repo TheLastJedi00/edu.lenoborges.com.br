@@ -7,4 +7,8 @@
 export const environment = {
   production: true,
   apiUrl: 'https://api.lenoborges.com.br',
+  /**
+   * Link de convite do grupo oficial da Seita Dev no WhatsApp.
+   */
+  whatsappGroupUrl: '',
 };
