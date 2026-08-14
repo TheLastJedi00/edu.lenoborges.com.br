@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -88,8 +88,19 @@ describe('CompletarPerfilPage', () => {
   });
 
   it('mantém os campos preenchidos e exibe mensagem de erro quando o backend falha', async () => {
+    // Erro de API chega como HttpErrorResponse, com a mensagem no corpo. Simular
+    // um objeto solto com `message` escondia que o codigo lia a propriedade
+    // errada, a do proprio HttpErrorResponse, que traz o texto tecnico do Angular.
     authService.updateProfile.and.returnValue(
-      throwError(() => ({ message: 'Telefone já cadastrado em outra conta.' }))
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 400,
+            statusText: 'Bad Request',
+            url: 'http://localhost:3000/me/profile',
+            error: { message: 'Telefone já cadastrado em outra conta.' }
+          })
+      )
     );
 
     component.form.setValue({

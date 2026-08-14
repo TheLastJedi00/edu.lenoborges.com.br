@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { httpErrorMessage } from '../core/http-error';
 
 /** Texto para falha que não diz nada de útil ao visitante: rede caída, 500, causa desconhecida. */
 export const WAITLIST_ERROR_DEFAULT = 'Não consegui registrar agora. Tente de novo em instantes.';
@@ -16,14 +16,7 @@ const WAITLIST_ERROR_TOO_MANY = 'Muitas tentativas seguidas. Espere um minuto e 
  * As pages chamam esta função e passam o texto pronto.
  */
 export function waitlistErrorMessage(error: unknown): string {
-  if (error instanceof HttpErrorResponse) {
-    return error.status === 429 ? WAITLIST_ERROR_TOO_MANY : WAITLIST_ERROR_DEFAULT;
-  }
-
-  // Recusa local do service (consentimento, telefone, e-mail): a mensagem já é específica.
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-
-  return WAITLIST_ERROR_DEFAULT;
+  return httpErrorMessage(error, WAITLIST_ERROR_DEFAULT, {
+    429: WAITLIST_ERROR_TOO_MANY
+  });
 }

@@ -12,7 +12,14 @@ import { firstValueFrom } from 'rxjs';
 import { AuthDialog, AuthDialogState, AuthTab } from './components/auth-dialog/auth-dialog';
 import { AuthService } from './core/auth/auth.service';
 import { AuthStore } from './core/auth/auth.store';
+import { httpErrorMessage, httpStatus } from './core/http-error';
 import { Credentials, SignupRequest } from './models/auth.model';
+
+/**
+ * Uma mensagem só para credencial errada, conta inexistente e conta sem senha
+ * definida. O backend não conta a diferença, e o front não tenta adivinhar.
+ */
+const CREDENCIAIS_INVALIDAS = 'E-mail ou senha inválidos.';
 
 @Component({
   selector: 'app-root',
@@ -77,13 +84,18 @@ export class App {
         this.authStore.setIntendedUrl(null);
         await this.router.navigateByUrl(intended || '/dashboard');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.dialogState.set('error');
-      if (error?.status === 401 || error?.status === 400) {
-        this.dialogErrorMessage.set('E-mail ou senha inválidos.');
+      this.dialogErrorMessage.set(
+        httpErrorMessage(error, 'Não foi possível conectar. Tente novamente em instantes.', {
+          400: CREDENCIAIS_INVALIDAS,
+          401: CREDENCIAIS_INVALIDAS
+        })
+      );
+
+      const status = httpStatus(error);
+      if (status === 401 || status === 400) {
         this.authDialog()?.clearPasswordAndFocus();
-      } else {
-        this.dialogErrorMessage.set('Não foi possível conectar. Tente novamente em instantes.');
       }
     }
   }
@@ -96,10 +108,10 @@ export class App {
       await firstValueFrom(this.authService.signup(request));
       this.dialogSentEmail.set(request.email);
       this.dialogState.set('sent');
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.dialogState.set('error');
       this.dialogErrorMessage.set(
-        error?.message || 'Não foi possível concluir o cadastro. Tente novamente.'
+        httpErrorMessage(error, 'Não foi possível concluir o cadastro. Tente novamente.')
       );
     }
   }

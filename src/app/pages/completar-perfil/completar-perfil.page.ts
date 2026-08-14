@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { ConfirmDialog } from '../../components/confirm-dialog/confirm-dialog';
 import { AuthService } from '../../core/auth/auth.service';
 import { AuthStore } from '../../core/auth/auth.store';
+import { httpErrorMessage } from '../../core/http-error';
 import { Logo } from '../../shared/logo/logo';
 
 @Component({
@@ -70,9 +71,9 @@ export class CompletarPerfilPage implements OnInit {
     try {
       await firstValueFrom(this.authService.updateProfile(values));
       await this.router.navigate(['/dashboard']);
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.errorMessage.set(
-        error?.message || 'Não foi possível salvar os dados do perfil. Tente novamente.'
+        httpErrorMessage(error, 'Não foi possível salvar os dados do perfil. Tente novamente.')
       );
     } finally {
       this.sending.set(false);
