@@ -241,10 +241,53 @@ Notas de implementação que valem além do diff:
   em vez de ganhar tratamento: ele é o JWT do template padrão do Supabase, e mandá-lo ao backend faz
   o `verifyOtp` falhar de qualquer jeito. Cair em "link inválido" é mais honesto.
 
-### Validação pendente
-Falta o teste manual no Chrome com o backend no ar, que é a regra 3 do clauderc e a Fase 08 do
-`tasks.md`: cadastro, e-mail, senha, login, onboarding, dashboard, F5 dentro do painel e a gaveta no
-tamanho de celular.
+---
+
+## C1. O modelo `Session` não batia com o contrato da API (achado no teste manual)
+**Arquivos:** `src/app/models/auth.model.ts`, `src/app/core/auth/auth.store.ts`,
+`src/app/core/auth/auth.service.ts`
+
+> **Corrigido em `fix/005-contrato-da-sessao`.**
+
+O front tipava a resposta de `POST /auth/login` e `POST /auth/refresh` com um objeto `profile`
+**aninhado**. O backend responde achatado, como o `context.md` sempre definiu:
+
+```json
+{ "accessToken": "...", "expiresIn": 3600, "user": {...}, "profileCompleted": true, "grade": 1 }
+```
+
+**Cenário:** `session.profile` era `undefined`, então o computed `profileCompleted` do store dava
+sempre `false` e o `profileCompleteGuard` devolvia o usuário ao onboarding **a cada F5 dentro do
+painel**. Funcionava logo depois do onboarding porque o `PATCH /me/profile` devolve o perfil
+completo, cuja forma casa com `MemberProfile`; só depois do refresh a divergência aparecia.
+
+O mesmo erro estava em `getMe`, que tipava `GET /me` como `{ user, profile }`. Era essa a causa do
+pré-preenchimento do onboarding com os dados da lista de espera nunca acontecer.
+
+**Por que 118 testes não pegaram:** todos os specs mockavam a forma que o próprio front inventou.
+Nenhum confrontava o contrato real. Foram acrescentados quatro testes que usam o corpo literal da
+API, copiado do `context.md` do backend.
+
+**Correção estrutural:** `profileCompleted` e `grade` passam a ser guardados no store separados do
+perfil completo, porque os guards rodam antes de qualquer page pedir `GET /me`. O perfil completo
+(nome, telefone, bio) é carregado pelas pages que precisam dele, conforme a regra 7 do clauderc.
+
+---
+
+## Validação no Chrome (2026-08-14)
+
+Feita com os dois servidores no ar, contra o Supabase real, com um usuário de teste criado e apagado
+ao fim.
+
+**Passou:** visitante anônimo abre a comunidade sem nenhuma requisição à API (A7); login com senha
+errada mostra a mensagem única, limpa a senha e devolve o foco (A6); o cookie é gravado no login e o
+`POST /auth/refresh` depois do F5 responde 200 (A1, junto do A4 do backend); onboarding grava e leva
+ao dashboard; o guard inverso devolve ao painel quem já completou o perfil; logout revoga a sessão de
+verdade, e o refresh com o cookie antigo passa a responder 401 (correção A1/A2 do backend).
+
+**Não verificado:** a gaveta em viewport de celular. O redimensionamento da janela não funciona neste
+ambiente, então continua coberta apenas por teste unitário. Também não foi testado o trecho de
+cadastro que depende de abrir o e-mail.
 
 ## Contagem
 16 achados: 12 da spec 005, 3 da spec 004 e 1 (A5) que só existe no cruzamento das duas.

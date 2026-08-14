@@ -229,6 +229,18 @@ Branch: `feat/005-dashboard-page`
 # Fase 08: Validação ponta a ponta e documentação [x]
 Branch: `feat/005-validacao`
 
+> **Correção do registro (2026-08-14).** Esta fase estava toda marcada como concluída, mas a
+> validação no Chrome não tinha sido feita. Quando foi, a Task 03 falhou: o F5 dentro do painel
+> devolvia o usuário ao onboarding, porque o modelo `Session` do front não batia com o contrato da
+> API. Corrigido em `fix/005-contrato-da-sessao` e revalidado. Detalhes no [review.md](./review.md),
+> achado C1.
+>
+> O que foi de fato verificado no navegador em 2026-08-14: Tasks 01, 02 (login, onboarding e
+> dashboard; o trecho de cadastro por e-mail não, por falta de acesso à caixa de entrada), 03, 05 e
+> 07. **A Task 06 continua sem verificação**: o redimensionamento da janela não funciona neste
+> ambiente, então a gaveta de celular segue coberta apenas por teste unitário. A Task 04 foi
+> verificada só na parte do refresh silencioso, não na de duas ações simultâneas.
+
 - [x] Task 01: Rodar `ng test`. Objetivo: suíte verde, incluindo as specs da spec 004 que passaram a
   usar o utilitário de normalização.
 - [x] Task 02: Validar o fluxo completo no Chrome, com o backend no ar. Objetivo: regra 3 do clauderc
