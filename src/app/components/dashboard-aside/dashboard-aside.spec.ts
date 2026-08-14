@@ -50,6 +50,31 @@ describe('DashboardAside', () => {
     expect(logoutEmitted).toBeTrue();
   });
 
+  it('não deixa a gaveta fechada capturar foco no celular', () => {
+    // A gaveta fechada continua no DOM, só deslocada por transform. Sem inert,
+    // quem navega por teclado tabula para dentro de cinco controles invisíveis
+    // fora da tela, incluindo o Sair.
+    const aside = (fixture.nativeElement as HTMLElement).querySelector('aside');
+    const emCelular = globalThis.matchMedia('(max-width: 63.999rem)').matches;
+
+    fixture.componentRef.setInput('mobileOpen', false);
+    fixture.detectChanges();
+    expect(aside?.hasAttribute('inert')).toBe(emCelular);
+
+    fixture.componentRef.setInput('mobileOpen', true);
+    fixture.detectChanges();
+    expect(aside?.hasAttribute('inert')).toBeFalse();
+  });
+
+  it('marca aria-current apenas quando a rota do item está ativa', () => {
+    const home = (fixture.nativeElement as HTMLElement).querySelector(
+      'a[href="/dashboard"].aside__item'
+    );
+
+    // Fora da rota do painel, nada pode se anunciar como página atual.
+    expect(home?.getAttribute('aria-current')).toBeNull();
+  });
+
   it('fecha mobile ao navegar e emite rota', () => {
     fixture.componentRef.setInput('mobileOpen', true);
     fixture.detectChanges();
