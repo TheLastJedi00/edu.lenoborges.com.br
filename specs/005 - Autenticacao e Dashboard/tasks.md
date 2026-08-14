@@ -153,45 +153,45 @@ Branch: `feat/005-onboarding`
   com o mesmo modal de confirmação do dashboard. Quem não quer preencher pode ir embora; não pode é
   entrar sem preencher.
 
-# Fase 06: Shell do dashboard e aside expansível []
+# Fase 06: Shell do dashboard e aside expansível [x]
 Branch: `feat/005-dashboard-shell`
 
-- [] Task 01: Criar os ícones. Arquivos: `src/app/components/icons/icon-home.ts`, `icon-track.ts`,
+- [x] Task 01: Criar os ícones. Arquivos: `src/app/components/icons/icon-home.ts`, `icon-track.ts`,
   `icon-user.ts`, `icon-games.ts`, `icon-logout.ts`, `icon-menu.ts`. Objetivo: SVG componentizado
   como manda a regra 1 do clauderc, seguindo o padrão dos ícones existentes, sem emoji em lugar
   nenhum.
-- [] Task 02: Criar o `ConfirmDialog` genérico. Arquivo:
+- [x] Task 02: Criar o `ConfirmDialog` genérico. Arquivo:
   `src/app/components/confirm-dialog/confirm-dialog.ts`. Objetivo: componente burro e reutilizável
   com `title`, `message`, `confirmLabel` e `cancelLabel`, emitindo `confirmed` e `cancelled`, com
   foco inicial no botão de confirmar e Esc equivalendo a cancelar. Genérico de propósito: um modal
   específico de logout nasceria obsoleto na primeira exclusão de algo.
-- [] Task 03 (spec de comportamento): Testar o `ConfirmDialog`. Arquivo:
+- [x] Task 03 (spec de comportamento): Testar o `ConfirmDialog`. Arquivo:
   `confirm-dialog.spec.ts`. Objetivo: os dois outputs disparando nos botões certos e Esc cancelando.
-- [] Task 04: Criar o `DashboardAside` como componente burro. Arquivo:
+- [x] Task 04: Criar o `DashboardAside` como componente burro. Arquivo:
   `src/app/components/dashboard-aside/dashboard-aside.ts`. Objetivo: receber os itens e o estado
   expandido, emitir navegação e logout, sem conhecer serviço nem rota.
-- [] Task 05: Desenhar a gaveta do celular primeiro. Arquivo: `dashboard-aside.ts` (bloco `styles`).
+- [x] Task 05: Desenhar a gaveta do celular primeiro. Arquivo: `dashboard-aside.ts` (bloco `styles`).
   Objetivo: mobile first, regra 2 do clauderc — gaveta sobre o conteúdo com fundo escurecido, aberta
   por um botão de menu no topo, fechando por Esc, por toque fora e ao navegar.
-- [] Task 06: Acrescentar a coluna fixa do desktop. Arquivo: mesmo componente. Objetivo: a partir de
+- [x] Task 06: Acrescentar a coluna fixa do desktop. Arquivo: mesmo componente. Objetivo: a partir de
   `64rem`, coluna fixa que recolhida mostra só ícones com `title` e `aria-label`, e expandida mostra
   ícone e rótulo, animando `width`.
-- [] Task 07: Tratar os itens inertes. Arquivo: mesmo componente. Objetivo: Trilha, Meu Perfil e
+- [x] Task 07: Tratar os itens inertes. Arquivo: mesmo componente. Objetivo: Trilha, Meu Perfil e
   Jogos como `<button disabled>` com `aria-disabled="true"` e selo "Em breve", pelo **mesmo** critério
   dos cartões do dashboard: um destino não pode estar bloqueado no cartão e clicável no menu.
-- [] Task 08: Acessibilidade do menu. Arquivo: mesmo componente. Objetivo:
+- [x] Task 08: Acessibilidade do menu. Arquivo: mesmo componente. Objetivo:
   `<nav aria-label="Menu do painel">`, botão de expandir com `aria-expanded` e item ativo com
   `routerLinkActive` e `aria-current="page"`.
-- [] Task 09 (spec de comportamento): Testar o aside. Arquivo: `dashboard-aside.spec.ts`. Objetivo:
+- [x] Task 09 (spec de comportamento): Testar o aside. Arquivo: `dashboard-aside.spec.ts`. Objetivo:
   expandir e recolher alternando `aria-expanded` e item inerte não emitindo navegação.
-- [] Task 10: Criar o `DashboardShell`. Arquivos: `src/app/pages/dashboard/dashboard-shell.ts`.
+- [x] Task 10: Criar o `DashboardShell`. Arquivos: `src/app/pages/dashboard/dashboard-shell.ts`.
   Objetivo: página inteligente com o layout, o aside, o `<router-outlet>` do filho e o modal de
   confirmação do logout.
-- [] Task 11: Persistir a preferência do aside. Arquivo: `dashboard-shell.ts`. Objetivo: guardar
+- [x] Task 11: Persistir a preferência do aside. Arquivo: `dashboard-shell.ts`. Objetivo: guardar
   expandido/recolhido em `localStorage` na chave `eduleno.aside.expanded`. É o **único** uso de
   armazenamento nesta spec: preferência de layout não é dado sensível e é irritante de reajustar a
   cada visita.
-- [] Task 12: Ligar o logout. Arquivo: `dashboard-shell.ts`. Objetivo: confirmação, `POST
+- [x] Task 12: Ligar o logout. Arquivo: `dashboard-shell.ts`. Objetivo: confirmação, `POST
   /auth/logout`, limpeza do store e navegação para `/comunidade`, **deslogando mesmo se a chamada
   falhar**: deixar o usuário preso porque a rede caiu seria trocar segurança por teimosia.
 
