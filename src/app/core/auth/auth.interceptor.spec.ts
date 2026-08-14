@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse, provideHttpClient, withInterceptors } fr
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Router, provideRouter } from '@angular/router';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { MemberProfile, Session } from '../../models/auth.model';
@@ -36,6 +37,7 @@ describe('authInterceptor (TDD)', () => {
         provideZonelessChangeDetection(),
         provideHttpClient(withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
+        provideRouter([{ path: 'comunidade', children: [] }]),
         AuthStore,
         AuthService
       ]
@@ -159,5 +161,102 @@ describe('authInterceptor (TDD)', () => {
 
     await expectAsync(pending).toBeRejected();
     httpMock.expectNone(`${environment.apiUrl}/auth/refresh`);
+  });
+
+  it('7. login envia withCredentials, senão o navegador descarta o cookie de refresh', async () => {
+    // Front e API são origens distintas. Sem credenciais na requisição, o
+    // Set-Cookie HttpOnly da resposta é descartado e o primeiro F5 desloga.
+    const pending = firstValueFrom(
+      http.post(`${environment.apiUrl}/auth/login`, { email: 'a@b.com', password: '12345678' })
+    );
+
+    const loginReq = httpMock.expectOne(`${environment.apiUrl}/auth/login`);
+    expect(loginReq.request.withCredentials).toBeTrue();
+    loginReq.flush(MOCK_SESSION);
+
+    await pending;
+  });
+
+  it('8. logout também envia withCredentials', async () => {
+    const pending = firstValueFrom(http.post(`${environment.apiUrl}/auth/logout`, {}));
+
+    const logoutReq = httpMock.expectOne(`${environment.apiUrl}/auth/logout`);
+    expect(logoutReq.request.withCredentials).toBeTrue();
+    logoutReq.flush(null);
+
+    await pending;
+  });
+
+  it('9. erro na requisição refeita não derruba a sessão', async () => {
+    // O refresh funcionou: a sessão é válida. Se o retry falha por 500, o problema
+    // é do servidor, e expulsar o usuário do painel por isso seria trocar um erro
+    // de requisição por um logout.
+    store.accessToken.set('expired-token');
+
+    const pending = firstValueFrom(http.get(`${environment.apiUrl}/me`));
+
+    httpMock
+      .expectOne(`${environment.apiUrl}/me`)
+      .flush({ message: 'Token expirado' }, { status: 401, statusText: 'Unauthorized' });
+
+    httpMock.expectOne(`${environment.apiUrl}/auth/refresh`).flush(MOCK_SESSION);
+
+    httpMock
+      .expectOne(`${environment.apiUrl}/me`)
+      .flush({ message: 'Erro interno' }, { status: 500, statusText: 'Server Error' });
+
+    await expectAsync(pending).toBeRejected();
+    expect(store.accessToken()).toBe('new-token-abc');
+    expect(store.isLoggedIn()).toBeTrue();
+  });
+
+  it('10. cancelar uma requisição não libera o refresh em andamento', async () => {
+    // O refresh é compartilhado. Se o cancelamento de um assinante zera o
+    // controle, um 401 seguinte dispara um segundo refresh com o token já
+    // rotacionado pelo primeiro, e o backend responde 401.
+    store.accessToken.set('expired-token');
+
+    const cancelada = http.get(`${environment.apiUrl}/resource-1`).subscribe({
+      error: () => undefined
+    });
+    const pending2 = firstValueFrom(http.get(`${environment.apiUrl}/resource-2`));
+
+    httpMock
+      .expectOne(`${environment.apiUrl}/resource-1`)
+      .flush({ message: 'expirado' }, { status: 401, statusText: 'Unauthorized' });
+    httpMock
+      .expectOne(`${environment.apiUrl}/resource-2`)
+      .flush({ message: 'expirado' }, { status: 401, statusText: 'Unauthorized' });
+
+    // A primeira desiste enquanto o refresh ainda está em voo.
+    cancelada.unsubscribe();
+
+    const refreshReqs = httpMock.match(`${environment.apiUrl}/auth/refresh`);
+    expect(refreshReqs.length).toBe(1);
+    refreshReqs[0].flush(MOCK_SESSION);
+
+    httpMock.expectOne(`${environment.apiUrl}/resource-2`).flush({ res: 2 });
+    await pending2;
+
+    httpMock.expectNone(`${environment.apiUrl}/auth/refresh`);
+  });
+
+  it('11. refresh falhando manda o usuário para /comunidade', async () => {
+    const router = TestBed.inject(Router);
+    const navigate = spyOn(router, 'navigateByUrl').and.resolveTo(true);
+
+    store.accessToken.set('expired-token');
+
+    const pending = firstValueFrom(http.get(`${environment.apiUrl}/me`));
+
+    httpMock
+      .expectOne(`${environment.apiUrl}/me`)
+      .flush({ message: 'expirado' }, { status: 401, statusText: 'Unauthorized' });
+    httpMock
+      .expectOne(`${environment.apiUrl}/auth/refresh`)
+      .flush({ message: 'inválido' }, { status: 401, statusText: 'Unauthorized' });
+
+    await expectAsync(pending).toBeRejected();
+    expect(navigate).toHaveBeenCalledWith('/comunidade');
   });
 });
