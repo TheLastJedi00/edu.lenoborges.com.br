@@ -6,7 +6,7 @@
  */
 export const environment = {
   production: true,
-  apiUrl: 'https://api-lenoborges.vercel.app/',
+  apiUrl: 'https://api-lenoborges.vercel.app',
   /**
    * Link de convite do grupo oficial da Seita Dev no WhatsApp.
    */
