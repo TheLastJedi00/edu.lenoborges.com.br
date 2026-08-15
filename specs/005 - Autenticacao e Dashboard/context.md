@@ -438,3 +438,13 @@ no ar, incluindo o teste de F5 dentro do dashboard, que é onde token em memóri
    template de e-mail precisa apontar para `{{ .SiteURL }}/definir-senha?token_hash={{ .TokenHash }}&type=recovery`.
    Se ficar no formato padrão, `/definir-senha` recebe os dados no fragmento (`#`) e não na query, e
    a página precisa ler dos dois lugares. Detalhado no `context.md` do backend.
+
+   > **DEPRECATED em 2026-08-15** pela spec 006 do backend, `006 - Configuracao de Auth como Codigo`.
+   >
+   > Duas correções. O formato certo é `{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=recovery`:
+   > `{{ .SiteURL }}` renderiza a configuração de Site URL do projeto, que é campo único e não
+   > consegue atender dev e produção ao mesmo tempo. E não é mais ajuste de painel, o template
+   > passou a viver em `supabase/templates/recovery.html` no repositório do backend.
+   >
+   > Para esta página nada muda: o destino continua sendo `/definir-senha` com `token_hash` na query,
+   > e `definir-senha.page.ts` segue lendo query e fragmento, o que continua sendo a decisão certa.
