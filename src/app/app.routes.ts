@@ -13,11 +13,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/comunidade/comunidade.page').then((m) => m.ComunidadePage),
     title: 'Seita Dev · Comunidade de programação do Leno Borges'
   },
-  {
-    path: 'definir-senha',
-    loadComponent: () => import('./pages/definir-senha/definir-senha.page').then((m) => m.DefinirSenhaPage),
-    title: 'Definir Senha · Seita Dev'
-  },
+  // Não existe rota `definir-senha`, e a ausência é proposital.
+  //
+  // O Firebase hospeda a própria tela de definição de senha, e o link do e-mail
+  // leva direto para lá. O usuário volta para cá pelo `?entrar=1` da landing,
+  // que abre o diálogo de login. Ver a decisão 3 da spec 007 no repositório do
+  // backend.
   {
     path: 'completar-perfil',
     canActivate: [authGuard, onboardingPendingGuard],
