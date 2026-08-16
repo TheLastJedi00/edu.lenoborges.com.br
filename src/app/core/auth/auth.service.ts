@@ -7,7 +7,6 @@ import {
   MemberProfile,
   MemberUser,
   Session,
-  SetPasswordRequest,
   SignupRequest,
   UpdateProfileRequest
 } from '../../models/auth.model';
@@ -70,28 +69,15 @@ export class AuthService {
       );
   }
 
-  /**
-   * Define uma nova senha a partir de um token hash de recuperação / criação.
-   */
-  setPassword(request: SetPasswordRequest): Observable<void> {
-    if (!request.tokenHash) {
-      return throwError(() => new Error('Token inválido ou ausente.'));
-    }
-
-    if (!request.password || request.password.length < 8) {
-      return throwError(() => new Error('A senha deve conter no mínimo 8 caracteres.'));
-    }
-
-    if (request.password !== request.passwordConfirmation) {
-      return throwError(() => new Error('As senhas digitadas devem ser iguais.'));
-    }
-
-    return this.http.post<void>(`${environment.apiUrl}/auth/password`, {
-      tokenHash: request.tokenHash,
-      password: request.password,
-      passwordConfirmation: request.passwordConfirmation
-    });
-  }
+  // Não existe `setPassword`, e a ausência é proposital.
+  //
+  // A senha passou a ser definida na tela hospedada pelo Firebase, para onde o
+  // link do e-mail aponta. O `oobCode` não chega no front nem na API, e o
+  // endpoint `POST /auth/password` deixou de existir.
+  //
+  // O mínimo de 8 caracteres que era validado aqui virou configuração de console
+  // (Authentication > Settings > Password policy). Se o piso parecer ter caído,
+  // é lá que se olha, não aqui.
 
   /**
    * Renova a sessão usando o cookie HttpOnly de refresh token.

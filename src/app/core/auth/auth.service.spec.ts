@@ -125,39 +125,12 @@ describe('AuthService (TDD)', () => {
     expect(store.isLoggedIn()).toBeFalse();
   });
 
-  it('5. setPassword posta tokenHash e senha; senhas divergentes falham sem rede', async () => {
-    // Caso com senhas divergentes -> falha sem rede
-    await expectAsync(
-      firstValueFrom(
-        service.setPassword({
-          tokenHash: 'token-abc',
-          password: 'novasenha123',
-          passwordConfirmation: 'outrasenha123'
-        })
-      )
-    ).toBeRejectedWithError(/iguais|confirmação/i);
-
-    httpMock.expectNone(`${environment.apiUrl}/auth/password`);
-
-    // Caso válido -> dispara POST
-    const pendingValid = firstValueFrom(
-      service.setPassword({
-        tokenHash: 'token-abc',
-        password: 'novasenha123',
-        passwordConfirmation: 'novasenha123'
-      })
-    );
-
-    const req = httpMock.expectOne(`${environment.apiUrl}/auth/password`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({
-      tokenHash: 'token-abc',
-      password: 'novasenha123',
-      passwordConfirmation: 'novasenha123'
-    });
-    req.flush(null, { status: 204, statusText: 'No Content' });
-
-    await pendingValid;
+  it('5. nao expoe setPassword: a senha e definida fora da aplicacao', () => {
+    // A ausência é o comportamento, então ela é testada. Desde a spec 007 o link
+    // do e-mail abre a tela hospedada pelo Firebase, e o `oobCode` não chega no
+    // front nem na API. Se alguém reintroduzir isto sem reabrir a decisão 3
+    // daquela spec, este teste avisa.
+    expect((service as unknown as Record<string, unknown>)['setPassword']).toBeUndefined();
   });
 
   it('6. refresh atualiza o token e a sessão no store', async () => {
