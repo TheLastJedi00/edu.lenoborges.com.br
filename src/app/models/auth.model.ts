@@ -8,11 +8,8 @@ export interface SignupRequest {
   readonly emailConfirmation: string;
 }
 
-export interface SetPasswordRequest {
-  readonly tokenHash: string;
-  readonly password: string;
-  readonly passwordConfirmation: string;
-}
+// `SetPasswordRequest` foi removida na spec 007: a senha é definida na tela
+// hospedada pelo Firebase, e o front não participa mais desse passo.
 
 export interface MemberUser {
   readonly id: string;

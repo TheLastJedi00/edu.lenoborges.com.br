@@ -80,8 +80,19 @@ function emailMatchValidator(control: AbstractControl): ValidationErrors | null 
             <app-icon-mail />
           </div>
           <h2 class="sent__title">Verifique sua caixa de entrada</h2>
+          <!--
+            O texto avisa que a senha é criada numa página segura fora do site.
+            Desde a spec 007 o link abre a tela hospedada pelo Firebase, e quem
+            não for preparado para isso estranha o domínio do Google no meio do
+            cadastro — a hora de contar é aqui, antes de o e-mail chegar.
+          -->
           <p class="sent__detail">
-            Enviei um link para <strong>{{ sentEmailDisplay() }}</strong>. Abra o e-mail para criar a sua senha.
+            Enviei um link para <strong>{{ sentEmailDisplay() }}</strong>. Abra o e-mail e crie a sua senha
+            na página segura que vai abrir.
+          </p>
+          <p class="sent__note">
+            A senha é criada fora do site, numa página do nosso provedor de contas. Ao terminar, é só
+            voltar por aqui para entrar.
           </p>
           <p class="sent__note">
             Se não encontrar a mensagem em alguns minutos, confira a pasta de spam ou lixo eletrônico.

@@ -4,10 +4,12 @@ import {
   DestroyRef,
   computed,
   inject,
+  OnInit,
   signal,
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ContactLinks } from '../../components/contact-links/contact-links';
 import { CtaSplit } from '../../components/cta-split/cta-split';
 import { DialogBox } from '../../components/dialog-box/dialog-box';
@@ -49,10 +51,12 @@ import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/wai
   templateUrl: './landing.page.html',
   styleUrl: './landing.page.scss'
 })
-export class LandingPage {
+export class LandingPage implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly waitlistService = inject(WaitlistService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly authStore = inject(AuthStore);
 
   private readonly dialog = viewChild.required(WaitlistDialog);
@@ -82,6 +86,31 @@ export class LandingPage {
   protected readonly stats = computed(() => this.profileService.profile().stats);
   protected readonly education = computed(() => this.profileService.profile().education);
   protected readonly educatorExperiences = this.profileService.educatorExperiences;
+
+  /**
+   * Abre o diálogo de login quando a landing recebe `?entrar=1`.
+   *
+   * É a volta de quem acabou de definir a senha: o link do e-mail leva para a
+   * tela hospedada pelo Firebase, e o botão de retorno de lá traz o usuário para
+   * cá com esse parâmetro. Sem isto ele cairia na home sem nenhum sinal de que
+   * já pode entrar, e o cadastro terminaria em anticlímax.
+   *
+   * O parâmetro é limpo da URL logo em seguida, com `replaceUrl` para não
+   * empilhar entrada no histórico: um F5 depois não deve reabrir o diálogo.
+   */
+  ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('entrar') !== '1') {
+      return;
+    }
+
+    this.authStore.openAuthDialog('login');
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true
+    });
+  }
 
   protected openLogin(): void {
     this.authStore.openAuthDialog('login');
