@@ -16,7 +16,7 @@ export class WaitlistService {
   private readonly http = inject(HttpClient);
 
   /**
-   * Registra o interesse em entrar na Seita Dev.
+   * Registra o interesse em entrar na Liga Dev.
    *
    * E-mail repetido não é erro: o backend é idempotente e devolve o recibo original,
    * então quem clica duas vezes vê sucesso.

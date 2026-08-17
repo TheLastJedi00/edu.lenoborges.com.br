@@ -1,37 +1,45 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { TrackStage } from '../../models/community.model';
+import {
+  ELITE_ROUND_LABEL,
+  STAGE_PHASE_LABEL,
+  TrackStage
+} from '../../models/community.model';
 import { Reveal } from '../../directives/reveal';
 import { IconAngular } from '../icons/icon-angular';
 import { IconCaret } from '../icons/icon-caret';
-import { IconDevops } from '../icons/icon-devops';
+import { IconDocker } from '../icons/icon-docker';
 import { IconGcp } from '../icons/icon-gcp';
 import { IconGitGithub } from '../icons/icon-git-github';
 import { IconHtmlCss } from '../icons/icon-html-css';
 import { IconJava } from '../icons/icon-java';
 import { IconNestjs } from '../icons/icon-nestjs';
 import { IconSpring } from '../icons/icon-spring';
-import { IconSql } from '../icons/icon-sql';
-import { IconStacks } from '../icons/icon-stacks';
+import { IconFirebase } from '../icons/icon-firebase';
+import { IconIa } from '../icons/icon-ia';
+import { IconSupabase } from '../icons/icon-supabase';
+import { IconTsJs } from '../icons/icon-ts-js';
 import { IconVercel } from '../icons/icon-vercel';
 
 /**
- * Trilha da Seita Dev: uma timeline vertical em que cada etapa é um accordion.
+ * Trilha da Liga Dev: uma timeline vertical em que cada etapa é um accordion.
  * Usa `<details>` nativo, então abre e fecha por teclado e continua legível sem JavaScript.
  */
 @Component({
   selector: 'app-track-timeline',
   imports: [
-    IconStacks,
     IconJava,
-    IconSql,
     IconGitGithub,
     IconSpring,
-    IconGcp,
     IconHtmlCss,
-    IconVercel,
+    IconTsJs,
     IconAngular,
-    IconDevops,
     IconNestjs,
+    IconVercel,
+    IconFirebase,
+    IconSupabase,
+    IconDocker,
+    IconGcp,
+    IconIa,
     IconCaret,
     Reveal
   ],
@@ -41,7 +49,12 @@ import { IconVercel } from '../icons/icon-vercel';
       <span class="track__spine" aria-hidden="true"></span>
 
       @for (stage of stages(); track stage.id) {
-        <li class="stage" appReveal>
+        <li
+          class="stage"
+          [class.stage--elite]="stage.phase === 'elite'"
+          [class.stage--frontier]="stage.phase === 'frontier'"
+          appReveal
+        >
           <span class="stage__node" aria-hidden="true">
             <span class="stage__order">{{ stage.order }}</span>
           </span>
@@ -50,14 +63,8 @@ import { IconVercel } from '../icons/icon-vercel';
             <summary class="stage__head">
               <span class="stage__icon" aria-hidden="true">
                 @switch (stage.icon) {
-                  @case ('stacks') {
-                    <app-icon-stacks />
-                  }
                   @case ('java') {
                     <app-icon-java />
-                  }
-                  @case ('sql') {
-                    <app-icon-sql />
                   }
                   @case ('git-github') {
                     <app-icon-git-github />
@@ -77,17 +84,36 @@ import { IconVercel } from '../icons/icon-vercel';
                   @case ('angular') {
                     <app-icon-angular />
                   }
-                  @case ('devops') {
-                    <app-icon-devops />
-                  }
                   @case ('nestjs') {
                     <app-icon-nestjs />
+                  }
+                  @case ('ts-js') {
+                    <app-icon-ts-js />
+                  }
+                  @case ('firebase') {
+                    <app-icon-firebase />
+                  }
+                  @case ('supabase') {
+                    <app-icon-supabase />
+                  }
+                  @case ('docker') {
+                    <app-icon-docker />
+                  }
+                  @case ('ia') {
+                    <app-icon-ia />
                   }
                 }
               </span>
 
               <span class="stage__text">
-                <span class="stage__area u-mono">{{ stage.area }}</span>
+                <span class="stage__area u-mono">
+                  {{ phaseLabel[stage.phase] }}
+                  @if (stage.round) {
+                    · {{ roundLabel[stage.round] }}
+                  } @else {
+                    · {{ stage.area }}
+                  }
+                </span>
                 <span class="stage__title">{{ stage.title }}</span>
               </span>
 
@@ -162,6 +188,26 @@ import { IconVercel } from '../icons/icon-vercel';
     .stage:hover .stage__node,
     .stage:focus-within .stage__node {
       box-shadow: 0 0 0 2px var(--accent), var(--shadow-glow);
+    }
+
+    /* As quatro Elite Battles não são "mais quatro etapas": são o prêmio por
+       conquistar as oito insígnias. O peso visual diz isso antes do texto. */
+    .stage--elite .stage__node {
+      background: var(--gradient-accent);
+      color: var(--paper);
+    }
+
+    .stage--elite .stage__box {
+      border-color: var(--accent-deep);
+    }
+
+    /* A Battle Frontier é pós-game: fora da disputa, e por isso mais discreta. */
+    .stage--frontier .stage__box {
+      border-style: dashed;
+    }
+
+    .stage--frontier .stage__node {
+      border-style: dashed;
     }
 
     .stage__box {
@@ -290,5 +336,8 @@ export class TrackTimeline {
   /** Quando verdadeiro, abrir uma etapa fecha a anterior (`name` compartilhado do `<details>`). */
   readonly single = input(false);
 
-  protected readonly group = 'trilha-seita';
+  protected readonly group = 'trilha-liga';
+
+  protected readonly phaseLabel = STAGE_PHASE_LABEL;
+  protected readonly roundLabel = ELITE_ROUND_LABEL;
 }

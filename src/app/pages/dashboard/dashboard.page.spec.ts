@@ -52,8 +52,8 @@ describe('DashboardPage', () => {
 
   it('extrai o grau do perfil do store', () => {
     expect(component.grade()).toBe(5);
-    const badge = fixture.nativeElement.querySelector('app-grade-badge') as HTMLElement;
-    expect(badge.textContent).toContain('Grau 5');
+    const badge = fixture.nativeElement.querySelector('app-badge-count') as HTMLElement;
+    expect(badge.textContent).toContain('Insígnia 5');
   });
 
   it('renderiza os quatro módulos do painel com seus respectivos títulos', () => {

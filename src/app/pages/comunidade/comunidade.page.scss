@@ -141,7 +141,7 @@
   color: var(--screen);
 }
 
-/* ---------- O que é a Seita ---------- */
+/* ---------- O que é a Liga ---------- */
 .grid {
   display: grid;
   gap: 1rem;
@@ -204,27 +204,27 @@
   line-height: 1.6;
 }
 
-/* ---------- Conclave ---------- */
-.conclave {
+/* ---------- Grinding Arena ---------- */
+.grinding-arena {
   display: grid;
   gap: 1.25rem;
   justify-items: start;
 }
 
-.conclave__facts {
+.grinding-arena__facts {
   display: grid;
   gap: 1rem;
   margin: 0;
   width: 100%;
 }
 
-.conclave__facts dt {
+.grinding-arena__facts dt {
   color: var(--ink-soft);
   font-size: var(--step--1);
   font-weight: 700;
 }
 
-.conclave__facts dd {
+.grinding-arena__facts dd {
   margin: 0.2rem 0 0;
   font-family: var(--font-display);
   font-size: var(--step-1);
@@ -232,7 +232,7 @@
   color: var(--ink);
 }
 
-.conclave__perks {
+.grinding-arena__perks {
   display: grid;
   gap: 0.5rem;
   margin: 0;
@@ -241,13 +241,13 @@
   color: var(--ink-soft);
 }
 
-.conclave__perks li {
+.grinding-arena__perks li {
   position: relative;
   padding-left: 1rem;
   line-height: 1.55;
 }
 
-.conclave__perks li::before {
+.grinding-arena__perks li::before {
   content: '';
   position: absolute;
   top: 0.65em;
@@ -289,7 +289,7 @@
     padding: 1.6rem;
   }
 
-  .conclave__facts {
+  .grinding-arena__facts {
     grid-template-columns: repeat(4, 1fr);
   }
 }
