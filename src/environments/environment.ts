@@ -7,7 +7,7 @@ export const environment = {
    */
   apiUrl: 'http://localhost:3000',
   /**
-   * Link de convite do grupo oficial da Seita Dev no WhatsApp.
+   * Link de convite do grupo oficial da Liga Dev no WhatsApp.
    * Vazio por padrão até o link definitivo ser configurado.
    */
   whatsappGroupUrl: '',

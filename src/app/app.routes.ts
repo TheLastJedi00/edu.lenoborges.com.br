@@ -11,7 +11,7 @@ export const routes: Routes = [
   {
     path: 'comunidade',
     loadComponent: () => import('./pages/comunidade/comunidade.page').then((m) => m.ComunidadePage),
-    title: 'Seita Dev · Comunidade de programação do Leno Borges'
+    title: 'Liga Dev · Comunidade de programação do Leno Borges'
   },
   // Não existe rota `definir-senha`, e a ausência é proposital.
   //
@@ -23,7 +23,7 @@ export const routes: Routes = [
     path: 'completar-perfil',
     canActivate: [authGuard, onboardingPendingGuard],
     loadComponent: () => import('./pages/completar-perfil/completar-perfil.page').then((m) => m.CompletarPerfilPage),
-    title: 'Completar Perfil · Seita Dev'
+    title: 'Completar Perfil · Liga Dev'
   },
   {
     path: 'dashboard',
@@ -33,7 +33,7 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
-        title: 'Painel do Membro · Seita Dev'
+        title: 'Painel do Membro · Liga Dev'
       }
     ]
   },

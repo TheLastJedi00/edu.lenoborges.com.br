@@ -102,7 +102,7 @@ function emailMatchValidator(control: AbstractControl): ValidationErrors | null 
       } @else if (tab() === 'login') {
         <div id="panel-login" role="tabpanel" aria-labelledby="tab-login">
           <p class="modal__lead">
-            Acesse o seu painel de membro na Seita Dev com suas credenciais.
+            Acesse o seu painel de membro na Liga Dev com suas credenciais.
           </p>
 
           <form class="form" [formGroup]="loginForm" (ngSubmit)="submitLogin()" novalidate>

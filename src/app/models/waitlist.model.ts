@@ -1,4 +1,4 @@
-/** Interesse em entrar na Seita Dev antes da abertura, com acesso antecipado gratuito. */
+/** Interesse em entrar na Liga Dev antes da abertura, com acesso antecipado gratuito. */
 export interface WaitlistEntry {
   readonly name: string;
   readonly phone: string;

@@ -40,9 +40,9 @@ const ASIDE_EXPANDED_STORAGE_KEY = 'eduleno.aside.expanded';
         >
           <app-icon-menu />
         </button>
-        <a routerLink="/dashboard" class="mobile-header__logo" aria-label="Seita Dev, início do painel">
+        <a routerLink="/dashboard" class="mobile-header__logo" aria-label="Liga Dev, início do painel">
           <app-logo variant="mark" />
-          <span class="mobile-header__title u-mono">SEITA DEV</span>
+          <span class="mobile-header__title u-mono">LIGA DEV</span>
         </a>
       </header>
 
@@ -63,8 +63,8 @@ const ASIDE_EXPANDED_STORAGE_KEY = 'eduleno.aside.expanded';
 
     <app-confirm-dialog
       #logoutDialog
-      title="Sair da Seita Dev?"
-      message="Deseja encerrar sua sessão no painel da Seita Dev?"
+      title="Sair da Liga Dev?"
+      message="Deseja encerrar sua sessão no painel da Liga Dev?"
       confirmLabel="Sair"
       cancelLabel="Cancelar"
       [danger]="true"
