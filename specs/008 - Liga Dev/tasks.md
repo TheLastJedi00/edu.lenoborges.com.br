@@ -179,6 +179,6 @@ Branch: `release/008-liga-dev`
 - [x] Task 03: Conferir o que não é texto. Objetivo: título da aba em cada rota, `aria-label` do logo
   do dashboard e o rótulo do selo lido por leitor de tela. São as três coisas que uma varredura visual
   não pega.
-- [] Task 04: Abrir o release e mergear em `dev` nos dois repositórios, na ordem back e depois front.
+- [x] Task 04: Abrir o release e mergear em `dev` nos dois repositórios, na ordem back e depois front.
   Objetivo: o front lê `grade` da API; subir o front primeiro exibiria "Insígnia 1 / 8" para quem o
   backend ainda considera Grau 1.
