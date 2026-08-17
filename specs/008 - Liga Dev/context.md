@@ -389,3 +389,23 @@ decisão 5d e não depende de código para valer.
 Também não foi executada a Fase 05 Task 05, que é de usuário: zerar o `grade` dos dois perfis de teste
 no Firestore. Eles nasceram com `grade: 1` sob o modelo antigo, e hoje isso significa "conquistou a
 Insígnia da Lógica".
+
+### Ressalva da verificação no navegador
+
+A conferência da Fase 07 Task 02 rodou em **1512 px de largura**, não em mobile. O
+`resize_window` da automação respondeu sucesso e a janela não encolheu — provavelmente por estar
+maximizada —, e eu segui em vez de parar. Isso contraria a regra 2 do `clauderc.md`, que pede mobile
+primeiro.
+
+**O que ficou conferido de fato:** landing, comunidade e painel em desktop; a régua com os oito passos,
+o vão e as quatro Elite Battles; a timeline com peso visual distinto para GYM Battle, Elite Battle e
+Battle Frontier; os três tiers lado a lado; e o selo em `grade` 0, 1 e 12 — com `12` exibindo
+**Campeão**, e não "Final".
+
+**O que não foi conferido:** o layout em telas estreitas. O ponto de maior risco é conhecido e está
+localizado: a grade dos tiers passou de duas para três colunas, e o `@media` foi movido de 48rem para
+64rem justamente para o terceiro card não cair sozinho embaixo. Essa decisão não foi vista rodando.
+
+Dois defeitos de cópia foram achados nessa passada e corrigidos: a trilha da comunidade e o cartão do
+painel diziam **"Doze etapas"**, número que a spec tornou obsoleto. Nenhum teste pegaria — são frases
+soltas, não dado.

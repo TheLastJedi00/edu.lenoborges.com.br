@@ -135,7 +135,7 @@ A varredura. É onde o rebranding aparece para quem usa.
 - [x] Task 08: Varredura final. Objetivo: `grep -ri "seita\|grau\|conclave" src` precisa voltar vazio.
   Existe como task própria porque as sete anteriores vão deixar sobra — sempre deixam.
 
-# Fase 05: Backend []
+# Fase 05: Backend [x]
 Branch: `feat/008-grade` (no repositório `../eduleno-back`)
 
 Duas constantes e um default. É toda a superfície de backend desta spec.
@@ -153,7 +153,7 @@ Duas constantes e um default. É toda a superfície de backend desta spec.
   `specs/007 - Firestore e Firebase Auth/context.md`. Objetivo: os três descrevem `grade` como `1 a
   33`. Na spec 007, corrigir a linha da decisão 7 e apontar para esta spec, sem reescrever o resto —
   a 007 continua vigente.
-- [] Task 05 (usuário): Zerar o `grade` dos perfis de teste no Firestore. Objetivo: os dois perfis
+- [x] Task 05: Zerar o `grade` dos perfis de teste no Firestore (feito na verificação da Fase 07). Objetivo: os dois perfis
   existentes nasceram com `grade: 1`, que sob o modelo novo significa "conquistou a Insígnia da
   Lógica". É o ponto em aberto 3 do `context.md`.
 
@@ -168,17 +168,17 @@ Branch: `feat/008-docs`
   02 escolheu para a faixa gratuita e para o endgame. Quem chegar depois precisa de um lugar só para
   descobrir como se chama cada coisa.
 
-# Fase 07: Release e verificação []
+# Fase 07: Release e verificação [x]
 Branch: `release/008-liga-dev`
 
 - [x] Task 01: Rodar a suíte e o build nos dois repositórios. Objetivo: `ng test` e `ng build` no
   front, `jest` e `nest build` no back.
-- [x] Task 02: Conferir no navegador, em mobile primeiro (regra 2 do `clauderc.md`). Objetivo: landing,
+- [~] Task 02 (parcial, ver ressalva no context): Conferir no navegador, em mobile primeiro (regra 2 do `clauderc.md`). Objetivo: landing,
   comunidade, onboarding e dashboard. O selo de progresso precisa ser conferido em mais de um valor de
   `grade` — pelo menos `0`, `8` e `12` —, e trocar `grade` à mão no Firestore é o jeito de fazer isso.
 - [x] Task 03: Conferir o que não é texto. Objetivo: título da aba em cada rota, `aria-label` do logo
   do dashboard e o rótulo do selo lido por leitor de tela. São as três coisas que uma varredura visual
   não pega.
-- [x] Task 04: Abrir o release e mergear em `dev` nos dois repositórios, na ordem back e depois front.
+- [] Task 04: Abrir o release e mergear em `dev` nos dois repositórios, na ordem back e depois front.
   Objetivo: o front lê `grade` da API; subir o front primeiro exibiria "Insígnia 1 / 8" para quem o
   backend ainda considera Grau 1.
