@@ -50,7 +50,7 @@ describe('DashboardPage', () => {
     expect(title.textContent).toContain('Olá, Leno');
   });
 
-  it('extrai o grau do perfil do store', () => {
+  it('extrai a insígnia do perfil do store', () => {
     expect(component.grade()).toBe(5);
     const badge = fixture.nativeElement.querySelector('app-badge-count') as HTMLElement;
     expect(badge.textContent).toContain('Insígnia 5');
