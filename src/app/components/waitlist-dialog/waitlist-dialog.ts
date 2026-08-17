@@ -16,7 +16,7 @@ import { WAITLIST_ERROR_DEFAULT } from '../../services/waitlist-error';
 export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
 
 /**
- * Modal de lista de espera da Seita Dev.
+ * Modal de lista de espera da Liga Dev.
  * Usa `<dialog>` nativo: foco preso, fechamento por Esc e retorno de foco pelo próprio elemento.
  * O componente é dumb, quem envia é a página através do output `submitted`.
  */
@@ -29,7 +29,7 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
       <div class="modal__head">
         <div>
           <p class="u-mono modal__eyebrow">Acesso antecipado</p>
-          <h2 class="modal__title">Entre na lista da Seita Dev</h2>
+          <h2 class="modal__title">Entre na lista da Liga Dev</h2>
         </div>
         <button type="button" class="modal__close" aria-label="Fechar" (click)="close()">
           <svg
@@ -52,14 +52,14 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
         <div class="done" role="status" aria-live="polite">
           <p class="done__title">Tudo certo, você está na lista.</p>
           <p class="done__detail">
-            Quando a Seita abrir eu te chamo pelo telefone ou e-mail que você deixou, e o seu acesso
+            Quando a Liga abrir eu te chamo pelo telefone ou e-mail que você deixou, e o seu acesso
             antecipado é gratuito.
           </p>
           <button type="button" class="submit" (click)="close()">Fechar</button>
         </div>
       } @else {
         <p class="modal__lead">
-          A Seita ainda está em construção. Deixe seu contato e você entra antes de todo mundo, sem
+          A Liga ainda está em construção. Deixe seu contato e você entra antes de todo mundo, sem
           pagar nada pelo acesso antecipado.
         </p>
 
@@ -117,7 +117,7 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
           <div class="legal" id="uso-dos-dados">
             <p class="legal__title">Como os seus dados são usados</p>
             <p>
-              Coleto nome, telefone e e-mail para duas coisas. A primeira é avisar quando a Seita
+              Coleto nome, telefone e e-mail para duas coisas. A primeira é avisar quando a Liga
               Dev abrir e liberar o seu acesso antecipado gratuito. A segunda é preencher o seu
               perfil de membro, com o nome e o telefone que você deixa aqui, caso você venha a criar
               uma conta com este mesmo e-mail, para não pedir tudo de novo. A base legal é o seu
@@ -125,7 +125,7 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
             </p>
             <p>
               Não vendo nem compartilho esses dados com terceiros para publicidade. Eles ficam no
-              banco de dados da Seita Dev enquanto durar a lista de espera. Se você criar conta, a
+              banco de dados da Liga Dev enquanto durar a lista de espera. Se você criar conta, a
               cópia que foi para o seu perfil passa a viver junto da conta, então apagar a sua
               inscrição na lista não apaga o perfil: peça os dois quando for o caso. Você pode pedir
               consulta, correção ou exclusão a qualquer momento, e revogar o consentimento, pelos
@@ -136,7 +136,7 @@ export type WaitlistState = 'idle' | 'sending' | 'success' | 'error';
           <label class="consent">
             <input type="checkbox" formControlName="consent" />
             <span>
-              Concordo com o uso dos meus dados para receber o aviso de abertura da Seita Dev e
+              Concordo com o uso dos meus dados para receber o aviso de abertura da Liga Dev e
               para preencher o meu perfil, se eu criar uma conta.
             </span>
           </label>

@@ -2,10 +2,10 @@
   <header class="dashboard__head" animate.enter="animate-enter">
     <div class="dashboard__greeting-row">
       <h1 class="dashboard__title">Olá, {{ firstName() }}</h1>
-      <app-grade-badge [grade]="grade()" />
+      <app-badge-count [grade]="grade()" />
     </div>
     <p class="dashboard__lead">
-      Bem-vindo ao seu painel de membro da Seita Dev. Escolha um dos módulos abaixo para continuar seus estudos.
+      Bem-vindo ao seu painel de membro da Liga Dev. Escolha um dos módulos abaixo para continuar seus estudos.
     </p>
   </header>
 
@@ -21,7 +21,8 @@
       <div class="card__body">
         <h2 class="card__title">Acessar trilha</h2>
         <p class="card__desc">
-          Doze etapas de aprendizado estruturado, da primeira variável ao deploy em produção.
+          Oito insígnias a conquistar e a Elite Four para disputar, da primeira variável ao deploy
+          em produção.
         </p>
       </div>
     </article>
@@ -33,7 +34,7 @@
         [href]="whatsappUrl"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Acessar o grupo da Seita Dev no WhatsApp em uma nova aba"
+        aria-label="Acessar o grupo da Liga Dev no WhatsApp em uma nova aba"
       >
         <div class="card__top">
           <span class="card__icon-badge" aria-hidden="true">

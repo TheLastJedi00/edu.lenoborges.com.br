@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from '../../../environments/environment';
-import { GradeBadge } from '../../components/grade-badge/grade-badge';
+import { BadgeCount } from '../../components/badge-count/badge-count';
 import { IconGames } from '../../components/icons/icon-games';
 import { IconTrack } from '../../components/icons/icon-track';
 import { IconUser } from '../../components/icons/icon-user';
@@ -20,7 +20,7 @@ import { AuthStore } from '../../core/auth/auth.store';
   selector: 'app-dashboard-page',
   standalone: true,
   imports: [
-    GradeBadge,
+    BadgeCount,
     IconTrack,
     IconWhatsapp,
     IconUser,
@@ -62,6 +62,6 @@ export class DashboardPage implements OnInit {
     return 'Membro';
   });
 
-  /** Vem da sessão até o perfil chegar, então o selo nunca pisca um Grau errado. */
+  /** Vem da sessão até o perfil chegar, então o selo nunca pisca uma insígnia errada. */
   readonly grade = this.authStore.grade;
 }
