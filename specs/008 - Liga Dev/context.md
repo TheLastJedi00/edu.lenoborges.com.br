@@ -342,3 +342,50 @@ currículo do Leno não muda.
    o modelo novo significa "conquistou a Insígnia da Lógica" — uma conquista que ninguém teve. Como o
    projeto é de teste, a Fase 05 zera esses valores. Se algum deles precisar sobreviver, é o momento
    de dizer.
+
+---
+
+## Vocabulário final (2026-08-17)
+
+Fechado ao fim da execução. Um lugar só para descobrir como cada coisa se chama.
+
+| Termo | O que é | Onde vive no código |
+|---|---|---|
+| **Liga Dev** | A comunidade. Todo mundo que entra. | `community.service.ts`, `identity.name` |
+| **Insígnia** | Uma das oito conquistas da trilha. | `trackStages` com `phase: 'gym'` |
+| **GYM Battle** | O tipo de etapa em que se conquista insígnia. | `STAGE_PHASE_LABEL.gym` |
+| **Elite Four** | O endgame: as quatro batalhas depois das oito insígnias. | `phase: 'elite'` |
+| **Elite Battle** | Uma das quatro. Oitavas, Quartas, Semifinais, Final. | `EliteRound` |
+| **Battle Frontier** | O pós-game: IA Aplicada ao Desenvolvimento. | `phase: 'frontier'` |
+| **Dev Tier** | Faixa gratuita. Insígnias 1 e 2. | `tiers[0]`, `id: 'dev-tier'` |
+| **Great Dev Tier** | R$ 19,99/mês. A plataforma da Insígnia 3 em diante. | `tiers[1]` |
+| **Ultra Dev Tier** | R$ 199,99/mês. Tudo, mais a Grinding Arena. | `tiers[2]` |
+| **Grinding Arena** | A mentoria: 4 alunos, benefício do Ultra Dev Tier. | `grindingArena` |
+| **Grinding** | Cada encontro semanal da Grinding Arena. | `cadence`, `duration` |
+
+**Três palavras não podem trocar de lugar**, e há teste para duas delas:
+
+- **Elite** pertence ao endgame. O texto da Grinding Arena não a usa, e
+  `community.service.spec.ts` falha se alguém a introduzir.
+- **Grau, Seita e Conclave** não existem mais em lugar nenhum. Um teste varre o objeto inteiro da
+  comunidade atrás dos três.
+- **Insígnia se conquista numa GYM Battle**, nunca na Grinding Arena. Esse não tem teste possível —
+  é regra de cópia, e está no guardrail da decisão 6.
+
+## Resultado da execução (2026-08-17)
+
+| | |
+|---|---|
+| Front | 140 testes, `ng build` limpo |
+| Back | 99 testes, `nest build` e lint limpos |
+
+**O que foi executado:** Fases 01 a 06 inteiras, nos dois repositórios.
+
+**O que não foi, e por quê:** as tasks 03b e 03c da Fase 03 — o painel reagindo ao teto de avanço e a
+função `tetoDeAvanco`. Sem cobrança, não existe estado de assinatura para alimentá-las, e construir a
+tela e a fórmula agora seria escrever código para um caso que nenhum dado produz. A regra está na
+decisão 5d e não depende de código para valer.
+
+Também não foi executada a Fase 05 Task 05, que é de usuário: zerar o `grade` dos dois perfis de teste
+no Firestore. Eles nasceram com `grade: 1` sob o modelo antigo, e hoje isso significa "conquistou a
+Insígnia da Lógica".

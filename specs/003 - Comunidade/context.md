@@ -1,3 +1,16 @@
+> **DEPRECATED em 2026-08-17 pela [spec 008](../008%20-%20Liga%20Dev/context.md).**
+>
+> Esta spec definiu a Seita Dev, os 33 Graus, as duas faixas de preco e o Conclave. Praticamente
+> todo o vocabulario que ela estabeleceu foi substituido: a comunidade e a **Liga Dev**, os Graus
+> viraram **8 Insignias** conquistadas em **GYM Battles**, o endgame e a **Elite Four**, o pos-game
+> e a **Battle Frontier**, as faixas viraram **Dev / Great Dev / Ultra Dev Tier** e o Conclave e a
+> **Grinding Arena**.
+>
+> O que sobrevive dela e a estrutura: trilha ordenada, faixas cumulativas, mentoria de turma
+> pequena e o desenho das telas. Trocou-se o vocabulario e o modelo comercial, nao a arquitetura.
+
+---
+
 # Alteração de escopo (2026-08-12) — Fase 06: `PixelButton` ganha destino de rota
 
 Com a segunda rota, o botão da landing que leva para `/comunidade` precisava navegar pelo router
