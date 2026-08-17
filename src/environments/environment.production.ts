@@ -8,7 +8,7 @@ export const environment = {
   production: true,
   apiUrl: 'https://api-lenoborges.vercel.app',
   /**
-   * Link de convite do grupo oficial da Seita Dev no WhatsApp.
+   * Link de convite do grupo oficial da Liga Dev no WhatsApp.
    */
   whatsappGroupUrl: '',
 };

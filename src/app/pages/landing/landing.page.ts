@@ -74,7 +74,7 @@ export class LandingPage implements OnInit {
   protected readonly menuAction = computed<MenuAction>(() =>
     this.authStore.isLoggedIn()
       ? { label: 'Ir para o painel', route: '/dashboard' }
-      : { label: 'Entrar na Seita Dev' }
+      : { label: 'Entrar na Liga Dev' }
   );
 
   protected readonly waitlistState = signal<WaitlistState>('idle');

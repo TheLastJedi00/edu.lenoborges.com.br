@@ -1,32 +1,42 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { CommunityTier, GradeProgress } from '../../models/community.model';
+import { BadgeProgress, CommunityTier } from '../../models/community.model';
 import { Reveal } from '../../directives/reveal';
 
 /**
- * Progressão dos 33 Graus: mostra até onde se joga de graça e o que a assinatura
- * simbólica destrava. A régua é decorativa; a informação está no texto das faixas.
+ * Progressão das oito Insígnias e o que cada tier abre.
+ *
+ * A régua tem duas naturezas no mesmo desenho, de propósito: os oito passos de
+ * insígnia são escada, e as quatro Elite Battles do fim são o prêmio. Um vão
+ * separa os dois, para as últimas não lerem como "mais quatro degraus".
  */
 @Component({
-  selector: 'app-grade-ladder',
+  selector: 'app-badge-ladder',
   imports: [Reveal],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="ladder" appReveal>
       <p class="ladder__caption">
-        <strong>{{ progress().freeGrades }}</strong> dos
-        <strong>{{ progress().totalGrades }}</strong> Graus são livres para qualquer pessoa
+        <strong>{{ progress().freeBadges }}</strong> das
+        <strong>{{ progress().totalBadges }}</strong> Insígnias são livres para qualquer pessoa
       </p>
 
       <ol class="ladder__rail" aria-hidden="true">
-        @for (grade of grades(); track grade) {
-          <li class="ladder__step" [class.ladder__step--free]="grade <= progress().freeGrades"></li>
+        @for (badge of badges(); track badge) {
+          <li class="ladder__step" [class.ladder__step--free]="badge <= progress().freeBadges"></li>
+        }
+        <li class="ladder__gap"></li>
+        @for (round of eliteRounds(); track round) {
+          <li class="ladder__step ladder__step--elite"></li>
         }
       </ol>
+
+      <p class="ladder__legend u-mono">8 GYM Battles, depois a Elite Four</p>
     </div>
 
     <ul class="tiers">
       @for (tier of tiers(); track tier.id) {
         <li class="tier" [class.tier--paid]="tier.price !== 'Gratuito'" appReveal>
+          <p class="tier__name">{{ tier.name }}</p>
           <p class="tier__range u-mono">{{ tier.range }}</p>
           <p class="tier__price">{{ tier.price }}</p>
           <p class="tier__summary">{{ tier.summary }}</p>
@@ -82,6 +92,22 @@ import { Reveal } from '../../directives/reveal';
       box-shadow: var(--shadow-glow);
     }
 
+    /* O vão é o que impede as Elite Battles de lerem como mais quatro degraus. */
+    .ladder__gap {
+      flex: 0 0 1.25rem;
+    }
+
+    .ladder__step--elite {
+      flex: 0 0 1.1rem;
+      border: var(--border-w) solid var(--accent-deep);
+      background: transparent;
+    }
+
+    .ladder__legend {
+      font-size: var(--step--1);
+      color: var(--ink-soft);
+    }
+
     .tiers {
       display: grid;
       gap: 1rem;
@@ -110,6 +136,14 @@ import { Reveal } from '../../directives/reveal';
 
     .tier--paid {
       background: var(--gradient-panel);
+    }
+
+    .tier__name {
+      font-family: var(--font-display);
+      font-size: var(--step-1);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--ink);
     }
 
     .tier__range {
@@ -156,9 +190,12 @@ import { Reveal } from '../../directives/reveal';
       background: var(--accent);
     }
 
-    @media (min-width: 48rem) {
+    /* Os tiers passaram de dois para três na spec 008. Em telas médias eles
+       ficam em duas colunas e o terceiro cai sozinho embaixo, o que o destacaria
+       sem intenção; por isso a grade de três só entra quando cabe inteira. */
+    @media (min-width: 64rem) {
       .tiers {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
       }
 
       .tier {
@@ -167,11 +204,14 @@ import { Reveal } from '../../directives/reveal';
     }
   `
 })
-export class GradeLadder {
-  readonly progress = input.required<GradeProgress>();
+export class BadgeLadder {
+  readonly progress = input.required<BadgeProgress>();
   readonly tiers = input.required<readonly CommunityTier[]>();
 
-  protected readonly grades = computed(() =>
-    Array.from({ length: this.progress().totalGrades }, (_, index) => index + 1)
+  protected readonly badges = computed(() =>
+    Array.from({ length: this.progress().totalBadges }, (_, index) => index + 1)
   );
+
+  /** As quatro Elite Battles. Fixas: a Elite Four é quatro por definição. */
+  protected readonly eliteRounds = computed(() => [1, 2, 3, 4]);
 }

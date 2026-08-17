@@ -3,59 +3,70 @@ import { Community } from '../models/community.model';
 
 const COMMUNITY: Community = {
   identity: {
-    name: 'Seita Dev',
+    name: 'Liga Dev',
     tagline: 'A comunidade de quem quer entender programação, não decorar sintaxe.',
     summary:
-      'A Seita Dev é um grupo aberto no WhatsApp para compartilhar conhecimento sobre ' +
-      'programação. A trilha vai da primeira variável ao deploy em produção, sempre explicando ' +
-      'como o mercado usa cada ferramenta. Quem participa disputa jogos de conhecimento, sobe no ' +
-      'ranking e aprende a discutir tecnologia de igual para igual com quem já trabalha na área.',
+      'A Liga Dev é um grupo aberto no WhatsApp para compartilhar conhecimento sobre ' +
+      'programação. A trilha vai da primeira variável ao deploy em produção, dividida em oito ' +
+      'insígnias, sempre explicando como o mercado usa cada ferramenta. Quem conquista as oito ' +
+      'disputa a Elite Four, e quem vence a Final ainda encontra a Battle Frontier do outro lado.',
     status: 'Em construção, com acesso antecipado gratuito para quem entrar na lista'
   },
-  grades: {
-    totalGrades: 33,
-    freeGrades: 5
+  badges: {
+    totalBadges: 8,
+    freeBadges: 2
   },
   tiers: [
     {
-      id: 'iniciado',
-      range: 'Grau 1 ao 5',
+      id: 'dev-tier',
+      name: 'Dev Tier',
+      range: 'Insígnia 1 e 2',
       price: 'Gratuito',
       summary:
-        'Qualquer pessoa entra, joga e disputa o ranking até o Grau 5, sem pagar nada e sem prazo.',
+        'Qualquer pessoa entra, conquista a Insígnia da Lógica e a da POO, joga e disputa o ' +
+        'ranking daquele trecho, sem pagar nada e sem prazo.',
       perks: [
         'Grupo aberto no WhatsApp para tirar dúvida e compartilhar conhecimento',
-        'Jogos de conhecimento com ranking entre os membros',
+        'Trilha e jogos das duas primeiras insígnias',
         'Parte do conteúdo publicado de graça no canal do Leno Borges no YouTube'
       ]
     },
     {
-      id: 'iniciado-maior',
-      range: 'Grau 5 ao 33',
-      price: 'R$ 14,99 por mês',
+      id: 'great-dev-tier',
+      name: 'Great Dev Tier',
+      range: 'Insígnia 3 em diante',
+      price: 'R$ 19,99 por mês',
       summary:
-        'Do Grau 5 em diante a Seita pede uma assinatura simbólica e passa a entregar material ' +
-        'de estudo próprio.',
+        'Tudo do Dev Tier, mais a plataforma inteira: a trilha continua da terceira insígnia até ' +
+        'a oitava, e segue na Elite Four.',
       perks: [
-        'Vídeos e materiais de estudo de toda a trilha',
-        'Exercícios da plataforma liberados até o Grau 33',
-        'Ranking completo, com os 33 Graus em disputa'
+        'Tudo do Dev Tier',
+        'Trilha completa: da Insígnia 3 até a 8, e as quatro Elite Battles',
+        'Vídeos e jogos de todas as etapas',
+        'Ranking completo, com as oito insígnias e a Elite Four em disputa'
+      ]
+    },
+    {
+      id: 'ultra-dev-tier',
+      name: 'Ultra Dev Tier',
+      range: 'Plataforma e Grinding Arena',
+      price: 'R$ 199,99 por mês',
+      summary:
+        'Tudo do Great Dev Tier, mais a Grinding Arena: quatro Grindings por mês, ao vivo, em uma ' +
+        'turma de no máximo quatro pessoas. São quatro cadeiras, e elas acabam.',
+      perks: [
+        'Tudo do Great Dev Tier',
+        'Um Grinding por semana com o Leno Borges, ao vivo',
+        'Turma de no máximo 4 alunos, sem plateia',
+        'Correção e feedback pessoal em cada exercício entregue'
       ]
     }
   ],
   highlights: [
     {
-      id: 'grupo',
+      id: 'whatsapp',
       icon: 'whatsapp',
       title: 'Grupo aberto no WhatsApp',
-      detail:
-        'A Seita começa onde a conversa acontece: um grupo aberto, sem burocracia de entrada, ' +
-        'para perguntar, responder e trocar o que cada um está aprendendo.'
-    },
-    {
-      id: 'conhecimento',
-      icon: 'share',
-      title: 'Conhecimento compartilhado',
       detail:
         'Ninguém aprende sozinho olhando documentação. Aqui a dúvida de um vira explicação para ' +
         'todos, e quem explica aprende duas vezes.'
@@ -65,8 +76,8 @@ const COMMUNITY: Community = {
       icon: 'ranking',
       title: 'Jogos de conhecimento e ranking',
       detail:
-        'Os membros disputam jogos de conhecimento na plataforma e sobem no ranking dos 33 ' +
-        'Graus. A pontuação mede o que você entendeu, não o que você decorou.'
+        'Os membros disputam jogos de conhecimento na plataforma e sobem no ranking das oito ' +
+        'insígnias. A pontuação mede o que você entendeu, não o que você decorou.'
     },
     {
       id: 'youtube',
@@ -79,18 +90,11 @@ const COMMUNITY: Community = {
   ],
   trackStages: [
     {
-      id: 'stacks',
+      id: 'logica',
       order: 1,
-      area: 'Fundamentos',
-      title: 'Stacks',
-      icon: 'stacks',
-      topics: ['O que são?', 'Como se relacionam?']
-    },
-    {
-      id: 'logica-java',
-      order: 2,
+      phase: 'gym',
       area: 'Back-End',
-      title: 'Lógica de Programação com Java',
+      title: 'Insígnia da Lógica',
       icon: 'java',
       topics: [
         'Variáveis',
@@ -102,87 +106,82 @@ const COMMUNITY: Community = {
       ]
     },
     {
-      id: 'poo-java',
-      order: 3,
+      id: 'poo',
+      order: 2,
+      phase: 'gym',
       area: 'Back-End',
-      title: 'Orientação a Objetos com Java',
+      title: 'Insígnia da POO',
       icon: 'java',
       topics: ['Abstração', 'Encapsulamento', 'Herança', 'Polimorfismo', 'SOLID']
     },
     {
-      id: 'banco-de-dados',
-      order: 4,
-      area: 'Back-End',
-      title: 'Banco de Dados',
-      icon: 'sql',
-      topics: ['SQL vs NoSQL no mercado', 'CRUD com SQL', 'Functions, Procedures e Triggers']
-    },
-    {
       id: 'git-github',
-      order: 5,
+      order: 3,
+      phase: 'gym',
       area: 'Fundamentos',
-      title: 'Git e GitHub',
+      title: 'Insígnia do Git e GitHub',
       icon: 'git-github',
       topics: ['Versionamento local', 'Git Flow, GitHub Flow e Trunk-Based']
     },
     {
-      id: 'api',
-      order: 6,
+      id: 'spring-boot',
+      order: 4,
+      phase: 'gym',
       area: 'Back-End',
-      title: 'API',
+      title: 'Insígnia do Spring Boot',
       icon: 'spring',
+      // Banco de dados deixou de ser etapa própria e vive aqui, em SQL puro e em
+      // JPA. Os dois níveis aparecem de propósito: só `@Entity` esconde o que
+      // acontece embaixo, e só SQL não prepara para o Spring. Ver spec 008.
       topics: [
-        'Introdução ao SpringBoot: conceito de MVC',
+        'Introdução ao Spring Boot: conceito de MVC',
+        'SQL vs NoSQL no mercado',
+        'CRUD com SQL puro',
+        'Functions, Procedures e Triggers',
+        'Persistência com JPA',
         'Variáveis de Ambiente',
         'Do endpoint ao CRUD no banco',
-        'Overview de arquiteturas em uma API',
-        'Integrações com IA',
-        'Básico do Docker'
-      ]
-    },
-    {
-      id: 'gcp',
-      order: 7,
-      area: 'Cloud Computing',
-      title: 'GCP',
-      icon: 'gcp',
-      topics: [
-        'Cloud Run',
-        'Problemas com container: custo vs lucro',
-        'Serverless e alternativas para ROI'
+        'Overview de arquiteturas em uma API'
       ]
     },
     {
       id: 'html-css',
-      order: 8,
+      order: 5,
+      phase: 'gym',
       area: 'Front-End',
-      title: 'HTML e CSS',
+      title: 'Insígnia do HTML e CSS',
       icon: 'html-css',
       topics: [
         'Textos, imagens e seletores',
         'Div, FlexBox e Grids',
         'Forms e pseudoclasses',
         'HTML semântico',
-        'Responsividade',
-        'JavaScript na web'
+        'Responsividade'
       ]
     },
     {
-      id: 'vercel',
-      order: 9,
-      area: 'Cloud Computing',
-      title: 'Vercel',
-      icon: 'vercel',
-      topics: ['Ambientes e Deploy']
+      id: 'js-ts',
+      order: 6,
+      phase: 'gym',
+      area: 'Front-End',
+      title: 'Insígnia do JavaScript e TypeScript',
+      icon: 'ts-js',
+      topics: [
+        'JavaScript na web',
+        'Manipulação do DOM',
+        'Assincronismo: callback, Promise e async/await',
+        'Tipos, interfaces e generics no TypeScript',
+        'Por que tipar quando o navegador não exige'
+      ]
     },
     {
       id: 'angular',
-      order: 10,
+      order: 7,
+      phase: 'gym',
       area: 'Front-End',
-      title: 'Angular 17+',
+      title: 'Insígnia do Angular',
       icon: 'angular',
       topics: [
-        'Reaprendendo lógica com TypeScript',
         'Diretivas vs Control Flow Syntax',
         'RxJS vs Signals no HTML',
         'Rota, componentização e workspaces',
@@ -192,45 +191,99 @@ const COMMUNITY: Community = {
       ]
     },
     {
-      id: 'devops',
-      order: 11,
-      area: 'DevOps',
-      title: 'DevOps',
-      icon: 'devops',
-      topics: [
-        'GitHub Actions',
-        'CI/CD',
-        'Vercel Environments',
-        'Segregação de ambientes'
-      ]
-    },
-    {
       id: 'nestjs',
-      order: 12,
+      order: 8,
+      phase: 'gym',
       area: 'Back-End',
-      title: 'NestJS',
+      title: 'Insígnia do NestJS',
       icon: 'nestjs',
       topics: [
         'Por que não em Java?',
         'Diferenças de sintaxe no backend',
         'Olá Guards (de novo)',
         'Introdução ao TypeORM',
-        'Decorators personalizados',
+        'Decorators personalizados'
+      ]
+    },
+    {
+      id: 'oitavas-vercel',
+      order: 9,
+      phase: 'elite',
+      round: 'oitavas',
+      area: 'Cloud Computing',
+      title: 'Vercel',
+      icon: 'vercel',
+      topics: ['Ambientes e Deploy', 'Preview por branch', 'Variáveis por ambiente']
+    },
+    {
+      id: 'quartas-baas',
+      order: 10,
+      phase: 'elite',
+      round: 'quartas',
+      area: 'Cloud Computing',
+      title: 'Firebase e Supabase',
+      icon: 'firebase',
+      topics: [
+        'Backend gerenciado: o que você ganha e o que você entrega',
+        'Autenticação sem escrever autenticação',
+        'Firestore e Postgres gerenciado',
         'Supabase e Firestore para TTM e ROI'
+      ]
+    },
+    {
+      id: 'semifinais-docker',
+      order: 11,
+      phase: 'elite',
+      round: 'semifinais',
+      area: 'DevOps',
+      title: 'Docker',
+      icon: 'docker',
+      topics: [
+        'Imagem, container e volume',
+        'Dockerfile na prática',
+        'GitHub Actions e CI/CD',
+        'Segregação de ambientes'
+      ]
+    },
+    {
+      id: 'final-gcp',
+      order: 12,
+      phase: 'elite',
+      round: 'final',
+      area: 'Cloud Computing',
+      title: 'Google Cloud Platform',
+      icon: 'gcp',
+      topics: [
+        'Cloud Run',
+        'Problemas com container: custo vs lucro',
+        'Serverless e alternativas para ROI'
+      ]
+    },
+    {
+      id: 'frontier-ia',
+      order: 13,
+      phase: 'frontier',
+      area: 'Pós-game',
+      title: 'IA Aplicada ao Desenvolvimento',
+      icon: 'ia',
+      topics: [
+        'Integrações com IA na sua API',
+        'Agentes e ferramentas no fluxo de trabalho',
+        'O que delegar e o que nunca delegar'
       ]
     }
   ],
-  conclave: {
-    title: 'O Conclave',
+  grindingArena: {
+    title: 'A Grinding Arena',
     summary:
-      'A mentoria da Seita: um encontro por semana, de 2 horas, para no máximo 4 alunos. Turma ' +
-      'pequena o bastante para todo mundo falar e ser corrigido.',
-    price: 'R$ 150,00',
-    duration: '2 horas por encontro',
-    cadence: 'Um encontro por semana',
+      'A mentoria da Liga Dev: um Grinding por semana, de 2 horas, para no máximo 4 alunos. ' +
+      'Turma pequena o bastante para todo mundo falar e ser corrigido.',
+    price: 'R$ 199,99 por mês, no Ultra Dev Tier',
+    duration: '2 horas por Grinding',
+    cadence: 'Um Grinding por semana',
     seats: 4,
     perks: [
-      'Aula ao vivo com o Leno Borges, com espaço para discutir e discordar',
+      'Grinding ao vivo com o Leno Borges, com espaço para discutir e discordar',
       'Correção e feedback pessoal em cada exercício entregue na plataforma',
       'Turma de no máximo 4 alunos, sem plateia'
     ]
@@ -245,13 +298,15 @@ export class CommunityService {
 
   readonly identity = computed(() => this.source().identity);
 
-  readonly grades = computed(() => this.source().grades);
+  readonly badges = computed(() => this.source().badges);
 
   readonly tiers = computed(() => this.source().tiers);
 
   readonly highlights = computed(() => this.source().highlights);
 
-  readonly trackStages = computed(() => this.source().trackStages);
+  readonly trackStages = computed(() =>
+    [...this.source().trackStages].sort((a, b) => a.order - b.order)
+  );
 
-  readonly conclave = computed(() => this.source().conclave);
+  readonly grindingArena = computed(() => this.source().grindingArena);
 }

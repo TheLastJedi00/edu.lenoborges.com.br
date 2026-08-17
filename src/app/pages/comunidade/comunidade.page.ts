@@ -8,7 +8,7 @@ import {
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { GradeLadder } from '../../components/grade-ladder/grade-ladder';
+import { BadgeLadder } from '../../components/badge-ladder/badge-ladder';
 import { IconRanking } from '../../components/icons/icon-ranking';
 import { IconShare } from '../../components/icons/icon-share';
 import { IconWhatsapp } from '../../components/icons/icon-whatsapp';
@@ -32,7 +32,7 @@ import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/wai
     MenuBar,
     PixelButton,
     PixelPanel,
-    GradeLadder,
+    BadgeLadder,
     TrackTimeline,
     WaitlistDialog,
     IconWhatsapp,
@@ -54,25 +54,25 @@ export class ComunidadePage {
   private readonly dialog = viewChild.required(WaitlistDialog);
 
   protected readonly menuItems: readonly MenuItem[] = [
-    { href: '#seita', label: 'A Seita' },
-    { href: '#graus', label: 'Graus' },
+    { href: '#liga', label: 'A Liga' },
+    { href: '#insignias', label: 'Insígnias' },
     { href: '#trilha', label: 'Trilha' },
-    { href: '#conclave', label: 'Conclave' },
+    { href: '#grinding-arena', label: 'Grinding Arena' },
     { route: '/', label: 'Aulas particulares' }
   ];
 
   protected readonly menuAction = computed<MenuAction>(() =>
     this.authStore.isLoggedIn()
       ? { label: 'Ir para o painel', route: '/dashboard' }
-      : { label: 'Entrar na Seita Dev' }
+      : { label: 'Entrar na Liga Dev' }
   );
 
   protected readonly identity = this.communityService.identity;
-  protected readonly grades = this.communityService.grades;
+  protected readonly badges = this.communityService.badges;
   protected readonly tiers = this.communityService.tiers;
   protected readonly highlights = this.communityService.highlights;
   protected readonly trackStages = this.communityService.trackStages;
-  protected readonly conclave = this.communityService.conclave;
+  protected readonly grindingArena = this.communityService.grindingArena;
 
   protected readonly waitlistState = signal<WaitlistState>('idle');
   protected readonly waitlistError = signal(WAITLIST_ERROR_DEFAULT);

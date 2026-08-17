@@ -23,7 +23,7 @@
         @if (authStore.isLoggedIn()) {
           <app-pixel-button route="/dashboard">Ir para o painel</app-pixel-button>
         } @else {
-          <app-pixel-button (click)="openLogin()">Entrar na Seita Dev</app-pixel-button>
+          <app-pixel-button (click)="openLogin()">Entrar na Liga Dev</app-pixel-button>
         }
         <app-pixel-button variant="ghost" (click)="openWaitlist()">Quero acesso antecipado</app-pixel-button>
         <app-pixel-button variant="ghost" href="#trilha">Ver a trilha completa</app-pixel-button>
@@ -31,10 +31,10 @@
     </div>
   </section>
 
-  <section class="section u-shell" id="seita" aria-labelledby="seita-titulo">
+  <section class="section u-shell" id="liga" aria-labelledby="liga-titulo">
     <header class="section__head" appReveal>
-      <p class="u-mono section__eyebrow">O que é a Seita</p>
-      <h2 id="seita-titulo" class="section__title">Uma seita de gente que estuda junto</h2>
+      <p class="u-mono section__eyebrow">O que é a Liga</p>
+      <h2 id="liga-titulo" class="section__title">Uma liga de gente que estuda junto</h2>
       <p class="section__lead">{{ identity().summary }}</p>
     </header>
 
@@ -64,17 +64,18 @@
     </ul>
   </section>
 
-  <section class="section u-shell" id="graus" aria-labelledby="graus-titulo">
+  <section class="section u-shell" id="insignias" aria-labelledby="insignias-titulo">
     <header class="section__head" appReveal>
       <p class="u-mono section__eyebrow">A progressão</p>
-      <h2 id="graus-titulo" class="section__title">Os 33 Graus</h2>
+      <h2 id="insignias-titulo" class="section__title">As 8 Insígnias</h2>
       <p class="section__lead">
-        Você sobe de Grau jogando e acertando o que entendeu. Os cinco primeiros são livres para
-        qualquer pessoa, sem assinatura e sem prazo.
+        Cada insígnia é uma GYM Battle: você conquista jogando e acertando o que entendeu. As duas
+        primeiras são livres para qualquer pessoa, sem assinatura e sem prazo. Com as oito na mão,
+        você disputa a Elite Four.
       </p>
     </header>
 
-    <app-grade-ladder [progress]="grades()" [tiers]="tiers()" />
+    <app-badge-ladder [progress]="badges()" [tiers]="tiers()" />
   </section>
 
   <section class="section u-shell" id="trilha" aria-labelledby="trilha-titulo">
@@ -106,40 +107,40 @@
     </app-pixel-panel>
   </section>
 
-  <section class="section u-shell" id="conclave" aria-labelledby="conclave-titulo">
+  <section class="section u-shell" id="grinding-arena" aria-labelledby="grinding-arena-titulo">
     <header class="section__head" appReveal>
-      <p class="u-mono section__eyebrow">Mentoria da Seita</p>
-      <h2 id="conclave-titulo" class="section__title">{{ conclave().title }}</h2>
-      <p class="section__lead">{{ conclave().summary }}</p>
+      <p class="u-mono section__eyebrow">Mentoria da Liga</p>
+      <h2 id="grinding-arena-titulo" class="section__title">{{ grindingArena().title }}</h2>
+      <p class="section__lead">{{ grindingArena().summary }}</p>
     </header>
 
-    <app-pixel-panel tone="screen" class="conclave" appReveal>
-      <dl class="conclave__facts">
+    <app-pixel-panel tone="screen" class="grinding-arena" appReveal>
+      <dl class="grinding-arena__facts">
         <div>
           <dt class="u-mono">Investimento</dt>
-          <dd>{{ conclave().price }}</dd>
+          <dd>{{ grindingArena().price }}</dd>
         </div>
         <div>
           <dt class="u-mono">Encontro</dt>
-          <dd>{{ conclave().duration }}</dd>
+          <dd>{{ grindingArena().duration }}</dd>
         </div>
         <div>
           <dt class="u-mono">Frequência</dt>
-          <dd>{{ conclave().cadence }}</dd>
+          <dd>{{ grindingArena().cadence }}</dd>
         </div>
         <div>
           <dt class="u-mono">Turma</dt>
-          <dd>{{ conclave().seats }} alunos</dd>
+          <dd>{{ grindingArena().seats }} alunos</dd>
         </div>
       </dl>
 
-      <ul class="conclave__perks">
-        @for (perk of conclave().perks; track perk) {
+      <ul class="grinding-arena__perks">
+        @for (perk of grindingArena().perks; track perk) {
           <li>{{ perk }}</li>
         }
       </ul>
 
-      <app-pixel-button (click)="openWaitlist()">Quero uma vaga no Conclave</app-pixel-button>
+      <app-pixel-button (click)="openWaitlist()">Quero uma vaga no Grinding Arena</app-pixel-button>
     </app-pixel-panel>
   </section>
 
@@ -149,7 +150,7 @@
     <app-pixel-panel tone="ink">
       <header class="section__head" appReveal>
         <p class="u-mono section__eyebrow section__eyebrow--light">Antes de todo mundo</p>
-        <h2 id="lista-titulo" class="section__title">A Seita ainda está sendo construída</h2>
+        <h2 id="lista-titulo" class="section__title">A Liga ainda está sendo construída</h2>
         <p class="section__lead section__lead--light">
           Deixe seu contato e você entra no dia em que ela abrir, com acesso antecipado gratuito.
           Sem cobrança agora e sem mensagem de propaganda.
@@ -161,7 +162,7 @@
   </section>
 
   <footer class="footer u-shell u-mono">
-    <p>Seita Dev · Comunidade de programação do Leno Borges</p>
+    <p>Liga Dev · Comunidade de programação do Leno Borges</p>
     <p>Blumenau, SC e online</p>
   </footer>
 </main>
