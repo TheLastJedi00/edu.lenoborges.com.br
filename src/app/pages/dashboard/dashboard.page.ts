@@ -7,9 +7,13 @@ import {
   inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { BadgeCount } from '../../components/badge-count/badge-count';
+import { IconBilling } from '../../components/icons/icon-billing';
 import { IconGames } from '../../components/icons/icon-games';
+import { IconMural } from '../../components/icons/icon-mural';
+import { IconShield } from '../../components/icons/icon-shield';
 import { IconTrack } from '../../components/icons/icon-track';
 import { IconUser } from '../../components/icons/icon-user';
 import { IconWhatsapp } from '../../components/icons/icon-whatsapp';
@@ -20,18 +24,28 @@ import { AuthStore } from '../../core/auth/auth.store';
   selector: 'app-dashboard-page',
   standalone: true,
   imports: [
+    RouterLink,
     BadgeCount,
     IconTrack,
+    IconBilling,
+    IconMural,
     IconWhatsapp,
     IconUser,
-    IconGames
+    IconGames,
+    IconShield
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.page.html',
   styleUrl: './dashboard.page.scss'
 })
 export class DashboardPage implements OnInit {
-  private readonly authStore = inject(AuthStore);
+  /**
+   * `protected` e não `private` porque o cartão de Administração lê o
+   * `isAdmin()` direto no template, como o aside faz. É signal, então o OnPush
+   * reage sozinho quando o papel chega depois da sessão -- copiar para uma
+   * propriedade comum congelaria o valor no instante da montagem.
+   */
+  protected readonly authStore = inject(AuthStore);
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
 
