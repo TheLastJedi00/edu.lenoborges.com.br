@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { BadgeVideoList } from '../models/track.model';
+import { BadgeVideoKind, BadgeVideoList } from '../models/track.model';
 
 @Injectable({ providedIn: 'root' })
 export class TrackService {
@@ -20,9 +20,17 @@ export class TrackService {
    * 404 aqui significa outra coisa: a insígnia não existe na trilha, o que é bug
    * ou URL adulterada.
    */
-  getVideos(badgeId: string): Observable<BadgeVideoList> {
+  getVideos(
+    badgeId: string,
+    kind?: BadgeVideoKind
+  ): Observable<BadgeVideoList> {
+    // Sem `kind`, as duas abas juntas. Com ele, só a pedida — que é como a
+    // trilha do aluno separa Aulas de Perguntas Frequentes (spec 010).
+    const params = kind ? new HttpParams().set('kind', kind) : undefined;
+
     return this.http.get<BadgeVideoList>(
-      `${environment.apiUrl}/badges/${badgeId}/videos`
+      `${environment.apiUrl}/badges/${badgeId}/videos`,
+      { params }
     );
   }
 }

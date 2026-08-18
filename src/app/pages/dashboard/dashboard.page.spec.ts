@@ -28,7 +28,8 @@ describe('DashboardPage', () => {
       user: { id: 'u1', email: 'leno.borges@exemplo.com' },
       profileCompleted: true,
       grade: 5,
-      role: null
+      role: null,
+      tier: 'dev-tier'
     });
     authStore.setProfile({
       id: 'p1',
@@ -38,7 +39,8 @@ describe('DashboardPage', () => {
       bio: 'Bio',
       grade: 5,
       profileCompleted: true,
-      role: null
+      role: null,
+      tier: 'dev-tier'
     });
 
     fixture = TestBed.createComponent(DashboardPage);

@@ -16,6 +16,9 @@ function video(id: string, title: string, order: number): BadgeVideo {
     title,
     description: null,
     youtubeId: id,
+    kind: 'aula',
+    questionId: null,
+    devTierFree: false,
     order
   };
 }
