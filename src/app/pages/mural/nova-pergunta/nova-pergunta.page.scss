@@ -1,0 +1,189 @@
+.page {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.25rem 1rem 5rem;
+}
+
+.back {
+  justify-self: start;
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  text-decoration: none;
+}
+
+.page__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.1;
+}
+
+.page__lead {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.form {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.form__label {
+  margin-top: 0.6rem;
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.form__input {
+  min-height: 2.75rem;
+  padding: 0.6rem 0.75rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  color: var(--ink);
+}
+
+.form__input--area {
+  min-height: 6rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.form__input:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 1px;
+}
+
+.form__counter {
+  justify-self: end;
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.form__error {
+  margin: 0.5rem 0 0;
+  color: #c0392b;
+  line-height: 1.5;
+}
+
+.chips {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/*
+ * Os chips ocupam mais espaço que um <select>, e são melhores por isso: cabem no
+ * polegar, mostram o nome inteiro, e a escolha continua visível enquanto a
+ * pessoa escreve o resto.
+ */
+.chips__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.chip {
+  min-height: 2.75rem;
+  padding: 0 0.85rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--motion-1, 120ms) var(--ease-out, ease);
+}
+
+.chip--on {
+  border-color: var(--accent-deep);
+  background: var(--accent-deep);
+  color: var(--paper);
+  font-weight: 700;
+}
+
+.chip:active {
+  transform: scale(0.96);
+}
+
+.btn {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.9rem;
+  padding: 0.7rem 1.2rem;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Ao alcance do polegar, com a safe area do iOS respeitada. */
+@media (max-width: 47.999rem) {
+  .btn {
+    position: sticky;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+}
+
+.locked {
+  display: grid;
+  justify-items: start;
+  gap: 0.6rem;
+  padding: 1.75rem 1.4rem;
+  border: var(--border-w) solid var(--accent-deep);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-panel);
+}
+
+.locked__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+.locked__text {
+  margin: 0;
+  max-width: 48ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.locked__back {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    transition: none;
+  }
+}

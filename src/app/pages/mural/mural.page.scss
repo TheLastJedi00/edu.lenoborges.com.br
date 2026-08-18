@@ -1,0 +1,233 @@
+.page {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 1rem 5rem;
+}
+
+.page__eyebrow {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.05;
+  margin: 0.2rem 0 0;
+}
+
+.page__lead {
+  margin: 0.4rem 0 0;
+  max-width: 48ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+/*
+ * As abas grudam no topo ao rolar. Sem isso, quem desce vinte perguntas perde a
+ * única pista de qual semana está olhando — e o mural tem duas semanas vivas ao
+ * mesmo tempo, então essa pista não é decorativa.
+ */
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.5rem 0;
+  background: var(--screen);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex: none;
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--motion-2, 200ms) var(--ease-out, ease),
+    color var(--motion-2, 200ms) var(--ease-out, ease);
+}
+
+.tab--on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.countdown {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.list {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Uma coluna sempre. Duas colunas de cartões abaixo de 48rem espremeriam o
+ * título em quatro linhas e afastariam o voto do polegar.
+ */
+@media (min-width: 64rem) {
+  .list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.winner {
+  display: grid;
+  gap: 0.2rem;
+  padding: 1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.winner__week {
+  margin: 0;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+}
+
+.winner__title {
+  margin: 0.15rem 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.winner__author,
+.winner__pending,
+.winner__blank {
+  margin: 0.3rem 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.winner__link {
+  justify-self: start;
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.4rem;
+  color: var(--accent-deep);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.empty {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1.75rem 1.4rem;
+  border: var(--border-w) dashed var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--screen);
+}
+
+.empty__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+.empty__text {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.feedback {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.btn {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.2rem;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+}
+
+/* A ação primária ao alcance do polegar, com a safe area do iOS respeitada. */
+@media (max-width: 47.999rem) {
+  .btn--sticky {
+    position: sticky;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+}
+
+.skeleton {
+  height: 5.5rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--screen) 25%,
+    var(--screen-lit) 37%,
+    var(--screen) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-slide 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-slide {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+
+  .tab {
+    transition: none;
+  }
+}
