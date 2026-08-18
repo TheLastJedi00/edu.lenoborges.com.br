@@ -170,27 +170,26 @@ Branch: `feat/009-administracao`
   demanda real de quem administra no desktop, e não antes: no toque ele disputaria com o scroll.
 - [x] Task 10 (TDD): Specs das telas de admin. Objetivo: cobrir o rollback da reordenação, a linha do
   usuário sem perfil, o título obrigatório, e o 403 com a mensagem da claim de até uma hora.
-
-# Fase 07: Animação e mobile []
+# Fase 07: Animação e mobile [x] — a Task 07 (verificar em aparelho real) é sua
 Branch: `feat/009-animacao-mobile`
 
 Uma fase própria porque, espalhado pelas outras, isto é a primeira coisa que fica pela metade.
 
-- [] Task 01: Tokens de movimento. Arquivo: `src/styles.scss`. Objetivo: durações (120 / 200 / 320ms) e
+- [x] Task 01: Tokens de movimento. Arquivo: `src/styles.scss`. Objetivo: durações (120 / 200 / 320ms) e
   easings como variáveis. Sem token, cada componente inventa a sua e a interface fica com cinco
   velocidades.
-- [] Task 02: `prefers-reduced-motion` global. Arquivo: `src/styles.scss`. Objetivo: um bloco que zera
+- [x] Task 02: `prefers-reduced-motion` global. Arquivo: `src/styles.scss`. Objetivo: um bloco que zera
   duração e transição em tudo. **Global, não componente a componente** — um componente esquecido anula a
   intenção inteira (decisão 8).
-- [] Task 03: Cascata com teto. Arquivo: `src/app/directives/reveal.ts`. Objetivo: `delay` por índice,
+- [x] Task 03: Cascata com teto. Arquivo: `src/app/directives/reveal.ts`. Objetivo: `delay` por índice,
   com máximo de 6 passos. A sétima insígnia não pode esperar 700ms para existir.
-- [] Task 04: Animações com causa. Objetivo: seleção de insígnia (cresce e o conteúdo entra por baixo),
+- [x] Task 04: Animações com causa. Objetivo: seleção de insígnia (cresce e o conteúdo entra por baixo),
   conquista (pulso único, **nunca em loop**), reordenação com FLIP, comparação de tier deslizando. Só
   `transform` e `opacity`.
-- [] Task 05: Passada de mobile. Objetivo: alvos de 44px, ação primária ancorada embaixo com
+- [x] Task 05: Passada de mobile. Objetivo: alvos de 44px, ação primária ancorada embaixo com
   `env(safe-area-inset-bottom)`, uma coluna até 48rem, carrossel com `scroll-snap` nos tiers, nada
   dependente de `:hover`.
-- [] Task 06: Esqueletos. Objetivo: substituir todo spinner centralizado por esqueleto na forma do
+- [x] Task 06: Esqueletos. Objetivo: substituir todo spinner centralizado por esqueleto na forma do
   conteúdo — tiers, lista de vídeos, lista de usuários.
 - [] Task 07: Verificar em aparelho de verdade, ou no throttling do DevTools em 4x de CPU. Objetivo: as
   regras da decisão 8 existem por causa do celular fraco, que é o aparelho do público. Verificar no

@@ -5,6 +5,7 @@ import {
   inject
 } from '@angular/core';
 import { BadgeCard } from '../../components/badge-card/badge-card';
+import { Reveal } from '../../directives/reveal';
 import { AuthStore } from '../../core/auth/auth.store';
 import { CommunityService } from '../../services/community.service';
 import { describeProgress } from '../../core/progress/progress';
@@ -12,7 +13,7 @@ import { describeProgress } from '../../core/progress/progress';
 @Component({
   selector: 'app-trilha-page',
   standalone: true,
-  imports: [BadgeCard],
+  imports: [BadgeCard, Reveal],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './trilha.page.html',
   styleUrl: './trilha.page.scss'

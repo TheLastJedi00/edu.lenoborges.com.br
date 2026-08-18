@@ -67,6 +67,31 @@ import { STAGE_PHASE_LABEL, TrackStage } from '../../models/community.model';
       background: var(--gradient-panel);
     }
 
+    /*
+     * Conquista comemora, e comemora UMA vez.
+     *
+     * O pulso roda no selo de estado, não no cartão inteiro, e não entra em
+     * loop: movimento que pulsa sozinho na tela cansa em três segundos e rouba a
+     * atenção de quem está lendo os títulos ao lado. Só transform, para não
+     * forçar layout.
+     */
+    .badge__state--conquered {
+      animation: badge-pulse var(--motion-3, 320ms) var(--ease-out, ease) 1;
+      transform-origin: left center;
+    }
+
+    @keyframes badge-pulse {
+      0% {
+        transform: scale(1);
+      }
+      55% {
+        transform: scale(1.12);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
     .badge__phase {
       font-size: 0.65rem;
       letter-spacing: 0.06em;
