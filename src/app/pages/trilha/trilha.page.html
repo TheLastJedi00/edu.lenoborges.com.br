@@ -1,0 +1,34 @@
+<section class="page">
+  <header class="page__head">
+    <p class="u-mono page__eyebrow">Trilha</p>
+    <h1 class="page__title">Escolha a insígnia que você quer conquistar</h1>
+    <p class="page__lead">
+      A ordem é uma sugestão, não uma trava: você pode começar por onde fizer mais sentido para
+      você. <strong>{{ progress().label }}</strong> até agora.
+    </p>
+  </header>
+
+  <section class="gyms" aria-labelledby="gyms-titulo">
+    <h2 id="gyms-titulo" class="section-title">As 8 Insígnias</h2>
+    <ul class="badges">
+      @for (stage of gyms(); track stage.id) {
+        <li>
+          <app-badge-card [stage]="stage" [conquered]="conquered(stage.order)" />
+        </li>
+      }
+    </ul>
+  </section>
+
+  <!-- O vão entre os oito degraus e o endgame é o mesmo da régua da comunidade:
+       as quatro Elite Battles não são "mais quatro insígnias". -->
+  <section class="endgame" aria-labelledby="endgame-titulo">
+    <h2 id="endgame-titulo" class="section-title">A Elite Four e a Battle Frontier</h2>
+    <ul class="badges">
+      @for (stage of endgame(); track stage.id) {
+        <li>
+          <app-badge-card [stage]="stage" [conquered]="conquered(stage.order)" />
+        </li>
+      }
+    </ul>
+  </section>
+</section>

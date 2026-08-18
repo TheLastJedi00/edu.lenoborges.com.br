@@ -1,0 +1,69 @@
+<section class="page">
+  <a routerLink="/dashboard/trilha" class="back u-mono">← Todas as insígnias</a>
+
+  <header class="page__head">
+    <h1 class="page__title">{{ stage()?.title ?? 'Insígnia' }}</h1>
+    @if (stage(); as etapa) {
+      <p class="page__topics">{{ etapa.topics.join(' · ') }}</p>
+    }
+  </header>
+
+  @switch (state()) {
+    @case ('loading') {
+      <ul class="videos" aria-busy="true" aria-label="Carregando os vídeos">
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+      </ul>
+    }
+
+    @case ('error') {
+      <div class="feedback" role="alert">
+        <p class="feedback__text">Não consegui carregar os vídeos agora.</p>
+        <button type="button" class="feedback__retry" (click)="load()">Tentar de novo</button>
+      </div>
+    }
+
+    @case ('ready') {
+      @if (empty()) {
+        <!--
+          Este é o fallback da decisão 6, e ele acontece DEPOIS de entrar, nunca
+          antes: o cartão da insígnia abre normalmente. A frase é literal e
+          sempre a mesma, e o tom não é de erro — é de material a caminho.
+        -->
+        <div class="empty">
+          <p class="empty__title">Ainda estamos preparando esse material.</p>
+          <p class="empty__text">
+            Essa insígnia já existe na trilha, mas as aulas dela ainda estão sendo gravadas.
+            Enquanto isso, dá para avançar em outra.
+          </p>
+          <a routerLink="/dashboard/trilha" class="empty__cta">Escolher outra insígnia</a>
+        </div>
+      } @else {
+        <ul class="videos">
+          @for (video of videos(); track video.id) {
+            <li class="video">
+              <!--
+                O título é o NOSSO, nunca o do YouTube: aquele é escrito para o
+                algoritmo, e este diz onde a pessoa está na trilha.
+              -->
+              <h2 class="video__title">{{ video.title }}</h2>
+              @if (video.description) {
+                <p class="video__description">{{ video.description }}</p>
+              }
+              <div class="video__frame">
+                <iframe
+                  [src]="embedUrl(video)"
+                  [title]="video.title"
+                  loading="lazy"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    }
+  }
+</section>
