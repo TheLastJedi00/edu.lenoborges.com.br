@@ -195,14 +195,14 @@ Uma fase própria porque, espalhado pelas outras, isto é a primeira coisa que f
   regras da decisão 8 existem por causa do celular fraco, que é o aparelho do público. Verificar no
   desktop é não verificar.
 
-# Fase 08: Documentação e release []
+# Fase 08: Documentação e release [x]
 Branch: `release/009-financeiro-administracao-trilha`
 
-- [] Task 01: Marcar as emendas na spec 008 daqui. Arquivo: `specs/008 - Liga Dev/context.md`.
+- [x] Task 01: Marcar as emendas na spec 008 daqui. Arquivo: `specs/008 - Liga Dev/context.md`.
   Objetivo: a tabela de tiers virou quatro linhas e `price` saiu do modelo. As decisões 5c e 5d
   continuam vigentes e a nota diz isso, para ninguém ler "emendada" como "revogada".
-- [] Task 02: Registrar o resultado da execução no `context.md` desta spec, no formato que a 008 usou.
-- [] Task 03: `npm run lint`, `npm test` e `npm run build` limpos.
+- [x] Task 02: Registrar o resultado da execução no `context.md` desta spec, no formato que a 008 usou.
+- [x] Task 03: `npm run lint`, `npm test` e `npm run build` limpos.
 - [] Task 04: Unir as `feat/009-*` na `release/009-financeiro-administracao-trilha`, merge em `dev`, e
   abrir o PR contra a `main`. **O merge na `main` está liberado** (autorizado em 2026-08-18): abre e
   fecha o PR, sem parar para confirmar. Se algum check falhar, o merge espera o conserto — a liberação é

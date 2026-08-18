@@ -409,3 +409,26 @@ localizado: a grade dos tiers passou de duas para três colunas, e o `@media` fo
 Dois defeitos de cópia foram achados nessa passada e corrigidos: a trilha da comunidade e o cartão do
 painel diziam **"Doze etapas"**, número que a spec tornou obsoleto. Nenhum teste pegaria — são frases
 soltas, não dado.
+
+---
+
+## Emendas da spec 009 (2026-08-18)
+
+Duas mudanças na decisão 5, feitas durante a execução da 009 e registradas aqui para quem ler esta
+primeiro não implementar o que já mudou:
+
+1. **A tabela de tiers passou de três para quatro linhas.** Entrou o **Master Dev Tier**: tudo do
+   Ultra, mais duas aulas de inglês por mês voltadas para **entrevista técnica** — nunca descritas
+   como curso de inglês, porque duas aulas por mês não ensinam um idioma e o público é quem já
+   programa e trava na conversa.
+2. **`CommunityTier.price` deixou de existir no modelo do front.** O preço saiu do conteúdo local e
+   passou a vir de `GET /billing/tiers`, que exige sessão — se o número está no bundle que qualquer
+   visitante baixa, ele não saiu da landing, só saiu da tela. No lugar entrou `priceHint`, que é copy
+   ("Preço na plataforma"), e `paid`, que substituiu o antigo teste `price !== 'Gratuito'`.
+
+**As decisões 5b, 5c e 5d continuam integralmente vigentes.** "Emendada" aqui não quer dizer
+revogada: a 5d — *a assinatura compra avanço, não retenção* — é justamente a restrição que impediu a
+009 de inventar um gate de conteúdo por `grade`, e ela segue valendo.
+
+A seção de acesso antecipado saiu das páginas públicas na 009, porque o cadastro de conta passou a
+funcionar. O endpoint, a coleção e a spec 004 continuam de pé: saiu a interface, não os dados.
