@@ -21,6 +21,8 @@ export interface MemberUser {
  *
  * `name`, `phone` e `bio` chegam nulos enquanto o onboarding não for concluído.
  */
+export type UserRole = 'admin';
+
 export interface MemberProfile {
   readonly id: string;
   readonly email: string;
@@ -29,6 +31,8 @@ export interface MemberProfile {
   readonly bio: string | null;
   readonly grade: number;
   readonly profileCompleted: boolean;
+  /** Papel vindo da custom claim do Firebase Auth. Nulo para o membro comum. */
+  readonly role: UserRole | null;
 }
 
 export interface UpdateProfileRequest {
@@ -55,6 +59,14 @@ export interface Session {
   readonly user: MemberUser;
   readonly profileCompleted: boolean;
   readonly grade: number;
+  /**
+   * Papel do usuário, achatado como `grade` e `profileCompleted` já são.
+   *
+   * **O front nunca decodifica o ID token para descobrir isto.** Dá para fazer,
+   * e é errado: o token é do backend, o formato é dele, e um `atob` no meio do
+   * app cria um segundo lugar que sabe ler credencial.
+   */
+  readonly role: UserRole | null;
 }
 
 export type AuthStatus = 'unknown' | 'anonymous' | 'authenticated';

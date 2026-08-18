@@ -23,7 +23,8 @@ describe('CompletarPerfilPage', () => {
     phone: '47999991234',
     bio: '',
     grade: 1,
-    profileCompleted: false
+    profileCompleted: false,
+    role: null
   };
 
   beforeEach(async () => {
@@ -51,7 +52,8 @@ describe('CompletarPerfilPage', () => {
       expiresIn: 3600,
       user: { id: 'u1', email: 'leno@exemplo.com' },
       profileCompleted: false,
-      grade: 1
+      grade: 1,
+      role: null
     });
     // O perfil completo chega por GET /me, não pela sessão. A page pede sozinha
     // quando o store está vazio; aqui já entregamos o resultado.

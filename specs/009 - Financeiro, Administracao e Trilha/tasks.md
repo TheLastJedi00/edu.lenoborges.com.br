@@ -46,38 +46,38 @@ Branch: `feat/009-cta-gratuito`
 - [x] Task 04: Atualizar as specs de página. Arquivos: `landing.page.spec.ts`, e a de comunidade se
   houver. Objetivo: cobrir que o primário abre o diálogo na aba de cadastro — e não na de login, que é
   o default do store e o erro fácil.
-
+# Fase 03: Camada de dados [x]
 # Fase 03: Camada de dados []
 Branch: `feat/009-camada-de-dados`
 
 Nenhuma tela. Ao fim desta fase os três recursos novos do backend têm modelo, service e teste.
 
-- [] Task 01: Modelar o financeiro. Arquivo: `src/app/models/billing.model.ts`. Objetivo: `BillingTier`
+- [x] Task 01: Modelar o financeiro. Arquivo: `src/app/models/billing.model.ts`. Objetivo: `BillingTier`
   com `price` em **centavos** (`number`) e `TierCatalog` com `currentTierId`. O comentário registra por
   que centavos: valor monetário em decimal é a armadilha clássica, e a formatação é responsabilidade da
   tela.
-- [] Task 02 (TDD + implementação): O formatador de moeda. Arquivos: `src/app/core/money.ts`,
+- [x] Task 02 (TDD + implementação): O formatador de moeda. Arquivos: `src/app/core/money.ts`,
   `money.spec.ts`. Objetivo: `formatBRL(26000)` → `R$ 260,00`, via `Intl.NumberFormat`. Um lugar só
   (decisão 4) — o `priceLabel` que a API manda é fallback, nunca fonte.
-- [] Task 03 (TDD + implementação): `BillingService`. Arquivos: `src/app/services/billing.service.ts`,
+- [x] Task 03 (TDD + implementação): `BillingService`. Arquivos: `src/app/services/billing.service.ts`,
   `.spec.ts`. Objetivo: `GET /billing/tiers`, com o catálogo em cache de sessão (`shareReplay`) — a
   tabela não muda dentro de uma sessão, e refazer a chamada a cada visita à aba é gasto sem retorno.
-- [] Task 04: Modelar a trilha. Arquivo: `src/app/models/track.model.ts`. Objetivo: `BadgeVideo` com
+- [x] Task 04: Modelar a trilha. Arquivo: `src/app/models/track.model.ts`. Objetivo: `BadgeVideo` com
   `title` (o título da plataforma, nunca o do YouTube), `youtubeId`, `order`, e o embed derivado por
   função, não guardado.
-- [] Task 05 (TDD + implementação): `TrackService`. Arquivos: `src/app/services/track.service.ts`,
+- [x] Task 05 (TDD + implementação): `TrackService`. Arquivos: `src/app/services/track.service.ts`,
   `.spec.ts`. Objetivo: `GET /badges/:badgeId/videos`. **O teste central é o do 200 com lista vazia**:
   ele resolve para conteúdo vazio, não para erro (decisão 6). Confundir os dois é o bug mais provável
   desta spec, e o teste é a trava.
-- [] Task 06 (TDD + implementação): `AdminService`. Arquivos: `src/app/services/admin.service.ts`,
+- [x] Task 06 (TDD + implementação): `AdminService`. Arquivos: `src/app/services/admin.service.ts`,
   `.spec.ts`. Objetivo: listar usuários com `pageToken`, alterar `grade`, e o CRUD de vídeos mais o
   `PATCH .../order`. Cobrir o 403 com mensagem própria — a claim demora até uma hora para valer, e a
   mensagem tem que dizer isso (decisão 5).
-- [] Task 07: `role` e `isAdmin` no store. Arquivos: `src/app/models/auth.model.ts`,
+- [x] Task 07: `role` e `isAdmin` no store. Arquivos: `src/app/models/auth.model.ts`,
   `src/app/core/auth/auth.store.ts`, `auth.store.spec.ts`. Objetivo: `role` chega achatado em `Session`
   e em `MemberProfile`; `isAdmin` é `computed`, com a mesma precedência que `grade` já usa (perfil manda
   quando existe). **Nada de decodificar o ID token** (decisão 5).
-- [] Task 08 (TDD + implementação): `adminGuard`. Arquivos: `src/app/core/auth/admin.guard.ts`,
+- [x] Task 08 (TDD + implementação): `adminGuard`. Arquivos: `src/app/core/auth/admin.guard.ts`,
   `.spec.ts`. Objetivo: roda depois do `authGuard` e do `profileCompleteGuard`, e redireciona para
   `/dashboard` quem não é admin. O comentário registra que isto é conveniência: quem protege é o
   backend.

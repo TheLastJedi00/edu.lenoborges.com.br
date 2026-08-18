@@ -30,7 +30,8 @@ describe('authGuard (TDD)', () => {
       expiresIn: 3600,
       user: { id: 'u1', email: 'test@example.com' },
       profileCompleted: true,
-      grade: 1
+      grade: 1,
+      role: null
     });
 
     const result = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState('/dashboard')));

@@ -27,7 +27,8 @@ describe('DashboardPage', () => {
       expiresIn: 3600,
       user: { id: 'u1', email: 'leno.borges@exemplo.com' },
       profileCompleted: true,
-      grade: 5
+      grade: 5,
+      role: null
     });
     authStore.setProfile({
       id: 'p1',
@@ -36,7 +37,8 @@ describe('DashboardPage', () => {
       phone: '47999991234',
       bio: 'Bio',
       grade: 5,
-      profileCompleted: true
+      profileCompleted: true,
+      role: null
     });
 
     fixture = TestBed.createComponent(DashboardPage);
