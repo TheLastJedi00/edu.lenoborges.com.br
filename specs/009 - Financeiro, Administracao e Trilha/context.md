@@ -341,3 +341,42 @@ o mesmo padrão.
    com o nome do tier.
 4. **Insígnia com vídeo mas ainda não conquistada mostra algo diferente?** Assumido: não. O cartão diz o
    estado, o conteúdo abre igual. Gate só quando existir assinatura.
+
+---
+
+## Resultado da execução (2026-08-18)
+
+Sete fases, todas verdes: **199 testes** no Karma, `ng build` limpo, e a varredura do bundle de
+produção atrás de valor monetário voltando **zero**.
+
+> Uma armadilha na própria verificação, registrada porque custou tempo: varrer `dist/` inteiro com um
+> padrão frouxo dá falso positivo. `dist/test-out/` guarda a saída do Karma, e o `INJECTOR$1` do
+> Angular casa com `R$ ?\d`. A varredura que vale é sobre `dist/eduleno-front/` e com o padrão de
+> valor completo — `R$ ?\d+[.,]\d{2}`.
+
+### O que ficou de fora, e por quê
+
+- **Arrastar e soltar na reordenação de vídeos** (Fase 06, Task 09). A decisão 7 já dizia que nada
+  pode depender dele: os botões de subir/descer são o mecanismo primário e entregam a operação
+  inteira, no dedo, no teclado e no leitor de tela. Entra quando houver demanda de quem administra no
+  desktop.
+- **Editar `tier` na tela de usuários** (Fase 06, Task 05). O campo não existe ainda — quem o cria é a
+  **spec 010**, que precisa dele para o portão do Mural. Fazer a tela antes do campo seria escrever
+  contra um dado imaginário.
+- **Verificação em aparelho real** (Fase 07, Task 07). Precisa de um celular na mão; as regras de
+  movimento existem por causa do aparelho fraco, e verificar no desktop é não verificar.
+
+### Uma coisa que a execução ensinou
+
+O `Intl.NumberFormat('pt-BR')` separa o símbolo do valor com **NBSP (U+00A0)**, não com espaço comum.
+Um teste que compara com `'R$ 260,00'` digitado à mão falha por um caractere invisível. Onde a
+asserção é sobre texto renderizado, o jeito legível é normalizar antes de comparar — está assim em
+`financeiro.page.spec.ts`, com o comentário explicando.
+
+### Ponto em aberto que a execução criou
+
+**O upgrade abre o LinkedIn, não o WhatsApp.** O ponto em aberto 3 presumia uma mensagem
+pré-preenchida (*"Quero o &lt;Tier&gt;"*), e ela precisa de um canal que aceite texto na URL. O único
+contato configurado hoje é o LinkedIn, onde `?text=` não existe — inventar o parâmetro produziria um
+link quebrado. O rótulo do botão já carrega o nome do tier, então a pessoa chega à conversa sabendo o
+que pedir. Configurar um número de WhatsApp resolve, e a mudança é de uma linha.
