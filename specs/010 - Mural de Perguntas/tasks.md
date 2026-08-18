@@ -71,21 +71,21 @@ Branch: `feat/010-perguntar`
 - [x] Task 07 (TDD): Spec do formulário. Objetivo: chips selecionáveis, validação de tamanho, o bloqueio
   do Dev Tier renderizando no lugar do form, e os três erros da API virando três mensagens diferentes.
 
-# Fase 04: Perguntas Frequentes na trilha []
+# Fase 04: Perguntas Frequentes na trilha [x]
 Branch: `feat/010-faq-na-trilha`
 
-- [] Task 01: Abas na página da insígnia. Arquivo:
+- [x] Task 01: Abas na página da insígnia. Arquivo:
   `src/app/pages/trilha/insignia/insignia.page.{ts,html,scss}`. Objetivo: **Aulas** e **Perguntas
   Frequentes**. Duas naturezas — aula se assiste em ordem, resposta se consulta por assunto — e
   misturadas a sequência deixa de ser sequência (decisão 7).
-- [] Task 02: A pergunta acima do player. Objetivo: no vídeo de resposta, mostrar a pergunta original e
+- [x] Task 02: A pergunta acima do player. Objetivo: no vídeo de resposta, mostrar a pergunta original e
   quem perguntou, com link para a aba "Respondidas" do Mural. É metade do valor da aba.
-- [] Task 03: Selo "Livre para todos". Arquivo: `src/app/components/free-badge/free-badge.ts`.
+- [x] Task 03: Selo "Livre para todos". Arquivo: `src/app/components/free-badge/free-badge.ts`.
   Objetivo: vídeo `devTierFree` ganha selo **visível, não discreto** (decisão 8) — é o contrapeso do
   único "não" que o produto dá ao Dev Tier, e um "não" sozinho é um paywall.
-- [] Task 04: Vazio que convida. Objetivo: aba sem respostas diz *"Nenhuma pergunta desta insígnia foi
+- [x] Task 04: Vazio que convida. Objetivo: aba sem respostas diz *"Nenhuma pergunta desta insígnia foi
   respondida ainda. Que tal fazer a primeira?"* com link para o Mural.
-- [] Task 05 (TDD): Spec das abas. Objetivo: cada aba lista só o seu `kind`, a ordem de uma não afeta a
+- [x] Task 05 (TDD): Spec das abas. Objetivo: cada aba lista só o seu `kind`, a ordem de uma não afeta a
   outra, e o vazio resolve como conteúdo e não como erro.
 
 # Fase 05: Administração do Mural []

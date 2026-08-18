@@ -8,6 +8,27 @@
     }
   </header>
 
+  <nav class="tabs" aria-label="Conteudo da insignia">
+    <button
+      type="button"
+      class="tab"
+      [class.tab--on]="aba() === 'aula'"
+      [attr.aria-current]="aba() === 'aula' ? 'true' : null"
+      (click)="selectTab('aula')"
+    >
+      Aulas
+    </button>
+    <button
+      type="button"
+      class="tab"
+      [class.tab--on]="aba() === 'resposta'"
+      [attr.aria-current]="aba() === 'resposta' ? 'true' : null"
+      (click)="selectTab('resposta')"
+    >
+      Perguntas Frequentes
+    </button>
+  </nav>
+
   @switch (state()) {
     @case ('loading') {
       <ul class="videos" aria-busy="true" aria-label="Carregando os vídeos">
@@ -31,12 +52,25 @@
           sempre a mesma, e o tom não é de erro — é de material a caminho.
         -->
         <div class="empty">
-          <p class="empty__title">Ainda estamos preparando esse material.</p>
-          <p class="empty__text">
-            Essa insígnia já existe na trilha, mas as aulas dela ainda estão sendo gravadas.
-            Enquanto isso, dá para avançar em outra.
-          </p>
-          <a routerLink="/dashboard/trilha" class="empty__cta">Escolher outra insígnia</a>
+          @if (aba() === 'resposta') {
+            <!-- Vazio é a chance de convidar: o Mural existe justamente para
+                 encher esta aba, e o caminho até ele é um toque. -->
+            <p class="empty__title">
+              Nenhuma pergunta desta insígnia foi respondida ainda.
+            </p>
+            <p class="empty__text">
+              As respostas vêm do Mural: a pergunta mais votada da semana vira um vídeo curto.
+              Que tal fazer a primeira?
+            </p>
+            <a routerLink="/dashboard/mural" class="empty__cta">Ir para o Mural</a>
+          } @else {
+            <p class="empty__title">Ainda estamos preparando esse material.</p>
+            <p class="empty__text">
+              Essa insígnia já existe na trilha, mas as aulas dela ainda estão sendo gravadas.
+              Enquanto isso, dá para avançar em outra.
+            </p>
+            <a routerLink="/dashboard/trilha" class="empty__cta">Escolher outra insígnia</a>
+          }
         </div>
       } @else {
         <ul class="videos">
@@ -47,6 +81,23 @@
                 algoritmo, e este diz onde a pessoa está na trilha.
               -->
               <h2 class="video__title">{{ video.title }}</h2>
+
+              @if (video.devTierFree) {
+                <!--
+                  O selo não pode ser discreto: ele é a prova, visível para quem
+                  não paga, de que a plataforma abre porta. É o contrapeso do
+                  único "não" que o produto dá ao Dev Tier, e um "não" sozinho é
+                  um paywall.
+                -->
+                <p class="free">Livre para todos</p>
+              }
+
+              @if (video.kind === 'resposta' && video.questionId) {
+                <p class="answered">
+                  Resposta a uma pergunta do Mural
+                </p>
+              }
+
               @if (video.description) {
                 <p class="video__description">{{ video.description }}</p>
               }
