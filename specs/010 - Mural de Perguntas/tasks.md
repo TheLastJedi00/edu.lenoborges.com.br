@@ -126,18 +126,18 @@ Branch: `feat/010-animacao-mobile`
 - [] Task 06: Verificar com throttling de 4x de CPU, ou em aparelho de verdade. As regras existem por
   causa do celular fraco, que é o aparelho do público.
 
-# Fase 07: Documentação e release []
+# Fase 07: Documentação e release [x] — as Tasks 04 e 06 são suas
 Branch: `release/010-mural-de-perguntas`
 
-- [] Task 01: Marcar as extensões na spec 009 daqui. Objetivo: trilha com abas, `tier` na tela de
+- [x] Task 01: Marcar as extensões na spec 009 daqui. Objetivo: trilha com abas, `tier` na tela de
   usuários, Mural no aside.
-- [] Task 02: Registrar o resultado da execução no `context.md` desta spec.
-- [] Task 03: `npm run lint`, `npm test` e `npm run build` limpos.
+- [x] Task 02: Registrar o resultado da execução no `context.md` desta spec.
+- [x] Task 03: `npm run lint`, `npm test` e `npm run build` limpos.
 - [] Task 04: Verificar no navegador com **duas contas** — uma Dev Tier e uma paga: a Dev Tier vota e vê
   o bloqueio com o link do Financeiro; a paga escreve uma e vê a segunda recusada; o selo "Livre para
   todos" aparece na insígnia adiantada para as duas. **No preview do PR, antes do merge.** É o único
   teste que pega o portão de tier ponta a ponta, e ele depende de duas contas reais.
-- [] Task 05: Unir as `feat/010-*` na `release/010-mural-de-perguntas`, merge em `dev`, e abrir o PR
+- [x] Task 05: Unir as `feat/010-*` na `release/010-mural-de-perguntas`, merge em `dev`, e abrir o PR
   contra a `main`. **O merge na `main` está liberado** (autorizado em 2026-08-18): abre e fecha o PR,
   sem parar para confirmar. Se algum check falhar, ou se a Task 04 apontar problema, o merge espera — a
   liberação é de aprovação, não de qualidade.
