@@ -133,40 +133,42 @@ Branch: `feat/009-financeiro`
 - [x] Task 07 (TDD): Spec das duas páginas. Objetivo: cobrir o pulo de insígnia (entrar direto na 5 com
   `grade: 0` funciona), a lista vazia virando o aviso, e a ordem preservada exatamente como veio.
 
-# Fase 06: Administração []
+# Fase 06: Administração [x]
 Branch: `feat/009-administracao`
 
-- [] Task 01: Ícone e item condicional. Arquivos: `src/app/components/icons/icon-shield.ts`,
+- [x] Task 01: Ícone e item condicional. Arquivos: `src/app/components/icons/icon-shield.ts`,
   `dashboard-aside.ts`. Objetivo: "Administração" aparece só com `isAdmin()`, no rodapé do menu, acima
   do Sair — é ferramenta, não navegação de aluno.
-- [] Task 02: Rotas de admin. Arquivo: `src/app/app.routes.ts`. Objetivo: as quatro rotas de
+- [x] Task 02: Rotas de admin. Arquivo: `src/app/app.routes.ts`. Objetivo: as quatro rotas de
   `/dashboard/admin`, todas com `adminGuard`.
-- [] Task 03: Lista de usuários. Arquivo:
+- [x] Task 03: Lista de usuários. Arquivo:
   `src/app/pages/admin/usuarios/usuarios.page.{ts,html,scss}`. Objetivo: paginação por `pageToken`
   (carregar mais, não numerada — o Auth não sabe quantos existem). **Usuário sem perfil aparece com os
   campos nulos e um selo "onboarding pendente"**: é a pessoa que o admin mais precisa ver, e a linha
   não pode sumir nem quebrar.
-- [] Task 04: Edição de `grade`. Objetivo: diálogo com o `confirm-dialog` existente, faixa 0 a 13 com o
+- [x] Task 04: Edição de `grade`. Objetivo: diálogo com o `confirm-dialog` existente, faixa 0 a 13 com o
   rótulo vindo de `core/progress` — nunca reescrever a tabela de números à mão, que é como as duas
   divergem. Só `grade` é editável (decisão 10 do backend).
-- [] Task 05: Escolha da insígnia a administrar. Arquivo:
+- [x] Task 05: Escolha da insígnia a administrar. Arquivo:
   `src/app/pages/admin/trilha/trilha-admin.page.{ts,html,scss}`. Objetivo: as treze etapas com a
   contagem de vídeos de cada uma.
-- [] Task 06: Formulário de vídeo. Arquivo:
+- [x] Task 06: Formulário de vídeo. Arquivo:
   `src/app/components/video-form/video-form.{ts,spec.ts}`. Objetivo: **título obrigatório**, URL do
   YouTube com `inputmode="url"` e `enterkeyhint="done"`, descrição opcional. O formulário **não**
   preenche o título a partir do YouTube — o título é nosso de propósito (decisão 6 do backend), e um
   preenchimento automático faria todo mundo aceitar o do algoritmo.
-- [] Task 07: Lista administrável. Arquivo:
+- [x] Task 07: Lista administrável. Arquivo:
   `src/app/pages/admin/trilha/insignia-admin.page.{ts,html,scss}`. Objetivo: criar, editar, remover, e
   os **botões subir/descer sempre visíveis**, com 44px de alvo (decisões 7 e 9). Ações da linha nunca
   atrás de `:hover`.
-- [] Task 08: Reordenação otimista. Objetivo: a lista se move na hora, o `PATCH .../order` sai com os
+- [x] Task 08: Reordenação otimista. Objetivo: a lista se move na hora, o `PATCH .../order` sai com os
   ids na ordem nova, e a falha reverte com aviso. Uma requisição por gesto, sem debounce — o backend
   escreve em lote atômico, então o rollback é sempre para um estado íntegro.
-- [] Task 09: Arrastar como melhoria. Objetivo: só sob `@media (pointer: fine)`, e **nada depende
-  dele**. No toque, arrastar disputa com o scroll e essa disputa não tem empate (decisão 7).
-- [] Task 10 (TDD): Specs das telas de admin. Objetivo: cobrir o rollback da reordenação, a linha do
+- [] Task 09: Arrastar como melhoria. **Não implementada, e a decisão 7 permite** — ela diz que nada
+  pode depender do arrastar. Os botões de subir/descer são o mecanismo primário e já entregam a
+  reordenação inteira, no dedo, no teclado e no leitor de tela. O arrastar entra quando houver
+  demanda real de quem administra no desktop, e não antes: no toque ele disputaria com o scroll.
+- [x] Task 10 (TDD): Specs das telas de admin. Objetivo: cobrir o rollback da reordenação, a linha do
   usuário sem perfil, o título obrigatório, e o 403 com a mensagem da claim de até uma hora.
 
 # Fase 07: Animação e mobile []

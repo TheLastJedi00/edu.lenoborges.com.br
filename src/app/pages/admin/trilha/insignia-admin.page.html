@@ -1,0 +1,113 @@
+<section class="page">
+  <a routerLink="/dashboard/admin/trilha" class="back u-mono">← Todas as insígnias</a>
+
+  <header>
+    <h1 class="page__title">{{ stage()?.title ?? 'Insígnia' }}</h1>
+    <p class="page__lead">
+      A ordem daqui é a que o aluno vê. Use as setas para mover — cada movimento é salvo na hora.
+    </p>
+  </header>
+
+  @if (reorderError(); as erro) {
+    <p class="alert" role="alert">{{ erro }}</p>
+  }
+
+  @switch (state()) {
+    @case ('loading') {
+      <ul class="videos" aria-busy="true" aria-label="Carregando os vídeos">
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+      </ul>
+    }
+
+    @case ('error') {
+      <div class="feedback" role="alert">
+        <p>Não consegui carregar os vídeos agora.</p>
+        <button type="button" class="btn" (click)="load()">Tentar de novo</button>
+      </div>
+    }
+
+    @case ('ready') {
+      @if (videos().length === 0) {
+        <p class="empty">
+          Nenhum vídeo nesta insígnia ainda. Para o aluno, ela aparece com o aviso de material em
+          preparo.
+        </p>
+      } @else {
+        <ol class="videos">
+          @for (video of videos(); track video.id; let i = $index, first = $first, last = $last) {
+            <li class="video">
+              <span class="video__order u-mono">{{ i + 1 }}</span>
+
+              <div class="video__main">
+                <p class="video__title">{{ video.title }}</p>
+                <p class="video__id u-mono">{{ video.youtubeId }}</p>
+              </div>
+
+              <!--
+                Botões, e não arrastar. No toque, arrastar disputa com o scroll e
+                essa disputa não tem empate: ou a página rola quando o usuário
+                queria mover, ou o item se move quando ele queria rolar. As setas
+                funcionam no dedo, no teclado e no leitor de tela — e ficam
+                sempre visíveis, nunca atrás de :hover.
+              -->
+              <div class="video__actions">
+                <button
+                  type="button"
+                  class="icon-btn"
+                  [disabled]="first"
+                  [attr.aria-label]="'Mover ' + video.title + ' para cima'"
+                  (click)="moveUp(i)"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  class="icon-btn"
+                  [disabled]="last"
+                  [attr.aria-label]="'Mover ' + video.title + ' para baixo'"
+                  (click)="moveDown(i)"
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  class="icon-btn icon-btn--danger"
+                  [attr.aria-label]="'Remover ' + video.title"
+                  (click)="askRemove(video)"
+                >
+                  ✕
+                </button>
+              </div>
+            </li>
+          }
+        </ol>
+      }
+
+      @if (showForm()) {
+        <div class="form-panel">
+          <h2 class="form-panel__title">Publicar um vídeo</h2>
+          <app-video-form
+            [saving]="saving()"
+            [error]="formError()"
+            (submitted)="create($event)"
+            (cancel)="closeForm()"
+          />
+        </div>
+      } @else {
+        <button type="button" class="btn btn--sticky" (click)="openForm()">
+          Publicar um vídeo
+        </button>
+      }
+    }
+  }
+</section>
+
+<app-confirm-dialog
+  title="Remover este vídeo?"
+  [message]="confirmMessage()"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmRemove()"
+  (cancelled)="cancelRemove()"
+/>
