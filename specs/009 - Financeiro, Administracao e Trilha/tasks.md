@@ -109,28 +109,28 @@ Branch: `feat/009-financeiro`
   tier certo.
 
 # Fase 05: Trilha do aluno []
-Branch: `feat/009-trilha`
+# Fase 05: Trilha do aluno [x]
 
 - [] Task 01: Destravar o item do aside. Arquivo: `dashboard-aside.ts`. Objetivo: "Trilha" perde
   `disabled` e o selo "Em breve" e vira `routerLink`. **O fallback saiu do menu e foi para dentro da
   tela** (decisão 6) — é a mudança central desta fase, e o comentário do componente registra por quê.
-- [] Task 02: Página de seleção. Arquivos: `src/app/app.routes.ts`,
+- [x] Task 02: Página de seleção. Arquivos: `src/app/app.routes.ts`,
   `src/app/pages/trilha/trilha.page.{ts,html,scss}`. Objetivo: as oito insígnias como cartões
   selecionáveis, com a Elite Four e a Battle Frontier abaixo, separadas pelo mesmo vão do
   `badge-ladder`. **Nenhum cartão é desabilitado**: o aluno pode pular.
-- [] Task 03: Componente de cartão de insígnia. Arquivo:
+- [x] Task 03: Componente de cartão de insígnia. Arquivo:
   `src/app/components/badge-card/badge-card.{ts,spec.ts}`. Objetivo: ícone, título, área, estado
   (conquistada / disponível / sem conteúdo) e contagem de vídeos. Estado informa, nunca impede.
-- [] Task 04: Página da insígnia. Arquivo:
+- [x] Task 04: Página da insígnia. Arquivo:
   `src/app/pages/trilha/insignia/insignia.page.{ts,html,scss}`. Objetivo: `/dashboard/trilha/:badgeId`,
   vídeos na ordem que a API mandou — **o front não reordena** (decisão 7). Cada item mostra o título da
   plataforma; o do YouTube não aparece em lugar nenhum.
-- [] Task 05: Estado vazio. Objetivo: a frase literal *"Ainda estamos preparando esse material."*, com
+- [x] Task 05: Estado vazio. Objetivo: a frase literal *"Ainda estamos preparando esse material."*, com
   ilustração e um caminho de volta para escolher outra insígnia. **Não é tela de erro**, e o teste da
   Fase 03 Task 05 é o que garante que não vira uma.
-- [] Task 06: Player. Objetivo: `<iframe>` do YouTube em wrapper 16:9 responsivo, `loading="lazy"`, sem
+- [x] Task 06: Player. Objetivo: `<iframe>` do YouTube em wrapper 16:9 responsivo, `loading="lazy"`, sem
   autoplay. Título da plataforma acima, sempre.
-- [] Task 07 (TDD): Spec das duas páginas. Objetivo: cobrir o pulo de insígnia (entrar direto na 5 com
+- [x] Task 07 (TDD): Spec das duas páginas. Objetivo: cobrir o pulo de insígnia (entrar direto na 5 com
   `grade: 0` funciona), a lista vazia virando o aviso, e a ordem preservada exatamente como veio.
 
 # Fase 06: Administração []

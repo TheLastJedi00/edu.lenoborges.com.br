@@ -1,0 +1,172 @@
+.page {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem 1rem 4rem;
+}
+
+.back {
+  justify-self: start;
+  /* Alvo de toque: o link de voltar é pequeno por natureza, e a altura mínima é
+     o que o torna alcançável com o polegar em movimento. */
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  padding-right: 0.5rem;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent-deep);
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.05;
+  margin: 0;
+}
+
+.page__topics {
+  margin: 0.4rem 0 0;
+  max-width: 60ch;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+
+.videos {
+  display: grid;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.video {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.video__title {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.video__description {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+/* 16:9 responsivo. `aspect-ratio` evita o truque do padding-top, que exige um
+   filho absoluto e quebra silenciosamente quando alguém mexe no layout depois. */
+.video__frame {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--screen-deep);
+}
+
+.video__frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.empty {
+  display: grid;
+  justify-items: start;
+  gap: 0.6rem;
+  padding: 1.75rem 1.4rem;
+  /* Borda tracejada, e não vermelha: isto não é erro, é material a caminho. */
+  border: var(--border-w) dashed var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--screen);
+}
+
+.empty__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+.empty__text {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.empty__cta {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.4rem;
+  padding: 0 1.1rem;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.feedback {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.feedback__text {
+  margin: 0;
+}
+
+.feedback__retry {
+  min-height: 2.75rem;
+  padding: 0.7rem 1.2rem;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.skeleton {
+  height: 12rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--screen) 25%,
+    var(--screen-lit) 37%,
+    var(--screen) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-slide 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-slide {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

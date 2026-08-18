@@ -40,6 +40,19 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/financeiro/financeiro.page').then((m) => m.FinanceiroPage),
         title: 'Financeiro · Liga Dev'
+      },
+      {
+        path: 'trilha',
+        loadComponent: () => import('./pages/trilha/trilha.page').then((m) => m.TrilhaPage),
+        title: 'Trilha · Liga Dev'
+      },
+      {
+        // Sem guard de progresso: a trilha não é presa, e entrar direto na
+        // Insígnia 5 com `grade: 0` é um caminho legítimo. Ver a decisão 6.
+        path: 'trilha/:badgeId',
+        loadComponent: () =>
+          import('./pages/trilha/insignia/insignia.page').then((m) => m.InsigniaPage),
+        title: 'Insígnia · Liga Dev'
       }
     ]
   },
