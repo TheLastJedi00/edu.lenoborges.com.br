@@ -167,3 +167,60 @@ pondo um link externo no menu lateral.
   componentes. Se a divergência voltar uma terceira vez, aí a constante se paga.
 - **A `AsideNavItem` órfã**, exportada em `dashboard-aside.ts` e usada por ninguém. É a sobra de uma
   tentativa anterior dessa mesma abstração, e removê-la não pertence a este fix.
+
+---
+---
+
+# Fix 2: o link do grupo entra no código, e o quarto cartão acende
+
+Aberto em 2026-08-18, logo depois do Fix 1.
+
+## O que era
+
+`environment.whatsappGroupUrl` estava `''` nos dois ambientes, com o comentário *"vazio por padrão até
+o link definitivo ser configurado"*. O cartão do Grupo do WhatsApp caía no ramo `@else` e ficava
+`card--disabled`, com o selo `Em breve` e o texto "o link do grupo oficial está sendo preparado".
+
+O Fix 1 acendeu Trilha, Financeiro e Mural. **O WhatsApp era o último cartão apagado que não precisava
+estar apagado** — e o único cujo destravamento não dependia de escrever tela nenhuma, só de saber o
+link.
+
+## O que mudou
+
+Uma linha em cada `environment`:
+
+```ts
+whatsappGroupUrl: 'https://chat.whatsapp.com/FIyeOUoIuCmKghcHpd0vbR',
+```
+
+**O mesmo valor nos dois arquivos, e isso é a decisão.** Um convite de grupo público não é segredo, e
+apontar o desenvolvimento para um grupo diferente — ou para nenhum — significa que o único ambiente
+onde o cartão é exercitado é produção. Já foi assim duas vezes neste projeto, nos dois fixes da spec
+007 do backend, e as duas vezes custaram caro.
+
+**Nenhuma linha de template mudou.** O `@if (hasWhatsappUrl())` já estava lá desde a spec 005,
+esperando exatamente por isso. É o desenho funcionando: o cartão sempre soube acender sozinho.
+
+## O que este fix não faz
+
+**Não coloca o WhatsApp no aside.** O pedido falava em "botão no dashboard/aside", mas o aside nunca
+teve item de WhatsApp — e a decisão do Fix 1 é que ele não deve ter. É um link para fora, com
+`target="_blank"`, e no menu lateral viraria o único item incapaz de ficar `is-active`. A regra do
+espelho é de mão única, e este cartão é justamente a exceção que ela permite.
+
+**Não torna o link configurável em tempo de execução.** Ele é constante de build, e trocá-lo exige
+deploy. Isso é aceitável enquanto o grupo for um só; quando precisar mudar sem deploy, o lugar é um
+campo no backend, não uma variável de ambiente do front — que exige build do mesmo jeito e só espalha
+a configuração por mais um sistema.
+
+## Verificação
+
+- **245 testes verdes** (eram 244) e `ng build` limpo.
+- O teste dos cartões inertes caiu para `['Meu Perfil', 'Jogos']`, que é a lista de quem não tem rota
+  em `app.routes.ts`. Os dois únicos cartões apagados do painel agora são os dois recursos que de fato
+  não existem.
+- Um teste novo garante que o `href` é o link do `environment`, que ele tem forma de convite do
+  WhatsApp, e que o `rel` traz `noopener` — sem ele a aba do grupo recebe `window.opener` e pode
+  reescrever a URL desta, que é a única aba com a sessão dentro.
+- Conferido no bundle: o link aparece no `dist` de produção, e não só no `environment.ts` de
+  desenvolvimento.

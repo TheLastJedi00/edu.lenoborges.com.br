@@ -9,6 +9,7 @@ export const environment = {
   apiUrl: 'https://api-lenoborges.vercel.app',
   /**
    * Link de convite do grupo oficial da Liga Dev no WhatsApp.
+   * Fixo no código por enquanto, e igual ao de desenvolvimento.
    */
-  whatsappGroupUrl: '',
+  whatsappGroupUrl: 'https://chat.whatsapp.com/FIyeOUoIuCmKghcHpd0vbR',
 };
