@@ -1,31 +1,31 @@
-# Fase 01: Preço fora do público []
+# Fase 01: Preço fora do público [x]
 Branch: `feat/009-preco-fora-do-publico`
 
 Ao fim desta fase nenhum preço existe no bundle, e a landing ainda não tem para onde mandar quem
 perguntar quanto custa. É de propósito: a fase é curta e verificável sozinha.
 
-- [] Task 01: Tirar `price` do modelo de tier. Arquivo: `src/app/models/community.model.ts`. Objetivo:
+- [x] Task 01: Tirar `price` do modelo de tier. Arquivo: `src/app/models/community.model.ts`. Objetivo:
   `CommunityTier.price` some e entra `priceHint: string`. **Não vira opcional** — campo opcional é
   convite para alguém repreenchê-lo (decisão 1). O mesmo vale para `GrindingArena.price`, pelo ponto em
   aberto 2.
-- [] Task 02: Reescrever o conteúdo dos tiers. Arquivo: `src/app/services/community.service.ts`.
+- [x] Task 02: Reescrever o conteúdo dos tiers. Arquivo: `src/app/services/community.service.ts`.
   Objetivo: quatro tiers, com o **Master Dev Tier** novo, sem nenhum número de preço; `priceHint` é
   *"Preço na plataforma"* nos três pagos e *"Gratuito"* no Dev Tier — grátis é ausência de preço, e é o
   CTA (decisão 2). Os `perks` do Master abrem com "Tudo do Ultra Dev Tier" e descrevem as duas aulas
   como treino de **entrevista técnica em inglês**, nunca como curso de inglês.
-- [] Task 03: Atualizar o `badge-ladder`. Arquivo: `src/app/components/badge-ladder/badge-ladder.ts`.
+- [x] Task 03: Atualizar o `badge-ladder`. Arquivo: `src/app/components/badge-ladder/badge-ladder.ts`.
   Objetivo: exibir `priceHint` no lugar de `price`, e trocar o `tier--paid` — que hoje testa
   `price !== 'Gratuito'` — por um campo explícito, já que a string do preço deixou de existir. Com
   quatro cartões, o grid vira carrossel com `scroll-snap` abaixo de 48rem (decisão 9).
-- [] Task 04: Limpar a `/comunidade`. Arquivos: `src/app/pages/comunidade/comunidade.page.html`,
+- [x] Task 04: Limpar a `/comunidade`. Arquivos: `src/app/pages/comunidade/comunidade.page.html`,
   `.scss`. Objetivo: a linha 122 mostra `grindingArena().price`; sai. A seção da Grinding Arena passa a
   descrever as quatro cadeiras e a cadência sem o valor.
-- [] Task 05 (TDD): Provar que o preço não está no bundle. Arquivos:
+- [x] Task 05 (TDD): Provar que o preço não está no bundle. Arquivos:
   `src/app/pages/landing/landing.page.spec.ts`, `src/app/services/community.service.spec.ts`. Objetivo:
   um teste que varre o conteúdo servido pelo `CommunityService` procurando `/R\$\s*\d/` e falha se
   achar. **Este é o teste que impede a regressão inteira** — sem ele, o primeiro `price: 'R$ 19,99'`
   reintroduzido volta despercebido.
-- [] Task 06: Rodar `npm run build` e conferir no `dist/` que nenhum arquivo contém os valores antigos.
+- [x] Task 06: Rodar `npm run build` e conferir no `dist/` que nenhum arquivo contém os valores antigos.
   Objetivo: o teste da Task 05 olha o modelo; este olha o artefato, que é onde a promessa da decisão 1
   vale ou não vale.
 

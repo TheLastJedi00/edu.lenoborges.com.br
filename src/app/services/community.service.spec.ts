@@ -86,27 +86,52 @@ describe('CommunityService', () => {
     expect(topics).toContain('JPA');
   });
 
-  it('divide o acesso em três tiers, do gratuito ao Ultra', () => {
+  it('divide o acesso em quatro tiers, do gratuito ao Master', () => {
     const tiers = service.tiers();
 
-    expect(tiers.length).toBe(3);
+    expect(tiers.length).toBe(4);
     expect(tiers.map((tier) => tier.name)).toEqual([
       'Dev Tier',
       'Great Dev Tier',
-      'Ultra Dev Tier'
+      'Ultra Dev Tier',
+      'Master Dev Tier'
     ]);
-    expect(tiers[0].price).toBe('Gratuito');
-    expect(tiers[1].price).toContain('19,99');
-    expect(tiers[2].price).toContain('199,99');
+    expect(tiers[0].priceHint).toBe('Gratuito');
+    expect(tiers.slice(1).every((tier) => tier.paid)).toBe(true);
   });
 
   it('escreve os tiers como degraus cumulativos, não como alternativas', () => {
     // Sem o "tudo do anterior", a tabela convida a comparar o que não é
     // comparável, e o Great parece competir com o Ultra em vez de levar a ele.
-    const [, great, ultra] = service.tiers();
+    const [, great, ultra, master] = service.tiers();
 
     expect(great.perks[0]).toContain('Tudo do Dev Tier');
     expect(ultra.perks[0]).toContain('Tudo do Great Dev Tier');
+    expect(master.perks[0]).toContain('Tudo do Ultra Dev Tier');
+  });
+
+  /**
+   * **Este é o teste que impede a regressão inteira da spec 009.**
+   *
+   * O objetivo da spec não é esconder o preço com CSS: é o número não existir no
+   * bundle que qualquer visitante baixa. Sem esta varredura, o primeiro
+   * `priceHint: 'R,99'` reintroduzido volta despercebido, e a página continua
+   * parecendo certa enquanto o valor viaja no JavaScript.
+   */
+  it('não carrega nenhum valor em reais no conteúdo público', () => {
+    const conteudoPublico = JSON.stringify(service.community());
+
+    expect(conteudoPublico).not.toMatch(/R$s*d/);
+  });
+
+  it('descreve o Master Dev Tier como entrevista técnica, nunca como curso de inglês', () => {
+    // A promessa é treinar a entrevista em inglês para quem já programa. "Curso
+    // de inglês" atrairia quem está começando o idioma, que não é o público e
+    // não seria atendido por duas aulas por mês.
+    const master = service.tiers()[3];
+
+    expect(master.summary).toContain('entrevista');
+    expect(master.summary.toLowerCase()).not.toContain('curso de inglês');
   });
 
   it('expõe a progressão como número, com o limite gratuito dentro do total', () => {
@@ -126,10 +151,12 @@ describe('CommunityService', () => {
     highlights.forEach((item) => expect(item.detail.length).toBeGreaterThan(0));
   });
 
-  it('descreve a Grinding Arena com formato, preço e vagas', () => {
+  it('descreve a Grinding Arena com formato, onde entra e vagas', () => {
     const arena = service.grindingArena();
 
-    expect(arena.price).toContain('199,99');
+    // O valor saiu junto com o dos tiers: quem quer saber quanto custa entra na
+    // plataforma. O que fica aqui é em qual tier a Arena está incluída.
+    expect(arena.priceHint).toContain('Ultra Dev Tier');
     expect(arena.seats).toBe(4);
     expect(arena.cadence).toContain('Grinding');
     expect(arena.perks.length).toBeGreaterThan(0);
