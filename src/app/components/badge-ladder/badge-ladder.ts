@@ -35,10 +35,10 @@ import { Reveal } from '../../directives/reveal';
 
     <ul class="tiers">
       @for (tier of tiers(); track tier.id) {
-        <li class="tier" [class.tier--paid]="tier.price !== 'Gratuito'" appReveal>
+        <li class="tier" [class.tier--paid]="tier.paid" appReveal>
           <p class="tier__name">{{ tier.name }}</p>
           <p class="tier__range u-mono">{{ tier.range }}</p>
-          <p class="tier__price">{{ tier.price }}</p>
+          <p class="tier__price" [class.tier__price--hint]="tier.paid">{{ tier.priceHint }}</p>
           <p class="tier__summary">{{ tier.summary }}</p>
           <ul class="tier__perks">
             @for (perk of tier.perks; track perk) {
@@ -159,6 +159,21 @@ import { Reveal } from '../../directives/reveal';
       color: var(--ink);
     }
 
+    /*
+     * "Preço na plataforma" não é um preço e não pode ter o peso de um: ele diz
+     * por que o espaço está vazio. Com o mesmo tamanho do "Gratuito", o olho lê
+     * os dois como a mesma categoria de informação, e o cartão pago passa a
+     * parecer que esconde algo em vez de apontar para onde a informação está.
+     */
+    .tier__price--hint {
+      font-family: var(--font-body);
+      font-size: var(--step--1);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
     .tier__summary {
       color: var(--ink-soft);
       line-height: 1.55;
@@ -190,12 +205,47 @@ import { Reveal } from '../../directives/reveal';
       background: var(--accent);
     }
 
-    /* Os tiers passaram de dois para três na spec 008. Em telas médias eles
-       ficam em duas colunas e o terceiro cai sozinho embaixo, o que o destacaria
-       sem intenção; por isso a grade de três só entra quando cabe inteira. */
-    @media (min-width: 64rem) {
+    /* Com quatro tiers (spec 009), empilhar no celular vira uma rolagem longa
+       demais para uma comparação — e quatro colunas espremidas não são uma
+       tabela, são um problema. O carrossel com scroll-snap mantém o gesto
+       natural do polegar e deixa um cartão inteiro por vez na tela. */
+    @media (max-width: 47.999rem) {
       .tiers {
-        grid-template-columns: repeat(3, 1fr);
+        grid-auto-flow: column;
+        grid-auto-columns: 85%;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        /* O padding lateral deixa o cartão vizinho aparecendo, que é o que
+           denuncia haver mais coisa ao lado. Sem ele, o carrossel parece uma
+           coluna só. */
+        padding: 0.25rem 1rem 0.75rem 0;
+        scrollbar-width: thin;
+      }
+
+      .tier {
+        scroll-snap-align: start;
+      }
+
+      /* Sem isto o cartão sobe para fora da área visível ao ser tocado, porque
+         o :hover do desktop também dispara no primeiro toque em telas de toque. */
+      .tier:hover {
+        transform: none;
+      }
+    }
+
+    /* Os tiers passaram de dois para três na spec 008 e de três para quatro na
+       009. Em telas médias eles ficam em duas colunas, o que é honesto: dois
+       degraus por linha ainda leem como escada. A grade de quatro só entra
+       quando cabe inteira — meia linha órfã destacaria um tier sem intenção. */
+    @media (min-width: 48rem) {
+      .tiers {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 75rem) {
+      .tiers {
+        grid-template-columns: repeat(4, 1fr);
       }
 
       .tier {

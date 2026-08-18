@@ -79,13 +79,26 @@ export interface BadgeProgress {
   readonly freeBadges: number;
 }
 
-/** Um tier de assinatura e o que ele entrega. Os tiers são cumulativos. */
+/**
+ * Um tier de assinatura e o que ele entrega. Os tiers são cumulativos.
+ *
+ * **Não existe `price` aqui, e essa ausência é a spec 009 inteira.** O preço vem
+ * de `GET /billing/tiers`, atrás do guard, e só aparece em
+ * `/dashboard/financeiro`. Se o número estivesse neste arquivo, ele viajaria no
+ * bundle que qualquer visitante baixa — não teria saído da landing, só da tela.
+ *
+ * O campo não vira opcional nem nulável de propósito: campo opcional é convite,
+ * e alguém acaba preenchendo "para o cartão ficar completo".
+ */
 export interface CommunityTier {
   readonly id: string;
   readonly name: string;
   /** O que o tier abre, em uma linha. Substituiu a faixa de Graus da spec 003. */
   readonly range: string;
-  readonly price: string;
+  /** Copy, não dado: diz por que o espaço do preço está vazio. */
+  readonly priceHint: string;
+  /** Se é degrau pago. Substitui o antigo teste `price !== 'Gratuito'`. */
+  readonly paid: boolean;
   readonly summary: string;
   readonly perks: readonly string[];
 }
@@ -107,7 +120,8 @@ export interface CommunityHighlight {
 export interface GrindingArena {
   readonly title: string;
   readonly summary: string;
-  readonly price: string;
+  /** Mesmo tratamento dos tiers: o valor mora na API, aqui fica só a copy. */
+  readonly priceHint: string;
   readonly duration: string;
   readonly cadence: string;
   readonly seats: number;

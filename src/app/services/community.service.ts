@@ -21,7 +21,11 @@ const COMMUNITY: Community = {
       id: 'dev-tier',
       name: 'Dev Tier',
       range: 'Insígnia 1 e 2',
-      price: 'Gratuito',
+      // "Gratuito" fica, e não é exceção à regra da spec 009: é a ausência de
+      // preço, e é o CTA da página. Esconder o "grátis" seria esconder a única
+      // coisa que a landing precisa dizer sobre dinheiro.
+      priceHint: 'Gratuito',
+      paid: false,
       summary:
         'Qualquer pessoa entra, conquista a Insígnia da Lógica e a da POO, joga e disputa o ' +
         'ranking daquele trecho, sem pagar nada e sem prazo.',
@@ -35,7 +39,8 @@ const COMMUNITY: Community = {
       id: 'great-dev-tier',
       name: 'Great Dev Tier',
       range: 'Insígnia 3 em diante',
-      price: 'R$ 19,99 por mês',
+      priceHint: 'Preço na plataforma',
+      paid: true,
       summary:
         'Tudo do Dev Tier, mais a plataforma inteira: a trilha continua da terceira insígnia até ' +
         'a oitava, e segue na Elite Four.',
@@ -50,7 +55,8 @@ const COMMUNITY: Community = {
       id: 'ultra-dev-tier',
       name: 'Ultra Dev Tier',
       range: 'Plataforma e Grinding Arena',
-      price: 'R$ 199,99 por mês',
+      priceHint: 'Preço na plataforma',
+      paid: true,
       summary:
         'Tudo do Great Dev Tier, mais a Grinding Arena: quatro Grindings por mês, ao vivo, em uma ' +
         'turma de no máximo quatro pessoas. São quatro cadeiras, e elas acabam.',
@@ -59,6 +65,25 @@ const COMMUNITY: Community = {
         'Um Grinding por semana com o Leno Borges, ao vivo',
         'Turma de no máximo 4 alunos, sem plateia',
         'Correção e feedback pessoal em cada exercício entregue'
+      ]
+    },
+    {
+      id: 'master-dev-tier',
+      name: 'Master Dev Tier',
+      range: 'Plataforma, Grinding Arena e inglês',
+      priceHint: 'Preço na plataforma',
+      paid: true,
+      // A cópia tem uma armadilha para evitar: duas aulas por mês NÃO ensinam
+      // inglês, e a página não pode sugerir que ensinam. O que elas treinam é a
+      // entrevista técnica em inglês, para quem já programa e trava na conversa.
+      summary:
+        'Tudo do Ultra Dev Tier, mais duas aulas de inglês por mês voltadas para entrevista ' +
+        'técnica — para a vaga que trava no idioma, e não no código.',
+      perks: [
+        'Tudo do Ultra Dev Tier',
+        'Duas aulas de inglês por mês, focadas em entrevista técnica',
+        'Treino de apresentação, explicação de arquitetura e follow-up em inglês',
+        'Preparação para vagas que exigem inglês no processo seletivo'
       ]
     }
   ],
@@ -278,7 +303,7 @@ const COMMUNITY: Community = {
     summary:
       'A mentoria da Liga Dev: um Grinding por semana, de 2 horas, para no máximo 4 alunos. ' +
       'Turma pequena o bastante para todo mundo falar e ser corrigido.',
-    price: 'R$ 199,99 por mês, no Ultra Dev Tier',
+    priceHint: 'No Ultra Dev Tier e no Master Dev Tier',
     duration: '2 horas por Grinding',
     cadence: 'Um Grinding por semana',
     seats: 4,
