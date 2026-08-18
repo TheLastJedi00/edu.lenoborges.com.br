@@ -23,9 +23,8 @@
         @if (authStore.isLoggedIn()) {
           <app-pixel-button route="/dashboard">Ir para o painel</app-pixel-button>
         } @else {
-          <app-pixel-button (click)="openLogin()">Entrar na Liga Dev</app-pixel-button>
+          <app-pixel-button (click)="openSignup()">Começar gratuitamente</app-pixel-button>
         }
-        <app-pixel-button variant="ghost" (click)="openWaitlist()">Quero acesso antecipado</app-pixel-button>
         <app-pixel-button variant="ghost" href="#trilha">Ver a trilha completa</app-pixel-button>
       </div>
     </div>
@@ -118,8 +117,8 @@
     <app-pixel-panel tone="screen" class="grinding-arena" appReveal>
       <dl class="grinding-arena__facts">
         <div>
-          <dt class="u-mono">Investimento</dt>
-          <dd>{{ grindingArena().price }}</dd>
+          <dt class="u-mono">Onde entra</dt>
+          <dd>{{ grindingArena().priceHint }}</dd>
         </div>
         <div>
           <dt class="u-mono">Encontro</dt>
@@ -141,24 +140,7 @@
         }
       </ul>
 
-      <app-pixel-button (click)="openWaitlist()">Quero uma vaga no Grinding Arena</app-pixel-button>
-    </app-pixel-panel>
-  </section>
-
-  <section class="section section--glow u-shell" id="lista" aria-labelledby="lista-titulo">
-    <span class="aurora" aria-hidden="true"></span>
-
-    <app-pixel-panel tone="ink">
-      <header class="section__head" appReveal>
-        <p class="u-mono section__eyebrow section__eyebrow--light">Antes de todo mundo</p>
-        <h2 id="lista-titulo" class="section__title">A Liga ainda está sendo construída</h2>
-        <p class="section__lead section__lead--light">
-          Deixe seu contato e você entra no dia em que ela abrir, com acesso antecipado gratuito.
-          Sem cobrança agora e sem mensagem de propaganda.
-        </p>
-      </header>
-
-      <app-pixel-button (click)="openWaitlist()">Entrar na lista de espera</app-pixel-button>
+      <app-pixel-button (click)="openSignup()">Começar gratuitamente</app-pixel-button>
     </app-pixel-panel>
   </section>
 
@@ -168,4 +150,3 @@
   </footer>
 </main>
 
-<app-waitlist-dialog [state]="waitlistState()" [errorMessage]="waitlistError()" (submitted)="register($event)" />

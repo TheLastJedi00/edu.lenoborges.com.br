@@ -8,7 +8,8 @@ const TIERS: readonly CommunityTier[] = [
     id: 'dev-tier',
     name: 'Dev Tier',
     range: 'Insígnia 1 e 2',
-    price: 'Gratuito',
+    priceHint: 'Gratuito',
+    paid: false,
     summary: 'Livre para qualquer pessoa.',
     perks: ['Grupo aberto no WhatsApp']
   },
@@ -16,7 +17,8 @@ const TIERS: readonly CommunityTier[] = [
     id: 'great-dev-tier',
     name: 'Great Dev Tier',
     range: 'Insígnia 3 em diante',
-    price: 'R$ 19,99 por mês',
+    priceHint: 'Preço na plataforma',
+    paid: true,
     summary: 'A plataforma inteira.',
     perks: ['Tudo do Dev Tier']
   },
@@ -24,7 +26,8 @@ const TIERS: readonly CommunityTier[] = [
     id: 'ultra-dev-tier',
     name: 'Ultra Dev Tier',
     range: 'Plataforma e Grinding Arena',
-    price: 'R$ 199,99 por mês',
+    priceHint: 'Preço na plataforma',
+    paid: true,
     summary: 'Quatro cadeiras, e elas acabam.',
     perks: ['Tudo do Great Dev Tier']
   }
@@ -66,14 +69,24 @@ describe('BadgeLadder', () => {
     expect(el.querySelectorAll('.ladder__step--free').length).toBe(2);
   });
 
-  it('exibe os três tiers com nome e preço', () => {
+  it('exibe os tiers com nome e a dica de onde ver o preço', () => {
     const el = fixture.nativeElement as HTMLElement;
     const tiers = el.querySelectorAll('.tier');
 
     expect(tiers.length).toBe(3);
     expect(el.textContent).toContain('Dev Tier');
-    expect(el.textContent).toContain('R$ 19,99');
-    expect(el.textContent).toContain('R$ 199,99');
+    expect(el.textContent).toContain('Preço na plataforma');
+  });
+
+  /**
+   * A régua é conteúdo público, e o preço não pode chegar até ela nem por
+   * acidente de dado. Se um dia alguém devolver um valor ao `priceHint`, é aqui
+   * que a página avisa.
+   */
+  it('não renderiza valor em reais', () => {
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.textContent ?? '').not.toMatch(/R$s*d/);
   });
 
   it('marca como pago tudo que não é gratuito', () => {

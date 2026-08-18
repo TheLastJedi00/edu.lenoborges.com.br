@@ -1,0 +1,157 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.25rem 1rem 5rem;
+}
+
+.page__eyebrow {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.05;
+  margin: 0.2rem 0 0;
+}
+
+.page__lead {
+  margin: 0.5rem 0 0;
+  max-width: 46ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.current {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.current strong {
+  color: var(--accent-deep);
+}
+
+.tiers {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Uma coluna no celular. Quatro cartões com preço são uma comparação, e
+ * comparação espremida em colunas de 90px não é tabela, é ruído.
+ */
+@media (min-width: 48rem) {
+  .tiers {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 80rem) {
+  .tiers {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.skeleton {
+  height: 18rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--screen) 25%,
+    var(--screen-lit) 37%,
+    var(--screen) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-slide 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-slide {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+.feedback {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.feedback__text {
+  margin: 0;
+  color: var(--ink);
+}
+
+.feedback__retry,
+.next__cta {
+  min-height: 2.75rem;
+  padding: 0.7rem 1.2rem;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.next {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.4rem;
+  border: var(--border-w) solid var(--accent-deep);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-panel);
+}
+
+.next__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.15;
+}
+
+.next__gains {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink);
+}
+
+.next__gains li::before {
+  content: '▸ ';
+  color: var(--accent-deep);
+}
+
+/*
+ * No celular a ação principal fica ao alcance do polegar, colada embaixo, com a
+ * safe area do iOS respeitada — sem ela o botão fica sob a barra do sistema.
+ */
+@media (max-width: 47.999rem) {
+  .next__cta {
+    position: sticky;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

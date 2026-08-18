@@ -15,7 +15,8 @@ const MOCK_PROFILE: MemberProfile = {
   phone: '47999991234',
   bio: 'Desenvolvedor e mentor de programação.',
   grade: 1,
-  profileCompleted: true
+  profileCompleted: true,
+  role: null
 };
 
 const MOCK_SESSION: Session = {
@@ -26,7 +27,8 @@ const MOCK_SESSION: Session = {
     email: 'leno@exemplo.com'
   },
   profileCompleted: true,
-  grade: 1
+  grade: 1,
+  role: null
 };
 
 describe('AuthService (TDD)', () => {
@@ -209,7 +211,8 @@ describe('AuthService (TDD)', () => {
         expiresIn: 3600,
         user: { id: 'user-123', email: 'leno@exemplo.com' },
         profileCompleted: true,
-        grade: 7
+        grade: 7,
+        role: null
       });
 
       await pending;
@@ -231,7 +234,8 @@ describe('AuthService (TDD)', () => {
         expiresIn: 3600,
         user: { id: 'user-novo', email: 'novo@exemplo.com' },
         profileCompleted: false,
-        grade: 1
+        grade: 1,
+        role: null
       });
 
       await pending;
@@ -249,7 +253,8 @@ describe('AuthService (TDD)', () => {
         phone: '47999991234',
         bio: 'Bio de teste com mais de dez caracteres.',
         grade: 7,
-        profileCompleted: true
+        profileCompleted: true,
+        role: null
       });
 
       const profile = await pending;

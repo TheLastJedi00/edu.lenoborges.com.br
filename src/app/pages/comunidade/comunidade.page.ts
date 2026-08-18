@@ -1,13 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
-  inject,
-  signal,
-  viewChild
+  inject
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BadgeLadder } from '../../components/badge-ladder/badge-ladder';
 import { IconRanking } from '../../components/icons/icon-ranking';
 import { IconShare } from '../../components/icons/icon-share';
@@ -17,13 +13,9 @@ import { MenuAction, MenuBar, MenuItem } from '../../components/menu-bar/menu-ba
 import { PixelButton } from '../../components/pixel-button/pixel-button';
 import { PixelPanel } from '../../components/pixel-panel/pixel-panel';
 import { TrackTimeline } from '../../components/track-timeline/track-timeline';
-import { WaitlistDialog, WaitlistState } from '../../components/waitlist-dialog/waitlist-dialog';
 import { AuthStore } from '../../core/auth/auth.store';
 import { Reveal } from '../../directives/reveal';
-import { WaitlistEntry } from '../../models/waitlist.model';
 import { CommunityService } from '../../services/community.service';
-import { WaitlistService } from '../../services/waitlist.service';
-import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/waitlist-error';
 
 @Component({
   selector: 'app-comunidade-page',
@@ -34,7 +26,6 @@ import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/wai
     PixelPanel,
     BadgeLadder,
     TrackTimeline,
-    WaitlistDialog,
     IconWhatsapp,
     IconYoutube,
     IconRanking,
@@ -47,11 +38,7 @@ import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/wai
 })
 export class ComunidadePage {
   private readonly communityService = inject(CommunityService);
-  private readonly waitlistService = inject(WaitlistService);
-  private readonly destroyRef = inject(DestroyRef);
   readonly authStore = inject(AuthStore);
-
-  private readonly dialog = viewChild.required(WaitlistDialog);
 
   protected readonly menuItems: readonly MenuItem[] = [
     { href: '#liga', label: 'A Liga' },
@@ -74,33 +61,18 @@ export class ComunidadePage {
   protected readonly trackStages = this.communityService.trackStages;
   protected readonly grindingArena = this.communityService.grindingArena;
 
-  protected readonly waitlistState = signal<WaitlistState>('idle');
-  protected readonly waitlistError = signal(WAITLIST_ERROR_DEFAULT);
-
   protected openLogin(): void {
     this.authStore.openAuthDialog('login');
   }
 
-  protected openWaitlist(): void {
-    this.waitlistState.set('idle');
-    this.waitlistError.set(WAITLIST_ERROR_DEFAULT);
-    this.dialog().open();
-  }
-
-  protected register(entry: WaitlistEntry): void {
-    this.waitlistState.set('sending');
-
-    // takeUntilDestroyed: se o visitante navegar com o envio em voo, o callback
-    // nao pode escrever num signal de componente ja destruido.
-    this.waitlistService
-      .submit(entry)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.waitlistState.set('success'),
-        error: (error: unknown) => {
-          this.waitlistError.set(waitlistErrorMessage(error));
-          this.waitlistState.set('error');
-        }
-      });
+  /**
+   * O CTA primário desta página (spec 009).
+   *
+   * Abre na aba de **cadastro**. `openAuthDialog()` tem `'login'` como padrão, e
+   * chamá-lo sem argumento mandaria quem nunca teve conta para um formulário de
+   * senha que ela não tem.
+   */
+  protected openSignup(): void {
+    this.authStore.openAuthDialog('signup');
   }
 }

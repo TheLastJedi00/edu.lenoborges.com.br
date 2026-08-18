@@ -1,5 +1,11 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { AuthStatus, MemberProfile, MemberUser, Session } from '../../models/auth.model';
+import {
+  AuthStatus,
+  MemberProfile,
+  MemberUser,
+  Session,
+  UserRole
+} from '../../models/auth.model';
 
 /**
  * Único dado de sessão que toca o armazenamento do navegador, e de propósito não
@@ -27,6 +33,7 @@ export class AuthStore {
    */
   private readonly sessionProfileCompleted = signal(false);
   private readonly sessionGrade = signal(1);
+  private readonly sessionRole = signal<UserRole | null>(null);
 
   readonly isLoggedIn = computed(() => this.status() === 'authenticated');
 
@@ -36,6 +43,21 @@ export class AuthStore {
   );
 
   readonly grade = computed(() => this.profile()?.grade ?? this.sessionGrade());
+
+  /**
+   * Papel do usuário, com a mesma precedência de `grade`: o perfil carregado
+   * manda quando existe, porque é o dado mais recente.
+   */
+  readonly role = computed(() => this.profile()?.role ?? this.sessionRole());
+
+  /**
+   * Se o painel desenha a Administração.
+   *
+   * **Isto é conveniência, não proteção.** Quem impede o acesso é o AdminGuard do
+   * backend; esconder o botão existe para o membro comum não bater num 403 sem
+   * entender por quê. Nenhuma tela pode depender de o botão estar escondido.
+   */
+  readonly isAdmin = computed(() => this.role() === 'admin');
 
   /** URL tentada por usuário não autenticado para redirecionamento pós-login. */
   readonly intendedUrl = signal<string | null>(null);
@@ -51,6 +73,7 @@ export class AuthStore {
     this.user.set(session.user);
     this.sessionProfileCompleted.set(session.profileCompleted);
     this.sessionGrade.set(session.grade);
+    this.sessionRole.set(session.role ?? null);
     this.status.set('authenticated');
     this.markSessionHint();
 
@@ -71,6 +94,7 @@ export class AuthStore {
     this.profile.set(null);
     this.sessionProfileCompleted.set(false);
     this.sessionGrade.set(1);
+    this.sessionRole.set(null);
     this.status.set('anonymous');
     this.clearSessionHint();
   }
