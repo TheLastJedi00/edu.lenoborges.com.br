@@ -380,3 +380,21 @@ pré-preenchida (*"Quero o &lt;Tier&gt;"*), e ela precisa de um canal que aceite
 contato configurado hoje é o LinkedIn, onde `?text=` não existe — inventar o parâmetro produziria um
 link quebrado. O rótulo do botão já carrega o nome do tier, então a pessoa chega à conversa sabendo o
 que pedir. Configurar um número de WhatsApp resolve, e a mudança é de uma linha.
+
+---
+
+## Extensões da spec 010 (2026-08-18)
+
+O Mural estendeu três telas desta spec, sem revogar nenhuma decisão:
+
+- **A página da insígnia ganhou abas**: Aulas e Perguntas Frequentes. A decisão 6 — trilha não
+  travada, insígnia vazia abre e avisa — continua valendo, e a aba de Perguntas Frequentes vazia
+  segue o mesmo padrão, com a diferença de convidar para o Mural em vez de só avisar.
+- **A tela de usuários ganhou o campo `tier`**, que a Task 05 da Fase 06 desta spec tinha adiado
+  justamente por ele não existir ainda. Ele fica em bloco separado do `grade`, com legendas
+  "Acesso" e "Conquista" e um botão para cada: um PATCH com os dois juntos faria uma edição de
+  acesso escrever o progresso.
+- **O aside ganhou o Mural**, ativo para todo mundo — inclusive Dev Tier, que vota.
+
+O `adminGuard` da decisão 5 passou a cobrir mais uma rota (`/dashboard/admin/mural`), e a nota
+continua a mesma: esconder o botão é conveniência, quem impede é o backend.

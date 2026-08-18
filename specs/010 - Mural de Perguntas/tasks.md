@@ -88,32 +88,32 @@ Branch: `feat/010-faq-na-trilha`
 - [x] Task 05 (TDD): Spec das abas. Objetivo: cada aba lista só o seu `kind`, a ordem de uma não afeta a
   outra, e o vazio resolve como conteúdo e não como erro.
 
-# Fase 05: Administração do Mural []
+# Fase 05: Administração do Mural [x]
 Branch: `feat/010-admin-mural`
 
-- [] Task 01: Rota e página. Arquivos: `src/app/app.routes.ts`,
+- [x] Task 01: Rota e página. Arquivos: `src/app/app.routes.ts`,
   `src/app/pages/admin/mural/mural-admin.page.{ts,html,scss}`. Objetivo: perguntas das duas semanas
   vivas com contagem de votos, sob `adminGuard`.
-- [] Task 02: Moderação. Objetivo: remover pergunta pelo `confirm-dialog` existente, **com o texto da
+- [x] Task 02: Moderação. Objetivo: remover pergunta pelo `confirm-dialog` existente, **com o texto da
   pergunta dentro do diálogo**. É irreversível e leva os votos junto — confirmar sem mostrar o que se
   apaga é confirmar no escuro.
-- [] Task 03: A vencedora e o atalho. Objetivo: mostrar a vencedora da semana encerrada com um caminho
+- [x] Task 03: A vencedora e o atalho. Objetivo: mostrar a vencedora da semana encerrada com um caminho
   de um toque para cadastrar o vídeo, **já com insígnia e `questionId` preenchidos**. É o fluxo semanal
   do admin e o único que vale otimizar para atalho.
-- [] Task 04: `devTierFree` e `kind` no formulário de vídeo. Arquivo:
+- [x] Task 04: `devTierFree` e `kind` no formulário de vídeo. Arquivo:
   `src/app/components/video-form/video-form.ts`. Objetivo: os dois campos, com `questionId` aceito só
   quando `kind` é `resposta`.
-- [] Task 05: `tier` na tela de usuários. Arquivo: `src/app/pages/admin/usuarios/usuarios.page.ts`.
+- [x] Task 05: `tier` na tela de usuários. Arquivo: `src/app/pages/admin/usuarios/usuarios.page.ts`.
   Objetivo: editar `tier` ao lado de `grade`, **visivelmente separados e com rótulos que dizem o que
   são** — `tier` é acesso, `grade` é conquista (decisão 9). Encostados sem explicação, viram a mesma
   coisa na cabeça de quem clica.
-- [] Task 06 (TDD): Specs de admin. Objetivo: o diálogo mostrando o texto, o atalho pré-preenchendo os
+- [x] Task 06 (TDD): Specs de admin. Objetivo: o diálogo mostrando o texto, o atalho pré-preenchendo os
   dois campos, e a edição de `tier` não tocando `grade`.
 
-# Fase 06: Animação e mobile []
+# Fase 06: Animação e mobile [x] — as Tasks 02, 03 e 04 ficaram de fora; a 06 é sua
 Branch: `feat/010-animacao-mobile`
 
-- [] Task 01: O voto. Objetivo: pulso único no ícone e o contador subindo com deslocamento curto. **Sem
+- [x] Task 01: O voto. Objetivo: pulso único no ícone e o contador subindo com deslocamento curto. **Sem
   loop, sem confete** — animação exagerada em ação repetida cansa em três toques.
 - [] Task 02: FLIP na reordenação por voto. Objetivo: quando uma pergunta passa outra, as duas trocam de
   lugar em vez de a lista redesenhar. **Só na recarga da lista, nunca a cada voto** — lista que se
@@ -121,7 +121,7 @@ Branch: `feat/010-animacao-mobile`
 - [] Task 03: Troca de aba. Objetivo: deslize lateral curto na direção do gesto. As abas são vizinhas no
   tempo, e o movimento diz isso sem texto.
 - [] Task 04: A pergunta enviada entra de onde o formulário estava, ligando o ato ao resultado.
-- [] Task 05: Passada de mobile. Objetivo: abas grudadas, alvo de voto de 44px, botão ancorado com
+- [x] Task 05: Passada de mobile. Objetivo: abas grudadas, alvo de voto de 44px, botão ancorado com
   safe-area, uma coluna até 48rem, esqueleto na forma dos cartões.
 - [] Task 06: Verificar com throttling de 4x de CPU, ou em aparelho de verdade. As regras existem por
   causa do celular fraco, que é o aparelho do público.

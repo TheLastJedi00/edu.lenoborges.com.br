@@ -30,6 +30,14 @@ import { RouterLink } from '@angular/router';
           </a>
         </li>
         <li>
+          <a routerLink="/dashboard/admin/mural" class="card">
+            <span class="card__title">Mural de Perguntas</span>
+            <span class="card__text">
+              Moderar as perguntas das duas semanas vivas e ver a vencedora que virou pauta.
+            </span>
+          </a>
+        </li>
+        <li>
           <a routerLink="/dashboard/admin/trilha" class="card">
             <span class="card__title">Conteúdo da trilha</span>
             <span class="card__text">

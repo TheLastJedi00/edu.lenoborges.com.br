@@ -76,25 +76,47 @@
         <h2 id="editor-titulo" class="editor__title">Etapa de {{ user.name ?? user.email }}</h2>
 
         <!--
-          `tier` (acesso) e `grade` (conquista) são coisas diferentes e não podem
-          se contaminar. Aqui só existe `grade`, e o rótulo diz o que ele é.
+          Os dois campos ficam em blocos separados, com rótulos que dizem o que
+          cada um é, e cada um tem o seu botão. Encostados sem explicação, `tier`
+          e `grade` viram a mesma coisa na cabeça de quem clica — e a spec 008
+          inteira depende de não virarem. Salvar em requisições separadas é a
+          mesma garantia, do lado da rede.
         -->
-        <label class="editor__label" for="grade">Etapas concluídas na trilha</label>
-        <select id="grade" class="editor__select" [(ngModel)]="gradeDraft">
-          @for (option of gradeOptions; track option) {
-            <option [value]="option">{{ option }} · {{ labelFor(option) }}</option>
-          }
-        </select>
+        <fieldset class="editor__group">
+          <legend class="editor__legend">Conquista</legend>
+          <label class="editor__label" for="grade">Etapas concluídas na trilha</label>
+          <select id="grade" class="editor__select" [(ngModel)]="gradeDraft">
+            @for (option of gradeOptions; track option) {
+              <option [value]="option">{{ option }} · {{ labelFor(option) }}</option>
+            }
+          </select>
+          <button type="button" class="btn" [disabled]="saving()" (click)="saveGrade()">
+            {{ saving() ? 'Salvando…' : 'Salvar a etapa' }}
+          </button>
+        </fieldset>
+
+        <fieldset class="editor__group">
+          <legend class="editor__legend">Acesso</legend>
+          <label class="editor__label" for="tier">Tier de assinatura</label>
+          <select id="tier" class="editor__select" [(ngModel)]="tierDraft">
+            @for (option of tierOptions; track option.id) {
+              <option [value]="option.id">{{ option.label }}</option>
+            }
+          </select>
+          <p class="editor__hint">
+            Concedido à mão porque o pagamento acontece por fora. Não mexe na trilha.
+          </p>
+          <button type="button" class="btn" [disabled]="saving()" (click)="saveTier()">
+            {{ saving() ? 'Salvando…' : 'Salvar o acesso' }}
+          </button>
+        </fieldset>
 
         @if (saveError(); as erro) {
           <p class="editor__error" role="alert">{{ erro }}</p>
         }
 
         <div class="editor__actions">
-          <button type="button" class="btn btn--ghost" (click)="cancelEdit()">Cancelar</button>
-          <button type="button" class="btn" [disabled]="saving()" (click)="saveGrade()">
-            {{ saving() ? 'Salvando…' : 'Salvar' }}
-          </button>
+          <button type="button" class="btn btn--ghost" (click)="cancelEdit()">Fechar</button>
         </div>
       </div>
     </div>

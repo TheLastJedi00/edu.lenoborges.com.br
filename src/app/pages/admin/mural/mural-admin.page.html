@@ -1,0 +1,112 @@
+<section class="page">
+  <a routerLink="/dashboard/admin" class="back u-mono">← Administração</a>
+
+  <header>
+    <h1 class="page__title">Mural de Perguntas</h1>
+    <p class="page__lead">
+      Duas semanas vivas: a que recebe votos e a que recebe perguntas. Remover é irreversível e
+      leva os votos junto.
+    </p>
+  </header>
+
+  @switch (state()) {
+    @case ('loading') {
+      <ul class="list" aria-busy="true" aria-label="Carregando o mural">
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+      </ul>
+    }
+
+    @case ('error') {
+      <div class="feedback" role="alert">
+        <p>Não consegui carregar o mural agora.</p>
+        <button type="button" class="btn" (click)="load()">Tentar de novo</button>
+      </div>
+    }
+
+    @case ('ready') {
+      @if (pendingWinner(); as semana) {
+        @if (semana.question; as vencedora) {
+          <!--
+            O fluxo mais repetido do admin: toda semana tem uma vencedora para
+            virar vídeo. O atalho já chega no formulário com a insígnia certa,
+            porque é o único caminho que se percorre 52 vezes por ano.
+          -->
+          <section class="winner">
+            <p class="winner__eyebrow u-mono">Vencedora de {{ semana.weekId }}</p>
+            <p class="winner__title">{{ vencedora.title }}</p>
+            <p class="winner__meta u-mono">
+              {{ vencedora.authorName }} · {{ vencedora.voteCount }} votos
+            </p>
+            <a class="btn" [routerLink]="['/dashboard/admin/trilha', vencedora.badgeId]">
+              Cadastrar o vídeo de resposta
+            </a>
+          </section>
+        }
+      }
+
+      <section aria-labelledby="votacao-titulo">
+        <h2 id="votacao-titulo" class="section-title">Em votação</h2>
+        @if (votacao().length === 0) {
+          <p class="empty">Nenhuma pergunta em votação.</p>
+        } @else {
+          <ul class="list">
+            @for (question of votacao(); track question.id) {
+              <li class="row">
+                <div>
+                  <p class="row__title">{{ question.title }}</p>
+                  <p class="row__meta u-mono">
+                    {{ question.authorName }} · {{ question.voteCount }} votos
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn--danger"
+                  [attr.aria-label]="'Remover ' + question.title"
+                  (click)="askRemove(question)"
+                >
+                  Remover
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section aria-labelledby="coleta-titulo">
+        <h2 id="coleta-titulo" class="section-title">Esta semana</h2>
+        @if (coleta().length === 0) {
+          <p class="empty">Nenhuma pergunta nova esta semana.</p>
+        } @else {
+          <ul class="list">
+            @for (question of coleta(); track question.id) {
+              <li class="row">
+                <div>
+                  <p class="row__title">{{ question.title }}</p>
+                  <p class="row__meta u-mono">{{ question.authorName }}</p>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn--danger"
+                  [attr.aria-label]="'Remover ' + question.title"
+                  (click)="askRemove(question)"
+                >
+                  Remover
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  }
+</section>
+
+<app-confirm-dialog
+  title="Remover esta pergunta?"
+  [message]="confirmMessage()"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmRemove()"
+  (cancelled)="cancelRemove()"
+/>

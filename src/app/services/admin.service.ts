@@ -12,6 +12,7 @@ import {
   BadgeVideoKind,
   BadgeVideoList
 } from '../models/track.model';
+import type { TierId } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -29,6 +30,17 @@ export class AdminService {
 
   updateUserGrade(userId: string, grade: number): Observable<void> {
     return this.http.patch<void>(`${this.base}/users/${userId}`, { grade });
+  }
+
+  /**
+   * Concede ou remove acesso à mão.
+   *
+   * Manda **só** `tier`, nunca junto de `grade`: são coisas independentes, e um
+   * PATCH com os dois escreveria o progresso ao conceder acesso. `tier` é
+   * acesso; `grade` é conquista.
+   */
+  updateUserTier(userId: string, tier: TierId): Observable<void> {
+    return this.http.patch<void>(`${this.base}/users/${userId}`, { tier });
   }
 
   listVideos(badgeId: string): Observable<BadgeVideoList> {
