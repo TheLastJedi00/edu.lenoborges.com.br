@@ -9,14 +9,29 @@
     </p>
   </header>
 
+  <!--
+    A grade espelha o aside, e isso é regra, não coincidência.
+    Todo item de navegação do menu lateral tem um cartão aqui, com o mesmo
+    rótulo, o mesmo ícone e o mesmo estado. Três ausências são deliberadas:
+    Home seria um cartão que navega para a tela onde a pessoa já está, Sair é
+    ação de sessão e não destino, e o Grupo do WhatsApp é a assimetria inversa
+    — um link para fora, que não poderia ficar `is-active` num menu de rotas.
+    Tudo que está no aside está aqui; nem tudo que está aqui está no aside.
+  -->
   <section class="dashboard__grid" aria-label="Módulos do painel" animate.enter="animate-enter delay-1">
-    <!-- 1. Acessar trilha (Inerte) -->
-    <article class="card card--disabled" aria-disabled="true">
+    <!--
+      1. Trilha
+      Destravada na spec 009, junto com o item do aside. O cartão ficou para
+      trás com o selo "Em breve", dizendo que um recurso de pé não existia — e
+      dito num cartão grande, com descrição, que é a primeira coisa que se lê
+      ao entrar. Insígnia sem conteúdo abre e avisa lá dentro.
+    -->
+    <a class="card card--link" routerLink="/dashboard/trilha">
       <div class="card__top">
         <span class="card__icon-badge" aria-hidden="true">
           <app-icon-track />
         </span>
-        <span class="card__badge u-mono">Em breve</span>
+        <span class="card__badge card__badge--active u-mono">Disponível</span>
       </div>
       <div class="card__body">
         <h2 class="card__title">Acessar trilha</h2>
@@ -24,10 +39,65 @@
           Oito insígnias a conquistar e a Elite Four para disputar, da primeira variável ao deploy
           em produção.
         </p>
+        <span class="card__action-text">
+          Ver a trilha
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </span>
       </div>
-    </article>
+    </a>
 
-    <!-- 2. Grupo do WhatsApp (Ativo se houver URL, senão inerte) -->
+    <!-- 2. Financeiro -->
+    <a class="card card--link" routerLink="/dashboard/financeiro">
+      <div class="card__top">
+        <span class="card__icon-badge" aria-hidden="true">
+          <app-icon-billing />
+        </span>
+        <span class="card__badge card__badge--active u-mono">Disponível</span>
+      </div>
+      <div class="card__body">
+        <h2 class="card__title">Financeiro</h2>
+        <p class="card__desc">
+          Os planos da Liga Dev, o que cada um abre e onde a sua assinatura está hoje.
+        </p>
+        <span class="card__action-text">
+          Ver os planos
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!--
+      3. Mural
+      Ativo para todo mundo, inclusive Dev Tier — quem não escreve ainda vota,
+      e votar é o ato que dá valor ao mural. A restrição de tier aparece dentro
+      da tela, no lugar do formulário, nunca como um cartão cinza aqui fora.
+    -->
+    <a class="card card--link" routerLink="/dashboard/mural">
+      <div class="card__top">
+        <span class="card__icon-badge" aria-hidden="true">
+          <app-icon-mural />
+        </span>
+        <span class="card__badge card__badge--active u-mono">Disponível</span>
+      </div>
+      <div class="card__body">
+        <h2 class="card__title">Mural</h2>
+        <p class="card__desc">
+          Pergunte sobre uma insígnia e vote nas perguntas da semana. A mais votada vira vídeo.
+        </p>
+        <span class="card__action-text">
+          Abrir o Mural
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!-- 4. Grupo do WhatsApp (Ativo se houver URL, senão inerte) -->
     @if (hasWhatsappUrl()) {
       <a
         class="card card--link"
@@ -74,7 +144,12 @@
       </article>
     }
 
-    <!-- 3. Meu Perfil (Inerte) -->
+    <!--
+      5. Meu Perfil (Inerte)
+      "Em breve" aqui é a verdade, não conservadorismo: não existe rota de
+      perfil em `app.routes.ts`. O argumento da spec 009 — abrir e avisar —
+      vale para conteúdo que falta numa tela que existe, não para a tela.
+    -->
     <article class="card card--disabled" aria-disabled="true">
       <div class="card__top">
         <span class="card__icon-badge" aria-hidden="true">
@@ -90,7 +165,7 @@
       </div>
     </article>
 
-    <!-- 4. Jogos (Inerte) -->
+    <!-- 6. Jogos (Inerte) -->
     <article class="card card--disabled" aria-disabled="true">
       <div class="card__top">
         <span class="card__icon-badge" aria-hidden="true">
@@ -105,5 +180,34 @@
         </p>
       </div>
     </article>
+
+    <!--
+      7. Administração, só para quem tem a claim.
+      Último, como no rodapé do aside, porque é ferramenta e não navegação de
+      aluno. Esconder é conveniência: quem impede o acesso é o AdminGuard do
+      backend, e nenhuma tela pode depender de o cartão estar escondido.
+    -->
+    @if (authStore.isAdmin()) {
+      <a class="card card--link" routerLink="/dashboard/admin">
+        <div class="card__top">
+          <span class="card__icon-badge" aria-hidden="true">
+            <app-icon-shield />
+          </span>
+          <span class="card__badge card__badge--active u-mono">Disponível</span>
+        </div>
+        <div class="card__body">
+          <h2 class="card__title">Administração</h2>
+          <p class="card__desc">
+            Membros, vídeos da trilha e moderação do Mural.
+          </p>
+          <span class="card__action-text">
+            Abrir a administração
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </span>
+        </div>
+      </a>
+    }
   </section>
 </div>
