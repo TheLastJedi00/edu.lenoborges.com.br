@@ -34,6 +34,12 @@ export const routes: Routes = [
         path: '',
         loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
         title: 'Painel do Membro · Liga Dev'
+      },
+      {
+        path: 'financeiro',
+        loadComponent: () =>
+          import('./pages/financeiro/financeiro.page').then((m) => m.FinanceiroPage),
+        title: 'Financeiro · Liga Dev'
       }
     ]
   },

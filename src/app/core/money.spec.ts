@@ -2,9 +2,10 @@ import { formatBRL } from './money';
 
 describe('formatBRL', () => {
   it('formata centavos em real brasileiro', () => {
-    // Comparação por igualdade estrita de propósito: vírgula decimal e o espaço
-    // depois do símbolo são exatamente o que a tela mostra, e um toContain
-    // deixaria passar "R$260" ou "R$ 260.00".
+    // ATENÇÃO: o separador que o Intl põe depois do "R$" é um NBSP (U+00A0), e
+    // não o espaço comum. As strings esperadas abaixo carregam o NBSP de
+    // verdade — trocá-lo por um espaço digitado quebra o teste por um caractere
+    // invisível, e a investigação disso custa meia hora por nada.
     expect(formatBRL(26000)).toBe('R$ 260,00');
     expect(formatBRL(1999)).toBe('R$ 19,99');
     expect(formatBRL(19999)).toBe('R$ 199,99');

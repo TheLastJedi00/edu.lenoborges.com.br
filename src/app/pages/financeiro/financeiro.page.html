@@ -1,0 +1,66 @@
+<section class="page">
+  <header class="page__head">
+    <p class="u-mono page__eyebrow">Financeiro</p>
+    <h1 class="page__title">Seu plano e o que vem depois</h1>
+    <p class="page__lead">
+      Os tiers são degraus: cada um entrega tudo do anterior, mais alguma coisa. O pagamento é
+      combinado direto comigo — não há cobrança automática.
+    </p>
+  </header>
+
+  @switch (state()) {
+    @case ('loading') {
+      <!-- Esqueleto na forma dos cartões: a lista já sabe o formato que vai ter,
+           e um spinner centralizado garantiria o salto de layout que ele existe
+           para evitar. -->
+      <ul class="tiers" aria-busy="true" aria-label="Carregando os planos">
+        @for (item of skeletons; track item) {
+          <li class="skeleton"></li>
+        }
+      </ul>
+    }
+
+    @case ('error') {
+      <div class="feedback" role="alert">
+        <p class="feedback__text">Não consegui carregar os planos agora.</p>
+        <button type="button" class="feedback__retry" (click)="load()">Tentar de novo</button>
+      </div>
+    }
+
+    @case ('ready') {
+      @if (currentTier(); as atual) {
+        <p class="current u-mono">
+          Você está no <strong>{{ atual.name }}</strong>
+        </p>
+      }
+
+      <ul class="tiers">
+        @for (tier of tiers(); track tier.id) {
+          <li>
+            <app-tier-card
+              [tier]="tier"
+              [current]="tier.id === catalog()?.currentTierId"
+              (upgrade)="onUpgrade($event)"
+            />
+          </li>
+        }
+      </ul>
+
+      @if (nextTier(); as proximo) {
+        <section class="next" aria-labelledby="proximo-titulo">
+          <h2 id="proximo-titulo" class="next__title">
+            O que o {{ proximo.name }} abre para você
+          </h2>
+          <ul class="next__gains">
+            @for (gain of nextTierGains(); track gain) {
+              <li>{{ gain }}</li>
+            }
+          </ul>
+          <button type="button" class="next__cta" (click)="onUpgrade(proximo)">
+            Quero o {{ proximo.name }}
+          </button>
+        </section>
+      }
+    }
+  }
+</section>
