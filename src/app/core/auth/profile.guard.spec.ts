@@ -31,7 +31,8 @@ describe('profile Guards (TDD)', () => {
         expiresIn: 3600,
         user: { id: 'u1', email: 'test@example.com' },
         profileCompleted: true,
-        grade: 1
+        grade: 1,
+        role: null
       });
 
       const result = TestBed.runInInjectionContext(() => profileCompleteGuard(mockRoute, mockState('/dashboard')));
@@ -44,7 +45,8 @@ describe('profile Guards (TDD)', () => {
         expiresIn: 3600,
         user: { id: 'u1', email: 'test@example.com' },
         profileCompleted: false,
-        grade: 1
+        grade: 1,
+        role: null
       });
 
       const result = TestBed.runInInjectionContext(() => profileCompleteGuard(mockRoute, mockState('/dashboard')));
@@ -60,7 +62,8 @@ describe('profile Guards (TDD)', () => {
         expiresIn: 3600,
         user: { id: 'u1', email: 'test@example.com' },
         profileCompleted: false,
-        grade: 1
+        grade: 1,
+        role: null
       });
 
       const result = TestBed.runInInjectionContext(() =>
@@ -75,7 +78,8 @@ describe('profile Guards (TDD)', () => {
         expiresIn: 3600,
         user: { id: 'u1', email: 'test@example.com' },
         profileCompleted: true,
-        grade: 1
+        grade: 1,
+        role: null
       });
 
       const result = TestBed.runInInjectionContext(() =>

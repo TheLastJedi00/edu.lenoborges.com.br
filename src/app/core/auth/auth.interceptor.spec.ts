@@ -17,7 +17,8 @@ const MOCK_PROFILE: MemberProfile = {
   phone: '47999991234',
   bio: 'Bio teste',
   grade: 1,
-  profileCompleted: true
+  profileCompleted: true,
+  role: null
 };
 
 const MOCK_SESSION: Session = {
@@ -25,7 +26,8 @@ const MOCK_SESSION: Session = {
   expiresIn: 3600,
   user: { id: 'u1', email: 'leno@exemplo.com' },
   profileCompleted: true,
-  grade: 1
+  grade: 1,
+  role: null
 };
 
 describe('authInterceptor (TDD)', () => {
