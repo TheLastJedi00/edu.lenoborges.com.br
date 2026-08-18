@@ -82,6 +82,13 @@ export const routes: Routes = [
         title: 'Administração · Liga Dev'
       },
       {
+        path: 'admin/mural',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/admin/mural/mural-admin.page').then((m) => m.AdminMuralPage),
+        title: 'Mural · Administração'
+      },
+      {
         path: 'admin/usuarios',
         canActivate: [adminGuard],
         loadComponent: () =>

@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../services/admin.service';
 import { AdminUser } from '../../../models/admin.model';
+import type { TierId } from '../../../models/auth.model';
 import { describeProgress, MAX_GRADE } from '../../../core/progress/progress';
 
 type LoadState = 'loading' | 'ready' | 'error';
@@ -35,6 +36,7 @@ export class AdminUsuariosPage implements OnInit {
   /** Usuário em edição de `grade`, ou nulo. */
   protected readonly editing = signal<AdminUser | null>(null);
   protected gradeDraft = 0;
+  protected tierDraft: TierId = 'dev-tier';
   protected readonly saving = signal(false);
   protected readonly saveError = signal<string | null>(null);
 
@@ -115,6 +117,7 @@ export class AdminUsuariosPage implements OnInit {
   protected startEdit(user: AdminUser): void {
     this.saveError.set(null);
     this.gradeDraft = user.grade ?? 0;
+    this.tierDraft = user.tier;
     this.editing.set(user);
   }
 
@@ -154,4 +157,51 @@ export class AdminUsuariosPage implements OnInit {
         }
       });
   }
+
+  /**
+   * Concede ou remove acesso. **Requisição própria, e nunca junto do `grade`.**
+   *
+   * `tier` é acesso; `grade` é conquista. Mandar os dois no mesmo PATCH faria
+   * uma edição de acesso escrever o progresso junto — e é assim que alguém que
+   * acabou de pagar perde a trilha inteira.
+   */
+  protected saveTier(): void {
+    const user = this.editing();
+    if (!user) {
+      return;
+    }
+
+    this.saving.set(true);
+    this.saveError.set(null);
+
+    this.admin
+      .updateUserTier(user.id, this.tierDraft)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.users.update((current) =>
+            current.map((item) =>
+              item.id === user.id ? { ...item, tier: this.tierDraft } : item
+            )
+          );
+          this.saving.set(false);
+          this.editing.set(null);
+        },
+        error: (error: { status?: number }) => {
+          this.saving.set(false);
+          this.saveError.set(
+            error.status === 404
+              ? 'Esse usuário ainda não concluiu o onboarding, então não tem perfil para editar.'
+              : 'Não consegui salvar agora. Tente de novo.'
+          );
+        }
+      });
+  }
+
+  protected readonly tierOptions: readonly { id: TierId; label: string }[] = [
+    { id: 'dev-tier', label: 'Dev Tier (gratuito)' },
+    { id: 'great-dev-tier', label: 'Great Dev Tier' },
+    { id: 'ultra-dev-tier', label: 'Ultra Dev Tier' },
+    { id: 'master-dev-tier', label: 'Master Dev Tier' }
+  ];
 }

@@ -256,3 +256,29 @@ tela do admin.
 3. **O membro Dev Tier vê o formulário desabilitado ou não vê formulário nenhum?** Escrito como
    desabilitado com a explicação no lugar, porque ver o que se ganha é o argumento. Se ficar agressivo
    demais, vira um link discreto.
+
+---
+
+## Resultado da execução (2026-08-18)
+
+Seis fases no front, com **241 testes** verdes no Karma e `ng build` limpo. No backend, **206 testes**
+e 27 suítes.
+
+### O que ficou de fora, e por quê
+
+- **FLIP na reordenação por voto, deslize lateral na troca de aba, e a entrada da pergunta a partir
+  do formulário** (Fase 06, Tasks 02 a 04). São refinamentos de movimento, e nenhum deles carrega
+  significado que a tela não diga sem eles. O que a decisão 10 pedia como essencial — o pulso único
+  do voto, sem loop — está feito, e a régua de mobile inteira também.
+- **Verificação em aparelho real** (Fase 06, Task 06). As regras de movimento existem por causa do
+  celular fraco; verificar no desktop é não verificar.
+- **Verificação com duas contas** (Fase 07, Task 04). Precisa de uma conta Dev Tier e uma paga em
+  ambiente real.
+
+### Uma coisa que a execução decidiu, e vale registrar
+
+**A lista do Mural não se reordena ao votar.** A decisão 4 já dizia que o contador não precisa estar
+certo em tempo real; a execução foi além e fixou que a *ordem* também não muda no ato. Reordenar
+embaixo do dedo faria a pessoa votar na pergunta errada no toque seguinte — e como a ordem só importa
+na virada, quando o servidor calcula a vencedora, adiar a reordenação para a próxima carga não custa
+nada.

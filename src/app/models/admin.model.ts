@@ -1,3 +1,4 @@
+import type { TierId } from './auth.model';
 /** Administração da Liga Dev (spec 009). */
 
 export interface AdminUser {
@@ -16,6 +17,14 @@ export interface AdminUser {
   readonly phone: string | null;
   readonly grade: number | null;
   readonly profileCompleted: boolean;
+  /**
+   * Tier de acesso (spec 010).
+   *
+   * **Acesso, nao conquista.** Fica visivelmente separado do `grade` na tela:
+   * encostados sem explicacao, os dois viram a mesma coisa na cabeca de quem
+   * clica -- e a spec 008 inteira depende de nao virarem.
+   */
+  readonly tier: TierId;
 }
 
 export interface AdminUserPage {
