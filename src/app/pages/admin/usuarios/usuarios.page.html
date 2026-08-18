@@ -1,0 +1,102 @@
+<section class="page">
+  <header>
+    <p class="u-mono page__eyebrow">Administração</p>
+    <h1 class="page__title">Usuários cadastrados</h1>
+    <p class="page__lead">
+      Quem aparece aqui existe no Firebase Auth. Quem ainda não concluiu o onboarding aparece
+      igual, com os campos de perfil vazios — é justamente quem você mais precisa ver.
+    </p>
+  </header>
+
+  @switch (state()) {
+    @case ('loading') {
+      <ul class="list" aria-busy="true" aria-label="Carregando os usuários">
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+      </ul>
+    }
+
+    @case ('error') {
+      <div class="feedback" role="alert">
+        @if (forbidden()) {
+          <p class="feedback__text">
+            Sua conta ainda não está reconhecida como administradora nesta sessão. Se você acabou de
+            receber a permissão, <strong>saia e entre de novo</strong> — ela só passa a valer no
+            próximo login.
+          </p>
+        } @else {
+          <p class="feedback__text">Não consegui carregar a lista agora.</p>
+        }
+        <button type="button" class="btn" (click)="load()">Tentar de novo</button>
+      </div>
+    }
+
+    @case ('ready') {
+      <ul class="list">
+        @for (user of users(); track user.id) {
+          <li class="user" [class.user--pending]="!user.profileCompleted">
+            <div class="user__main">
+              <p class="user__name">{{ user.name ?? 'Sem nome ainda' }}</p>
+              <p class="user__email u-mono">{{ user.email }}</p>
+            </div>
+
+            <div class="user__meta">
+              @if (user.profileCompleted) {
+                <span class="tag tag--grade">{{ labelFor(user.grade ?? 0) }}</span>
+              } @else {
+                <!-- Este selo é o ponto da tela: a pessoa criou conta e parou.
+                     Ela não pode sumir da lista nem parecer um registro quebrado. -->
+                <span class="tag tag--pending">Onboarding pendente</span>
+              }
+
+              @if (user.role === 'admin') {
+                <span class="tag tag--admin">Admin</span>
+              }
+            </div>
+
+            <button type="button" class="btn btn--ghost" (click)="startEdit(user)">
+              Editar etapa
+            </button>
+          </li>
+        }
+      </ul>
+
+      @if (hasMore()) {
+        <button type="button" class="btn" [disabled]="loadingMore()" (click)="loadMore()">
+          {{ loadingMore() ? 'Carregando…' : 'Carregar mais' }}
+        </button>
+      }
+    }
+  }
+
+  @if (editing(); as user) {
+    <div class="editor" role="dialog" aria-modal="true" aria-labelledby="editor-titulo">
+      <div class="editor__panel">
+        <h2 id="editor-titulo" class="editor__title">Etapa de {{ user.name ?? user.email }}</h2>
+
+        <!--
+          `tier` (acesso) e `grade` (conquista) são coisas diferentes e não podem
+          se contaminar. Aqui só existe `grade`, e o rótulo diz o que ele é.
+        -->
+        <label class="editor__label" for="grade">Etapas concluídas na trilha</label>
+        <select id="grade" class="editor__select" [(ngModel)]="gradeDraft">
+          @for (option of gradeOptions; track option) {
+            <option [value]="option">{{ option }} · {{ labelFor(option) }}</option>
+          }
+        </select>
+
+        @if (saveError(); as erro) {
+          <p class="editor__error" role="alert">{{ erro }}</p>
+        }
+
+        <div class="editor__actions">
+          <button type="button" class="btn btn--ghost" (click)="cancelEdit()">Cancelar</button>
+          <button type="button" class="btn" [disabled]="saving()" (click)="saveGrade()">
+            {{ saving() ? 'Salvando…' : 'Salvar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

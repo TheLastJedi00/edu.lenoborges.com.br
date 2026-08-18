@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { onboardingPendingGuard, profileCompleteGuard } from './core/auth/profile.guard';
+import { adminGuard } from './core/auth/admin.guard';
 
 export const routes: Routes = [
   {
@@ -53,6 +54,36 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/trilha/insignia/insignia.page').then((m) => m.InsigniaPage),
         title: 'Insígnia · Liga Dev'
+      },
+      // Administração. O `adminGuard` aqui é conveniência — evita o membro comum
+      // bater num 403 sem entender por quê. Quem impede de verdade é o
+      // AdminGuard do backend, em toda requisição.
+      {
+        path: 'admin',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./pages/admin/admin.page').then((m) => m.AdminPage),
+        title: 'Administração · Liga Dev'
+      },
+      {
+        path: 'admin/usuarios',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/admin/usuarios/usuarios.page').then((m) => m.AdminUsuariosPage),
+        title: 'Usuários · Administração'
+      },
+      {
+        path: 'admin/trilha',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/admin/trilha/trilha-admin.page').then((m) => m.AdminTrilhaPage),
+        title: 'Conteúdo da trilha · Administração'
+      },
+      {
+        path: 'admin/trilha/:badgeId',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/admin/trilha/insignia-admin.page').then((m) => m.AdminInsigniaPage),
+        title: 'Vídeos da insígnia · Administração'
       }
     ]
   },

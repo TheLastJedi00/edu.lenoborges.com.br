@@ -1,0 +1,250 @@
+.page {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem 1rem 4rem;
+}
+
+.page__eyebrow {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.05;
+  margin: 0.2rem 0 0;
+}
+
+.page__lead {
+  margin: 0.5rem 0 0;
+  max-width: 56ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Uma coluna no celular, com a ação embaixo do conteúdo. Tabela de verdade só a
+ * partir de 48rem — uma tabela de quatro colunas em 360px não é tabela.
+ */
+.user {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.9rem 1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+@media (min-width: 48rem) {
+  .user {
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+.user--pending {
+  border-style: dashed;
+}
+
+.user__name {
+  margin: 0;
+  font-weight: 700;
+}
+
+.user__email {
+  margin: 0.1rem 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  word-break: break-all;
+}
+
+.user__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.tag--grade {
+  background: var(--screen);
+  color: var(--ink-soft);
+}
+
+.tag--pending {
+  background: #fff4e0;
+  color: #8a5a00;
+}
+
+.tag--admin {
+  background: var(--accent-deep);
+  color: var(--paper);
+}
+
+.btn {
+  /* 44px de alvo. Os botões de linha são os primeiros a nascerem pequenos
+     demais, e são justamente os mais tocados desta tela. */
+  min-height: 2.75rem;
+  padding: 0.6rem 1.1rem;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+}
+
+.feedback {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.feedback__text {
+  margin: 0;
+  max-width: 56ch;
+  line-height: 1.55;
+}
+
+.skeleton {
+  height: 4.5rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--screen) 25%,
+    var(--screen-lit) 37%,
+    var(--screen) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-slide 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-slide {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+/*
+ * O editor sobe de baixo no celular, e não aparece centralizado: com o teclado
+ * ou o seletor nativo abertos, um modal centralizado fica com três linhas
+ * visíveis.
+ */
+.editor {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  align-items: end;
+  background: rgba(16, 24, 40, 0.6);
+}
+
+.editor__panel {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--paper);
+  animation: sheet-up 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (min-width: 48rem) {
+  .editor {
+    align-items: center;
+    justify-items: center;
+  }
+
+  .editor__panel {
+    width: min(28rem, calc(100vw - 2rem));
+    border-radius: var(--radius-lg);
+  }
+}
+
+.editor__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+.editor__label {
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.editor__select {
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+}
+
+.editor__error {
+  margin: 0;
+  color: #c0392b;
+}
+
+.editor__actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  margin-top: 0.4rem;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(12%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .editor__panel {
+    animation: none;
+  }
+}
