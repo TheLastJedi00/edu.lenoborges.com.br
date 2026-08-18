@@ -11,8 +11,8 @@
   <section class="gyms" aria-labelledby="gyms-titulo">
     <h2 id="gyms-titulo" class="section-title">As 8 Insígnias</h2>
     <ul class="badges">
-      @for (stage of gyms(); track stage.id) {
-        <li>
+      @for (stage of gyms(); track stage.id; let i = $index) {
+        <li [appReveal]="i">
           <app-badge-card [stage]="stage" [conquered]="conquered(stage.order)" />
         </li>
       }
@@ -24,8 +24,8 @@
   <section class="endgame" aria-labelledby="endgame-titulo">
     <h2 id="endgame-titulo" class="section-title">A Elite Four e a Battle Frontier</h2>
     <ul class="badges">
-      @for (stage of endgame(); track stage.id) {
-        <li>
+      @for (stage of endgame(); track stage.id; let i = $index) {
+        <li [appReveal]="i">
           <app-badge-card [stage]="stage" [conquered]="conquered(stage.order)" />
         </li>
       }
