@@ -10,11 +10,14 @@ import {
   signal
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthStore } from '../../core/auth/auth.store';
 import { Logo } from '../../shared/logo/logo';
+import { IconBilling } from '../icons/icon-billing';
 import { IconGames } from '../icons/icon-games';
 import { IconHome } from '../icons/icon-home';
 import { IconLogout } from '../icons/icon-logout';
 import { IconTrack } from '../icons/icon-track';
+import { IconShield } from '../icons/icon-shield';
 import { IconUser } from '../icons/icon-user';
 
 /** Espelha o breakpoint do .scss onde a gaveta vira coluna fixa. */
@@ -42,6 +45,8 @@ export interface AsideNavItem {
     IconTrack,
     IconUser,
     IconGames,
+    IconBilling,
+    IconShield,
     IconLogout
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -117,25 +122,52 @@ export interface AsideNavItem {
             </a>
           </li>
 
-          <!-- 2. Trilha (Inerte) -->
+          <!--
+            2. Trilha
+            Destravada na spec 009. O fallback saiu daqui e foi para dentro da
+            tela: insígnia sem conteúdo abre e avisa que o material ainda está
+            sendo preparado. Travar o botão esconderia o mapa de quem está
+            começando — no lançamento, onze das treze etapas estarão vazias, e um
+            menu cinza conta uma história pior do que uma trilha aberta.
+          -->
           <li>
-            <button
-              type="button"
-              disabled
-              aria-disabled="true"
-              class="aside__item aside__item--disabled"
-              [title]="!expanded() ? 'Trilha (Em breve)' : ''"
-              [attr.aria-label]="!expanded() ? 'Trilha (Em breve)' : null"
+            <a
+              routerLink="/dashboard/trilha"
+              routerLinkActive="is-active"
+              #trilhaLink="routerLinkActive"
+              [attr.aria-current]="trilhaLink.isActive ? 'page' : null"
+              class="aside__item"
+              [title]="!expanded() ? 'Trilha' : ''"
+              [attr.aria-label]="!expanded() ? 'Trilha' : null"
+              (click)="onNavClick('/dashboard/trilha')"
             >
               <app-icon-track class="aside__icon" />
               @if (expanded()) {
                 <span class="aside__label">Trilha</span>
-                <span class="aside__badge u-mono">Em breve</span>
               }
-            </button>
+            </a>
           </li>
 
-          <!-- 3. Meu Perfil (Inerte) -->
+          <!-- 3. Financeiro -->
+          <li>
+            <a
+              routerLink="/dashboard/financeiro"
+              routerLinkActive="is-active"
+              #financeiroLink="routerLinkActive"
+              [attr.aria-current]="financeiroLink.isActive ? 'page' : null"
+              class="aside__item"
+              [title]="!expanded() ? 'Financeiro' : ''"
+              [attr.aria-label]="!expanded() ? 'Financeiro' : null"
+              (click)="onNavClick('/dashboard/financeiro')"
+            >
+              <app-icon-billing class="aside__icon" />
+              @if (expanded()) {
+                <span class="aside__label">Financeiro</span>
+              }
+            </a>
+          </li>
+
+          <!-- 4. Meu Perfil (Inerte) -->
           <li>
             <button
               type="button"
@@ -153,7 +185,7 @@ export interface AsideNavItem {
             </button>
           </li>
 
-          <!-- 4. Jogos (Inerte) -->
+          <!-- 5. Jogos (Inerte) -->
           <li>
             <button
               type="button"
@@ -174,6 +206,31 @@ export interface AsideNavItem {
       </nav>
 
       <div class="aside__foot">
+        <!--
+          Administração, só para quem tem a claim.
+          Fica no rodapé, junto do Sair, porque é ferramenta e não navegação de
+          aluno. Esconder aqui é conveniência: quem impede o acesso é o
+          AdminGuard do backend, e nenhuma tela pode depender de o botão estar
+          escondido.
+        -->
+        @if (authStore.isAdmin()) {
+          <a
+            routerLink="/dashboard/admin"
+            routerLinkActive="is-active"
+            #adminLink="routerLinkActive"
+            [attr.aria-current]="adminLink.isActive ? 'page' : null"
+            class="aside__item"
+            [title]="!expanded() ? 'Administração' : ''"
+            [attr.aria-label]="!expanded() ? 'Administração' : null"
+            (click)="onNavClick('/dashboard/admin')"
+          >
+            <app-icon-shield class="aside__icon" />
+            @if (expanded()) {
+              <span class="aside__label">Administração</span>
+            }
+          </a>
+        }
+
         <button
           type="button"
           class="aside__item aside__item--logout"
@@ -392,6 +449,15 @@ export interface AsideNavItem {
   `
 })
 export class DashboardAside {
+  /**
+   * Lido direto do store, e nao recebido por input.
+   *
+   * E signal, entao o OnPush reage sozinho quando o perfil chega depois da
+   * sessao e o papel muda. Copiar para uma propriedade comum no construtor
+   * congelaria o valor no instante da montagem -- que e o erro classico aqui.
+   */
+  protected readonly authStore = inject(AuthStore);
+
   readonly expanded = input<boolean>(true);
   readonly mobileOpen = input<boolean>(false);
 

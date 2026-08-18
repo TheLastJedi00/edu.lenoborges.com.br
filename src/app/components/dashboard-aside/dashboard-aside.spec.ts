@@ -31,8 +31,11 @@ describe('DashboardAside', () => {
   });
 
   it('itens inertes estão desabilitados com aria-disabled e selo Em breve', () => {
+    // Sobraram dois. A Trilha destravou na spec 009 e virou link: o fallback de
+    // conteúdo em preparo passou a acontecer dentro da tela, e não no menu.
+    // Inerte agora é só o que ainda não existe — Meu Perfil e Jogos.
     const disabledButtons = fixture.nativeElement.querySelectorAll('.aside__item--disabled');
-    expect(disabledButtons.length).toBe(3);
+    expect(disabledButtons.length).toBe(2);
 
     disabledButtons.forEach((btn: HTMLButtonElement) => {
       expect(btn.disabled).toBeTrue();

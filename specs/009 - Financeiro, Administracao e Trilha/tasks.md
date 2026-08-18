@@ -81,30 +81,30 @@ Nenhuma tela. Ao fim desta fase os três recursos novos do backend têm modelo, 
   `.spec.ts`. Objetivo: roda depois do `authGuard` e do `profileCompleteGuard`, e redireciona para
   `/dashboard` quem não é admin. O comentário registra que isto é conveniência: quem protege é o
   backend.
-
+# Fase 04: Financeiro [x]
 # Fase 04: Financeiro []
 Branch: `feat/009-financeiro`
 
-- [] Task 01: Ícone do Financeiro. Arquivo: `src/app/components/icons/icon-billing.ts`. Objetivo:
+- [x] Task 01: Ícone do Financeiro. Arquivo: `src/app/components/icons/icon-billing.ts`. Objetivo:
   seguir o traço dos ícones existentes — mesmo `viewBox`, mesmo peso, `currentColor`.
-- [] Task 02: Item no aside. Arquivo: `src/app/components/dashboard-aside/dashboard-aside.ts`.
+- [x] Task 02: Item no aside. Arquivo: `src/app/components/dashboard-aside/dashboard-aside.ts`.
   Objetivo: "Financeiro" entre Home e Trilha, ativo (sem `disabled`, sem selo "Em breve").
-- [] Task 03: Rota e página. Arquivos: `src/app/app.routes.ts`,
+- [x] Task 03: Rota e página. Arquivos: `src/app/app.routes.ts`,
   `src/app/pages/financeiro/financeiro.page.{ts,html,scss}`. Objetivo: filha de `/dashboard`, título
   `Financeiro · Liga Dev`. Três blocos na ordem da decisão 4: plano atual, os quatro tiers, o que o
   próximo degrau abre.
-- [] Task 04: Componente de cartão de tier. Arquivo:
+- [x] Task 04: Componente de cartão de tier. Arquivo:
   `src/app/components/tier-card/tier-card.{ts,spec.ts}`. Objetivo: preço formatado, `perks`
   cumulativos com os herdados apagados em vez de repetidos por extenso, e destaque do plano atual.
   Quatro listas idênticas lado a lado no celular viram um muro (decisão 4).
-- [] Task 05: Comparação de upgrade. Objetivo: com `currentTierId`, dizer "o que você ganharia" em vez
+- [x] Task 05: Comparação de upgrade. Objetivo: com `currentTierId`, dizer "o que você ganharia" em vez
   de "o que existe". Transição lateral ao trocar o tier em foco (decisão 8).
-- [] Task 06: Ação de upgrade. Objetivo: abre o WhatsApp com *"Quero o <Tier>"*, reaproveitando o link
+- [x] Task 06: Ação de upgrade. Objetivo: abre o WhatsApp com *"Quero o <Tier>"*, reaproveitando o link
   de contato que a landing já monta. **Não existe botão "Assinar"** — botão que promete um fluxo
   inexistente é pior que a ausência dele.
-- [] Task 07: Esqueleto e erro. Objetivo: esqueleto na forma dos cartões enquanto carrega (decisão 9), e
+- [x] Task 07: Esqueleto e erro. Objetivo: esqueleto na forma dos cartões enquanto carrega (decisão 9), e
   um estado de erro com repetir. O celular é a tela principal e o salto de layout aparece nela primeiro.
-- [] Task 08 (TDD): Spec da página. Arquivo: `financeiro.page.spec.ts`. Objetivo: quatro tiers
+- [x] Task 08 (TDD): Spec da página. Arquivo: `financeiro.page.spec.ts`. Objetivo: quatro tiers
   renderizados, o preço formatado em pt-BR, o plano atual destacado, e o link de upgrade com o nome do
   tier certo.
 
