@@ -12,7 +12,10 @@ const WAITLIST_ERROR_TOO_MANY = 'Muitas tentativas seguidas. Espere um minuto e 
 /**
  * Traduz a falha do envio em texto para o visitante.
  *
- * Vive fora do WaitlistDialog de propósito: o componente é dumb e não conhece HTTP.
+ * Vivia fora do diálogo de propósito: o componente era dumb e não conhecia HTTP.
+ * O diálogo saiu na spec 009 — o cadastro de conta tornou a lista de espera
+ * desnecessária —, mas o mapeamento fica: `POST /waitlist` continua de pé, e é
+ * este arquivo que traduz a falha dele em português se ela voltar a ser usada.
  * As pages chamam esta função e passam o texto pronto.
  */
 export function waitlistErrorMessage(error: unknown): string {

@@ -23,11 +23,14 @@
         </p>
 
         <div class="hero__actions" animate.enter="animate-enter delay-4">
-          <app-pixel-button [href]="contactHref()" [external]="true">
-            Agendar aula particular
-          </app-pixel-button>
+          <!--
+            CTA único (spec 009). Página sem preço não pode pedir dinheiro; o
+            único próximo passo honesto é a conta grátis, e ela é de verdade
+            grátis. As outras ações continuam aqui, em ghost, sem competir.
+          -->
+          <app-pixel-button (click)="openSignup()">Começar gratuitamente</app-pixel-button>
           <app-pixel-button [href]="contactHref()" [external]="true" variant="ghost">
-            Falar sobre parceria
+            Agendar aula particular
           </app-pixel-button>
         </div>
       </div>
@@ -108,10 +111,8 @@
         vai da primeira variável ao deploy, sempre explicando como o mercado usa cada ferramenta.
       </p>
       <div class="liga__actions">
-        <app-pixel-button route="/comunidade">Conhecer a Liga Dev</app-pixel-button>
-        <app-pixel-button variant="ghost" (click)="openWaitlist()">
-          Entrar na lista de espera
-        </app-pixel-button>
+        <app-pixel-button (click)="openSignup()">Começar gratuitamente</app-pixel-button>
+        <app-pixel-button variant="ghost" route="/comunidade">Conhecer a Liga Dev</app-pixel-button>
       </div>
     </app-pixel-panel>
   </section>
@@ -161,4 +162,3 @@
   </footer>
 </main>
 
-<app-waitlist-dialog [state]="waitlistState()" [errorMessage]="waitlistError()" (submitted)="register($event)" />

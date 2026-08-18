@@ -10,7 +10,7 @@ const COMMUNITY: Community = {
       'programação. A trilha vai da primeira variável ao deploy em produção, dividida em oito ' +
       'insígnias, sempre explicando como o mercado usa cada ferramenta. Quem conquista as oito ' +
       'disputa a Elite Four, e quem vence a Final ainda encontra a Battle Frontier do outro lado.',
-    status: 'Em construção, com acesso antecipado gratuito para quem entrar na lista'
+    status: 'Em construção, e aberta: qualquer pessoa cria conta e começa pela Insígnia da Lógica'
   },
   badges: {
     totalBadges: 8,

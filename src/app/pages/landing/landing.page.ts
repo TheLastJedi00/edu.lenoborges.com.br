@@ -1,14 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   inject,
-  OnInit,
-  signal,
-  viewChild
+  OnInit
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContactLinks } from '../../components/contact-links/contact-links';
 import { CtaSplit } from '../../components/cta-split/cta-split';
@@ -21,13 +17,9 @@ import { StatTile } from '../../components/stat-tile/stat-tile';
 import { TeachingStackGrid } from '../../components/teaching-stack-grid/teaching-stack-grid';
 import { TimelineEntry } from '../../components/timeline-entry/timeline-entry';
 import { TrainerCard } from '../../components/trainer-card/trainer-card';
-import { WaitlistDialog, WaitlistState } from '../../components/waitlist-dialog/waitlist-dialog';
 import { AuthStore } from '../../core/auth/auth.store';
 import { Reveal } from '../../directives/reveal';
-import { WaitlistEntry } from '../../models/waitlist.model';
 import { ProfileService } from '../../services/profile.service';
-import { WaitlistService } from '../../services/waitlist.service';
-import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/waitlist-error';
 
 @Component({
   selector: 'app-landing-page',
@@ -44,7 +36,6 @@ import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/wai
     LessonTrack,
     TimelineEntry,
     ContactLinks,
-    WaitlistDialog,
     Reveal
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,13 +44,9 @@ import { WAITLIST_ERROR_DEFAULT, waitlistErrorMessage } from '../../services/wai
 })
 export class LandingPage implements OnInit {
   private readonly profileService = inject(ProfileService);
-  private readonly waitlistService = inject(WaitlistService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   readonly authStore = inject(AuthStore);
-
-  private readonly dialog = viewChild.required(WaitlistDialog);
 
   protected readonly menuItems: readonly MenuItem[] = [
     { href: '#stack', label: 'Stack' },
@@ -76,9 +63,6 @@ export class LandingPage implements OnInit {
       ? { label: 'Ir para o painel', route: '/dashboard' }
       : { label: 'Entrar na Liga Dev' }
   );
-
-  protected readonly waitlistState = signal<WaitlistState>('idle');
-  protected readonly waitlistError = signal(WAITLIST_ERROR_DEFAULT);
 
   protected readonly identity = computed(() => this.profileService.profile().identity);
   protected readonly teachingStack = this.profileService.teachingStack;
@@ -116,27 +100,16 @@ export class LandingPage implements OnInit {
     this.authStore.openAuthDialog('login');
   }
 
-  protected openWaitlist(): void {
-    this.waitlistState.set('idle');
-    this.waitlistError.set(WAITLIST_ERROR_DEFAULT);
-    this.dialog().open();
-  }
-
-  protected register(entry: WaitlistEntry): void {
-    this.waitlistState.set('sending');
-
-    // takeUntilDestroyed: se o visitante navegar com o envio em voo, o callback
-    // nao pode escrever num signal de componente ja destruido.
-    this.waitlistService
-      .submit(entry)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.waitlistState.set('success'),
-        error: (error: unknown) => {
-          this.waitlistError.set(waitlistErrorMessage(error));
-          this.waitlistState.set('error');
-        }
-      });
+  /**
+   * O CTA primário da página (spec 009).
+   *
+   * Abre o diálogo na aba de **cadastro**, e não na de login: `openAuthDialog()`
+   * tem `'login'` como padrão, e chamá-lo sem argumento aqui mandaria quem nunca
+   * teve conta para um formulário de senha que ela não tem — que é exatamente o
+   * erro fácil que o teste desta página cobre.
+   */
+  protected openSignup(): void {
+    this.authStore.openAuthDialog('signup');
   }
 
   /** Único canal de contato real hoje (LinkedIn); agendamento por calendário fica fora de escopo. */
