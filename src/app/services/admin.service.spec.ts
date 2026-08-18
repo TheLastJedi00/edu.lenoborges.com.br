@@ -57,6 +57,7 @@ describe('AdminService', () => {
             emailVerified: false,
             disabled: false,
             role: null,
+            tier: 'dev-tier',
             createdAt: '2026-08-18T09:00:00.000Z',
             lastSignInAt: null,
             name: null,

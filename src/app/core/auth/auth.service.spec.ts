@@ -16,7 +16,8 @@ const MOCK_PROFILE: MemberProfile = {
   bio: 'Desenvolvedor e mentor de programação.',
   grade: 1,
   profileCompleted: true,
-  role: null
+  role: null,
+  tier: 'dev-tier'
 };
 
 const MOCK_SESSION: Session = {
@@ -28,7 +29,8 @@ const MOCK_SESSION: Session = {
   },
   profileCompleted: true,
   grade: 1,
-  role: null
+  role: null,
+  tier: 'dev-tier'
 };
 
 describe('AuthService (TDD)', () => {
@@ -212,7 +214,8 @@ describe('AuthService (TDD)', () => {
         user: { id: 'user-123', email: 'leno@exemplo.com' },
         profileCompleted: true,
         grade: 7,
-        role: null
+        role: null,
+        tier: 'dev-tier'
       });
 
       await pending;
@@ -235,7 +238,8 @@ describe('AuthService (TDD)', () => {
         user: { id: 'user-novo', email: 'novo@exemplo.com' },
         profileCompleted: false,
         grade: 1,
-        role: null
+        role: null,
+        tier: 'dev-tier'
       });
 
       await pending;
@@ -254,7 +258,8 @@ describe('AuthService (TDD)', () => {
         bio: 'Bio de teste com mais de dez caracteres.',
         grade: 7,
         profileCompleted: true,
-        role: null
+        role: null,
+        tier: 'dev-tier'
       });
 
       const profile = await pending;

@@ -23,6 +23,12 @@ export interface MemberUser {
  */
 export type UserRole = 'admin';
 
+export type TierId =
+  | 'dev-tier'
+  | 'great-dev-tier'
+  | 'ultra-dev-tier'
+  | 'master-dev-tier';
+
 export interface MemberProfile {
   readonly id: string;
   readonly email: string;
@@ -33,6 +39,7 @@ export interface MemberProfile {
   readonly profileCompleted: boolean;
   /** Papel vindo da custom claim do Firebase Auth. Nulo para o membro comum. */
   readonly role: UserRole | null;
+  readonly tier: TierId;
 }
 
 export interface UpdateProfileRequest {
@@ -67,6 +74,14 @@ export interface Session {
    * app cria um segundo lugar que sabe ler credencial.
    */
   readonly role: UserRole | null;
+  /**
+   * Tier de acesso, também achatado.
+   *
+   * **É acesso, não conquista.** Não se deriva de `grade` nem o contrário — a
+   * pessoa que cancelou com seis insígnias continua com seis, e o que ela perde
+   * é o avanço. Diferente de `role`, vale na hora: não espera token novo.
+   */
+  readonly tier: TierId;
 }
 
 export type AuthStatus = 'unknown' | 'anonymous' | 'authenticated';

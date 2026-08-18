@@ -12,7 +12,8 @@ function session(grade: number): Session {
     user: { id: 'uid-1', email: 'membro@test.com' },
     profileCompleted: true,
     grade,
-    role: null
+    role: null,
+    tier: 'dev-tier'
   };
 }
 

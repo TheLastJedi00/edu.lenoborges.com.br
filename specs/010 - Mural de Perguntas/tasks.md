@@ -1,25 +1,25 @@
-# Fase 01: Camada de dados []
+# Fase 01: Camada de dados [x]
 Branch: `feat/010-camada-de-dados`
 
 Nenhuma tela. Ao fim desta fase o Mural tem modelo, service e teste, e o `tier` chega na sessão.
 
-- [] Task 01: Modelar o Mural. Arquivo: `src/app/models/mural.model.ts`. Objetivo: `MuralQuestion` com
+- [x] Task 01: Modelar o Mural. Arquivo: `src/app/models/mural.model.ts`. Objetivo: `MuralQuestion` com
   `phase`, `voteCount`, `hasVoted`, `isMine`; `MuralState` com `currentWeekId`, `votingWeekId`, `canAsk`
   e `myQuestionId`. O comentário registra que **`canAsk` vem pronto da API** e que o front não
   recalcula a regra a partir do `tier` (decisão 3).
-- [] Task 02: `tier` no modelo de sessão e no store. Arquivos: `src/app/models/auth.model.ts`,
+- [x] Task 02: `tier` no modelo de sessão e no store. Arquivos: `src/app/models/auth.model.ts`,
   `src/app/core/auth/auth.store.ts` + spec. Objetivo: `tier` entra achatado como `role` e `grade` já
   entraram. `isPaid` é `computed`. **Nada de derivar `tier` de `grade`, nem o contrário** — é a
   restrição que a spec 008 impõe e a que mais se viola por acidente.
-- [] Task 03 (TDD + implementação): `MuralService`. Arquivos: `src/app/services/mural.service.ts`,
+- [x] Task 03 (TDD + implementação): `MuralService`. Arquivos: `src/app/services/mural.service.ts`,
   `.spec.ts`. Objetivo: `GET /mural`, `GET /mural/perguntas?fase=`, `POST`/`PUT` de pergunta,
   `POST`/`DELETE` de voto, `GET /mural/vencedoras`. Cobrir os três erros que a tela precisa distinguir:
   **403 de tier**, **409 de já perguntou** e **409 de semana virada** — três mensagens diferentes, e
   tratá-los como um só é o atalho que arruína a decisão 3.
-- [] Task 04 (TDD + implementação): O contador de virada. Arquivos: `src/app/core/mural/countdown.ts`,
+- [x] Task 04 (TDD + implementação): O contador de virada. Arquivos: `src/app/core/mural/countdown.ts`,
   `.spec.ts`. Objetivo: dias (e horas no último dia) até a virada, a partir do `weekId` que a API
   mandou. **Nunca do relógio do navegador sozinho** (decisão 2). Sem cronômetro de segundos.
-- [] Task 05: Estender o `TrackService`. Arquivo: `src/app/services/track.service.ts` + spec. Objetivo:
+- [x] Task 05: Estender o `TrackService`. Arquivo: `src/app/services/track.service.ts` + spec. Objetivo:
   filtrar vídeos por `kind`, e os campos `devTierFree` e `questionId` no modelo. A aba de Perguntas
   Frequentes vazia resolve como conteúdo vazio, **não como erro** — mesmo teste-trava da spec 009.
 
