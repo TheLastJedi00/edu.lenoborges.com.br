@@ -8,7 +8,14 @@ export const environment = {
   apiUrl: 'http://localhost:3000',
   /**
    * Link de convite do grupo oficial da Liga Dev no WhatsApp.
-   * Vazio por padrão até o link definitivo ser configurado.
+   *
+   * Fixo no código por enquanto, e igual ao de produção: é um convite público,
+   * não um segredo, e quebrá-lo em duas fontes só criaria a chance de o
+   * ambiente de desenvolvimento apontar para um grupo que não existe.
+   *
+   * Quando o link precisar mudar sem novo deploy, ele vira campo de
+   * configuração no backend — não variável de ambiente do front, que exige
+   * build de qualquer jeito.
    */
-  whatsappGroupUrl: '',
+  whatsappGroupUrl: 'https://chat.whatsapp.com/FIyeOUoIuCmKghcHpd0vbR',
 };

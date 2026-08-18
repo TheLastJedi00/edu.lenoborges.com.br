@@ -3,6 +3,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { environment } from '../../../environments/environment';
 import { DashboardAside } from '../../components/dashboard-aside/dashboard-aside';
 import { AuthStore } from '../../core/auth/auth.store';
 import { DashboardPage } from './dashboard.page';
@@ -88,16 +89,29 @@ describe('DashboardPage', () => {
     ]);
   });
 
-  it('só Meu Perfil, Jogos e o WhatsApp sem URL ficam inertes', () => {
+  it('só Meu Perfil e Jogos ficam inertes', () => {
     // A trilha destravou na spec 009 e o cartão ficou para trás por três specs.
-    // Inerte agora é só o que não tem rota em `app.routes.ts` — mais o WhatsApp,
-    // que fica inerte apenas enquanto `whatsappGroupUrl` estiver vazia.
+    // O WhatsApp saiu daqui quando o link do grupo entrou no `environment`.
+    // Inerte agora é só o que não tem rota em `app.routes.ts`.
     const root = fixture.nativeElement as HTMLElement;
     const disabled = Array.from(
       root.querySelectorAll<HTMLElement>('.card--disabled .card__title')
     ).map((title) => title.textContent?.trim());
 
-    expect(disabled).toEqual(['Grupo do WhatsApp', 'Meu Perfil', 'Jogos']);
+    expect(disabled).toEqual(['Meu Perfil', 'Jogos']);
+  });
+
+  it('o cartão do WhatsApp aponta para o grupo e abre em nova aba com segurança', () => {
+    const root = fixture.nativeElement as HTMLElement;
+    const card = root.querySelector<HTMLAnchorElement>('a.card--link[target="_blank"]');
+
+    expect(card).not.toBeNull();
+    expect(card!.getAttribute('href')).toBe(environment.whatsappGroupUrl);
+    expect(environment.whatsappGroupUrl).toMatch(/^https:\/\/chat\.whatsapp\.com\//);
+
+    // `noopener` não é enfeite: sem ele a aba do grupo recebe `window.opener`
+    // e pode reescrever a URL desta, que é a única aba com a sessão dentro.
+    expect(card!.getAttribute('rel')).toContain('noopener');
   });
 
   it('o cartão de Administração só existe para quem tem a claim', () => {
