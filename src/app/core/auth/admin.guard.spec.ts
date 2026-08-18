@@ -13,7 +13,8 @@ function session(role: 'admin' | null): Session {
     user: { id: 'uid-1', email: 'membro@test.com' },
     profileCompleted: true,
     grade: 3,
-    role
+    role,
+    tier: 'dev-tier'
   };
 }
 

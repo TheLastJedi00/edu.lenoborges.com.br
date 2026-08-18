@@ -14,6 +14,7 @@ import { AuthStore } from '../../core/auth/auth.store';
 import { Logo } from '../../shared/logo/logo';
 import { IconBilling } from '../icons/icon-billing';
 import { IconGames } from '../icons/icon-games';
+import { IconMural } from '../icons/icon-mural';
 import { IconHome } from '../icons/icon-home';
 import { IconLogout } from '../icons/icon-logout';
 import { IconTrack } from '../icons/icon-track';
@@ -46,6 +47,7 @@ export interface AsideNavItem {
     IconUser,
     IconGames,
     IconBilling,
+    IconMural,
     IconShield,
     IconLogout
   ],
@@ -167,7 +169,30 @@ export interface AsideNavItem {
             </a>
           </li>
 
-          <!-- 4. Meu Perfil (Inerte) -->
+          <!--
+            4. Mural
+            Ativo para todo mundo, inclusive Dev Tier: quem nao escreve ainda
+            vota, e votar e o ato que da valor ao mural.
+          -->
+          <li>
+            <a
+              routerLink="/dashboard/mural"
+              routerLinkActive="is-active"
+              #muralLink="routerLinkActive"
+              [attr.aria-current]="muralLink.isActive ? 'page' : null"
+              class="aside__item"
+              [title]="!expanded() ? 'Mural de Perguntas' : ''"
+              [attr.aria-label]="!expanded() ? 'Mural de Perguntas' : null"
+              (click)="onNavClick('/dashboard/mural')"
+            >
+              <app-icon-mural class="aside__icon" />
+              @if (expanded()) {
+                <span class="aside__label">Mural</span>
+              }
+            </a>
+          </li>
+
+          <!-- 5. Meu Perfil (Inerte) -->
           <li>
             <button
               type="button"

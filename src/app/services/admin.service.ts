@@ -7,7 +7,12 @@ import {
   CreateVideoRequest,
   UpdateVideoRequest
 } from '../models/admin.model';
-import { BadgeVideo, BadgeVideoList } from '../models/track.model';
+import {
+  BadgeVideo,
+  BadgeVideoKind,
+  BadgeVideoList
+} from '../models/track.model';
+import type { TierId } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -25,6 +30,17 @@ export class AdminService {
 
   updateUserGrade(userId: string, grade: number): Observable<void> {
     return this.http.patch<void>(`${this.base}/users/${userId}`, { grade });
+  }
+
+  /**
+   * Concede ou remove acesso à mão.
+   *
+   * Manda **só** `tier`, nunca junto de `grade`: são coisas independentes, e um
+   * PATCH com os dois escreveria o progresso ao conceder acesso. `tier` é
+   * acesso; `grade` é conquista.
+   */
+  updateUserTier(userId: string, tier: TierId): Observable<void> {
+    return this.http.patch<void>(`${this.base}/users/${userId}`, { tier });
   }
 
   listVideos(badgeId: string): Observable<BadgeVideoList> {
@@ -67,9 +83,27 @@ export class AdminService {
    * Por isso a tela pode ser otimista sem risco de estado pela metade — o
    * rollback é sempre para uma lista íntegra.
    */
-  reorderVideos(badgeId: string, videoIds: readonly string[]): Observable<void> {
-    return this.http.patch<void>(`${this.base}/badges/${badgeId}/videos/order`, {
-      videoIds
-    });
+  reorderVideos(
+    badgeId: string,
+    videoIds: readonly string[],
+    kind: BadgeVideoKind = 'aula'
+  ): Observable<void> {
+    // A ordem é por aba (spec 010): reordenar Aulas não pode mexer nas
+    // Perguntas Frequentes, e o `kind` é o que separa as duas sequências.
+    return this.http.patch<void>(
+      `${this.base}/badges/${badgeId}/videos/order`,
+      { videoIds },
+      { params: new HttpParams().set('kind', kind) }
+    );
+  }
+
+  listVideosByKind(
+    badgeId: string,
+    kind: BadgeVideoKind
+  ): Observable<BadgeVideoList> {
+    return this.http.get<BadgeVideoList>(
+      `${this.base}/badges/${badgeId}/videos`,
+      { params: new HttpParams().set('kind', kind) }
+    );
   }
 }

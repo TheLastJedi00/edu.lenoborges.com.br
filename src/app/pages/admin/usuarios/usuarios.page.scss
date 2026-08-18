@@ -248,3 +248,35 @@
     animation: none;
   }
 }
+
+/*
+ * Blocos separados para `tier` e `grade` (spec 010).
+ *
+ * Acesso e conquista são coisas diferentes, e a separação visual é o que impede
+ * quem administra de tratá-las como uma só — que é o erro que a spec 008 inteira
+ * existe para evitar.
+ */
+.editor__group {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.75rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+}
+
+.editor__legend {
+  padding: 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+}
+
+.editor__hint {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.45;
+}

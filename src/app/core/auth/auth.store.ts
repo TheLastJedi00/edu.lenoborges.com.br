@@ -4,6 +4,7 @@ import {
   MemberProfile,
   MemberUser,
   Session,
+  TierId,
   UserRole
 } from '../../models/auth.model';
 
@@ -34,6 +35,7 @@ export class AuthStore {
   private readonly sessionProfileCompleted = signal(false);
   private readonly sessionGrade = signal(1);
   private readonly sessionRole = signal<UserRole | null>(null);
+  private readonly sessionTier = signal<TierId>('dev-tier');
 
   readonly isLoggedIn = computed(() => this.status() === 'authenticated');
 
@@ -59,6 +61,19 @@ export class AuthStore {
    */
   readonly isAdmin = computed(() => this.role() === 'admin');
 
+  /** Tier de acesso, com a mesma precedência de `grade`: o perfil manda. */
+  readonly tier = computed(() => this.profile()?.tier ?? this.sessionTier());
+
+  /**
+   * Se o membro tem tier pago.
+   *
+   * Usado só para explicar a interface -- desabilitar o campo de pergunta, por
+   * exemplo. **A regra de quem pode escrever no Mural NÃO sai daqui**: ela vem
+   * pronta da API, em `canAsk`, porque tem duas partes (ser pagante e ainda não
+   * ter perguntado) e duas implementações divergiriam na primeira exceção.
+   */
+  readonly isPaid = computed(() => this.tier() !== 'dev-tier');
+
   /** URL tentada por usuário não autenticado para redirecionamento pós-login. */
   readonly intendedUrl = signal<string | null>(null);
 
@@ -74,6 +89,7 @@ export class AuthStore {
     this.sessionProfileCompleted.set(session.profileCompleted);
     this.sessionGrade.set(session.grade);
     this.sessionRole.set(session.role ?? null);
+    this.sessionTier.set(session.tier ?? 'dev-tier');
     this.status.set('authenticated');
     this.markSessionHint();
 
@@ -95,6 +111,7 @@ export class AuthStore {
     this.sessionProfileCompleted.set(false);
     this.sessionGrade.set(1);
     this.sessionRole.set(null);
+    this.sessionTier.set('dev-tier');
     this.status.set('anonymous');
     this.clearSessionHint();
   }

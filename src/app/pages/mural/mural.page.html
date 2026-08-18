@@ -1,0 +1,129 @@
+<section class="page">
+  <header class="page__head">
+    <p class="u-mono page__eyebrow">Mural</p>
+    <h1 class="page__title">A pergunta da semana</h1>
+    <p class="page__lead">
+      A mais votada ganha um vídeo curto de resposta, que fica na trilha da insígnia.
+    </p>
+  </header>
+
+  <!--
+    As abas ficam no topo e grudam ao rolar: sem isso, quem desce vinte perguntas
+    perde a única pista de qual semana está olhando.
+  -->
+  <nav class="tabs" aria-label="Fases do ciclo">
+    <button
+      type="button"
+      class="tab"
+      [class.tab--on]="aba() === 'votacao'"
+      [attr.aria-current]="aba() === 'votacao' ? 'true' : null"
+      (click)="selectTab('votacao')"
+    >
+      Em votação
+    </button>
+    <button
+      type="button"
+      class="tab"
+      [class.tab--on]="aba() === 'coleta'"
+      [attr.aria-current]="aba() === 'coleta' ? 'true' : null"
+      (click)="selectTab('coleta')"
+    >
+      Esta semana
+    </button>
+    <button
+      type="button"
+      class="tab"
+      [class.tab--on]="aba() === 'respondidas'"
+      [attr.aria-current]="aba() === 'respondidas' ? 'true' : null"
+      (click)="selectTab('respondidas')"
+    >
+      Respondidas
+    </button>
+  </nav>
+
+  @if (countdown(); as prazo) {
+    <p class="countdown u-mono">{{ prazo }}</p>
+  }
+
+  @switch (loadState()) {
+    @case ('loading') {
+      <ul class="list" aria-busy="true" aria-label="Carregando o mural">
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+      </ul>
+    }
+
+    @case ('error') {
+      <div class="feedback" role="alert">
+        <p>Não consegui carregar o mural agora.</p>
+        <button type="button" class="btn" (click)="loadQuestions()">Tentar de novo</button>
+      </div>
+    }
+
+    @case ('ready') {
+      @if (aba() === 'respondidas') {
+        <!-- É esta aba que faz a promessa parecer real: sem ela, "a mais votada
+             ganha um vídeo" é só uma frase. -->
+        <ul class="list">
+          @for (semana of winners(); track semana.weekId) {
+            <li class="winner">
+              <p class="winner__week u-mono">Semana de {{ semana.weekId }}</p>
+              @if (semana.question; as pergunta) {
+                <p class="winner__title">{{ pergunta.title }}</p>
+                <p class="winner__author u-mono">
+                  {{ pergunta.authorName }} · {{ pergunta.voteCount }} votos
+                </p>
+                @if (pergunta.answerVideoId) {
+                  <a class="winner__link" [routerLink]="['/dashboard/trilha', pergunta.badgeId]">
+                    Ver a resposta na trilha
+                  </a>
+                } @else {
+                  <p class="winner__pending">O vídeo de resposta ainda está sendo gravado.</p>
+                }
+              } @else {
+                <!-- Semana em branco é informação honesta, não buraco a esconder. -->
+                <p class="winner__blank">Essa semana passou sem perguntas.</p>
+              }
+            </li>
+          }
+        </ul>
+      } @else if (empty()) {
+        <div class="empty">
+          @if (aba() === 'votacao') {
+            <p class="empty__title">Ainda não há o que votar.</p>
+            <p class="empty__text">
+              As perguntas desta semana entram em votação quando ela virar, no domingo. Até lá, dá
+              para escrever a sua em <strong>Esta semana</strong>.
+            </p>
+          } @else {
+            <p class="empty__title">Nenhuma pergunta esta semana ainda.</p>
+            <p class="empty__text">Seja a primeira pessoa a perguntar.</p>
+          }
+        </div>
+      } @else {
+        <ul class="list">
+          @for (question of questions(); track question.id) {
+            <li>
+              <app-question-card
+                [question]="question"
+                [votable]="votable()"
+                (toggle)="toggleVote($event)"
+              />
+            </li>
+          }
+        </ul>
+      }
+    }
+  }
+
+  @if (state(); as ciclo) {
+    @if (ciclo.canAsk) {
+      <a routerLink="/dashboard/mural/nova" class="btn btn--sticky">Escrever minha pergunta</a>
+    } @else if (ciclo.myQuestionId) {
+      <a routerLink="/dashboard/mural/nova" class="btn btn--sticky btn--ghost">
+        Editar minha pergunta
+      </a>
+    }
+  }
+</section>

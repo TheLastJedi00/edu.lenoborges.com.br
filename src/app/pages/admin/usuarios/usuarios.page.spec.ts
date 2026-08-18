@@ -20,6 +20,7 @@ function user(overrides: Partial<AdminUser> = {}): AdminUser {
     name: 'Membro Teste',
     phone: '47999990000',
     grade: 3,
+    tier: 'dev-tier',
     profileCompleted: true,
     ...overrides
   };
@@ -104,26 +105,67 @@ describe('AdminUsuariosPage', () => {
     expect(el.querySelectorAll('.user').length).toBe(2);
   });
 
-  it('altera só o grade ao salvar', () => {
+  function abrirEditor(el: HTMLElement, fixture: { detectChanges(): void }) {
+    (el.querySelector('.user .btn--ghost') as HTMLButtonElement).click();
+    fixture.detectChanges();
+  }
+
+  function clicar(el: HTMLElement, texto: string) {
+    const botao = Array.from(el.querySelectorAll('.editor button')).find((node) =>
+      node.textContent?.includes(texto)
+    ) as HTMLButtonElement;
+    botao.click();
+  }
+
+  /**
+   * **O teste que sustenta a separação entre acesso e conquista.**
+   *
+   * Cada campo tem o seu botão e a sua requisição. Um PATCH com os dois faria
+   * uma edição de acesso escrever o progresso junto — e é assim que alguém que
+   * acabou de pagar perde a trilha inteira.
+   */
+  it('salva o grade sem mandar tier junto', () => {
     const { fixture, el } = setup();
     flushList([user()]);
     fixture.detectChanges();
+    abrirEditor(el, fixture);
 
-    (el.querySelector('.user .btn--ghost') as HTMLButtonElement).click();
-    fixture.detectChanges();
-
-    const salvar = Array.from(el.querySelectorAll('.editor__actions button')).find(
-      (node) => node.textContent?.includes('Salvar')
-    ) as HTMLButtonElement;
-    salvar.click();
+    clicar(el, 'Salvar a etapa');
 
     const request = http.expectOne((req) =>
       req.url.endsWith('/admin/users/uid-1')
     );
-    // Nada de `tier` aqui: acesso e conquista são coisas diferentes, e esta tela
-    // mexe só na segunda.
     expect(request.request.body).toEqual({ grade: 3 });
     request.flush(null);
+  });
+
+  it('salva o tier sem mandar grade junto', () => {
+    const { fixture, el } = setup();
+    flushList([user()]);
+    fixture.detectChanges();
+    abrirEditor(el, fixture);
+
+    clicar(el, 'Salvar o acesso');
+
+    const request = http.expectOne((req) =>
+      req.url.endsWith('/admin/users/uid-1')
+    );
+    expect(request.request.body).toEqual({ tier: 'dev-tier' });
+    request.flush(null);
+  });
+
+  it('separa acesso e conquista visivelmente', () => {
+    // Encostados sem explicação, os dois viram a mesma coisa na cabeça de quem
+    // clica — e a spec 008 inteira depende de não virarem.
+    const { fixture, el } = setup();
+    flushList([user()]);
+    fixture.detectChanges();
+    abrirEditor(el, fixture);
+
+    const legendas = Array.from(el.querySelectorAll('.editor__legend')).map(
+      (node) => node.textContent?.trim()
+    );
+    expect(legendas).toEqual(['Conquista', 'Acesso']);
   });
 
   /**

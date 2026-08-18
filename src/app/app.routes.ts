@@ -55,6 +55,23 @@ export const routes: Routes = [
           import('./pages/trilha/insignia/insignia.page').then((m) => m.InsigniaPage),
         title: 'Insígnia · Liga Dev'
       },
+      {
+        path: 'mural',
+        loadComponent: () => import('./pages/mural/mural.page').then((m) => m.MuralPage),
+        title: 'Mural de Perguntas · Liga Dev'
+      },
+      {
+        // Sem guard de tier: quem nao pode escrever ve o bloqueio explicado na
+        // propria tela, com o caminho para o Financeiro. Redirecionar daria um
+        // "nao" sem contexto -- e esta e a unica tela onde a restricao aparece no
+        // momento em que o valor esta visivel.
+        path: 'mural/nova',
+        loadComponent: () =>
+          import('./pages/mural/nova-pergunta/nova-pergunta.page').then(
+            (m) => m.NovaPerguntaPage
+          ),
+        title: 'Escrever no Mural · Liga Dev'
+      },
       // Administração. O `adminGuard` aqui é conveniência — evita o membro comum
       // bater num 403 sem entender por quê. Quem impede de verdade é o
       // AdminGuard do backend, em toda requisição.
@@ -63,6 +80,13 @@ export const routes: Routes = [
         canActivate: [adminGuard],
         loadComponent: () => import('./pages/admin/admin.page').then((m) => m.AdminPage),
         title: 'Administração · Liga Dev'
+      },
+      {
+        path: 'admin/mural',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/admin/mural/mural-admin.page').then((m) => m.AdminMuralPage),
+        title: 'Mural · Administração'
       },
       {
         path: 'admin/usuarios',
