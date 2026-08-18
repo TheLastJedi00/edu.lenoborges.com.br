@@ -146,3 +146,122 @@ describe('InsigniaPage', () => {
     expect(el.textContent).not.toContain('Ainda estamos preparando');
   });
 });
+
+describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
+  let http: HttpTestingController;
+
+  function setup(badgeId: string) {
+    TestBed.configureTestingModule({
+      imports: [InsigniaPage],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ badgeId }) } }
+        }
+      ]
+    });
+
+    http = TestBed.inject(HttpTestingController);
+    const fixture = TestBed.createComponent(InsigniaPage);
+    fixture.detectChanges();
+
+    return { fixture, el: fixture.nativeElement as HTMLElement };
+  }
+
+  function flushWith(videos: unknown[]) {
+    const request = http.expectOne((req) => req.url.includes('/videos'));
+    request.flush({ badgeId: 'logica', videos });
+    return request;
+  }
+
+  function video(overrides: Record<string, unknown> = {}) {
+    return {
+      id: 'logica__aaaaaaaaaaa',
+      badgeId: 'logica',
+      title: 'Uma aula qualquer',
+      description: null,
+      youtubeId: 'aaaaaaaaaaa',
+      kind: 'aula',
+      questionId: null,
+      devTierFree: false,
+      order: 0,
+      ...overrides
+    };
+  }
+
+  it('abre em Aulas e pede a aba ao servidor', () => {
+    const { el } = setup('logica');
+    const request = flushWith([video()]);
+
+    expect(request.request.params.get('kind')).toBe('aula');
+    expect(el.querySelector('.tab--on')?.textContent?.trim()).toBe('Aulas');
+  });
+
+  /**
+   * Cada aba tem a própria ordem, do servidor: as posições são 0..n-1 **dentro
+   * da aba**. Filtrar no cliente uma lista das duas juntas daria a ordem errada.
+   */
+  it('recarrega do servidor ao trocar de aba', () => {
+    const { fixture, el } = setup('logica');
+    flushWith([video()]);
+    fixture.detectChanges();
+
+    const abaFaq = Array.from(el.querySelectorAll('.tab')).find((node) =>
+      node.textContent?.includes('Perguntas Frequentes')
+    ) as HTMLButtonElement;
+    abaFaq.click();
+    fixture.detectChanges();
+
+    const request = http.expectOne((req) => req.url.includes('/videos'));
+    expect(request.request.params.get('kind')).toBe('resposta');
+    request.flush({ badgeId: 'logica', videos: [] });
+  });
+
+  /**
+   * O selo é a prova, visível para quem não paga, de que a plataforma abre
+   * porta — o contrapeso do único "não" que o produto dá ao Dev Tier.
+   */
+  it('mostra o selo "Livre para todos" no vídeo marcado', () => {
+    const { fixture, el } = setup('logica');
+    flushWith([video({ devTierFree: true })]);
+    fixture.detectChanges();
+
+    expect(el.querySelector('.free')?.textContent?.trim()).toBe(
+      'Livre para todos'
+    );
+  });
+
+  it('não mostra o selo em vídeo comum', () => {
+    const { fixture, el } = setup('logica');
+    flushWith([video()]);
+    fixture.detectChanges();
+
+    expect(el.querySelector('.free')).toBeNull();
+  });
+
+  it('a aba de Perguntas Frequentes vazia convida para o Mural', () => {
+    const { fixture, el } = setup('logica');
+    flushWith([video()]);
+    fixture.detectChanges();
+
+    (
+      Array.from(el.querySelectorAll('.tab')).find((node) =>
+        node.textContent?.includes('Perguntas Frequentes')
+      ) as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    http
+      .expectOne((req) => req.url.includes('/videos'))
+      .flush({ badgeId: 'logica', videos: [] });
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain('Nenhuma pergunta desta insígnia');
+    // Vazio é convite, não erro.
+    expect(el.querySelector('[role="alert"]')).toBeNull();
+  });
+});

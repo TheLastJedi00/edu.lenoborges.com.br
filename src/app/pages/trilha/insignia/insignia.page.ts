@@ -10,7 +10,11 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { BadgeVideo, youtubeEmbedUrl } from '../../../models/track.model';
+import {
+  BadgeVideo,
+  BadgeVideoKind,
+  youtubeEmbedUrl
+} from '../../../models/track.model';
 import { TrackService } from '../../../services/track.service';
 import { CommunityService } from '../../../services/community.service';
 
@@ -31,6 +35,7 @@ export class InsigniaPage implements OnInit {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly aba = signal<BadgeVideoKind>('aula');
   protected readonly state = signal<LoadState>('loading');
   protected readonly videos = signal<readonly BadgeVideo[]>([]);
   protected readonly badgeId = signal('');
@@ -51,6 +56,22 @@ export class InsigniaPage implements OnInit {
     () => this.state() === 'ready' && this.videos().length === 0
   );
 
+  /**
+   * Troca de aba.
+   *
+   * Cada aba tem a própria ordem, vinda do servidor: as posições são 0..n-1
+   * **dentro da aba**. Filtrar no cliente uma lista das duas juntas daria a
+   * ordem errada — e o admin arrastaria sem ver efeito.
+   */
+  protected selectTab(aba: BadgeVideoKind): void {
+    if (this.aba() === aba) {
+      return;
+    }
+
+    this.aba.set(aba);
+    this.load();
+  }
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('badgeId') ?? '';
     this.badgeId.set(id);
@@ -61,7 +82,7 @@ export class InsigniaPage implements OnInit {
     this.state.set('loading');
 
     this.track
-      .getVideos(this.badgeId())
+      .getVideos(this.badgeId(), this.aba())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (list) => {
