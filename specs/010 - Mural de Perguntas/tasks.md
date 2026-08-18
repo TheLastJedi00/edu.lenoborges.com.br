@@ -23,52 +23,52 @@ Nenhuma tela. Ao fim desta fase o Mural tem modelo, service e teste, e o `tier` 
   filtrar vídeos por `kind`, e os campos `devTierFree` e `questionId` no modelo. A aba de Perguntas
   Frequentes vazia resolve como conteúdo vazio, **não como erro** — mesmo teste-trava da spec 009.
 
-# Fase 02: O Mural, leitura e voto []
+# Fase 02: O Mural, leitura e voto [x]
 Branch: `feat/010-mural`
 
-- [] Task 01: Ícone e item no aside. Arquivos: `src/app/components/icons/icon-mural.ts`,
+- [x] Task 01: Ícone e item no aside. Arquivos: `src/app/components/icons/icon-mural.ts`,
   `src/app/components/dashboard-aside/dashboard-aside.ts`. Objetivo: "Mural" depois de Trilha. Ativo
   para todo mundo, inclusive Dev Tier — **quem não escreve ainda vota** (decisão 3).
-- [] Task 02: Rota e casca da página. Arquivos: `src/app/app.routes.ts`,
+- [x] Task 02: Rota e casca da página. Arquivos: `src/app/app.routes.ts`,
   `src/app/pages/mural/mural.page.{ts,html,scss}`. Objetivo: três abas — **"Em votação" é a inicial**
   (decisão 1) —, grudadas no topo ao rolar, com o contador de virada ao lado.
-- [] Task 03: Cartão de pergunta. Arquivo:
+- [x] Task 03: Cartão de pergunta. Arquivo:
   `src/app/components/question-card/question-card.{ts,spec.ts}`. Objetivo: ícone da insígnia à
   esquerda, voto à direita no lado do polegar, uma coluna abaixo de 48rem. **Alvo de voto com 44px de
   verdade**, área maior que o desenho (decisão 11).
-- [] Task 04: Voto otimista. Objetivo: pinta e incrementa na hora, requisição atrás, rollback com aviso
+- [x] Task 04: Voto otimista. Objetivo: pinta e incrementa na hora, requisição atrás, rollback com aviso
   na falha. O comentário registra por que otimista: é a ação mais repetida da tela, e 300ms cinco vezes
   é o que faz um recurso parecer lento.
-- [] Task 05: Aba "Respondidas". Objetivo: vencedoras anteriores com o vídeo de cada uma. É o que faz a
+- [x] Task 05: Aba "Respondidas". Objetivo: vencedoras anteriores com o vídeo de cada uma. É o que faz a
   promessa parecer real — sem ela, "a mais votada ganha um vídeo" é só uma frase.
-- [] Task 06: Estados vazios. Objetivo: semana sem perguntas, e o caso da **primeira semana de vida do
+- [x] Task 06: Estados vazios. Objetivo: semana sem perguntas, e o caso da **primeira semana de vida do
   recurso**, em que "Em votação" fica vazia por sete dias (ponto em aberto 2). É o único lugar onde um
   texto explicando o ciclo se justifica, porque não há nada a aprender usando.
-- [] Task 07 (TDD): Spec da página. Objetivo: aba inicial correta, ordem preservada como veio, voto
+- [x] Task 07 (TDD): Spec da página. Objetivo: aba inicial correta, ordem preservada como veio, voto
   otimista revertendo na falha, e o contador sem depender do relógio local.
 
-# Fase 03: Escrever e o bloqueio de tier []
+# Fase 03: Escrever e o bloqueio de tier [x]
 Branch: `feat/010-perguntar`
 
-- [] Task 01: Formulário de pergunta. Arquivo:
+- [x] Task 01: Formulário de pergunta. Arquivo:
   `src/app/pages/mural/nova-pergunta/nova-pergunta.page.{ts,html,scss}`. Objetivo: **chips de insígnia
   com ícone, não `<select>`** (decisão 6) — cabem no polegar e mostram o ícone que a pessoa já conhece
   da trilha. Reactive form, `title` de 10 a 140, `body` até 1000.
-- [] Task 02: Contador de caracteres tardio. Objetivo: aparece **depois** dos primeiros 100 caracteres.
+- [x] Task 02: Contador de caracteres tardio. Objetivo: aparece **depois** dos primeiros 100 caracteres.
   Contador desde o primeiro caractere transforma escrever numa prova.
-- [] Task 03: Folha deslizante no celular. Objetivo: o formulário sobe de baixo, com o botão ancorado e
+- [x] Task 03: Folha deslizante no celular. Objetivo: o formulário sobe de baixo, com o botão ancorado e
   `env(safe-area-inset-bottom)`. **Não é modal centralizado** — com o teclado aberto sobram três linhas
   visíveis.
-- [] Task 04: O bloqueio do Dev Tier. Objetivo: no lugar do formulário, a frase literal *"O Dev Tier
+- [x] Task 04: O bloqueio do Dev Tier. Objetivo: no lugar do formulário, a frase literal *"O Dev Tier
   vota, mas não pergunta"* e o link para o Financeiro (decisão 3). **Nada de botão que abre um
   formulário e falha ao enviar.** O comentário registra que esconder não é a segurança — quem impede é
   o backend.
-- [] Task 05: A pergunta como rascunho. Objetivo: quem já perguntou vê **a própria pergunta no topo com
+- [x] Task 05: A pergunta como rascunho. Objetivo: quem já perguntou vê **a própria pergunta no topo com
   editar**, nunca "limite atingido" (decisão 5). Enquadramento muda o comportamento: um faz perguntar
   rápido e mal, o outro faz voltar e refinar.
-- [] Task 06: A transição da virada. Objetivo: quando a semana vira, o editar some e a pergunta ganha o
+- [x] Task 06: A transição da virada. Objetivo: quando a semana vira, o editar some e a pergunta ganha o
   selo "em votação". **Precisa ser visível**, ou a pessoa acha que perdeu o texto.
-- [] Task 07 (TDD): Spec do formulário. Objetivo: chips selecionáveis, validação de tamanho, o bloqueio
+- [x] Task 07 (TDD): Spec do formulário. Objetivo: chips selecionáveis, validação de tamanho, o bloqueio
   do Dev Tier renderizando no lugar do form, e os três erros da API virando três mensagens diferentes.
 
 # Fase 04: Perguntas Frequentes na trilha []

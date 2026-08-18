@@ -1,0 +1,104 @@
+<section class="page">
+  <a routerLink="/dashboard/mural" class="back u-mono">← Voltar ao Mural</a>
+
+  @if (state(); as ciclo) {
+    @if (canAsk() || editing()) {
+      <h1 class="page__title">
+        {{ editing() ? 'Sua pergunta desta semana' : 'Escreva a sua pergunta' }}
+      </h1>
+
+      @if (editing()) {
+        <!--
+          Enquadramento, e não cota: "esta é a sua pergunta, ainda dá para
+          melhorar" faz a pessoa voltar e refinar. "Limite atingido" faria ela
+          perguntar rápido e mal, para garantir a vaga.
+        -->
+        <p class="page__lead">
+          Dá para reescrever até a semana virar. Depois disso ela entra em votação e o texto
+          congela — quem votou votou naquilo.
+        </p>
+      } @else {
+        <p class="page__lead">
+          Uma pergunta por semana. A mais votada ganha um vídeo curto de resposta.
+        </p>
+      }
+
+      <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+        @if (!editing()) {
+          <fieldset class="chips">
+            <legend class="form__label">Sobre qual insígnia?</legend>
+            <!--
+              Chips com o ícone da trilha, e não um <select>. No celular o select
+              abre uma roda nativa com treze linhas de texto, sem os ícones que a
+              pessoa já reconhece — e os chips cabem no polegar e mantêm a
+              escolha visível enquanto ela escreve o resto.
+            -->
+            <div class="chips__row">
+              @for (stage of stages(); track stage.id) {
+                <button
+                  type="button"
+                  class="chip"
+                  [class.chip--on]="form.controls.badgeId.value === stage.id"
+                  [attr.aria-pressed]="form.controls.badgeId.value === stage.id"
+                  (click)="selectBadge(stage.id)"
+                >
+                  {{ stage.title }}
+                </button>
+              }
+            </div>
+          </fieldset>
+        }
+
+        <label class="form__label" for="titulo">A pergunta</label>
+        <input
+          id="titulo"
+          class="form__input"
+          type="text"
+          formControlName="title"
+          placeholder="Como saber quando usar herança em vez de composição?"
+          autocomplete="off"
+          enterkeyhint="next"
+          maxlength="140"
+        />
+        @if (showCounter()) {
+          <p class="form__counter u-mono">{{ titleLength() }} / 140</p>
+        }
+
+        <label class="form__label" for="contexto">Contexto (opcional)</label>
+        <textarea
+          id="contexto"
+          class="form__input form__input--area"
+          formControlName="body"
+          rows="4"
+          placeholder="O que você já tentou, ou onde exatamente travou"
+          maxlength="1000"
+        ></textarea>
+
+        @if (error(); as mensagem) {
+          <p class="form__error" role="alert">{{ mensagem }}</p>
+        }
+
+        <button type="submit" class="btn" [disabled]="form.invalid || saving()">
+          {{ saving() ? 'Enviando…' : editing() ? 'Salvar' : 'Publicar no Mural' }}
+        </button>
+      </form>
+    } @else {
+      <!--
+        O bloqueio aparece ANTES do clique, e no lugar do formulário — nunca como
+        erro depois de a pessoa escrever 200 caracteres. E o caminho de saída é
+        um link para o Financeiro, porque esta é a única tela do produto onde a
+        restrição aparece no momento em que o valor está visível.
+      -->
+      <div class="locked">
+        <h1 class="locked__title">O Dev Tier vota, mas não pergunta.</h1>
+        <p class="locked__text">
+          Quem escreve a pauta da semana é quem assina — perguntar é pedir uma gravação, e a fila de
+          quem pede é a de quem paga. <strong>Votar continua sendo seu</strong>, e é o que decide
+          qual pergunta vira vídeo.
+        </p>
+        <a routerLink="/dashboard/financeiro" class="btn">Ver o Financeiro</a>
+        <a routerLink="/dashboard/mural" class="locked__back">Voltar e votar</a>
+      </div>
+    }
+  }
+</section>
