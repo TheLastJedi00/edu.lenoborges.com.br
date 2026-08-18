@@ -29,21 +29,21 @@ perguntar quanto custa. É de propósito: a fase é curta e verificável sozinha
   Objetivo: o teste da Task 05 olha o modelo; este olha o artefato, que é onde a promessa da decisão 1
   vale ou não vale.
 
-# Fase 02: CTA único e público []
+# Fase 02: CTA único e público [x]
 Branch: `feat/009-cta-gratuito`
 
-- [] Task 01: Reordenar as chamadas da landing e **tirar a lista de espera**. Arquivos:
+- [x] Task 01: Reordenar as chamadas da landing e **tirar a lista de espera**. Arquivos:
   `src/app/pages/landing/landing.page.html`, `.ts`. Objetivo: **Começar gratuitamente** vira o primário
   do hero e abre o diálogo de autenticação na aba de cadastro (`authStore.openAuthDialog('signup')`). O
   WhatsApp vira ghost; o botão "Quero acesso antecipado" e o `app-waitlist-dialog` **saem** (alteração
   de escopo no topo do `context.md`). A frase do CTA é literal e igual em todas as posições (decisão 10).
-- [] Task 02: Reordenar as chamadas da `/comunidade` e tirar a lista de espera. Arquivo:
+- [x] Task 02: Reordenar as chamadas da `/comunidade` e tirar a lista de espera. Arquivo:
   `src/app/pages/comunidade/comunidade.page.html`. Objetivo: o hero tem cinco botões; fica um primário
   ("Começar gratuitamente", ou "Ir para o painel" para quem já está logado) e o resto como ghost. **A
   seção final "A Liga ainda está sendo construída" sai inteira**, com o diálogo de lista de espera.
-- [] Task 03: Fechar cada seção de tier com o CTA. Objetivo: quem rola a tabela de tiers termina de ler
+- [x] Task 03: Fechar cada seção de tier com o CTA. Objetivo: quem rola a tabela de tiers termina de ler
   e encontra a ação. Hoje ele termina e encontra a próxima seção.
-- [] Task 04: Atualizar as specs de página. Arquivos: `landing.page.spec.ts`, e a de comunidade se
+- [x] Task 04: Atualizar as specs de página. Arquivos: `landing.page.spec.ts`, e a de comunidade se
   houver. Objetivo: cobrir que o primário abre o diálogo na aba de cadastro — e não na de login, que é
   o default do store e o erro fácil.
 

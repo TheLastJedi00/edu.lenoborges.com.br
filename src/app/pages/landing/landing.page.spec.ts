@@ -81,3 +81,69 @@ describe('LandingPage · retorno com ?entrar=1', () => {
     expect(store.isAuthDialogOpen()).toBeFalse();
   });
 });
+
+/**
+ * O CTA público da spec 009.
+ *
+ * A página inteira deixou de mostrar preço, e o único próximo passo que ela
+ * oferece é a conta grátis. Estes testes cobrem as duas formas de errar isso: o
+ * botão abrir a aba de login em vez da de cadastro, e a lista de espera voltar.
+ */
+describe('LandingPage · CTA gratuito', () => {
+  function setup() {
+    TestBed.configureTestingModule({
+      imports: [LandingPage],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap({}) } }
+        }
+      ]
+    });
+
+    const fixture = TestBed.createComponent(LandingPage);
+    fixture.detectChanges();
+
+    return { fixture, store: TestBed.inject(AuthStore) };
+  }
+
+  it('oferece "Começar gratuitamente" como chamada principal', () => {
+    const { fixture } = setup();
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.textContent).toContain('Começar gratuitamente');
+  });
+
+  /**
+   * `openAuthDialog()` tem `'login'` como padrão, então esquecer o argumento
+   * manda quem nunca teve conta para um formulário de senha que ela não tem. O
+   * erro não quebra nada visivelmente — a pessoa é que desiste.
+   */
+  it('abre o diálogo na aba de cadastro, não na de login', () => {
+    const { fixture, store } = setup();
+    const el = fixture.nativeElement as HTMLElement;
+
+    const cta = Array.from(el.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Começar gratuitamente')
+    );
+    cta?.click();
+
+    expect(store.isAuthDialogOpen()).toBeTrue();
+    expect(store.authDialogTab()).toBe('signup');
+  });
+
+  it('não oferece mais a lista de espera', () => {
+    // O cadastro de conta já funciona, e a lista existia para capturar interesse
+    // enquanto não havia porta de entrada. Duas portas para o mesmo lugar, uma
+    // delas pior.
+    const { fixture } = setup();
+    const texto = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(texto).not.toContain('lista de espera');
+    expect(texto).not.toContain('acesso antecipado');
+  });
+});
