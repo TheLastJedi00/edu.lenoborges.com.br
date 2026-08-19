@@ -1,8 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-export type LogoVariant = 'mark' | 'full';
+let instanceCount = 0;
 
-/** Marca do site. `mark` mostra só o símbolo (uso em fundos claros); `full` inclui o wordmark (uso em fundos escuros). */
+/**
+ * Marca do site: o símbolo quadrado, sem wordmark.
+ *
+ * O SVG referencia gradientes, filtros e clipPath por `url(#id)`, e a marca
+ * aparece mais de uma vez na mesma página (cabeçalho mobile, aside, topo das
+ * páginas). Os ids levam um sufixo por instância porque ids repetidos fazem o
+ * navegador resolver todas as referências para o primeiro `defs` encontrado.
+ */
 @Component({
   selector: 'app-logo',
   imports: [],
@@ -12,7 +19,5 @@ export type LogoVariant = 'mark' | 'full';
   styleUrl: './logo.scss'
 })
 export class Logo {
-  readonly variant = input<LogoVariant>('full');
-
-  protected readonly viewBox = computed(() => (this.variant() === 'mark' ? '0 0 619 560' : '0 0 619 774'));
+  protected readonly uid = `logo${(instanceCount += 1)}`;
 }
