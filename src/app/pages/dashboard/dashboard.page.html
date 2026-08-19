@@ -1,7 +1,10 @@
 <div class="dashboard">
   <header class="dashboard__head" animate.enter="animate-enter">
     <div class="dashboard__greeting-row">
-      <h1 class="dashboard__title">Olá, {{ firstName() }}</h1>
+      <div class="dashboard__brand">
+        <app-logo />
+        <h1 class="dashboard__title">Olá, {{ firstName() }}</h1>
+      </div>
       <app-badge-count [grade]="grade()" />
     </div>
     <p class="dashboard__lead">

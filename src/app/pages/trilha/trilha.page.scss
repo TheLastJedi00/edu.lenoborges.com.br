@@ -4,6 +4,20 @@
   padding: 1.25rem 1rem 4rem;
 }
 
+.page__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.page__brand app-logo {
+  width: 2rem;
+}
+
+.page__brand .page__eyebrow {
+  margin: 0;
+}
+
 .page__eyebrow {
   color: var(--accent-deep);
   font-size: var(--step--1);

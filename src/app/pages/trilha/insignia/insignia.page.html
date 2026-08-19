@@ -2,7 +2,10 @@
   <a routerLink="/dashboard/trilha" class="back u-mono">← Todas as insígnias</a>
 
   <header class="page__head">
-    <h1 class="page__title">{{ stage()?.title ?? 'Insígnia' }}</h1>
+    <div class="page__brand">
+      <app-logo />
+      <h1 class="page__title">{{ stage()?.title ?? 'Insígnia' }}</h1>
+    </div>
     @if (stage(); as etapa) {
       <p class="page__topics">{{ etapa.topics.join(' · ') }}</p>
     }

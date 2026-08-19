@@ -41,7 +41,7 @@ const ASIDE_EXPANDED_STORAGE_KEY = 'eduleno.aside.expanded';
           <app-icon-menu />
         </button>
         <a routerLink="/dashboard" class="mobile-header__logo" aria-label="Liga Dev, início do painel">
-          <app-logo variant="mark" />
+          <app-logo />
           <span class="mobile-header__title u-mono">LIGA DEV</span>
         </a>
       </header>

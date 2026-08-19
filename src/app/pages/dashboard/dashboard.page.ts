@@ -10,6 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { BadgeCount } from '../../components/badge-count/badge-count';
+import { Logo } from '../../shared/logo/logo';
 import { IconBilling } from '../../components/icons/icon-billing';
 import { IconGames } from '../../components/icons/icon-games';
 import { IconMural } from '../../components/icons/icon-mural';
@@ -32,7 +33,8 @@ import { AuthStore } from '../../core/auth/auth.store';
     IconWhatsapp,
     IconUser,
     IconGames,
-    IconShield
+    IconShield,
+    Logo
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.page.html',

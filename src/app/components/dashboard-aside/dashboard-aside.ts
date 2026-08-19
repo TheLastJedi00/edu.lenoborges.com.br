@@ -71,7 +71,7 @@ export interface AsideNavItem {
     >
       <div class="aside__head">
         <a routerLink="/dashboard" class="aside__logo" (click)="onNavClick('/dashboard')">
-          <app-logo variant="mark" />
+          <app-logo />
           @if (expanded()) {
             <span class="aside__logo-text u-mono">LIGA DEV</span>
           }
