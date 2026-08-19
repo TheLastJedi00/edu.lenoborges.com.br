@@ -23,7 +23,7 @@ export interface MenuAction {
     <a class="skip" href="#conteudo">Ir para o conteúdo</a>
     <div class="bar u-shell">
       <a class="mark" [routerLink]="homeRoute()" aria-label="Leno Borges, início">
-        <app-logo variant="mark" />
+        <app-logo />
       </a>
       <nav aria-label="Seções da página">
         <ul class="menu u-mono">

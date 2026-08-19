@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TierCard } from '../../components/tier-card/tier-card';
+import { Logo } from '../../shared/logo/logo';
 import { BillingService } from '../../services/billing.service';
 import { BillingTier, TierCatalog } from '../../models/billing.model';
 import { ProfileService } from '../../services/profile.service';
@@ -18,7 +19,7 @@ type LoadState = 'loading' | 'ready' | 'error';
 @Component({
   selector: 'app-financeiro-page',
   standalone: true,
-  imports: [TierCard],
+  imports: [TierCard, Logo],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './financeiro.page.html',
   styleUrl: './financeiro.page.scss'

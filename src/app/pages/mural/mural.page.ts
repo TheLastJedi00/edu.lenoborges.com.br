@@ -10,6 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { QuestionCard } from '../../components/question-card/question-card';
+import { Logo } from '../../shared/logo/logo';
 import { MuralService } from '../../services/mural.service';
 import {
   MuralQuestion,
@@ -24,7 +25,7 @@ type LoadState = 'loading' | 'ready' | 'error';
 @Component({
   selector: 'app-mural-page',
   standalone: true,
-  imports: [RouterLink, QuestionCard],
+  imports: [RouterLink, QuestionCard, Logo],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './mural.page.html',
   styleUrl: './mural.page.scss'

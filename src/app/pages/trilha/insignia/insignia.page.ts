@@ -16,6 +16,7 @@ import {
   youtubeEmbedUrl
 } from '../../../models/track.model';
 import { TrackService } from '../../../services/track.service';
+import { Logo } from '../../../shared/logo/logo';
 import { CommunityService } from '../../../services/community.service';
 
 type LoadState = 'loading' | 'ready' | 'error';
@@ -23,7 +24,7 @@ type LoadState = 'loading' | 'ready' | 'error';
 @Component({
   selector: 'app-insignia-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, Logo],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './insignia.page.html',
   styleUrl: './insignia.page.scss'
