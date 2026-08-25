@@ -224,7 +224,10 @@ Valem as regras da decisão 9 da spec 009. O que esta tela acrescenta:
 
 - **Tempo real.** Nada de `onSnapshot` e nada de polling (decisão 4).
 - **Comentar ou responder por texto.** O Mural é perguntar e votar.
-- **Notificação** de "sua pergunta venceu". Não existe canal de notificação no produto.
+- **Notificação** de "sua pergunta venceu". ~~Não existe canal de notificação no produto.~~ **A spec 012
+  criou o canal**, e mesmo assim este evento continua fora: a vencedora é *derivada, nunca gravada*, então
+  não existe o instante em que ela "acontece" para virar gatilho. Notificar exigiria o cron que esta spec
+  recusou de propósito.
 - **Busca e filtro por insígnia** nas listas do Mural. Com uma pergunta por pessoa por semana, a lista
   não chega no tamanho que exigiria busca. Se chegar, a spec é outra.
 - **Jogos e desafios.** A regra de tier já está escrita — Dev Tier não participa —, mas nada disso

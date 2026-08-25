@@ -19,6 +19,25 @@ Aplicação web e plataforma de membros da **Seita Dev**, desenvolvida com Angul
 | `/completar-perfil` | Onboarding obrigatório de novos membros (nome, telefone, bio) | Protegida | `authGuard`, `onboardingPendingGuard` |
 | `/dashboard` | Painel do membro com trilha, grupo e ranking | Protegida | `authGuard`, `profileCompleteGuard` |
 
+## Notificações Internas (spec 012)
+
+Um sino no painel avisa sobre **dois eventos**: vídeo novo numa insígnia e pergunta nova no Mural. Com
+não lidas ele balança por 700ms a cada 8s, com um brilho laranja no mesmo compasso; ao toque, um painel
+desce por cima do conteúdo com a lista, e cada linha abre um modal que leva à trilha da insígnia ou ao
+Mural com as perguntas mais recentes em cima.
+
+Três coisas que valem saber antes de mexer:
+
+- **O sino vive em dois lugares.** A barra de cabeçalho do painel só existe no celular, então no desktop
+  ele mora no topo do menu lateral — e continua visível com o menu recolhido.
+- **Não há polling e não há tempo real.** A lista é buscada na abertura do painel e a cada vez que o
+  sino abre. A notificação chega na próxima vez que a pessoa abre o painel, e isso é uma frase honesta.
+- **Não há histórico.** O painel mostra só as não lidas, e o que é marcado some para sempre. Por isso
+  abrir o painel **não** marca nada: quem marca é abrir o modal, o check da linha, ou "Marcar todas
+  como lidas".
+
+Falhar ao carregar deixa o sino parado e não vira erro de tela: o painel funciona inteiro sem ele.
+
 ## Variáveis de Ambiente
 
 As configurações ficam em `src/environments/`:
