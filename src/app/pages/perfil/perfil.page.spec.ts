@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -275,6 +275,168 @@ describe('PerfilPage', () => {
         jasmine.objectContaining({ linkedin: '' })
       );
       expect(campo('linkedin').value).toBe('');
+    });
+  });
+
+  describe('Acesso', () => {
+    it('fechado, o bloco da senha não mostra dado nenhum', async () => {
+      await montar();
+
+      const valores = Array.from(
+        fixture.nativeElement.querySelectorAll('.acesso__value') as NodeListOf<HTMLElement>
+      ).map((el) => el.textContent?.trim());
+
+      expect(valores).toEqual(['leno@exemplo.com', 'Senha · alterada por você']);
+    });
+
+    it('a explicação do campo de senha atual aparece nos dois blocos abertos', async () => {
+      await montar();
+
+      component['abrirAcesso']('email');
+      fixture.detectChanges();
+      expect(fixture.nativeElement.textContent).toContain(
+        'Confirmamos que é você antes de mudar o acesso.'
+      );
+
+      component['abrirAcesso']('senha');
+      fixture.detectChanges();
+      expect(fixture.nativeElement.textContent).toContain(
+        'Confirmamos que é você antes de mudar o acesso.'
+      );
+    });
+
+    it('fechar cancela e limpa os campos, inclusive os de senha', async () => {
+      await montar();
+
+      component['abrirAcesso']('senha');
+      component['senhaForm'].controls.currentPassword.setValue('minha-senha');
+      component['fecharAcesso']();
+
+      expect(component['senhaForm'].controls.currentPassword.value).toBe('');
+      expect(component['acessoAberto']()).toBeNull();
+    });
+
+    it('teste-trava: o 202 da troca de e-mail NÃO muda o e-mail exibido nem o store', async () => {
+      // É o reflexo mais provável de quem for implementar, e a mentira só
+      // apareceria no próximo login, falhando.
+      await montar();
+
+      component['abrirAcesso']('email');
+      component['emailForm'].setValue({ newEmail: 'novo@exemplo.com', password: 'senha' });
+      authService.changeEmail.and.returnValue(of(undefined));
+
+      await component.pedirTrocaDeEmail();
+      fixture.detectChanges();
+
+      expect(component['profile']()?.email).toBe('leno@exemplo.com');
+      expect(authStore.user()?.email).toBe('leno@exemplo.com');
+    });
+
+    it('o 202 mantém o bloco aberto com a confirmação enviada', async () => {
+      // Fica aberto para a pessoa reenviar se o e-mail não chegar.
+      await montar();
+
+      component['abrirAcesso']('email');
+      component['emailForm'].setValue({ newEmail: 'novo@exemplo.com', password: 'senha' });
+      authService.changeEmail.and.returnValue(of(undefined));
+
+      await component.pedirTrocaDeEmail();
+      fixture.detectChanges();
+
+      expect(component['acessoAberto']()).toBe('email');
+      const ok = fixture.nativeElement.querySelector('.acesso__ok') as HTMLElement;
+      expect(ok.textContent).toContain('Confirmação enviada para novo@exemplo.com');
+      expect(ok.textContent).toContain('sessão termina');
+    });
+
+    it('401 na troca de e-mail mostra Senha incorreta dentro do bloco, sem navegar', async () => {
+      await montar();
+
+      component['abrirAcesso']('email');
+      component['emailForm'].setValue({ newEmail: 'novo@exemplo.com', password: 'errada' });
+      authService.changeEmail.and.returnValue(
+        throwError(() => new HttpErrorResponse({ status: 401 }))
+      );
+
+      await component.pedirTrocaDeEmail();
+      fixture.detectChanges();
+
+      const erro = fixture.nativeElement.querySelector('.form__error') as HTMLElement;
+      expect(erro.textContent).toContain('Senha incorreta.');
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('o aviso de que a sessão termina está na tela, e não há diálogo', async () => {
+      await montar();
+
+      component['abrirAcesso']('senha');
+      fixture.detectChanges();
+
+      const aviso = fixture.nativeElement.querySelector('.acesso__warn') as HTMLElement;
+      expect(aviso.textContent).toContain('sai de todos os aparelhos');
+    });
+
+    it('senhas diferentes travam o botão', async () => {
+      await montar();
+
+      component['abrirAcesso']('senha');
+      component['senhaForm'].setValue({
+        currentPassword: 'antiga',
+        newPassword: 'nova-senha-forte',
+        confirmPassword: 'nova-senha-fort'
+      });
+      fixture.detectChanges();
+
+      expect(component['senhasConferem']()).toBeFalse();
+
+      await component.trocarSenha();
+      expect(authService.changePassword).not.toHaveBeenCalled();
+    });
+
+    it('sucesso na troca de senha vai para a landing com ?entrar=1', async () => {
+      // Cair numa tela de login sem contexto é indistinguível de ter sido
+      // deslogado por erro.
+      await montar();
+
+      component['abrirAcesso']('senha');
+      component['senhaForm'].setValue({
+        currentPassword: 'antiga',
+        newPassword: 'nova-senha-forte',
+        confirmPassword: 'nova-senha-forte'
+      });
+      authService.changePassword.and.returnValue(of(undefined));
+
+      await component.trocarSenha();
+
+      expect(authService.changePassword).toHaveBeenCalledWith({
+        currentPassword: 'antiga',
+        newPassword: 'nova-senha-forte'
+      });
+      expect(router.navigate).toHaveBeenCalledWith(['/'], {
+        queryParams: { entrar: '1', senha: 'trocada' }
+      });
+    });
+
+    it('teste-trava: 401 na troca de senha não navega e não desloga', async () => {
+      await montar();
+
+      component['abrirAcesso']('senha');
+      component['senhaForm'].setValue({
+        currentPassword: 'errada',
+        newPassword: 'nova-senha-forte',
+        confirmPassword: 'nova-senha-forte'
+      });
+      authService.changePassword.and.returnValue(
+        throwError(() => new HttpErrorResponse({ status: 401 }))
+      );
+
+      await component.trocarSenha();
+      fixture.detectChanges();
+
+      const erro = fixture.nativeElement.querySelector('.form__error') as HTMLElement;
+      expect(erro.textContent).toContain('Senha incorreta.');
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(authStore.isLoggedIn()).toBeTrue();
     });
   });
 

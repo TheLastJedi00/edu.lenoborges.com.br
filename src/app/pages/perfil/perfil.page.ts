@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmDialog } from '../../components/confirm-dialog/confirm-dialog';
 import { IconInstagram } from '../../components/icons/icon-instagram';
@@ -47,6 +48,7 @@ type LoadState = 'loading' | 'ready' | 'error';
 export class PerfilPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly authStore = inject(AuthStore);
 
@@ -169,6 +171,130 @@ export class PerfilPage implements OnInit {
       );
     } finally {
       this.savingRedes.set(false);
+    }
+  }
+
+  // -------------------------------------------------------------------- Acesso
+
+  /**
+   * Qual bloco de Acesso está aberto.
+   *
+   * Fechado, cada um mostra só o **estado** — o e-mail atual, e "Senha ·
+   * alterada por você" sem nenhum dado. Fechar cancela e limpa os campos,
+   * **inclusive os de senha**.
+   */
+  protected readonly acessoAberto = signal<'email' | 'senha' | null>(null);
+
+  protected readonly emailForm = this.fb.nonNullable.group({
+    newEmail: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required]
+  });
+
+  protected readonly senhaForm = this.fb.nonNullable.group({
+    currentPassword: ['', Validators.required],
+    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+    // **A confirmação é do front e não vai para a API**: é proteção contra
+    // digitar errado a senha que ninguém vai lembrar depois.
+    confirmPassword: ['', Validators.required]
+  });
+
+  protected readonly savingEmail = signal(false);
+  protected readonly emailError = signal('');
+  /** Para onde a confirmação foi. Fica na tela para a pessoa poder reenviar. */
+  protected readonly emailEnviadoPara = signal('');
+
+  protected readonly savingSenha = signal(false);
+  protected readonly senhaError = signal('');
+
+  protected readonly senhasConferem = computed(
+    () =>
+      this.senhaForm.controls.newPassword.value ===
+      this.senhaForm.controls.confirmPassword.value
+  );
+
+  protected abrirAcesso(qual: 'email' | 'senha'): void {
+    this.acessoAberto.set(qual);
+  }
+
+  /** Fechar cancela e limpa — nenhuma senha digitada sobrevive ao cancelamento. */
+  protected fecharAcesso(): void {
+    this.acessoAberto.set(null);
+    this.emailForm.reset();
+    this.senhaForm.reset();
+    this.emailError.set('');
+    this.senhaError.set('');
+  }
+
+  /**
+   * Pede a troca do e-mail.
+   *
+   * A resposta é `202`: o pedido foi aceito, a troca **não aconteceu**. O bloco
+   * fica aberto com "Confirmação enviada para …", e o e-mail exibido **não muda
+   * de valor** — trocar o texto na tela antes de o link ser clicado seria mentir
+   * sobre o estado do sistema, e a mentira só apareceria no próximo login,
+   * falhando.
+   */
+  async pedirTrocaDeEmail(): Promise<void> {
+    if (this.emailForm.invalid || this.savingEmail()) {
+      return;
+    }
+
+    this.savingEmail.set(true);
+    this.emailError.set('');
+
+    const { newEmail, password } = this.emailForm.getRawValue();
+
+    try {
+      await firstValueFrom(this.authService.changeEmail({ newEmail, password }));
+      this.emailEnviadoPara.set(newEmail.trim().toLowerCase());
+      this.emailForm.controls.password.reset();
+    } catch (error: unknown) {
+      this.emailError.set(
+        httpErrorMessage(error, 'Não consegui pedir a troca de e-mail agora.', {
+          401: 'Senha incorreta.'
+        })
+      );
+    } finally {
+      this.savingEmail.set(false);
+    }
+  }
+
+  /**
+   * Troca a senha e sai.
+   *
+   * Depois do `204`: a sessão já foi limpa pelo service, e o destino é a landing
+   * com `?entrar=1` — o parâmetro da spec 007, que abre o diálogo de login.
+   * **O caminho de volta importa mais que o aviso**: trocar a senha e cair numa
+   * tela de login sem contexto é indistinguível de ter sido deslogado por erro.
+   *
+   * **Sem `confirm-dialog`** (decisão 7): o aviso já está fixo acima do botão, e
+   * diálogo em cima de aviso é o que ensina a clicar em "Confirmar" sem ler.
+   */
+  async trocarSenha(): Promise<void> {
+    if (this.senhaForm.invalid || !this.senhasConferem() || this.savingSenha()) {
+      return;
+    }
+
+    this.savingSenha.set(true);
+    this.senhaError.set('');
+
+    const { currentPassword, newPassword } = this.senhaForm.getRawValue();
+
+    try {
+      await firstValueFrom(this.authService.changePassword({ currentPassword, newPassword }));
+      await this.router.navigate(['/'], {
+        queryParams: { entrar: '1', senha: 'trocada' }
+      });
+    } catch (error: unknown) {
+      // Dentro do bloco, sem navegar e sem deslogar: quem errou a digitação não
+      // pode ser expulso da conta por isso.
+      this.senhaError.set(
+        httpErrorMessage(error, 'Não consegui trocar sua senha agora.', {
+          401: 'Senha incorreta.'
+        })
+      );
+    } finally {
+      this.savingSenha.set(false);
     }
   }
 

@@ -252,3 +252,84 @@
   height: 1rem;
   color: var(--accent-deep);
 }
+
+/* -------------------------------------------------------------------- acesso */
+
+.acesso {
+  padding: 1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--screen);
+}
+
+.acesso__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.acesso__label {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.acesso__value {
+  margin: 0.2rem 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  overflow-wrap: anywhere;
+}
+
+.acesso__open {
+  min-height: 2.75rem;
+  padding: 0.6rem 1.1rem;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.acesso__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.acesso__warn {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--accent-deep);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+
+.acesso__ok {
+  margin: 0;
+  padding: 0.8rem 0.95rem;
+  border: var(--border-w) solid var(--accent-deep);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.ghost {
+  min-height: 2.75rem;
+  padding: 0.7rem 1.2rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  cursor: pointer;
+}
