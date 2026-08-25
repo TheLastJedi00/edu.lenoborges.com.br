@@ -112,7 +112,7 @@ describe('PerfilPage', () => {
     it('o botão fica travado enquanto nada mudou', async () => {
       await montar();
 
-      const botao = fixture.nativeElement.querySelector('.submit') as HTMLButtonElement;
+      const botao = fixture.nativeElement.querySelector('form .btn--solid') as HTMLButtonElement;
       expect(botao.disabled).toBeTrue();
     });
 
@@ -122,7 +122,7 @@ describe('PerfilPage', () => {
       component['dadosForm'].controls.name.setValue('Leno Novo');
       fixture.detectChanges();
 
-      const botao = fixture.nativeElement.querySelector('.submit') as HTMLButtonElement;
+      const botao = fixture.nativeElement.querySelector('form .btn--solid') as HTMLButtonElement;
       expect(botao.disabled).toBeFalse();
 
       authService.updateProfile.and.returnValue(of({ ...PERFIL, name: 'Leno Novo' }));
@@ -134,7 +134,7 @@ describe('PerfilPage', () => {
       );
       // Depois de salvar o botão volta a travar: o que está na tela é o que
       // está no servidor.
-      const depois = fixture.nativeElement.querySelector('.submit') as HTMLButtonElement;
+      const depois = fixture.nativeElement.querySelector('form .btn--solid') as HTMLButtonElement;
       expect(depois.disabled).toBeTrue();
     });
 
@@ -450,6 +450,13 @@ describe('PerfilPage', () => {
       return dialog;
     }
 
+    function digitarSenha(dialog: HTMLDialogElement, senha: string): void {
+      const campo = dialog.querySelector('.modal__input') as HTMLInputElement;
+      campo.value = senha;
+      campo.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+    }
+
     it('a lista do que some e do que fica está na tela, com as duas colunas', async () => {
       await montar();
 
@@ -463,13 +470,12 @@ describe('PerfilPage', () => {
 
     it('o botão final fica travado enquanto a senha está vazia', async () => {
       await montar();
-      abrir();
+      const dialog = abrir();
 
-      const botao = fixture.nativeElement.querySelector('.danger') as HTMLButtonElement;
+      const botao = dialog.querySelector('.modal__btn--danger') as HTMLButtonElement;
       expect(botao.disabled).toBeTrue();
 
-      component['senhaExclusao'].set('minha-senha');
-      fixture.detectChanges();
+      digitarSenha(dialog, 'minha-senha');
       expect(botao.disabled).toBeFalse();
     });
 
@@ -479,25 +485,27 @@ describe('PerfilPage', () => {
       // aqui é exceção declarada, não descuido.
       jasmine.clock().install();
       await montar();
-      abrir();
+      const dialog = abrir();
 
       jasmine.clock().tick(60);
-      const cancelar = fixture.nativeElement.querySelector('.ghost') as HTMLButtonElement;
+      const cancelar = dialog.querySelector('.modal__btn') as HTMLButtonElement;
+      expect(cancelar.textContent?.trim()).toBe('Cancelar');
       expect(document.activeElement).toBe(cancelar);
       jasmine.clock().uninstall();
     });
 
     it('204 limpa a sessão e vai para a landing, sem toast de sucesso', async () => {
       await montar();
-      abrir();
+      const dialog = abrir();
+      digitarSenha(dialog, 'minha-senha');
 
-      component['senhaExclusao'].set('minha-senha');
       authService.deleteAccount.and.callFake(() => {
         authStore.clearSession();
         return of(undefined);
       });
 
-      await component.excluirConta();
+      (dialog.querySelector('.modal__btn--danger') as HTMLButtonElement).click();
+      await fixture.whenStable();
 
       expect(authService.deleteAccount).toHaveBeenCalledWith('minha-senha');
       expect(authStore.isLoggedIn()).toBeFalse();
@@ -509,16 +517,15 @@ describe('PerfilPage', () => {
       await montar();
       const dialog = abrir();
 
-      component['senhaExclusao'].set('errada');
       authService.deleteAccount.and.returnValue(
         throwError(() => new HttpErrorResponse({ status: 401 }))
       );
 
-      await component.excluirConta();
+      await component.excluirConta('errada');
       fixture.detectChanges();
 
       expect(dialog.hasAttribute('open')).toBeTrue();
-      const erro = dialog.querySelector('.form__error') as HTMLElement;
+      const erro = dialog.querySelector('.modal__error') as HTMLElement;
       expect(erro.textContent).toContain('Senha incorreta.');
       expect(router.navigate).not.toHaveBeenCalled();
       expect(authStore.isLoggedIn()).toBeTrue();
@@ -529,7 +536,6 @@ describe('PerfilPage', () => {
       await montar();
       const dialog = abrir();
 
-      component['senhaExclusao'].set('minha-senha');
       authService.deleteAccount.and.returnValue(
         throwError(
           () =>
@@ -540,12 +546,60 @@ describe('PerfilPage', () => {
         )
       );
 
-      await component.excluirConta();
+      await component.excluirConta('minha-senha');
       fixture.detectChanges();
 
-      expect((dialog.querySelector('.form__error') as HTMLElement).textContent).toContain(
+      expect((dialog.querySelector('.modal__error') as HTMLElement).textContent).toContain(
         'Contas de administração não podem ser excluídas por aqui.'
       );
+    });
+  });
+
+  describe('acabamento', () => {
+    /**
+     * Sem `autocomplete` o gerenciador de senhas oferece a senha errada no campo
+     * errado, e o de "senha atual" é o que mais dói: ele preenche a nova com a
+     * antiga e a troca falha sem que a pessoa entenda por quê.
+     */
+    it('cada campo declara o autocomplete certo', async () => {
+      await montar();
+
+      const porNome = (nome: string) =>
+        (
+          fixture.nativeElement.querySelector(
+            `input[formControlName="${nome}"]`
+          ) as HTMLInputElement
+        ).getAttribute('autocomplete');
+
+      expect(porNome('name')).toBe('name');
+      expect(porNome('phone')).toBe('tel');
+      expect(porNome('linkedin')).toBe('url');
+
+      component['abrirAcesso']('email');
+      fixture.detectChanges();
+      expect(porNome('newEmail')).toBe('email');
+      expect(porNome('password')).toBe('current-password');
+
+      component['abrirAcesso']('senha');
+      fixture.detectChanges();
+      expect(porNome('currentPassword')).toBe('current-password');
+      expect(porNome('newPassword')).toBe('new-password');
+      expect(porNome('confirmPassword')).toBe('new-password');
+    });
+
+    it('cada seção é um section com título alcançável', async () => {
+      await montar();
+
+      const secoes = Array.from(
+        fixture.nativeElement.querySelectorAll('section.block') as NodeListOf<HTMLElement>
+      );
+
+      expect(secoes.length).toBe(4);
+      secoes.forEach((secao) => {
+        const id = secao.getAttribute('aria-labelledby');
+        expect(id).not.toBeNull();
+        expect(fixture.nativeElement.querySelector(`#${id}`)).not.toBeNull();
+      });
     });
   });
 
@@ -558,6 +612,6 @@ describe('PerfilPage', () => {
 
     const alerta = fixture.nativeElement.querySelector('[role="alert"]') as HTMLElement;
     expect(alerta.textContent).toContain('Não consegui carregar seu perfil');
-    expect(fixture.nativeElement.querySelector('.feedback__retry')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.btn--solid')).not.toBeNull();
   });
 });

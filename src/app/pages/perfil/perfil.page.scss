@@ -99,31 +99,9 @@
   }
 }
 
-.feedback {
-  display: grid;
-  justify-items: start;
-  gap: 0.75rem;
-  padding: 1.25rem;
-  border: var(--border-w) solid var(--border-soft);
-  border-radius: var(--radius-lg);
-  background: var(--paper);
-}
-
 .feedback__text {
   margin: 0;
   color: var(--ink);
-}
-
-.feedback__retry {
-  min-height: 2.75rem;
-  padding: 0.7rem 1.2rem;
-  border: var(--border-w) solid var(--ink);
-  border-radius: var(--radius-sm);
-  background: var(--ink);
-  color: var(--paper);
-  font-family: var(--font-body);
-  font-weight: 700;
-  cursor: pointer;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -189,8 +167,6 @@
 }
 
 .field__note {
-  color: var(--ink-soft);
-  font-size: var(--step--2);
   line-height: 1.45;
 }
 
@@ -208,24 +184,6 @@
 .form__ok {
   color: var(--accent-deep);
   font-size: var(--step--1);
-}
-
-.submit {
-  justify-self: start;
-  min-height: 2.75rem;
-  padding: 0.7rem 1.4rem;
-  border: var(--border-w) solid var(--ink);
-  border-radius: var(--radius-sm);
-  background: var(--ink);
-  color: var(--paper);
-  font-family: var(--font-display);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.submit:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
 }
 
 .block__lead {
@@ -279,21 +237,15 @@
 
 .acesso__value {
   margin: 0.2rem 0 0;
-  color: var(--ink-soft);
-  font-size: var(--step--1);
   overflow-wrap: anywhere;
 }
 
-.acesso__open {
-  min-height: 2.75rem;
-  padding: 0.6rem 1.1rem;
-  border: var(--border-w) solid var(--ink);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-weight: 700;
-  cursor: pointer;
+.acesso__value,
+.excluir__itens,
+.excluir__nota,
+.field__note {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
 }
 
 .acesso__actions {
@@ -322,18 +274,6 @@
   line-height: 1.55;
 }
 
-.ghost {
-  min-height: 2.75rem;
-  padding: 0.7rem 1.2rem;
-  border: var(--border-w) solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-weight: 700;
-  cursor: pointer;
-}
-
 /* ------------------------------------------------------------ excluir conta */
 
 .excluir__listas {
@@ -354,8 +294,6 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--ink-soft);
-  font-size: var(--step--1);
 }
 
 .excluir__itens li::before {
@@ -366,22 +304,7 @@
 .excluir__nota {
   margin: 0;
   max-width: 58ch;
-  color: var(--ink-soft);
-  font-size: var(--step--2);
   line-height: 1.55;
-}
-
-.excluir__abrir {
-  justify-self: start;
-  min-height: 2.75rem;
-  padding: 0.7rem 1.4rem;
-  border: var(--border-w) solid #c0392b;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: #c0392b;
-  font-family: var(--font-display);
-  font-weight: 700;
-  cursor: pointer;
 }
 
 @media (min-width: 48rem) {
@@ -391,66 +314,82 @@
   }
 }
 
-/* -------------------------------------------------------- diálogo de exclusão */
+// ------------------------------------------------------------------- botões
+//
+// Seis botões desta tela — salvar, cancelar, abrir um bloco de acesso, abrir o
+// diálogo, excluir, tentar de novo — só diferem em cor e peso. Escritos um a
+// um, eram seis cópias da mesma caixa que divergiriam na primeira mudança de
+// altura de toque.
 
-.modal {
-  /* Largura de folha no celular, e altura que não corta os botões com o teclado
-     virtual aberto — que é o pior caso possível desta tela. */
-  width: min(28rem, calc(100vw - 2rem));
-  max-height: calc(100dvh - 2rem);
-  overflow-y: auto;
-  inset: 0;
-  margin: auto;
-  padding: 1.5rem;
-  border: var(--border-w) solid var(--border-soft);
-  border-radius: var(--radius-lg);
-  background: var(--paper);
-  box-shadow: var(--shadow-hard);
-  color: var(--ink);
-}
-
-.modal::backdrop {
-  background: rgba(16, 24, 40, 0.6);
-  backdrop-filter: blur(4px);
-}
-
-.modal__title {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--step-1);
-  line-height: 1.25;
-}
-
-.modal__message {
-  margin: 0.75rem 0 1rem;
-  color: var(--ink-soft);
-  font-size: var(--step--1);
-  line-height: 1.55;
-}
-
-.modal__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
-}
-
-/* O vermelho é daqui, e só daqui. */
-.danger {
+.btn {
+  // 44px de verdade: o alvo de toque não é negociável no celular.
   min-height: 2.75rem;
-  padding: 0.7rem 1.2rem;
-  border: none;
+  padding: 0.7rem 1.3rem;
+  border: var(--border-w) solid transparent;
   border-radius: var(--radius-sm);
-  background: #c0392b;
-  color: #fff;
+  background: transparent;
+  color: var(--ink);
   font-family: var(--font-display);
   font-weight: 700;
   cursor: pointer;
 }
 
-.danger:disabled {
+.btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.btn--solid {
+  justify-self: start;
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn--outline {
+  border-color: var(--ink);
+}
+
+.btn--ghost {
+  border-color: var(--border-soft);
+}
+
+// A saída é séria, não barulhenta: aqui o vermelho é só contorno.
+.btn--outline-danger {
+  justify-self: start;
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+// O vermelho cheio é do botão final, dentro do diálogo, e só dele.
+.btn--danger {
+  background: #c0392b;
+  color: #fff;
+}
+
+// --------------------------------------------------------------- no celular
+//
+// Seções empilhadas e campos de largura cheia já são o padrão do grid acima. O
+// que muda aqui é o alcance do polegar: botão de meia largura no meio da tela
+// é o alvo mais fácil de errar.
+
+@media (max-width: 47.999rem) {
+  .page {
+    padding: 1rem 0.85rem 5rem;
+  }
+
+  .btn {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .acesso__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .acesso__row {
+    align-items: flex-start;
+  }
+
 }

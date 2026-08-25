@@ -23,9 +23,9 @@
     }
 
     @case ('error') {
-      <div class="feedback" role="alert">
+      <div class="block" role="alert">
         <p class="feedback__text">Não consegui carregar seu perfil agora.</p>
-        <button type="button" class="feedback__retry" (click)="recarregar()">
+        <button type="button" class="btn btn--solid" (click)="recarregar()">
           Tentar de novo
         </button>
       </div>
@@ -104,7 +104,7 @@
           }
 
           <button
-            class="submit"
+            class="btn btn--solid"
             type="submit"
             [disabled]="!dadosDirty() || dadosForm.invalid || savingDados()"
           >
@@ -173,7 +173,7 @@
             <p class="form__ok" role="status">Redes salvas.</p>
           }
 
-          <button class="submit" type="submit" [disabled]="savingRedes()">
+          <button class="btn btn--solid" type="submit" [disabled]="savingRedes()">
             @if (savingRedes()) {
               Salvando…
             } @else {
@@ -194,7 +194,7 @@
                 <p class="acesso__label">E-mail de acesso</p>
                 <p class="acesso__value">{{ profile()?.email }}</p>
               </div>
-              <button type="button" class="acesso__open" (click)="abrirAcesso('email')">
+              <button type="button" class="btn btn--outline" (click)="abrirAcesso('email')">
                 Trocar
               </button>
             </div>
@@ -240,8 +240,8 @@
               }
 
               <div class="acesso__actions">
-                <button type="button" class="ghost" (click)="fecharAcesso()">Cancelar</button>
-                <button class="submit" type="submit" [disabled]="emailForm.invalid || savingEmail()">
+                <button type="button" class="btn btn--ghost" (click)="fecharAcesso()">Cancelar</button>
+                <button class="btn btn--solid" type="submit" [disabled]="emailForm.invalid || savingEmail()">
                   @if (savingEmail()) {
                     Enviando…
                   } @else {
@@ -261,7 +261,7 @@
                 <p class="acesso__label">Senha</p>
                 <p class="acesso__value">Senha · alterada por você</p>
               </div>
-              <button type="button" class="acesso__open" (click)="abrirAcesso('senha')">
+              <button type="button" class="btn btn--outline" (click)="abrirAcesso('senha')">
                 Trocar
               </button>
             </div>
@@ -315,9 +315,9 @@
               }
 
               <div class="acesso__actions">
-                <button type="button" class="ghost" (click)="fecharAcesso()">Cancelar</button>
+                <button type="button" class="btn btn--ghost" (click)="fecharAcesso()">Cancelar</button>
                 <button
-                  class="submit"
+                  class="btn btn--solid"
                   type="submit"
                   [disabled]="senhaForm.invalid || !senhasConferem() || savingSenha()"
                 >
@@ -372,7 +372,7 @@
           vídeo — mas passam a aparecer como "Membro removido".
         </p>
 
-        <button type="button" class="excluir__abrir" (click)="abrirExclusao()">
+        <button type="button" class="btn btn--outline-danger" (click)="abrirExclusao()">
           Excluir conta
         </button>
       </section>
@@ -380,60 +380,12 @@
   }
 </section>
 
-<!--
-  Diálogo próprio, e não o `confirm-dialog`: esta é a única confirmação do
-  produto que precisa de um campo de senha no meio, e a única em que o foco
-  inicial é o Cancelar.
-
-  Sem "digite EXCLUIR para confirmar": digitar uma palavra prova atenção,
-  digitar a senha prova identidade — e identidade é o que uma operação
-  irreversível precisa. Pedir as duas é atrito empilhado que não compra nada.
--->
-<dialog #excluirDialog class="modal" aria-labelledby="titulo-modal-excluir">
-  <h2 class="modal__title" id="titulo-modal-excluir">Excluir minha conta</h2>
-  <p class="modal__message">
-    Sua conta, seus dados e seus votos somem agora e para sempre; suas perguntas ficam no Mural
-    como "Membro removido".
-  </p>
-
-  <label class="field">
-    <span class="field__label">Senha atual</span>
-    <input
-      class="field__input"
-      type="password"
-      autocomplete="current-password"
-      [value]="senhaExclusao()"
-      (input)="onSenhaExclusao($event)"
-    />
-  </label>
-
-  @if (exclusaoError()) {
-    <p class="form__error" role="alert">{{ exclusaoError() }}</p>
-  }
-
-  <div class="modal__actions">
-    <button
-      #cancelarExclusaoBtn
-      type="button"
-      class="ghost"
-      (click)="fecharExclusao()"
-    >
-      Cancelar
-    </button>
-    <button
-      type="button"
-      class="danger"
-      [disabled]="!senhaExclusao() || excluindo()"
-      (click)="excluirConta()"
-    >
-      @if (excluindo()) {
-        Excluindo…
-      } @else {
-        Excluir minha conta
-      }
-    </button>
-  </div>
-</dialog>
+<app-delete-account-dialog
+  #excluirDialog
+  [busy]="excluindo()"
+  [errorMessage]="exclusaoError()"
+  (confirmed)="excluirConta($event)"
+/>
 
 <app-confirm-dialog
   #sairDialog

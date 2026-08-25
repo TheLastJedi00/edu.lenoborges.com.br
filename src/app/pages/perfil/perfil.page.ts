@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  ElementRef,
   OnInit,
   computed,
   inject,
@@ -14,6 +13,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmDialog } from '../../components/confirm-dialog/confirm-dialog';
+import { DeleteAccountDialog } from '../../components/delete-account-dialog/delete-account-dialog';
 import { IconInstagram } from '../../components/icons/icon-instagram';
 import { IconLinkedin } from '../../components/icons/icon-linkedin';
 import { Logo } from '../../shared/logo/logo';
@@ -41,7 +41,14 @@ type LoadState = 'loading' | 'ready' | 'error';
 @Component({
   selector: 'app-perfil-page',
   standalone: true,
-  imports: [ReactiveFormsModule, ConfirmDialog, IconLinkedin, IconInstagram, Logo],
+  imports: [
+    ReactiveFormsModule,
+    ConfirmDialog,
+    DeleteAccountDialog,
+    IconLinkedin,
+    IconInstagram,
+    Logo
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './perfil.page.html',
   styleUrl: './perfil.page.scss'
@@ -301,35 +308,21 @@ export class PerfilPage implements OnInit {
 
   // ------------------------------------------------------------ Excluir conta
 
-  private readonly excluirDialog = viewChild<ElementRef<HTMLDialogElement>>('excluirDialog');
-  private readonly cancelarExclusaoBtn =
-    viewChild<ElementRef<HTMLButtonElement>>('cancelarExclusaoBtn');
+  private readonly excluirDialog = viewChild<DeleteAccountDialog>('excluirDialog');
 
-  protected readonly senhaExclusao = signal('');
   protected readonly excluindo = signal(false);
   protected readonly exclusaoError = signal('');
 
   /**
-   * Abre o diálogo de exclusão, e **foca o Cancelar**.
+   * Abre o diálogo de exclusão.
    *
-   * É a única tela do produto onde o botão perigoso não pode estar a um Enter de
-   * distância. O padrão do `confirm-dialog` é focar o confirmar — então aqui é
-   * exceção declarada, e não descuido, e é também por isso que esta tela não usa
-   * aquele componente: ela precisa de um campo de senha no meio.
+   * Quem foca o Cancelar é o próprio diálogo — é a única tela do produto onde o
+   * botão perigoso não pode estar a um Enter de distância, e por isso ela não
+   * usa o `confirm-dialog`, cujo padrão é focar o confirmar.
    */
   protected abrirExclusao(): void {
-    this.senhaExclusao.set('');
     this.exclusaoError.set('');
-    this.excluirDialog()?.nativeElement.showModal();
-    setTimeout(() => this.cancelarExclusaoBtn()?.nativeElement.focus(), 50);
-  }
-
-  protected fecharExclusao(): void {
-    this.excluirDialog()?.nativeElement.close();
-  }
-
-  protected onSenhaExclusao(event: Event): void {
-    this.senhaExclusao.set((event.target as HTMLInputElement).value);
+    this.excluirDialog()?.open();
   }
 
   /**
@@ -343,8 +336,8 @@ export class PerfilPage implements OnInit {
    * no erro faria a pessoa recomeçar do zero. O `403` do admin mostra o texto do
    * backend literal, porque nesse caso quem lê é quem consegue resolver.
    */
-  async excluirConta(): Promise<void> {
-    if (!this.senhaExclusao() || this.excluindo()) {
+  async excluirConta(senha: string): Promise<void> {
+    if (!senha || this.excluindo()) {
       return;
     }
 
@@ -352,8 +345,8 @@ export class PerfilPage implements OnInit {
     this.exclusaoError.set('');
 
     try {
-      await firstValueFrom(this.authService.deleteAccount(this.senhaExclusao()));
-      this.fecharExclusao();
+      await firstValueFrom(this.authService.deleteAccount(senha));
+      this.excluirDialog()?.close();
       // O formulário some junto com a conta: sem isto o guard de saída pediria
       // confirmação para deixar uma tela que não existe mais.
       this.dadosAtual.set(this.dadosBaseline());
