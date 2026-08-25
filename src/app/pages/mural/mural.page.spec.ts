@@ -5,7 +5,11 @@ import {
   HttpTestingController,
   provideHttpClientTesting
 } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
+import {
+  ActivatedRoute,
+  convertToParamMap,
+  provideRouter
+} from '@angular/router';
 import { MuralPage } from './mural.page';
 import { MuralQuestion, MuralState } from '../../models/mural.model';
 
@@ -180,5 +184,52 @@ describe('MuralPage', () => {
 
     expect(el.textContent).toContain('Editar minha pergunta');
     expect(el.textContent).not.toContain('limite');
+  });
+
+  /**
+   * O link da notificacao de pergunta nova (spec 012).
+   *
+   * Ele abre "Esta semana" com a mais nova em cima -- a unica ordem em que a
+   * pergunta anunciada esta visivel sem rolar. **Sem o parametro nada muda**, e
+   * trocar a aba padrao em silencio quebraria o Mural de quem entra pelo menu.
+   */
+  it('com ?ordem=recentes abre em "Esta semana" e pede a ordem invertida', () => {
+    TestBed.configureTestingModule({
+      imports: [MuralPage],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParamMap: convertToParamMap({ ordem: 'recentes' })
+            }
+          }
+        }
+      ]
+    });
+
+    http = TestBed.inject(HttpTestingController);
+    const fixture = TestBed.createComponent(MuralPage);
+    fixture.detectChanges();
+
+    http.expectOne((req) => req.url.endsWith('/mural')).flush(STATE);
+    fixture.detectChanges();
+
+    const request = http.expectOne((req) =>
+      req.url.endsWith('/mural/perguntas')
+    );
+    expect(request.request.params.get('fase')).toBe('coleta');
+    expect(request.request.params.get('ordem')).toBe('recentes');
+    request.flush([]);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.tab--on')?.textContent?.trim()).toBe(
+      'Esta semana'
+    );
   });
 });

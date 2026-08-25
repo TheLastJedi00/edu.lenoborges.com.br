@@ -8,7 +8,7 @@ import {
   signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { QuestionCard } from '../../components/question-card/question-card';
 import { Logo } from '../../shared/logo/logo';
 import { MuralService } from '../../services/mural.service';
@@ -33,6 +33,7 @@ type LoadState = 'loading' | 'ready' | 'error';
 export class MuralPage implements OnInit {
   private readonly mural = inject(MuralService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
 
   /**
    * **"Em votação" é a aba inicial**, e é decisão.
@@ -42,6 +43,9 @@ export class MuralPage implements OnInit {
    * domingo, uma lista vazia como primeira impressão do recurso.
    */
   protected readonly aba = signal<Aba>('votacao');
+
+  /** Vem do link da notificacao, e vale so na aba de coleta (spec 012). */
+  protected readonly ordem = signal<'recentes' | undefined>(undefined);
 
   protected readonly state = signal<MuralState | null>(null);
   protected readonly questions = signal<readonly MuralQuestion[]>([]);
@@ -61,6 +65,17 @@ export class MuralPage implements OnInit {
   );
 
   ngOnInit(): void {
+    // `?ordem=recentes` é o que a notificação de pergunta nova acrescenta ao
+    // link. Ele abre a aba "Esta semana" com a mais nova em cima — a única
+    // ordem em que a pergunta anunciada está visível sem rolar.
+    //
+    // **Sem o parâmetro nada muda**: a aba inicial continua sendo "Em votação".
+    const ordem = this.route.snapshot.queryParamMap.get('ordem');
+    if (ordem === 'recentes') {
+      this.ordem.set('recentes');
+      this.aba.set('coleta');
+    }
+
     this.loadState.set('loading');
 
     this.mural
@@ -94,7 +109,10 @@ export class MuralPage implements OnInit {
     this.loadState.set('loading');
 
     this.mural
-      .listQuestions(fase)
+      // A ordem invertida vale só na coleta, e só para quem chegou pela
+      // notificação: em "Em votação" a ordem é a de votos, e mexer nela mudaria
+      // qual pergunta parece estar ganhando.
+      .listQuestions(fase, fase === 'coleta' ? this.ordem() : undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (list) => {
