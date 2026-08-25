@@ -33,6 +33,7 @@ import { IconCheck } from '../icons/icon-check';
       <section
         id="painel-notificacoes"
         class="panel animate-enter--fade"
+        [class.panel--start]="align() === 'start'"
         role="dialog"
         aria-label="Notificações"
       >
@@ -114,6 +115,24 @@ import { IconCheck } from '../icons/icon-check';
       box-shadow: var(--shadow-hard);
       overflow: hidden;
       animation: anim-panel-down var(--motion-2) var(--ease-out) both;
+    }
+
+    /*
+     * O painel abre para o lado que sobra, e quem sabe o lado é quem o coloca
+     * na tela.
+     *
+     * O padrão right: 0 cresce 22rem PARA A ESQUERDA, que é o certo para o sino
+     * da barra do celular — encostado na borda direita, é a única direção que
+     * existe. No desktop o sino mudou de lado: mora no .aside__head, numa coluna
+     * fixed; left: 0, e crescer para a esquerda joga o cartão para fora da
+     * janela. Com o menu recolhido some quase inteiro.
+     *
+     * FORA das media queries de celular, de propósito: abaixo de 48rem o painel
+     * é folha, com left e right próprios, e nada ali muda.
+     */
+    .panel--start {
+      left: 0;
+      right: auto;
     }
 
     .panel__head {
@@ -297,6 +316,14 @@ export class NotificationPanel {
 
   readonly open = input<boolean>(false);
   readonly notifications = input<readonly AppNotification[]>([]);
+  /**
+   * De que borda do sino o painel se ancora.
+   *
+   * **`'end'` é o padrão porque é o comportamento de hoje e é o certo para a
+   * barra do celular.** Um input obrigatório faria o host que já está certo
+   * declarar o que já fazia.
+   */
+  readonly align = input<'start' | 'end'>('end');
 
   readonly select = output<AppNotification>();
   readonly markRead = output<string>();

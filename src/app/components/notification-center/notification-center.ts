@@ -4,6 +4,7 @@ import {
   DestroyRef,
   ElementRef,
   inject,
+  input,
   signal,
   viewChild
 } from '@angular/core';
@@ -39,6 +40,7 @@ import { NotificationDialog } from '../notification-dialog/notification-dialog';
     />
 
     <app-notification-panel
+      [align]="align()"
       [open]="open()"
       [notifications]="store.unread()"
       (select)="openDetail($event)"
@@ -68,6 +70,16 @@ export class NotificationCenter {
   // `read: ElementRef` é obrigatório: sem ele a referência devolve a instância
   // do componente, e o `.focus()` some sem erro nenhum.
   private readonly bell = viewChild('bell', { read: ElementRef });
+
+  /**
+   * De que borda do sino o painel abre, repassado ao painel.
+   *
+   * O centro não decide: quem sabe de que lado da janela o sino está é o host.
+   * No aside do desktop o sino encosta na borda esquerda e o painel precisa de
+   * `start`; na barra do celular ele encosta na direita e o padrão `end` já
+   * está certo.
+   */
+  readonly align = input<'start' | 'end'>('end');
 
   protected readonly store = inject(NotificationsStore);
 

@@ -244,3 +244,18 @@
     max-width: 54rem;
   }
 }
+
+/*
+ * A volta da troca de senha (spec 013). Fica acima do conteúdo, no fluxo, e não
+ * como toast: quem chega aqui precisa ler, e um toast some antes de a pessoa
+ * entender por que foi deslogada.
+ */
+.senha-trocada {
+  margin: 0;
+  padding: 0.9rem 1.1rem;
+  border-bottom: var(--border-w) solid var(--accent-deep);
+  background: var(--screen-lit);
+  color: var(--ink);
+  font-size: var(--step--1);
+  text-align: center;
+}

@@ -1,0 +1,395 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.25rem 1rem 5rem;
+}
+
+.page__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.page__brand app-logo {
+  width: 2rem;
+}
+
+.page__brand .page__eyebrow {
+  margin: 0;
+}
+
+.page__eyebrow {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.05;
+  margin: 0.2rem 0 0;
+}
+
+.page__lead {
+  margin: 0.5rem 0 0;
+  max-width: 52ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+/* Cada seção é um `<section>` com título alcançável por leitor de tela. */
+.block {
+  display: grid;
+  gap: 1rem;
+  padding: 1.4rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.block__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.15;
+}
+
+/*
+ * A saída, separada de tudo.
+ *
+ * Respiro grande acima e borda de atenção — e nada de vermelho gritante: é a
+ * seção mais séria da tela, não a mais barulhenta. O vermelho é do botão final,
+ * dentro do diálogo.
+ */
+.block--danger {
+  margin-top: 2.5rem;
+  border-color: var(--accent-deep);
+}
+
+.skeletons {
+  display: grid;
+  gap: 1rem;
+}
+
+.skeleton {
+  height: 18rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--screen) 25%,
+    var(--screen-lit) 37%,
+    var(--screen) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-slide 1.4s ease-in-out infinite;
+}
+
+.skeleton--short {
+  height: 9rem;
+}
+
+@keyframes skeleton-slide {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+.feedback__text {
+  margin: 0;
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* --------------------------------------------------------------- formulários */
+
+.form {
+  display: grid;
+  gap: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.field__label {
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.field__counter {
+  color: var(--ink-soft);
+  font-size: var(--step--2);
+}
+
+.field__input,
+.field__textarea {
+  /* 44px de verdade: o alvo de toque não é negociável no celular. */
+  min-height: 2.75rem;
+  padding: 0.65rem 0.8rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--screen);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  width: 100%;
+}
+
+.field__textarea {
+  min-height: 6rem;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.field__input:focus-visible,
+.field__textarea:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 1px;
+}
+
+.field__note {
+  line-height: 1.45;
+}
+
+.field__error,
+.form__error {
+  color: #c0392b;
+  font-size: var(--step--1);
+}
+
+.form__error,
+.form__ok {
+  margin: 0;
+}
+
+.form__ok {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+}
+
+.block__lead {
+  margin: -0.35rem 0 0;
+  max-width: 56ch;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.block__lead code {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.95em;
+}
+
+.field__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.field__icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--accent-deep);
+}
+
+/* -------------------------------------------------------------------- acesso */
+
+.acesso {
+  padding: 1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--screen);
+}
+
+.acesso__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.acesso__label {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.acesso__value {
+  margin: 0.2rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.acesso__value,
+.excluir__itens,
+.excluir__nota,
+.field__note {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.acesso__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.acesso__warn {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--accent-deep);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+
+.acesso__ok {
+  margin: 0;
+  padding: 0.8rem 0.95rem;
+  border: var(--border-w) solid var(--accent-deep);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+/* ------------------------------------------------------------ excluir conta */
+
+.excluir__listas {
+  display: grid;
+  gap: 1rem;
+}
+
+.excluir__col {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.excluir__itens {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.excluir__itens li::before {
+  content: '▸ ';
+  color: var(--accent-deep);
+}
+
+.excluir__nota {
+  margin: 0;
+  max-width: 58ch;
+  line-height: 1.55;
+}
+
+@media (min-width: 48rem) {
+  .excluir__listas {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+}
+
+// ------------------------------------------------------------------- botões
+//
+// Seis botões desta tela — salvar, cancelar, abrir um bloco de acesso, abrir o
+// diálogo, excluir, tentar de novo — só diferem em cor e peso. Escritos um a
+// um, eram seis cópias da mesma caixa que divergiriam na primeira mudança de
+// altura de toque.
+
+.btn {
+  // 44px de verdade: o alvo de toque não é negociável no celular.
+  min-height: 2.75rem;
+  padding: 0.7rem 1.3rem;
+  border: var(--border-w) solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--solid {
+  justify-self: start;
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn--outline {
+  border-color: var(--ink);
+}
+
+.btn--ghost {
+  border-color: var(--border-soft);
+}
+
+// A saída é séria, não barulhenta: aqui o vermelho é só contorno.
+.btn--outline-danger {
+  justify-self: start;
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+// O vermelho cheio é do botão final, dentro do diálogo, e só dele.
+.btn--danger {
+  background: #c0392b;
+  color: #fff;
+}
+
+// --------------------------------------------------------------- no celular
+//
+// Seções empilhadas e campos de largura cheia já são o padrão do grid acima. O
+// que muda aqui é o alcance do polegar: botão de meia largura no meio da tela
+// é o alvo mais fácil de errar.
+
+@media (max-width: 47.999rem) {
+  .page {
+    padding: 1rem 0.85rem 5rem;
+  }
+
+  .btn {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .acesso__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .acesso__row {
+    align-items: flex-start;
+  }
+
+}

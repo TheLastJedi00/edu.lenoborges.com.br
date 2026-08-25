@@ -1,5 +1,15 @@
 <app-menu-bar [items]="menuItems" [action]="menuAction()" (actionClick)="openLogin()" />
 
+@if (senhaTrocada()) {
+  <!--
+    A volta da troca de senha. A sessão terminou de propósito, e sem esta linha
+    cair numa tela de login é indistinguível de ter sido deslogado por erro.
+  -->
+  <p class="senha-trocada" role="status">
+    Sua senha foi trocada e você saiu de todos os aparelhos. Entre de novo com a senha nova.
+  </p>
+}
+
 <main id="conteudo">
   <section class="hero" id="topo">
     <span class="aurora" aria-hidden="true"></span>

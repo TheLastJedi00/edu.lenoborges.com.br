@@ -284,7 +284,7 @@ Cartões grandes, tocáveis, um por linha no celular e grade de dois no desktop:
 |---------------------|----------------------------------------------------------|
 | Acessar trilha      | inerte                                                   |
 | Grupo do WhatsApp   | abre `whatsappGroupUrl` em nova aba                      |
-| Meu Perfil          | inerte                                                   |
+| Meu Perfil          | inerte *(destravado pela spec 013: leva a `/dashboard/perfil`)* |
 | Jogos               | inerte                                                   |
 
 **Como os inertes se comportam:** confirmado que "por enquanto não levam a lugar nenhum". Eles são
@@ -421,11 +421,13 @@ no ar, incluindo o teste de F5 dentro do dashboard, que é onde token em memóri
 
 ## Fora de escopo
 - Trilha, Meu Perfil e Jogos: os botões existem e ficam inertes, confirmado com o usuário.
+  *(A Trilha destravou na spec 009 e Meu Perfil na 013; sobrou Jogos.)*
 - Progressão de Grau, ranking e pontuação. O Grau é lido, nunca alterado.
 - Login social e 2FA. Confirmado: e-mail e senha.
-- Alterar e-mail da conta, excluir conta e upload de avatar.
+- Alterar e-mail da conta, excluir conta e upload de avatar. *(Os dois primeiros entraram na spec
+  013; avatar continua fora.)*
 - Tela de "editar perfil" separada. `PATCH /me/profile` já existe, mas nesta spec só o onboarding o
-  usa; a tela de edição chega com o botão Meu Perfil.
+  usa; a tela de edição chega com o botão Meu Perfil. *(Chegou: é a spec 013.)*
 - Página de política de privacidade completa e qualquer mudança no `WaitlistDialog` da 004.
 - SSR e pré-renderização das rotas do dashboard.
 - Persistir o access token em disco, em qualquer forma.

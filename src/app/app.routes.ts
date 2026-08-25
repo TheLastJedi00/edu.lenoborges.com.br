@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { onboardingPendingGuard, profileCompleteGuard } from './core/auth/profile.guard';
 import { adminGuard } from './core/auth/admin.guard';
+import { unsavedChangesGuard } from './core/unsaved-changes.guard';
 
 export const routes: Routes = [
   {
@@ -54,6 +55,18 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/trilha/insignia/insignia.page').then((m) => m.InsigniaPage),
         title: 'Insígnia · Liga Dev'
+      },
+      {
+        // Do próprio membro, e só. Sem `:id`, sem lista de membros e sem
+        // visualização pública: a rota lê o AuthStore e o GET /me, e não aceita
+        // parâmetro nenhum. O `profileCompleteGuard` fica — quem ainda não fez o
+        // onboarding tem `/completar-perfil`, que é a mesma edição com outro
+        // propósito, e duas telas de edição abertas para a mesma pessoa ao
+        // mesmo tempo é confusão sem ganho.
+        path: 'perfil',
+        canDeactivate: [unsavedChangesGuard],
+        loadComponent: () => import('./pages/perfil/perfil.page').then((m) => m.PerfilPage),
+        title: 'Meu Perfil · Liga Dev'
       },
       {
         path: 'mural',
