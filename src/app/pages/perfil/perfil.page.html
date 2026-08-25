@@ -340,10 +340,100 @@
       -->
       <section class="block block--danger" aria-labelledby="titulo-excluir">
         <h2 class="block__title" id="titulo-excluir">Excluir conta</h2>
+        <p class="block__lead">
+          A exclusão é imediata e não tem volta. Não há período de carência e não dá para desfazer.
+        </p>
+
+        <!--
+          A lista é requisito de consentimento, não texto de apoio: "sua conta
+          será excluída" não informa nada sobre a pergunta que virou vídeo na
+          trilha.
+        -->
+        <div class="excluir__listas">
+          <div>
+            <h3 class="excluir__col">Some para sempre</h3>
+            <ul class="excluir__itens">
+              <li>Sua conta e seu acesso</li>
+              <li>Nome, telefone, bio e redes</li>
+              <li>Seus votos no Mural</li>
+              <li>Seu progresso na trilha</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="excluir__col">Fica, sem o seu nome</h3>
+            <ul class="excluir__itens">
+              <li>As perguntas que você escreveu no Mural</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="excluir__nota">
+          As perguntas continuam no Mural porque outras pessoas votaram nelas e algumas viraram
+          vídeo — mas passam a aparecer como "Membro removido".
+        </p>
+
+        <button type="button" class="excluir__abrir" (click)="abrirExclusao()">
+          Excluir conta
+        </button>
       </section>
     }
   }
 </section>
+
+<!--
+  Diálogo próprio, e não o `confirm-dialog`: esta é a única confirmação do
+  produto que precisa de um campo de senha no meio, e a única em que o foco
+  inicial é o Cancelar.
+
+  Sem "digite EXCLUIR para confirmar": digitar uma palavra prova atenção,
+  digitar a senha prova identidade — e identidade é o que uma operação
+  irreversível precisa. Pedir as duas é atrito empilhado que não compra nada.
+-->
+<dialog #excluirDialog class="modal" aria-labelledby="titulo-modal-excluir">
+  <h2 class="modal__title" id="titulo-modal-excluir">Excluir minha conta</h2>
+  <p class="modal__message">
+    Sua conta, seus dados e seus votos somem agora e para sempre; suas perguntas ficam no Mural
+    como "Membro removido".
+  </p>
+
+  <label class="field">
+    <span class="field__label">Senha atual</span>
+    <input
+      class="field__input"
+      type="password"
+      autocomplete="current-password"
+      [value]="senhaExclusao()"
+      (input)="onSenhaExclusao($event)"
+    />
+  </label>
+
+  @if (exclusaoError()) {
+    <p class="form__error" role="alert">{{ exclusaoError() }}</p>
+  }
+
+  <div class="modal__actions">
+    <button
+      #cancelarExclusaoBtn
+      type="button"
+      class="ghost"
+      (click)="fecharExclusao()"
+    >
+      Cancelar
+    </button>
+    <button
+      type="button"
+      class="danger"
+      [disabled]="!senhaExclusao() || excluindo()"
+      (click)="excluirConta()"
+    >
+      @if (excluindo()) {
+        Excluindo…
+      } @else {
+        Excluir minha conta
+      }
+    </button>
+  </div>
+</dialog>
 
 <app-confirm-dialog
   #sairDialog

@@ -333,3 +333,124 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+/* ------------------------------------------------------------ excluir conta */
+
+.excluir__listas {
+  display: grid;
+  gap: 1rem;
+}
+
+.excluir__col {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.excluir__itens {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.excluir__itens li::before {
+  content: '▸ ';
+  color: var(--accent-deep);
+}
+
+.excluir__nota {
+  margin: 0;
+  max-width: 58ch;
+  color: var(--ink-soft);
+  font-size: var(--step--2);
+  line-height: 1.55;
+}
+
+.excluir__abrir {
+  justify-self: start;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.4rem;
+  border: var(--border-w) solid #c0392b;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #c0392b;
+  font-family: var(--font-display);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (min-width: 48rem) {
+  .excluir__listas {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* -------------------------------------------------------- diálogo de exclusão */
+
+.modal {
+  /* Largura de folha no celular, e altura que não corta os botões com o teclado
+     virtual aberto — que é o pior caso possível desta tela. */
+  width: min(28rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  inset: 0;
+  margin: auto;
+  padding: 1.5rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: var(--shadow-hard);
+  color: var(--ink);
+}
+
+.modal::backdrop {
+  background: rgba(16, 24, 40, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.modal__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.25;
+}
+
+.modal__message {
+  margin: 0.75rem 0 1rem;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+/* O vermelho é daqui, e só daqui. */
+.danger {
+  min-height: 2.75rem;
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: #c0392b;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.danger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

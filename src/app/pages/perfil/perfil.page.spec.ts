@@ -440,6 +440,115 @@ describe('PerfilPage', () => {
     });
   });
 
+  describe('Excluir conta', () => {
+    function abrir(): HTMLDialogElement {
+      const dialog = fixture.nativeElement.querySelector('dialog.modal') as HTMLDialogElement;
+      spyOn(dialog, 'showModal').and.callFake(() => dialog.setAttribute('open', ''));
+      spyOn(dialog, 'close').and.callFake(() => dialog.removeAttribute('open'));
+      component['abrirExclusao']();
+      fixture.detectChanges();
+      return dialog;
+    }
+
+    it('a lista do que some e do que fica está na tela, com as duas colunas', async () => {
+      await montar();
+
+      const colunas = Array.from(
+        fixture.nativeElement.querySelectorAll('.excluir__col') as NodeListOf<HTMLElement>
+      ).map((el) => el.textContent?.trim());
+
+      expect(colunas).toEqual(['Some para sempre', 'Fica, sem o seu nome']);
+      expect(fixture.nativeElement.textContent).toContain('Membro removido');
+    });
+
+    it('o botão final fica travado enquanto a senha está vazia', async () => {
+      await montar();
+      abrir();
+
+      const botao = fixture.nativeElement.querySelector('.danger') as HTMLButtonElement;
+      expect(botao.disabled).toBeTrue();
+
+      component['senhaExclusao'].set('minha-senha');
+      fixture.detectChanges();
+      expect(botao.disabled).toBeFalse();
+    });
+
+    it('teste-trava: o foco inicial do diálogo é o Cancelar', async () => {
+      // É a única tela do produto onde o botão perigoso não pode estar a um
+      // Enter de distância. O padrão do confirm-dialog é focar o confirmar —
+      // aqui é exceção declarada, não descuido.
+      jasmine.clock().install();
+      await montar();
+      abrir();
+
+      jasmine.clock().tick(60);
+      const cancelar = fixture.nativeElement.querySelector('.ghost') as HTMLButtonElement;
+      expect(document.activeElement).toBe(cancelar);
+      jasmine.clock().uninstall();
+    });
+
+    it('204 limpa a sessão e vai para a landing, sem toast de sucesso', async () => {
+      await montar();
+      abrir();
+
+      component['senhaExclusao'].set('minha-senha');
+      authService.deleteAccount.and.callFake(() => {
+        authStore.clearSession();
+        return of(undefined);
+      });
+
+      await component.excluirConta();
+
+      expect(authService.deleteAccount).toHaveBeenCalledWith('minha-senha');
+      expect(authStore.isLoggedIn()).toBeFalse();
+      expect(router.navigate).toHaveBeenCalledWith(['/']);
+    });
+
+    it('401 mantém o diálogo aberto, com a mensagem dentro, sem navegar', async () => {
+      // Fechar o diálogo no erro faria a pessoa recomeçar do zero.
+      await montar();
+      const dialog = abrir();
+
+      component['senhaExclusao'].set('errada');
+      authService.deleteAccount.and.returnValue(
+        throwError(() => new HttpErrorResponse({ status: 401 }))
+      );
+
+      await component.excluirConta();
+      fixture.detectChanges();
+
+      expect(dialog.hasAttribute('open')).toBeTrue();
+      const erro = dialog.querySelector('.form__error') as HTMLElement;
+      expect(erro.textContent).toContain('Senha incorreta.');
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(authStore.isLoggedIn()).toBeTrue();
+    });
+
+    it('403 de admin mostra a mensagem do backend, literal', async () => {
+      // Nesse caso quem lê é quem consegue resolver.
+      await montar();
+      const dialog = abrir();
+
+      component['senhaExclusao'].set('minha-senha');
+      authService.deleteAccount.and.returnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 403,
+              error: { message: 'Contas de administração não podem ser excluídas por aqui.' }
+            })
+        )
+      );
+
+      await component.excluirConta();
+      fixture.detectChanges();
+
+      expect((dialog.querySelector('.form__error') as HTMLElement).textContent).toContain(
+        'Contas de administração não podem ser excluídas por aqui.'
+      );
+    });
+  });
+
   it('falha de rede sem perfil em memória mostra o erro com um caminho de volta', async () => {
     authService.getMe.and.returnValue(throwError(() => new Error('offline')));
     fixture = TestBed.createComponent(PerfilPage);

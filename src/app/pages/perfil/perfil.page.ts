@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   OnInit,
   computed,
   inject,
@@ -295,6 +296,76 @@ export class PerfilPage implements OnInit {
       );
     } finally {
       this.savingSenha.set(false);
+    }
+  }
+
+  // ------------------------------------------------------------ Excluir conta
+
+  private readonly excluirDialog = viewChild<ElementRef<HTMLDialogElement>>('excluirDialog');
+  private readonly cancelarExclusaoBtn =
+    viewChild<ElementRef<HTMLButtonElement>>('cancelarExclusaoBtn');
+
+  protected readonly senhaExclusao = signal('');
+  protected readonly excluindo = signal(false);
+  protected readonly exclusaoError = signal('');
+
+  /**
+   * Abre o diálogo de exclusão, e **foca o Cancelar**.
+   *
+   * É a única tela do produto onde o botão perigoso não pode estar a um Enter de
+   * distância. O padrão do `confirm-dialog` é focar o confirmar — então aqui é
+   * exceção declarada, e não descuido, e é também por isso que esta tela não usa
+   * aquele componente: ela precisa de um campo de senha no meio.
+   */
+  protected abrirExclusao(): void {
+    this.senhaExclusao.set('');
+    this.exclusaoError.set('');
+    this.excluirDialog()?.nativeElement.showModal();
+    setTimeout(() => this.cancelarExclusaoBtn()?.nativeElement.focus(), 50);
+  }
+
+  protected fecharExclusao(): void {
+    this.excluirDialog()?.nativeElement.close();
+  }
+
+  protected onSenhaExclusao(event: Event): void {
+    this.senhaExclusao.set((event.target as HTMLInputElement).value);
+  }
+
+  /**
+   * Exclui a conta.
+   *
+   * No `204` a sessão já foi limpa pelo service, e o destino é a landing.
+   * **Sem toast de sucesso lá**: "Conta excluída com sucesso!" para quem acabou
+   * de sair é uma comemoração fora de hora.
+   *
+   * Falhar é diferente: o diálogo **continua aberto** com a mensagem — fechá-lo
+   * no erro faria a pessoa recomeçar do zero. O `403` do admin mostra o texto do
+   * backend literal, porque nesse caso quem lê é quem consegue resolver.
+   */
+  async excluirConta(): Promise<void> {
+    if (!this.senhaExclusao() || this.excluindo()) {
+      return;
+    }
+
+    this.excluindo.set(true);
+    this.exclusaoError.set('');
+
+    try {
+      await firstValueFrom(this.authService.deleteAccount(this.senhaExclusao()));
+      this.fecharExclusao();
+      // O formulário some junto com a conta: sem isto o guard de saída pediria
+      // confirmação para deixar uma tela que não existe mais.
+      this.dadosAtual.set(this.dadosBaseline());
+      await this.router.navigate(['/']);
+    } catch (error: unknown) {
+      this.exclusaoError.set(
+        httpErrorMessage(error, 'Não consegui excluir sua conta agora.', {
+          401: 'Senha incorreta.'
+        })
+      );
+    } finally {
+      this.excluindo.set(false);
     }
   }
 
