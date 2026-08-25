@@ -1,0 +1,43 @@
+<main class="page">
+  <div class="cartao">
+    <app-logo class="cartao__logo" />
+
+    @switch (estado()) {
+      @case ('processando') {
+        <h1 class="cartao__titulo">Só um instante…</h1>
+        <p class="cartao__texto">Estamos tirando você da lista.</p>
+      }
+
+      @case ('pronto') {
+        <h1 class="cartao__titulo">Você não vai mais receber nossos e-mails</h1>
+        <p class="cartao__texto">
+          Pronto. Nenhum aviso de vídeo novo e nenhum recado da comunidade vai mais chegar na sua
+          caixa de entrada.
+        </p>
+        <p class="cartao__texto cartao__texto--suave">
+          Se mudar de ideia, dá para religar a qualquer momento em <strong>Meu Perfil</strong>,
+          dentro do painel.
+        </p>
+      }
+
+      @case ('sem-token') {
+        <!-- Sem toast e sem erro vermelho: quem chega aqui não fez nada errado. -->
+        <h1 class="cartao__titulo">Esse link está incompleto</h1>
+        <p class="cartao__texto">
+          Faltou a parte do endereço que diz de quem é o descadastro. Você pode desligar os e-mails
+          direto em <strong>Meu Perfil</strong>, dentro do painel.
+        </p>
+      }
+
+      @case ('erro') {
+        <h1 class="cartao__titulo">Não consegui completar agora</h1>
+        <p class="cartao__texto">
+          Alguma coisa no caminho falhou e você continua na lista. Tente abrir o link de novo, ou
+          desligue os e-mails em <strong>Meu Perfil</strong>.
+        </p>
+      }
+    }
+
+    <a class="cartao__link" routerLink="/">Voltar para o site</a>
+  </div>
+</main>

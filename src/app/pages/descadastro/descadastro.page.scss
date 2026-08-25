@@ -1,0 +1,57 @@
+.page {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: 1.5rem 1rem;
+  background: var(--screen);
+}
+
+.cartao {
+  display: grid;
+  justify-items: start;
+  gap: 0.85rem;
+  width: min(34rem, 100%);
+  padding: 2rem 1.75rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: var(--shadow-hard-sm);
+}
+
+.cartao__logo {
+  width: 2.5rem;
+}
+
+.cartao__titulo {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.15;
+}
+
+.cartao__texto {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.cartao__texto--suave {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.cartao__link {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.5rem;
+  padding: 0.7rem 1.3rem;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-decoration: none;
+}
