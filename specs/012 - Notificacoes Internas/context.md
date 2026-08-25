@@ -221,6 +221,8 @@ Nenhuma rota nova. O sino vive na casca do painel e aparece em todas.
   histórico do que foi lido.
 - **Preferências e silenciar.** Dois eventos não sustentam uma tela de configuração.
 - **Push do navegador, e-mail e som.** Isto é notificação interna: só existe com o painel aberto.
+  *(A parte do **e-mail** foi revogada pela spec 014, que abriu o canal externo com descadastro,
+  consentimento e reputação de domínio junto. Push e som continuam fora.)*
 - **Notificação de "sua pergunta venceu".** O backend explica por que não dá hoje: a vencedora é
   derivada, e não tem instante de disparo.
 - **Contador em tempo real e badge no favicon** (decisão 11).

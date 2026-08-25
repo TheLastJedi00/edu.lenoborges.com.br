@@ -17,6 +17,7 @@ const MOCK_PROFILE: MemberProfile = {
   grade: 1,
   linkedin: null,
   instagram: null,
+  emailOptOut: false,
   profileCompleted: true,
   role: null,
   tier: 'dev-tier'

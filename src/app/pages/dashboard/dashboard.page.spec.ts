@@ -51,6 +51,7 @@ describe('DashboardPage', () => {
       grade: 5,
       linkedin: null,
       instagram: null,
+      emailOptOut: false,
       profileCompleted: true,
       role: null,
       tier: 'dev-tier'
@@ -131,6 +132,7 @@ describe('DashboardPage', () => {
       grade: 5,
       linkedin: null,
       instagram: null,
+      emailOptOut: false,
       profileCompleted: true,
       role: 'admin',
       tier: 'dev-tier'
@@ -165,6 +167,7 @@ describe('DashboardPage', () => {
         grade: 5,
         linkedin: null,
         instagram: null,
+        emailOptOut: false,
         profileCompleted: true,
         role,
         tier: 'dev-tier'

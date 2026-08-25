@@ -25,6 +25,12 @@ export interface AdminUser {
    * clica -- e a spec 008 inteira depende de nao virarem.
    */
   readonly tier: TierId;
+  /**
+   * Se este membro saiu da lista de e-mails (spec 014).
+   *
+   * Sem ele, "não chegou o e-mail para o fulano" é investigação sem pista.
+   */
+  readonly emailOptOut: boolean;
 }
 
 export interface AdminUserPage {
