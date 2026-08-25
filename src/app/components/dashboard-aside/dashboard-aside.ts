@@ -20,6 +20,7 @@ import { IconLogout } from '../icons/icon-logout';
 import { IconTrack } from '../icons/icon-track';
 import { IconShield } from '../icons/icon-shield';
 import { IconUser } from '../icons/icon-user';
+import { NotificationCenter } from '../notification-center/notification-center';
 
 /** Espelha o breakpoint do .scss onde a gaveta vira coluna fixa. */
 const MOBILE_QUERY = '(max-width: 63.999rem)';
@@ -49,7 +50,8 @@ export interface AsideNavItem {
     IconBilling,
     IconMural,
     IconShield,
-    IconLogout
+    IconLogout,
+    NotificationCenter
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -76,6 +78,16 @@ export interface AsideNavItem {
             <span class="aside__logo-text u-mono">LIGA DEV</span>
           }
         </a>
+
+        <!--
+          O sino do desktop (spec 012).
+
+          Ele mora aqui porque a barra de cabeçalho do painel só existe no
+          celular: um sino "no header" não apareceria para quem usa computador.
+          Fica visível **também com o menu recolhido** — se sumisse, quem
+          trabalha com a coluna fechada nunca saberia de nada.
+        -->
+        <app-notification-center class="aside__bell" />
 
         <!-- Botão de recolher/expandir (Desktop) -->
         <button
@@ -327,6 +339,15 @@ export interface AsideNavItem {
       letter-spacing: 0.05em;
     }
 
+    /*
+     * No celular o sino já está na barra do topo, e a gaveta não repete o que a
+     * barra tem. Repetir daria dois sinos abertos ao mesmo tempo, com dois
+     * painéis sobrepostos.
+     */
+    .aside__bell {
+      display: none;
+    }
+
     .aside__toggle {
       display: none; /* No mobile a gaveta usa botão fora */
       align-items: center;
@@ -452,6 +473,10 @@ export interface AsideNavItem {
       }
 
       .aside__toggle {
+        display: inline-flex;
+      }
+
+      .aside__bell {
         display: inline-flex;
       }
 
