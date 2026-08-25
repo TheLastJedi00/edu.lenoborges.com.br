@@ -1,10 +1,15 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
   inject,
-  signal
+  signal,
+  viewChild
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
+import { NavigationEnd, Router } from '@angular/router';
 import { NotificationsStore } from '../../core/notifications/notifications.store';
 import { AppNotification } from '../../models/notification.model';
 import { NotificationBell } from '../notification-bell/notification-bell';
@@ -27,6 +32,7 @@ import { NotificationDialog } from '../notification-dialog/notification-dialog';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-notification-bell
+      #bell
       [count]="store.unreadCount()"
       [open]="open()"
       (toggle)="toggle()"
@@ -57,11 +63,30 @@ import { NotificationDialog } from '../notification-dialog/notification-dialog';
 })
 export class NotificationCenter {
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
+  // `read: ElementRef` é obrigatório: sem ele a referência devolve a instância
+  // do componente, e o `.focus()` some sem erro nenhum.
+  private readonly bell = viewChild('bell', { read: ElementRef });
 
   protected readonly store = inject(NotificationsStore);
 
   protected readonly open = signal(false);
   protected readonly detail = signal<AppNotification | null>(null);
+
+  constructor() {
+    // Navegar fecha o painel. Sem isto ele fica pairando sobre a tela nova,
+    // ancorado a um sino que pode nem estar mais no mesmo lugar.
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.open.set(false);
+        this.detail.set(null);
+      });
+  }
 
   protected toggle(): void {
     const next = !this.open();
@@ -75,8 +100,22 @@ export class NotificationCenter {
     }
   }
 
+  /**
+   * Fecha e **devolve o foco ao sino**.
+   *
+   * Sem isso, quem navega por teclado é jogado para o começo da página ao
+   * apertar Esc: o elemento focado deixou de existir, e o navegador recomeça do
+   * topo. Sair de um painel não pode custar a posição na tela.
+   */
   protected close(): void {
+    if (!this.open()) {
+      return;
+    }
+
     this.open.set(false);
+    (this.bell()?.nativeElement as HTMLElement | undefined)
+      ?.querySelector<HTMLButtonElement>('button')
+      ?.focus();
   }
 
   /**

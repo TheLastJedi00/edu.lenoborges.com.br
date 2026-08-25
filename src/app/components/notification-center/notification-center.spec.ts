@@ -170,4 +170,17 @@ describe('NotificationCenter', () => {
     expect(el.querySelector('.bell__count')).toBeNull();
     expect(el.textContent).toContain('Nada novo por aqui');
   });
+
+  /**
+   * Sair de um painel nao pode custar a posicao na tela: sem devolver o foco, o
+   * navegador recomeca do topo porque o elemento focado deixou de existir.
+   */
+  it('fechar devolve o foco ao sino', async () => {
+    await openWith([notification()]);
+
+    el.querySelector<HTMLElement>('.backdrop')?.click();
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(el.querySelector('.bell'));
+  });
 });
