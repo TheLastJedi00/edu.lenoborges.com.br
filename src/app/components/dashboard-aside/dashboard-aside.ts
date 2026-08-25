@@ -211,22 +211,23 @@ export interface AsideNavItem {
             </a>
           </li>
 
-          <!-- 5. Meu Perfil (Inerte) -->
+          <!-- 5. Meu Perfil -->
           <li>
-            <button
-              type="button"
-              disabled
-              aria-disabled="true"
-              class="aside__item aside__item--disabled"
-              [title]="!expanded() ? 'Meu Perfil (Em breve)' : ''"
-              [attr.aria-label]="!expanded() ? 'Meu Perfil (Em breve)' : null"
+            <a
+              routerLink="/dashboard/perfil"
+              routerLinkActive="is-active"
+              #perfilLink="routerLinkActive"
+              [attr.aria-current]="perfilLink.isActive ? 'page' : null"
+              class="aside__item"
+              [title]="!expanded() ? 'Meu Perfil' : ''"
+              [attr.aria-label]="!expanded() ? 'Meu Perfil' : null"
+              (click)="onNavClick('/dashboard/perfil')"
             >
               <app-icon-user class="aside__icon" />
               @if (expanded()) {
                 <span class="aside__label">Meu Perfil</span>
-                <span class="aside__badge u-mono">Em breve</span>
               }
-            </button>
+            </a>
           </li>
 
           <!-- 5. Jogos (Inerte) -->

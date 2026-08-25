@@ -148,25 +148,26 @@
     }
 
     <!--
-      5. Meu Perfil (Inerte)
-      "Em breve" aqui é a verdade, não conservadorismo: não existe rota de
-      perfil em `app.routes.ts`. O argumento da spec 009 — abrir e avisar —
-      vale para conteúdo que falta numa tela que existe, não para a tela.
+      5. Meu Perfil
+      Destravado na spec 013, junto com o item do aside — nunca um sem o outro.
+      A descrição parou de prometer "preferências de notificações e histórico":
+      nenhum dos dois existe, e a spec 012 decidiu que dois eventos não
+      sustentam uma tela de configuração.
     -->
-    <article class="card card--disabled" aria-disabled="true">
+    <a class="card card--link" routerLink="/dashboard/perfil">
       <div class="card__top">
         <span class="card__icon-badge" aria-hidden="true">
           <app-icon-user />
         </span>
-        <span class="card__badge u-mono">Em breve</span>
+        <span class="card__badge card__badge--active u-mono">Disponível</span>
       </div>
       <div class="card__body">
         <h2 class="card__title">Meu Perfil</h2>
         <p class="card__desc">
-          Gerenciamento de dados cadastrais, preferências de notificações e histórico.
+          Seus dados, suas redes, o e-mail e a senha de acesso — e a saída, se um dia for a hora.
         </p>
       </div>
-    </article>
+    </a>
 
     <!-- 6. Jogos (Inerte) -->
     <article class="card card--disabled" aria-disabled="true">

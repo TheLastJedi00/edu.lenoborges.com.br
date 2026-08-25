@@ -1,0 +1,57 @@
+<section class="page">
+  <header class="page__head">
+    <div class="page__brand">
+      <app-logo />
+      <p class="u-mono page__eyebrow">Meu Perfil</p>
+    </div>
+    <h1 class="page__title">Seus dados e seu acesso</h1>
+    <p class="page__lead">
+      O que a Liga Dev sabe sobre você, quem você é para entrar, e a saída — se um dia for a hora.
+    </p>
+  </header>
+
+  @switch (loadState()) {
+    @case ('loading') {
+      <!-- Esqueleto na forma das seções. Campo que aparece vazio e depois
+           preenchido é o que faz alguém salvar por cima do que ainda não
+           chegou. -->
+      <div class="skeletons" aria-busy="true" aria-label="Carregando seu perfil">
+        <div class="skeleton"></div>
+        <div class="skeleton skeleton--short"></div>
+        <div class="skeleton skeleton--short"></div>
+      </div>
+    }
+
+    @case ('error') {
+      <div class="feedback" role="alert">
+        <p class="feedback__text">Não consegui carregar seu perfil agora.</p>
+        <button type="button" class="feedback__retry" (click)="recarregar()">
+          Tentar de novo
+        </button>
+      </div>
+    }
+
+    @case ('ready') {
+      <section class="block" aria-labelledby="titulo-dados">
+        <h2 class="block__title" id="titulo-dados">Seus dados</h2>
+      </section>
+
+      <section class="block" aria-labelledby="titulo-redes">
+        <h2 class="block__title" id="titulo-redes">Suas redes</h2>
+      </section>
+
+      <section class="block" aria-labelledby="titulo-acesso">
+        <h2 class="block__title" id="titulo-acesso">Acesso</h2>
+      </section>
+
+      <!--
+        A saída fica no fim, separada por um respiro grande e com borda de
+        atenção — e não em vermelho gritante. É a seção mais séria da tela, não
+        a mais barulhenta; o vermelho é do botão final, dentro do diálogo.
+      -->
+      <section class="block block--danger" aria-labelledby="titulo-excluir">
+        <h2 class="block__title" id="titulo-excluir">Excluir conta</h2>
+      </section>
+    }
+  }
+</section>

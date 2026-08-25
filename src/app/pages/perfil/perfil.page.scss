@@ -1,0 +1,133 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.25rem 1rem 5rem;
+}
+
+.page__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.page__brand app-logo {
+  width: 2rem;
+}
+
+.page__brand .page__eyebrow {
+  margin: 0;
+}
+
+.page__eyebrow {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.05;
+  margin: 0.2rem 0 0;
+}
+
+.page__lead {
+  margin: 0.5rem 0 0;
+  max-width: 52ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+/* Cada seção é um `<section>` com título alcançável por leitor de tela. */
+.block {
+  display: grid;
+  gap: 1rem;
+  padding: 1.4rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.block__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.15;
+}
+
+/*
+ * A saída, separada de tudo.
+ *
+ * Respiro grande acima e borda de atenção — e nada de vermelho gritante: é a
+ * seção mais séria da tela, não a mais barulhenta. O vermelho é do botão final,
+ * dentro do diálogo.
+ */
+.block--danger {
+  margin-top: 2.5rem;
+  border-color: var(--accent-deep);
+}
+
+.skeletons {
+  display: grid;
+  gap: 1rem;
+}
+
+.skeleton {
+  height: 18rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--screen) 25%,
+    var(--screen-lit) 37%,
+    var(--screen) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-slide 1.4s ease-in-out infinite;
+}
+
+.skeleton--short {
+  height: 9rem;
+}
+
+@keyframes skeleton-slide {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+.feedback {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.feedback__text {
+  margin: 0;
+  color: var(--ink);
+}
+
+.feedback__retry {
+  min-height: 2.75rem;
+  padding: 0.7rem 1.2rem;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
