@@ -99,6 +99,17 @@
   color: var(--paper);
 }
 
+/*
+ * Quem nao recebe e-mail (spec 014). Discreto de proposito: e informacao de
+ * diagnostico, nao alerta -- a pessoa pode ter saido da lista por vontade
+ * propria, e isso nao e problema nenhum.
+ */
+.tag--sem-email {
+  background: var(--screen);
+  border: 1px solid var(--border-soft);
+  color: var(--ink-soft);
+}
+
 .btn {
   /* 44px de alvo. Os botões de linha são os primeiros a nascerem pequenos
      demais, e são justamente os mais tocados desta tela. */

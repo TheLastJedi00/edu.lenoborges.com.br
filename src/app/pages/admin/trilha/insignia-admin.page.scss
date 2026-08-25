@@ -221,3 +221,19 @@
     transition: none;
   }
 }
+
+/*
+ * O aviso de que publicar manda e-mail (spec 014).
+ *
+ * Uma frase que se lê em dois segundos, e não um pedágio: a forma da spec 012
+ * continua valendo, e o que muda é só que agora existe algo a avisar.
+ */
+.aviso-email {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--accent-deep);
+  background: var(--screen);
+  color: var(--ink);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}

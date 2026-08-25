@@ -170,6 +170,26 @@ describe('AdminUsuariosPage', () => {
   });
 
   /**
+   * Sem este selo, "não chegou o e-mail para o fulano" é investigação sem
+   * pista: nada mais na Administração diz que a pessoa saiu da lista.
+   */
+  it('quem nao recebe e-mails ganha um selo na linha', () => {
+    const { fixture, el } = setup();
+    flushList([user({ emailOptOut: true })]);
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain('Não recebe e-mails');
+  });
+
+  it('quem recebe nao ganha selo nenhum', () => {
+    const { fixture, el } = setup();
+    flushList([user({ emailOptOut: false })]);
+    fixture.detectChanges();
+
+    expect(el.textContent).not.toContain('Não recebe e-mails');
+  });
+
+  /**
    * A claim de admin só vale no próximo ID token, e o atual dura até uma hora.
    * Sem esta explicação, quem acabou de ser promovido lê "acesso negado" e abre
    * um chamado — quando a resposta é sair e entrar de novo.
