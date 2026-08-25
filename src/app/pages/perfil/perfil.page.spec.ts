@@ -189,6 +189,95 @@ describe('PerfilPage', () => {
     });
   });
 
+  describe('Suas redes', () => {
+    function campo(nome: 'linkedin' | 'instagram'): HTMLInputElement {
+      return fixture.nativeElement.querySelector(
+        `input[formControlName="${nome}"]`
+      ) as HTMLInputElement;
+    }
+
+    it('handle vira URL completa no próprio campo, ao sair dele', async () => {
+      // A pessoa vê no que o texto dela virou antes de salvar, em vez de
+      // descobrir depois.
+      await montar();
+
+      component['redesForm'].controls.linkedin.setValue('@leno');
+      component['normalizarLinkedin']();
+      fixture.detectChanges();
+
+      expect(campo('linkedin').value).toBe('https://www.linkedin.com/in/leno');
+    });
+
+    it('a URL inteira e o nome de usuário solto também são aceitos', async () => {
+      await montar();
+
+      component['redesForm'].controls.instagram.setValue('instagram.com/leno');
+      component['normalizarInstagram']();
+      expect(component['redesForm'].controls.instagram.value).toBe(
+        'https://www.instagram.com/leno'
+      );
+
+      component['redesForm'].controls.instagram.setValue('leno');
+      component['normalizarInstagram']();
+      expect(component['redesForm'].controls.instagram.value).toBe(
+        'https://www.instagram.com/leno'
+      );
+    });
+
+    it('domínio errado vira erro no campo, e não é "consertado"', async () => {
+      await montar();
+
+      component['redesForm'].controls.linkedin.setValue('evil.com/leno');
+      component['normalizarLinkedin']();
+      fixture.detectChanges();
+
+      const erro = fixture.nativeElement.querySelector('#erro-linkedin') as HTMLElement;
+      expect(erro).not.toBeNull();
+      expect(campo('linkedin').value).toBe('evil.com/leno');
+
+      await component.salvarRedes();
+      expect(authService.updateProfile).not.toHaveBeenCalled();
+    });
+
+    it('teste-trava: salvar as redes NÃO manda o que está no formulário de dados', async () => {
+      // Os dois formulários chamam o mesmo PATCH. Salvar as redes não pode
+      // publicar uma bio pela metade que a pessoa ainda estava escrevendo.
+      await montar();
+
+      component['dadosForm'].controls.bio.setValue('Bio no meio da fra');
+      component['redesForm'].controls.linkedin.setValue('@leno');
+      authService.updateProfile.and.returnValue(of(PERFIL));
+
+      await component.salvarRedes();
+
+      expect(authService.updateProfile).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          name: PERFIL.name,
+          phone: PERFIL.phone,
+          bio: PERFIL.bio,
+          linkedin: 'https://www.linkedin.com/in/leno'
+        })
+      );
+    });
+
+    it('campo apagado manda string vazia, e volta vazio depois de salvar', async () => {
+      await montar({ ...PERFIL, linkedin: 'https://www.linkedin.com/in/leno' });
+
+      expect(campo('linkedin').value).toBe('https://www.linkedin.com/in/leno');
+
+      component['redesForm'].controls.linkedin.setValue('');
+      authService.updateProfile.and.returnValue(of({ ...PERFIL, linkedin: null }));
+
+      await component.salvarRedes();
+      fixture.detectChanges();
+
+      expect(authService.updateProfile).toHaveBeenCalledWith(
+        jasmine.objectContaining({ linkedin: '' })
+      );
+      expect(campo('linkedin').value).toBe('');
+    });
+  });
+
   it('falha de rede sem perfil em memória mostra o erro com um caminho de volta', async () => {
     authService.getMe.and.returnValue(throwError(() => new Error('offline')));
     fixture = TestBed.createComponent(PerfilPage);

@@ -227,3 +227,28 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+.block__lead {
+  margin: -0.35rem 0 0;
+  max-width: 56ch;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.block__lead code {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.95em;
+}
+
+.field__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.field__icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--accent-deep);
+}

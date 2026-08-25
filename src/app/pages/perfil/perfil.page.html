@@ -119,6 +119,68 @@
 
       <section class="block" aria-labelledby="titulo-redes">
         <h2 class="block__title" id="titulo-redes">Suas redes</h2>
+        <p class="block__lead">
+          Os dois são opcionais. Pode colar <code>&#64;fulano</code>, só o nome de usuário, ou o
+          endereço inteiro — o campo mostra no que virou. Apagar o campo remove a rede.
+        </p>
+
+        <form class="form" [formGroup]="redesForm" (ngSubmit)="salvarRedes()" novalidate>
+          <label class="field">
+            <span class="field__label">
+              <app-icon-linkedin class="field__icon" />
+              LinkedIn
+            </span>
+            <input
+              class="field__input"
+              type="text"
+              formControlName="linkedin"
+              autocomplete="url"
+              placeholder="@fulano"
+              (blur)="normalizarLinkedin()"
+              [attr.aria-invalid]="linkedinError() ? 'true' : null"
+              [attr.aria-describedby]="linkedinError() ? 'erro-linkedin' : null"
+            />
+            @if (linkedinError()) {
+              <span class="field__error" id="erro-linkedin">{{ linkedinError() }}</span>
+            }
+          </label>
+
+          <label class="field">
+            <span class="field__label">
+              <app-icon-instagram class="field__icon" />
+              Instagram
+            </span>
+            <input
+              class="field__input"
+              type="text"
+              formControlName="instagram"
+              autocomplete="url"
+              placeholder="@fulano"
+              (blur)="normalizarInstagram()"
+              [attr.aria-invalid]="instagramError() ? 'true' : null"
+              [attr.aria-describedby]="instagramError() ? 'erro-instagram' : null"
+            />
+            @if (instagramError()) {
+              <span class="field__error" id="erro-instagram">{{ instagramError() }}</span>
+            }
+          </label>
+
+          @if (redesError()) {
+            <p class="form__error" role="alert">{{ redesError() }}</p>
+          }
+
+          @if (redesSaved()) {
+            <p class="form__ok" role="status">Redes salvas.</p>
+          }
+
+          <button class="submit" type="submit" [disabled]="savingRedes()">
+            @if (savingRedes()) {
+              Salvando…
+            } @else {
+              Salvar redes
+            }
+          </button>
+        </form>
       </section>
 
       <section class="block" aria-labelledby="titulo-acesso">
