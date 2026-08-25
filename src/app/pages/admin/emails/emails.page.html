@@ -189,5 +189,143 @@
         Você recebe este e-mail porque é membro da Liga Dev. Cancelar inscrição.
       </p>
     </app-pixel-panel>
+
+    <div class="acoes">
+      <button
+        type="button"
+        class="btn btn--ghost"
+        [disabled]="!formValido() || ctaIncompleto() || enviandoTeste() || enviando()"
+        (click)="enviarTeste()"
+      >
+        @if (enviandoTeste()) {
+          Enviando teste…
+        } @else {
+          Enviar teste para mim
+        }
+      </button>
+
+      @if (testeEnviado() && !precisaTestar()) {
+        <p class="acoes__ok" role="status">Teste enviado. Confira sua caixa de entrada.</p>
+      }
+    </div>
+
+    <!--
+      O botão de disparo fica travado até um teste ter sido enviado, e volta a
+      travar assim que o assunto, o corpo ou o botão mudam. É a decisão mais
+      impositiva da spec e é deliberada: o custo é um clique e trinta segundos
+      olhando a caixa de entrada; o que ela evita é o link quebrado, a frase
+      cortada e o "Olá {nome}" não substituído indo para a base inteira.
+
+      Mudar de filtro NÃO trava: o conteúdo é o mesmo.
+    -->
+    @if (precisaTestar()) {
+      <p class="acoes__trava">
+        Mande um teste para você antes de disparar. Editar o conteúdo pede um teste novo.
+      </p>
+    }
+
+    @if (erro()) {
+      <p class="form__error" role="alert">{{ erro() }}</p>
+    }
+
+    @if (talvezInterrompido()) {
+      <!--
+        NUNCA "não foi enviado, tente de novo". O backend gravou a campanha
+        antes do primeiro lote e guarda onde parou; quem lê "não foi enviado"
+        clica de novo, e a segunda tentativa manda tudo outra vez para quem já
+        recebeu.
+      -->
+      <p class="acoes__aviso" role="alert">
+        <strong>O envio começou e pode ter sido interrompido.</strong>
+        Não mande de novo: olhe em <em>Enviados</em>, logo abaixo. Se estiver como
+        <em>Interrompido</em>, use <em>Retomar</em> — ele continua de onde parou.
+      </p>
+    }
+
+    <!--
+      No fluxo da página, NUNCA fixo na tela. Um disparo irreversível não pode
+      ficar no caminho do polegar que rola a página.
+    -->
+    <button
+      type="button"
+      class="btn btn--enviar"
+      [disabled]="!podeEnviar()"
+      (click)="abrirConfirmacao()"
+    >
+      @if (enviando()) {
+        Enviando…
+      } @else {
+        {{ rotuloDoEnvio() }}
+      }
+    </button>
+  </section>
+
+  <!-- ------------------------------------------------------------- Enviados -->
+  <section class="bloco" aria-labelledby="titulo-enviados">
+    <h2 class="bloco__title" id="titulo-enviados">Enviados</h2>
+
+    @if (campanhas().length === 0) {
+      <p class="vazio">Nenhum e-mail enviado ainda</p>
+    } @else {
+      <!-- Nenhuma linha é clicável, e não existe tela de detalhe: quem quer ver
+           o que foi enviado tem a própria caixa de entrada, porque o admin
+           sempre recebe o teste. -->
+      <ul class="enviados">
+        @for (campanha of campanhas(); track campanha.id) {
+          <li class="enviado">
+            <div class="enviado__texto">
+              <p class="enviado__assunto">{{ campanha.subject }}</p>
+              <p class="enviado__meta u-mono">
+                {{ quando(campanha.createdAt) }} ·
+                {{ campanha.sentCount }} de {{ campanha.audienceCount }} pessoas
+                @if (campanha.kind === 'video') {
+                  · aviso de vídeo
+                }
+              </p>
+            </div>
+
+            @switch (campanha.status) {
+              @case ('concluida') {
+                <span class="selo selo--ok u-mono">Concluído</span>
+              }
+              @case ('enviando') {
+                <span class="selo u-mono">Enviando…</span>
+              }
+              @case ('interrompida') {
+                <span class="enviado__acao">
+                  <span class="selo selo--alerta u-mono">Interrompido</span>
+                  <button
+                    type="button"
+                    class="btn btn--ghost"
+                    [disabled]="retomando() !== null"
+                    (click)="retomar(campanha.id)"
+                  >
+                    @if (retomando() === campanha.id) {
+                      Retomando…
+                    } @else {
+                      Retomar
+                    }
+                  </button>
+                </span>
+              }
+            }
+          </li>
+        }
+      </ul>
+    }
   </section>
 </section>
+
+<app-confirm-dialog
+  #confirmDialog
+  title="Disparar este e-mail?"
+  [message]="
+    'Assunto: ' +
+    (form.controls.subject.value || '—') +
+    '. Não há como cancelar depois de enviar.'
+  "
+  [confirmLabel]="rotuloDoEnvio()"
+  cancelLabel="Cancelar"
+  [danger]="true"
+  (confirmed)="enviar()"
+/>

@@ -6,7 +6,10 @@ import { provideRouter } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { AUDIENCE_DEBOUNCE_MS, AdminEmailsPage } from './emails.page';
 
-const AUDIENCIA = `${environment.apiUrl}/admin/emails/audiencia`;
+const ENVIAR = `${environment.apiUrl}/admin/emails`;
+const HISTORICO = ENVIAR;
+const AUDIENCIA = `${ENVIAR}/audiencia`;
+const TESTE = `${ENVIAR}/teste`;
 const CATALOGO = `${environment.apiUrl}/billing/tiers`;
 
 describe('AdminEmailsPage', () => {
@@ -19,6 +22,9 @@ describe('AdminEmailsPage', () => {
     fixture = TestBed.createComponent(AdminEmailsPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
+
+    // O histórico sai no `ngOnInit`, antes do catálogo.
+    http.expectOne({ url: HISTORICO, method: 'GET' }).flush([]);
 
     http.expectOne(CATALOGO).flush({
       tiers: [
@@ -57,6 +63,7 @@ describe('AdminEmailsPage', () => {
     fixture = TestBed.createComponent(AdminEmailsPage);
     fixture.detectChanges();
 
+    http.expectOne({ url: HISTORICO, method: 'GET' }).flush([]);
     http.expectOne(CATALOGO).flush({ tiers: [] });
 
     const req = http.expectOne(AUDIENCIA);
@@ -203,6 +210,235 @@ describe('AdminEmailsPage', () => {
       montar();
 
       expect(fixture.nativeElement.textContent).toContain('aproximação');
+    });
+  });
+
+  describe('conferir e enviar', () => {
+    const conteudo = {
+      subject: 'Um aviso',
+      body: 'Corpo com mais de dez caracteres.',
+      ctaLabel: '',
+      ctaUrl: ''
+    };
+
+    function escrever(): void {
+      component['form'].setValue(conteudo);
+      fixture.detectChanges();
+    }
+
+    async function mandarTeste(): Promise<void> {
+      escrever();
+      const pendente = component.enviarTeste();
+      http.expectOne(TESTE).flush(null, { status: 204, statusText: 'No Content' });
+      await pendente;
+      fixture.detectChanges();
+    }
+
+    it('o teste chama a rota de teste com o conteudo atual', async () => {
+      montar();
+      escrever();
+
+      const pendente = component.enviarTeste();
+      const req = http.expectOne(TESTE);
+      expect(req.request.body).toEqual(
+        jasmine.objectContaining({ subject: 'Um aviso' })
+      );
+      req.flush(null, { status: 204, statusText: 'No Content' });
+      await pendente;
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('Teste enviado');
+    });
+
+    /**
+     * Testar uma versão e enviar outra é o mesmo que não ter testado. Guardar a
+     * assinatura do conteúdo, e não um booleano, é o que faz a invalidação
+     * acontecer sozinha.
+     */
+    it('teste-trava: editar depois de testar trava o envio de novo', async () => {
+      montar();
+      await mandarTeste();
+
+      expect(component['precisaTestar']()).toBeFalse();
+
+      component['form'].controls.body.setValue('Outro corpo, bem diferente.');
+      fixture.detectChanges();
+
+      expect(component['precisaTestar']()).toBeTrue();
+      expect(component['podeEnviar']()).toBeFalse();
+    });
+
+    it('teste-trava: trocar de tier NAO trava o envio -- o conteudo e o mesmo', async () => {
+      montar();
+      await mandarTeste();
+
+      component['alternarTier']('dev-tier');
+      await esperarDebounce();
+      http.expectOne(AUDIENCIA).flush({ count: 12 });
+      fixture.detectChanges();
+
+      expect(component['precisaTestar']()).toBeFalse();
+      expect(component['podeEnviar']()).toBeTrue();
+    });
+
+    it('o botao diz o numero, e vem da mesma fonte da contagem', async () => {
+      montar(42);
+      await mandarTeste();
+
+      expect(component['rotuloDoEnvio']()).toBe('Enviar para 42 pessoas');
+
+      component['alternarTier']('dev-tier');
+      await esperarDebounce();
+      http.expectOne(AUDIENCIA).flush({ count: 1 });
+      fixture.detectChanges();
+
+      // Singular, porque "1 pessoas" é o detalhe que denuncia um número montado
+      // à mão em vez de derivado.
+      expect(component['rotuloDoEnvio']()).toBe('Enviar para 1 pessoa');
+    });
+
+    it('audiencia zero nao deixa enviar', async () => {
+      montar(0);
+      await mandarTeste();
+
+      expect(component['podeEnviar']()).toBeFalse();
+    });
+
+    it('o disparo chama a rota, recarrega o historico e limpa o formulario', async () => {
+      montar();
+      await mandarTeste();
+
+      const pendente = component.enviar();
+      http.expectOne({ url: ENVIAR, method: 'POST' }).flush({
+        id: 'camp-1',
+        status: 'concluida',
+        audienceCount: 42,
+        sentCount: 42,
+        failedCount: 0
+      });
+      await pendente;
+      http.expectOne({ url: HISTORICO, method: 'GET' }).flush([]);
+      fixture.detectChanges();
+
+      expect(component['form'].controls.subject.value).toBe('');
+      expect(component['precisaTestar']()).toBeTrue();
+    });
+
+    /**
+     * "Tente de novo" aqui faz o admin reenviar para quem já recebeu, e essa é a
+     * pior consequência possível desta tela.
+     */
+    it('teste-trava: falha de rede NAO diz "nao foi enviado"', async () => {
+      montar();
+      await mandarTeste();
+
+      const pendente = component.enviar();
+      http.expectOne({ url: ENVIAR, method: 'POST' }).error(new ProgressEvent('offline'));
+      await pendente;
+      http.expectOne({ url: HISTORICO, method: 'GET' }).flush([]);
+      fixture.detectChanges();
+
+      const texto = (fixture.nativeElement as HTMLElement).textContent ?? '';
+      expect(texto).toContain('O envio começou e pode ter sido interrompido');
+      expect(texto).toContain('Não mande de novo');
+      expect(texto).not.toContain('Tente de novo');
+    });
+
+    it('409 diz que ja existe um disparo em andamento, e nao vira o aviso de interrompido', async () => {
+      montar();
+      await mandarTeste();
+
+      const pendente = component.enviar();
+      http
+        .expectOne({ url: ENVIAR, method: 'POST' })
+        .flush({ message: 'x' }, { status: 409, statusText: 'Conflict' });
+      await pendente;
+      http.expectOne({ url: HISTORICO, method: 'GET' }).flush([]);
+      fixture.detectChanges();
+
+      expect(component['talvezInterrompido']()).toBeFalse();
+      expect(fixture.nativeElement.textContent).toContain('disparo em andamento');
+    });
+  });
+
+  describe('enviados', () => {
+    function comHistorico(campanhas: unknown[]): void {
+      fixture = TestBed.createComponent(AdminEmailsPage);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      http.expectOne({ url: HISTORICO, method: 'GET' }).flush(campanhas);
+      http.expectOne(CATALOGO).flush({ tiers: [] });
+      http.expectOne(AUDIENCIA).flush({ count: 42 });
+      fixture.detectChanges();
+    }
+
+    const interrompida = {
+      id: 'camp-1',
+      kind: 'manual',
+      subject: 'Um aviso',
+      status: 'interrompida',
+      audienceCount: 250,
+      sentCount: 200,
+      failedCount: 50,
+      createdAt: new Date().toISOString(),
+      finishedAt: null,
+      error: 'rate limit'
+    };
+
+    it('sem campanha nenhuma, o estado vazio aparece', () => {
+      comHistorico([]);
+
+      expect(fixture.nativeElement.textContent).toContain(
+        'Nenhum e-mail enviado ainda'
+      );
+    });
+
+    it('a linha mostra assunto, quantos receberam e o estado', () => {
+      comHistorico([{ ...interrompida, status: 'concluida', sentCount: 250 }]);
+
+      const linha = fixture.nativeElement.querySelector('.enviado') as HTMLElement;
+      expect(linha.textContent).toContain('Um aviso');
+      expect(linha.textContent).toContain('250 de 250 pessoas');
+      expect(linha.textContent).toContain('Concluído');
+    });
+
+    it('nenhuma linha do historico e clicavel', () => {
+      // Não existe tela de detalhe: quem quer ver o que foi enviado tem a
+      // própria caixa de entrada.
+      comHistorico([{ ...interrompida, status: 'concluida' }]);
+
+      const linha = fixture.nativeElement.querySelector('.enviado') as HTMLElement;
+      expect(linha.querySelector('a')).toBeNull();
+      expect(linha.tagName).toBe('LI');
+    });
+
+    it('campanha interrompida ganha Retomar, e retomar recarrega a lista', async () => {
+      comHistorico([interrompida]);
+
+      expect(fixture.nativeElement.textContent).toContain('Interrompido');
+
+      const pendente = component.retomar('camp-1');
+      http.expectOne(`${ENVIAR}/camp-1/retomar`).flush({
+        id: 'camp-1',
+        status: 'concluida',
+        audienceCount: 250,
+        sentCount: 250,
+        failedCount: 0
+      });
+      await pendente;
+      http.expectOne({ url: HISTORICO, method: 'GET' }).flush([
+        { ...interrompida, status: 'concluida', sentCount: 250 }
+      ]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('Concluído');
+    });
+
+    it('campanha concluida nao ganha Retomar', () => {
+      comHistorico([{ ...interrompida, status: 'concluida' }]);
+
+      expect(fixture.nativeElement.textContent).not.toContain('Retomar');
     });
   });
 });

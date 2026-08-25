@@ -6,16 +6,25 @@ import {
   OnInit,
   computed,
   inject,
-  signal
+  signal,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Subject, debounceTime, of, startWith, switchMap } from 'rxjs';
+import { Subject, debounceTime, firstValueFrom, of, startWith, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
 import { PixelPanel } from '../../../components/pixel-panel/pixel-panel';
 import { BillingService } from '../../../services/billing.service';
 import { EmailService } from '../../../services/email.service';
-import { AudienceCount, EmailFilters, SendEmailRequest } from '../../../models/email.model';
+import { httpErrorMessage, httpStatus } from '../../../core/http-error';
+import { describeNotificationTime } from '../../../core/notifications/notification-time';
+import {
+  AudienceCount,
+  EmailCampaign,
+  EmailFilters,
+  SendEmailRequest
+} from '../../../models/email.model';
 import type { TierId } from '../../../models/auth.model';
 import type { BillingTier } from '../../../models/billing.model';
 
@@ -50,7 +59,7 @@ export const AUDIENCE_DEBOUNCE_MS = new InjectionToken<number>(
 @Component({
   selector: 'app-admin-emails-page',
   standalone: true,
-  imports: [ReactiveFormsModule, PixelPanel],
+  imports: [ReactiveFormsModule, ConfirmDialog, PixelPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './emails.page.html',
   styleUrl: './emails.page.scss'
@@ -61,6 +70,8 @@ export class AdminEmailsPage implements OnInit {
   private readonly billing = inject(BillingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly debounceMs = inject(AUDIENCE_DEBOUNCE_MS);
+
+  private readonly confirmDialog = viewChild<ConfirmDialog>('confirmDialog');
 
   // ------------------------------------------------------------------ Escrever
 
@@ -92,6 +103,17 @@ export class AdminEmailsPage implements OnInit {
 
   /** O conteúdo do formulário como sinal, para os `computed` reagirem. */
   private readonly valores = signal(this.form.getRawValue());
+
+  /**
+   * A validade do formulário **como sinal**.
+   *
+   * `form.valid` é uma propriedade comum, e ler uma propriedade comum dentro de
+   * um `computed` produz um valor que nunca mais se atualiza: o computed só
+   * recalcula quando um *sinal* de que ele depende muda, e a propriedade não é
+   * um. O sintoma é o pior possível nesta tela — o botão de disparo travado
+   * mesmo com tudo preenchido, ou destravado quando não devia.
+   */
+  protected readonly formValido = signal(this.form.valid);
 
   // ----------------------------------------------------------------- Para quem
 
@@ -144,10 +166,19 @@ export class AdminEmailsPage implements OnInit {
 
     this.form.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.valores.set(this.form.getRawValue()));
+      .subscribe(() => {
+        this.valores.set(this.form.getRawValue());
+        this.formValido.set(this.form.valid);
+      });
+
+    this.form.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.formValido.set(this.form.valid));
   }
 
   ngOnInit(): void {
+    this.carregarHistorico();
+
     this.billing
       .getCatalog()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -240,4 +271,199 @@ export class AdminEmailsPage implements OnInit {
     const { ctaLabel, ctaUrl } = this.valores();
     return Boolean(ctaLabel && ctaUrl);
   });
+
+  // ---------------------------------------------------------------- Disparo
+
+  protected readonly enviandoTeste = signal(false);
+  protected readonly testeEnviado = signal(false);
+  protected readonly enviando = signal(false);
+  protected readonly erro = signal('');
+  /**
+   * O aviso de que o envio **começou** e pode ter sido interrompido.
+   *
+   * Separado do `erro` comum de propósito: este texto não é uma falha, é um
+   * estado desconhecido, e ele manda olhar o histórico em vez de tentar de novo.
+   */
+  protected readonly talvezInterrompido = signal(false);
+
+  /**
+   * Assinatura do conteúdo testado.
+   *
+   * O destravamento morre a cada edição, e **esse é o ponto**: testar uma versão
+   * e enviar outra é o mesmo que não ter testado. Guardar a assinatura, e não um
+   * booleano, é o que faz a invalidação acontecer sozinha.
+   *
+   * **Filtro não entra aqui**: mudar de tier não invalida o teste, porque o
+   * conteúdo é o mesmo.
+   */
+  private readonly conteudoTestado = signal<string | null>(null);
+
+  private assinaturaDoConteudo(): string {
+    const { subject, body, ctaLabel, ctaUrl } = this.valores();
+    return JSON.stringify([subject, body, ctaLabel, ctaUrl]);
+  }
+
+  protected readonly precisaTestar = computed(
+    () => this.conteudoTestado() !== this.assinaturaDoConteudo(),
+  );
+
+  protected readonly podeEnviar = computed(
+    () =>
+      this.formValido() &&
+      !this.ctaIncompleto() &&
+      !this.precisaTestar() &&
+      this.audienceCount() !== null &&
+      this.audienceCount()! > 0 &&
+      !this.enviando(),
+  );
+
+  /**
+   * O botão diz o número, e nunca só "Enviar".
+   *
+   * Um botão que diz "Enviar" esconde a única informação que importa no instante
+   * da decisão. Repetir o número custa nada e transforma o clique em uma
+   * leitura: quem esperava disparar para três pessoas e lê "Enviar para 118"
+   * para o dedo — que é exatamente o acidente que esta tela precisa impedir.
+   *
+   * **O número sai da mesma fonte da contagem**, e não de uma segunda variável:
+   * duas verdades sobre o mesmo número é como elas divergem.
+   */
+  protected readonly rotuloDoEnvio = computed(() => {
+    const total = this.audienceCount();
+    return total === null
+      ? 'Enviar'
+      : `Enviar para ${total} ${total === 1 ? 'pessoa' : 'pessoas'}`;
+  });
+
+  async enviarTeste(): Promise<void> {
+    if (this.form.invalid || this.ctaIncompleto() || this.enviandoTeste()) {
+      return;
+    }
+
+    this.enviandoTeste.set(true);
+    this.erro.set('');
+
+    try {
+      await firstValueFrom(this.emails.enviarTeste(this.payload()));
+      this.conteudoTestado.set(this.assinaturaDoConteudo());
+      this.testeEnviado.set(true);
+    } catch (error: unknown) {
+      this.erro.set(
+        httpErrorMessage(error, 'Não consegui enviar o teste agora.'),
+      );
+    } finally {
+      this.enviandoTeste.set(false);
+    }
+  }
+
+  protected abrirConfirmacao(): void {
+    if (!this.podeEnviar()) {
+      return;
+    }
+    this.confirmDialog()?.open();
+  }
+
+  /**
+   * O disparo.
+   *
+   * Durante a requisição a tela fica travada e o botão vira "Enviando…".
+   * **Sem barra de progresso**: o backend envia dentro de uma requisição só e
+   * não há progresso para ler. Inventar uma barra animada que não representa
+   * nada é mentira de interface, e a mentira aparece justamente quando o envio
+   * demora — o momento em que a pessoa mais está olhando.
+   */
+  async enviar(): Promise<void> {
+    if (!this.podeEnviar()) {
+      return;
+    }
+
+    this.enviando.set(true);
+    this.erro.set('');
+    this.talvezInterrompido.set(false);
+    this.form.disable({ emitEvent: false });
+
+    try {
+      await firstValueFrom(this.emails.enviar(this.payload()));
+      this.form.reset();
+      this.conteudoTestado.set(null);
+      this.testeEnviado.set(false);
+      this.carregarHistorico();
+    } catch (error: unknown) {
+      // **Nunca "não foi enviado, tente de novo".** O backend gravou a campanha
+      // antes do primeiro lote e guarda onde parou; quem lê "não foi enviado"
+      // clica de novo, e a segunda tentativa manda tudo outra vez para quem já
+      // recebeu. Essa é a pior consequência possível desta tela.
+      //
+      // A divisão é entre **"não começou" e "não sei"**:
+      //
+      // - Recusa do servidor com status de negócio (409, 400, 403) é resposta
+      //   completa: a campanha não foi criada, e dizer o motivo é seguro.
+      // - **Tudo o mais é "não sei"** — e aí entra o status `0`, que é conexão
+      //   que caiu ou tempo estourado. É o caso mais provável de todos, e é
+      //   exatamente aquele em que a campanha pode estar no meio do caminho.
+      const status = httpStatus(error);
+      const recusaCompleta = status !== null && status >= 400 && status < 500;
+
+      if (status === 409) {
+        this.erro.set(
+          'Já existe um disparo em andamento. Espere ele terminar antes de começar outro.',
+        );
+      } else if (recusaCompleta) {
+        this.erro.set(httpErrorMessage(error, 'Não consegui começar o envio.'));
+      } else {
+        this.talvezInterrompido.set(true);
+      }
+      this.carregarHistorico();
+    } finally {
+      this.enviando.set(false);
+      this.form.enable({ emitEvent: false });
+    }
+  }
+
+  // ------------------------------------------------------------------ Enviados
+
+  protected readonly campanhas = signal<readonly EmailCampaign[]>([]);
+  protected readonly retomando = signal<string | null>(null);
+
+  /** Uma requisição ao abrir, e outra depois de um envio. **Nada de polling.** */
+  private carregarHistorico(): void {
+    this.emails
+      .listar()
+      .pipe(
+        catchError(() => of([] as EmailCampaign[])),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((lista) => this.campanhas.set(lista));
+  }
+
+  /**
+   * Continua de onde parou, e **nunca reenvia do começo**.
+   *
+   * Enquanto retoma, a linha fica em estado de envio e o disparo novo fica
+   * bloqueado: o backend só aceita um por vez, e a tela não deve descobrir isso
+   * por um 409.
+   */
+  async retomar(id: string): Promise<void> {
+    if (this.retomando()) {
+      return;
+    }
+
+    this.retomando.set(id);
+    this.erro.set('');
+
+    try {
+      await firstValueFrom(this.emails.retomar(id));
+    } catch (error: unknown) {
+      this.erro.set(
+        httpErrorMessage(error, 'Não consegui retomar esse disparo agora.'),
+      );
+    } finally {
+      this.retomando.set(null);
+      this.carregarHistorico();
+    }
+  }
+
+  protected quando(iso: string): string {
+    return describeNotificationTime(iso);
+  }
 }

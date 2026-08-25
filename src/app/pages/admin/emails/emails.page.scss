@@ -219,3 +219,133 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ------------------------------------------------------------ ações e envio */
+
+.acoes {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.acoes__ok {
+  margin: 0;
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+}
+
+.acoes__trava {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+
+.acoes__aviso {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-left: 3px solid var(--accent-deep);
+  background: var(--screen);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.form__error {
+  margin: 0;
+  color: #c0392b;
+  font-size: var(--step--1);
+}
+
+.btn {
+  justify-self: start;
+  min-height: 2.75rem;
+  padding: 0.7rem 1.3rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/*
+ * No fluxo da página, e NUNCA fixo. Um disparo irreversível não pode ficar no
+ * caminho do polegar que rola.
+ */
+.btn--enviar {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.vazio {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.enviados {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.enviado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--screen);
+}
+
+.enviado__assunto {
+  margin: 0;
+  font-weight: 700;
+}
+
+.enviado__meta {
+  margin: 0.2rem 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--2);
+}
+
+.enviado__acao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.selo {
+  padding: 0.25rem 0.6rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  font-size: var(--step--2);
+}
+
+.selo--ok {
+  border-color: var(--accent-deep);
+  color: var(--accent-deep);
+}
+
+.selo--alerta {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+@media (max-width: 47.999rem) {
+  .btn {
+    width: 100%;
+    justify-self: stretch;
+  }
+}
