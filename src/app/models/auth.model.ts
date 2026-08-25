@@ -40,6 +40,14 @@ export interface MemberProfile {
   readonly linkedin: string | null;
   /** URL completa do perfil no Instagram, ou nulo. */
   readonly instagram: string | null;
+  /**
+   * Se este membro saiu da lista de e-mails (spec 014).
+   *
+   * **É o inverso do interruptor da tela**: `emailOptOut: true` desenha o
+   * switch DESLIGADO. Ler o booleano às pressas e ligar o switch é o erro que
+   * mostra "recebendo" para quem acabou de descadastrar.
+   */
+  readonly emailOptOut: boolean;
   readonly profileCompleted: boolean;
   /** Papel vindo da custom claim do Firebase Auth. Nulo para o membro comum. */
   readonly role: UserRole | null;

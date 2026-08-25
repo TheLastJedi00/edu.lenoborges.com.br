@@ -25,6 +25,7 @@ describe('CompletarPerfilPage', () => {
     grade: 1,
     linkedin: null,
     instagram: null,
+    emailOptOut: false,
     profileCompleted: false,
     role: null,
     tier: 'dev-tier'
@@ -81,6 +82,7 @@ describe('CompletarPerfilPage', () => {
         bio: 'Bio com mais de dez caracteres.',
         linkedin: null,
         instagram: null,
+        emailOptOut: false,
         profileCompleted: true
       })
     );

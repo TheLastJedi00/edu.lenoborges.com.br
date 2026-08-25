@@ -22,6 +22,7 @@ function user(overrides: Partial<AdminUser> = {}): AdminUser {
     grade: 3,
     tier: 'dev-tier',
     profileCompleted: true,
+    emailOptOut: false,
     ...overrides
   };
 }
