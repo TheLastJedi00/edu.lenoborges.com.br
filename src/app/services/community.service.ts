@@ -334,4 +334,27 @@ export class CommunityService {
   );
 
   readonly grindingArena = computed(() => this.source().grindingArena);
+
+  /**
+   * O nome da insígnia a partir do `badgeId`.
+   *
+   * Existe aqui porque o catálogo já mora aqui, e porque a spec 012 precisa do
+   * nome em dois lugares novos — a linha do painel de notificações e o modal
+   * dela. **Uma segunda tabela de insígnias em qualquer outro arquivo é a que
+   * vai divergir**: os treze ids já estão duplicados entre front e backend de
+   * propósito, e uma terceira cópia não tem justificativa.
+   *
+   * `badgeId` desconhecido devolve o próprio id em vez de vazio: um id feio na
+   * tela é um defeito visível, e o vazio esconderia o mesmo defeito.
+   */
+  badgeTitle(badgeId: string): string {
+    return (
+      this.trackStages().find((stage) => stage.id === badgeId)?.title ?? badgeId
+    );
+  }
+
+  /** O ícone da insígnia, para reusar o mesmo desenho da trilha e do Mural. */
+  badgeIcon(badgeId: string): string | null {
+    return this.trackStages().find((stage) => stage.id === badgeId)?.icon ?? null;
+  }
 }

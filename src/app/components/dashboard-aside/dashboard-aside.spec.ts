@@ -1,6 +1,8 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { DashboardAside } from './dashboard-aside';
 
 describe('DashboardAside', () => {
@@ -10,7 +12,13 @@ describe('DashboardAside', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DashboardAside],
-      providers: [provideZonelessChangeDetection(), provideRouter([])]
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([]),
+        // O sino da spec 012 vive dentro desta casca, e ele fala com a API.
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardAside);

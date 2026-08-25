@@ -14,6 +14,8 @@ import { IconMenu } from '../../components/icons/icon-menu';
 import { AuthService } from '../../core/auth/auth.service';
 import { AuthStore } from '../../core/auth/auth.store';
 import { Logo } from '../../shared/logo/logo';
+import { NotificationCenter } from '../../components/notification-center/notification-center';
+import { NotificationsStore } from '../../core/notifications/notifications.store';
 
 const ASIDE_EXPANDED_STORAGE_KEY = 'eduleno.aside.expanded';
 
@@ -25,7 +27,8 @@ const ASIDE_EXPANDED_STORAGE_KEY = 'eduleno.aside.expanded';
     DashboardAside,
     ConfirmDialog,
     IconMenu,
-    Logo
+    Logo,
+    NotificationCenter
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -44,6 +47,9 @@ const ASIDE_EXPANDED_STORAGE_KEY = 'eduleno.aside.expanded';
           <app-logo />
           <span class="mobile-header__title u-mono">LIGA DEV</span>
         </a>
+
+        <!-- O sino do celular, no lado oposto ao botão de menu (spec 012). -->
+        <app-notification-center class="mobile-header__bell" />
       </header>
 
       <div class="shell__layout">
@@ -115,6 +121,10 @@ const ASIDE_EXPANDED_STORAGE_KEY = 'eduleno.aside.expanded';
       color: var(--ink);
     }
 
+    .mobile-header__bell {
+      margin-left: auto;
+    }
+
     .mobile-header__title {
       font-weight: 700;
       font-size: var(--step-0);
@@ -147,6 +157,7 @@ const ASIDE_EXPANDED_STORAGE_KEY = 'eduleno.aside.expanded';
 export class DashboardShell implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly notifications = inject(NotificationsStore);
   readonly authStore = inject(AuthStore);
 
   private readonly logoutDialog = viewChild<ConfirmDialog>('logoutDialog');
@@ -163,6 +174,11 @@ export class DashboardShell implements OnInit {
     } catch {
       // Ignora erro de acesso a storage se cookies/storage estiverem bloqueados
     }
+
+    // Uma busca na abertura do painel, e outra a cada vez que o sino abre.
+    // **Nenhum intervalo** (spec 012): polling de contador é uma requisição por
+    // membro por minuto para descobrir, quase sempre, que nada mudou.
+    void this.notifications.load();
   }
 
   toggleAside(): void {
