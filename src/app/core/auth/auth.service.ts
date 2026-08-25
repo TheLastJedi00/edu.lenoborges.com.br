@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  ChangeEmailRequest,
+  ChangePasswordRequest,
   Credentials,
   MemberProfile,
   MemberUser,
@@ -11,6 +13,7 @@ import {
   UpdateProfileRequest
 } from '../../models/auth.model';
 import { EMAIL_PATTERN, normalizeEmail, normalizeName, normalizePhone } from '../normalize';
+import { toInstagramUrl, toLinkedinUrl } from '../social-url';
 import { AuthStore } from './auth.store';
 
 @Injectable({ providedIn: 'root' })
@@ -132,16 +135,108 @@ export class AuthService {
       return throwError(() => new Error('A bio deve ter entre 10 e 500 caracteres.'));
     }
 
+    // As redes entram no corpo **só quando o chamador as mencionou**. Sem elas o
+    // corpo é byte a byte o de antes da spec 013 — e precisa ser: o onboarding
+    // chama este mesmo método e não pode passar a mandar `linkedin: ''` para
+    // toda a base, apagando o que ninguém pediu para apagar.
+    const body: Record<string, string> = {
+      name: normalizedName,
+      phone: normalizedPhone,
+      bio: trimmedBio
+    };
+
+    if (request.linkedin !== undefined) {
+      const linkedin = toLinkedinUrl(request.linkedin);
+      if (linkedin === null) {
+        return throwError(
+          () => new Error('Informe um perfil do LinkedIn válido, ou deixe o campo vazio.')
+        );
+      }
+      body['linkedin'] = linkedin;
+    }
+
+    if (request.instagram !== undefined) {
+      const instagram = toInstagramUrl(request.instagram);
+      if (instagram === null) {
+        return throwError(
+          () => new Error('Informe um perfil do Instagram válido, ou deixe o campo vazio.')
+        );
+      }
+      body['instagram'] = instagram;
+    }
+
     return this.http
-      .patch<MemberProfile>(`${environment.apiUrl}/me/profile`, {
-        name: normalizedName,
-        phone: normalizedPhone,
-        bio: trimmedBio
-      })
+      .patch<MemberProfile>(`${environment.apiUrl}/me/profile`, body)
       .pipe(
         tap((profile) => {
           this.authStore.setProfile(profile);
         })
+      );
+  }
+
+  /**
+   * Pede a troca do e-mail de acesso.
+   *
+   * **Não mexe no `AuthStore`, e é o ponto inteiro.** A resposta é `202`: o
+   * pedido foi aceito, a troca não aconteceu. Quem troca é o Firebase, quando o
+   * link chegar no endereço novo e alguém clicar nele. Atualizar o e-mail em
+   * memória aqui seria mentir sobre o estado do sistema, e a mentira só
+   * apareceria no próximo login, falhando.
+   */
+  changeEmail(request: ChangeEmailRequest): Observable<void> {
+    const normalizedEmail = normalizeEmail(request.newEmail);
+
+    if (!EMAIL_PATTERN.test(normalizedEmail)) {
+      return throwError(() => new Error('Informe um e-mail válido.'));
+    }
+
+    return this.http.post<void>(`${environment.apiUrl}/me/email`, {
+      newEmail: normalizedEmail,
+      password: request.password
+    });
+  }
+
+  /**
+   * Troca a senha, e **encerra a sessão no sucesso**.
+   *
+   * O backend revoga os refresh tokens de todos os aparelhos e limpa o cookie; o
+   * `clearSession()` daqui é o lado do front da mesma decisão — sem ele o app
+   * seguiria com um token em memória e um marcador de sessão no `localStorage`
+   * que o próximo F5 tentaria renovar, sem chance de dar certo.
+   *
+   * **Só no sucesso.** Um `401` de senha errada não pode deslogar quem errou a
+   * digitação.
+   */
+  changePassword(request: ChangePasswordRequest): Observable<void> {
+    return this.http
+      .post<void>(`${environment.apiUrl}/me/password`, {
+        currentPassword: request.currentPassword,
+        newPassword: request.newPassword
+      })
+      .pipe(
+        tap(() => {
+          this.authStore.clearSession();
+        }),
+        map(() => undefined)
+      );
+  }
+
+  /**
+   * Exclui a conta. Imediato, irreversível, sem carência.
+   *
+   * **O corpo vai dentro de `options`**: `HttpClient.delete` não aceita corpo
+   * como segundo argumento posicional, como `post` e `patch` aceitam. Passá-lo
+   * assim faz a requisição sair sem senha e voltar `400` sem explicação — é o
+   * erro mais fácil de cometer neste arquivo.
+   */
+  deleteAccount(password: string): Observable<void> {
+    return this.http
+      .delete<void>(`${environment.apiUrl}/me`, { body: { password } })
+      .pipe(
+        tap(() => {
+          this.authStore.clearSession();
+        }),
+        map(() => undefined)
       );
   }
 

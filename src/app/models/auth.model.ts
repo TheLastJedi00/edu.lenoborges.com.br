@@ -36,6 +36,10 @@ export interface MemberProfile {
   readonly phone: string | null;
   readonly bio: string | null;
   readonly grade: number;
+  /** URL completa do perfil no LinkedIn, ou nulo. Nunca handle (spec 013). */
+  readonly linkedin: string | null;
+  /** URL completa do perfil no Instagram, ou nulo. */
+  readonly instagram: string | null;
   readonly profileCompleted: boolean;
   /** Papel vindo da custom claim do Firebase Auth. Nulo para o membro comum. */
   readonly role: UserRole | null;
@@ -46,6 +50,28 @@ export interface UpdateProfileRequest {
   readonly name: string;
   readonly phone: string;
   readonly bio: string;
+  /**
+   * As redes são **opcionais, e ausência não é o mesmo que vazio**.
+   *
+   * Campo ausente é "não mencionei" e a API deixa o valor guardado intacto;
+   * string vazia é "quero apagar" e a API grava `null`. São coisas diferentes e
+   * o backend as trata diferente — quem mandar `''` "para simplificar" apaga o
+   * LinkedIn de quem só editou a bio.
+   */
+  readonly linkedin?: string;
+  readonly instagram?: string;
+}
+
+/** Corpo de `POST /me/email`. A troca só acontece depois do clique no link. */
+export interface ChangeEmailRequest {
+  readonly newEmail: string;
+  readonly password: string;
+}
+
+/** Corpo de `POST /me/password`. A confirmação da nova senha não vem aqui. */
+export interface ChangePasswordRequest {
+  readonly currentPassword: string;
+  readonly newPassword: string;
 }
 
 /**

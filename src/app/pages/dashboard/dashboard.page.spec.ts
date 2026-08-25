@@ -49,6 +49,8 @@ describe('DashboardPage', () => {
       phone: '47999991234',
       bio: 'Bio',
       grade: 5,
+      linkedin: null,
+      instagram: null,
       profileCompleted: true,
       role: null,
       tier: 'dev-tier'
@@ -124,6 +126,8 @@ describe('DashboardPage', () => {
       phone: '47999991234',
       bio: 'Bio',
       grade: 5,
+      linkedin: null,
+      instagram: null,
       profileCompleted: true,
       role: 'admin',
       tier: 'dev-tier'
@@ -156,6 +160,8 @@ describe('DashboardPage', () => {
         phone: '47999991234',
         bio: 'Bio',
         grade: 5,
+        linkedin: null,
+        instagram: null,
         profileCompleted: true,
         role,
         tier: 'dev-tier'

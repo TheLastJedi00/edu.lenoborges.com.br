@@ -17,6 +17,8 @@ const MOCK_PROFILE: MemberProfile = {
   phone: '47999991234',
   bio: 'Bio teste',
   grade: 1,
+  linkedin: null,
+  instagram: null,
   profileCompleted: true,
   role: null,
   tier: 'dev-tier'

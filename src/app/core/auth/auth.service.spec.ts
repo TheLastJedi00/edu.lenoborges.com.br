@@ -15,6 +15,8 @@ const MOCK_PROFILE: MemberProfile = {
   phone: '47999991234',
   bio: 'Desenvolvedor e mentor de programação.',
   grade: 1,
+  linkedin: null,
+  instagram: null,
   profileCompleted: true,
   role: null,
   tier: 'dev-tier'
@@ -196,6 +198,175 @@ describe('AuthService (TDD)', () => {
     const result = await pending;
     expect(result.name).toBe('Maria Silva');
     expect(store.profile()?.name).toBe('Maria Silva');
+  });
+
+  describe('spec 013 — perfil, credencial e exclusão', () => {
+    it('13. teste-trava: sem as redes, o corpo do PATCH é o de sempre', async () => {
+      // O onboarding chama este mesmo método. Se ele passar a mandar
+      // `linkedin: ''`, apaga o LinkedIn de toda a base na primeira edição.
+      const pending = firstValueFrom(
+        service.updateProfile({
+          name: 'Maria Silva',
+          phone: '11988887777',
+          bio: 'Uma bio suficientemente longa para passar.'
+        })
+      );
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/me/profile`);
+      expect(Object.keys(req.request.body as object).sort()).toEqual([
+        'bio',
+        'name',
+        'phone'
+      ]);
+      req.flush(MOCK_PROFILE);
+      await pending;
+    });
+
+    it('14. as redes vão no corpo já normalizadas em URL completa', async () => {
+      const pending = firstValueFrom(
+        service.updateProfile({
+          name: 'Maria Silva',
+          phone: '11988887777',
+          bio: 'Uma bio suficientemente longa para passar.',
+          linkedin: '@maria',
+          instagram: 'instagram.com/maria'
+        })
+      );
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/me/profile`);
+      expect((req.request.body as { linkedin: string }).linkedin).toBe(
+        'https://www.linkedin.com/in/maria'
+      );
+      expect((req.request.body as { instagram: string }).instagram).toBe(
+        'https://www.instagram.com/maria'
+      );
+      req.flush(MOCK_PROFILE);
+      await pending;
+    });
+
+    it('15. rede vazia vira string vazia no corpo, que é a remoção', async () => {
+      const pending = firstValueFrom(
+        service.updateProfile({
+          name: 'Maria Silva',
+          phone: '11988887777',
+          bio: 'Uma bio suficientemente longa para passar.',
+          linkedin: ''
+        })
+      );
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/me/profile`);
+      expect((req.request.body as { linkedin: string }).linkedin).toBe('');
+      req.flush(MOCK_PROFILE);
+      await pending;
+    });
+
+    it('16. rede de outro domínio falha antes da rede, sem "consertar"', async () => {
+      await expectAsync(
+        firstValueFrom(
+          service.updateProfile({
+            name: 'Maria Silva',
+            phone: '11988887777',
+            bio: 'Uma bio suficientemente longa para passar.',
+            linkedin: 'evil.com/maria'
+          })
+        )
+      ).toBeRejected();
+
+      httpMock.expectNone(`${environment.apiUrl}/me/profile`);
+    });
+
+    it('17. teste-trava: o 202 da troca de e-mail NÃO altera o e-mail em memória', async () => {
+      // A troca ainda não aconteceu: quem troca é o Firebase, no clique do link.
+      // Mudar o e-mail aqui seria mentir, e a mentira só apareceria no próximo
+      // login, falhando.
+      store.setSession(MOCK_SESSION);
+
+      const pending = firstValueFrom(
+        service.changeEmail({ newEmail: '  NOVO@Exemplo.com ', password: 'senha' })
+      );
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/me/email`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({
+        newEmail: 'novo@exemplo.com',
+        password: 'senha'
+      });
+      req.flush(null, { status: 202, statusText: 'Accepted' });
+      await pending;
+
+      expect(store.user()?.email).toBe('leno@exemplo.com');
+      expect(store.isLoggedIn()).toBeTrue();
+    });
+
+    it('18. trocar a senha limpa a sessão no sucesso', async () => {
+      store.setSession(MOCK_SESSION);
+
+      const pending = firstValueFrom(
+        service.changePassword({
+          currentPassword: 'antiga',
+          newPassword: 'nova-senha-forte'
+        })
+      );
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/me/password`);
+      expect(req.request.method).toBe('POST');
+      req.flush(null, { status: 204, statusText: 'No Content' });
+      await pending;
+
+      expect(store.isLoggedIn()).toBeFalse();
+      expect(store.accessToken()).toBeNull();
+    });
+
+    it('19. teste-trava: 401 na troca de senha NÃO desloga', async () => {
+      // Quem errou a digitação não pode ser expulso da conta por isso.
+      store.setSession(MOCK_SESSION);
+
+      const pending = firstValueFrom(
+        service.changePassword({
+          currentPassword: 'errada',
+          newPassword: 'nova-senha-forte'
+        })
+      ).catch(() => undefined);
+
+      httpMock
+        .expectOne(`${environment.apiUrl}/me/password`)
+        .flush({ message: 'Senha incorreta.' }, { status: 401, statusText: 'Unauthorized' });
+      await pending;
+
+      expect(store.isLoggedIn()).toBeTrue();
+      expect(store.accessToken()).toBe('jwt-access-token-123');
+    });
+
+    it('20. a exclusão manda a senha no CORPO do DELETE, e limpa a sessão', async () => {
+      // `HttpClient.delete` exige o corpo dentro de `options`. Passá-lo como
+      // segundo argumento posicional faz a requisição sair sem senha.
+      store.setSession(MOCK_SESSION);
+
+      const pending = firstValueFrom(service.deleteAccount('minha-senha'));
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/me`);
+      expect(req.request.method).toBe('DELETE');
+      expect(req.request.body).toEqual({ password: 'minha-senha' });
+      req.flush(null, { status: 204, statusText: 'No Content' });
+      await pending;
+
+      expect(store.isLoggedIn()).toBeFalse();
+    });
+
+    it('21. 401 na exclusão não desloga nem limpa o store', async () => {
+      store.setSession(MOCK_SESSION);
+
+      const pending = firstValueFrom(service.deleteAccount('errada')).catch(
+        () => undefined
+      );
+
+      httpMock
+        .expectOne(`${environment.apiUrl}/me`)
+        .flush({ message: 'Senha incorreta.' }, { status: 401, statusText: 'Unauthorized' });
+      await pending;
+
+      expect(store.isLoggedIn()).toBeTrue();
+    });
   });
 
   describe('contrato da API', () => {
