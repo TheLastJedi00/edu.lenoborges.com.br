@@ -26,10 +26,24 @@ export class MuralService {
     return this.http.get<MuralState>(this.base);
   }
 
-  listQuestions(fase: 'coleta' | 'votacao'): Observable<MuralQuestion[]> {
-    return this.http.get<MuralQuestion[]>(`${this.base}/perguntas`, {
-      params: new HttpParams().set('fase', fase)
-    });
+  /**
+   * As perguntas de uma fase.
+   *
+   * `ordem: 'recentes'` inverte a coleta para a mais nova primeiro, e existe
+   * para quem chegou por uma notificação de pergunta nova (spec 012): na ordem
+   * padrão, a pergunta anunciada está no fim de tudo. **Sem o parâmetro nada
+   * muda** — quem entra pelo menu continua lendo a semana do começo.
+   */
+  listQuestions(
+    fase: 'coleta' | 'votacao',
+    ordem?: 'recentes'
+  ): Observable<MuralQuestion[]> {
+    let params = new HttpParams().set('fase', fase);
+    if (ordem) {
+      params = params.set('ordem', ordem);
+    }
+
+    return this.http.get<MuralQuestion[]>(`${this.base}/perguntas`, { params });
   }
 
   listWinners(): Observable<MuralWinner[]> {

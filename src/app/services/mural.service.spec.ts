@@ -66,6 +66,17 @@ describe('MuralService', () => {
     const request = http.expectOne((req) => req.url.endsWith('/mural/perguntas'));
 
     expect(request.request.params.get('fase')).toBe('votacao');
+    // Sem `ordem`, a chamada é a de sempre: quem entra pelo menu continua
+    // lendo a semana do começo (spec 012).
+    expect(request.request.params.has('ordem')).toBe(false);
+    request.flush([]);
+  });
+
+  it('pede a ordem invertida só quando mandam', () => {
+    service.listQuestions('coleta', 'recentes').subscribe();
+    const request = http.expectOne((req) => req.url.endsWith('/mural/perguntas'));
+
+    expect(request.request.params.get('ordem')).toBe('recentes');
     request.flush([]);
   });
 
