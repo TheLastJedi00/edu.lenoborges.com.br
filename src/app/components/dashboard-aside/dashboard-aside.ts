@@ -87,7 +87,14 @@ export interface AsideNavItem {
           Fica visível **também com o menu recolhido** — se sumisse, quem
           trabalha com a coluna fechada nunca saberia de nada.
         -->
-        <app-notification-center class="aside__bell" />
+        <!--
+          O sino do desktop mora encostado na borda ESQUERDA da janela, dentro
+          de uma coluna fixa no left: 0. O padrão do painel é abrir para a
+          esquerda do sino, que aqui é para fora da tela — e com o menu
+          recolhido some quase inteiro. A instância da barra do celular fica no
+          padrão, porque lá o sino está na borda direita.
+        -->
+        <app-notification-center class="aside__bell" align="start" />
 
         <!-- Botão de recolher/expandir (Desktop) -->
         <button
@@ -204,22 +211,23 @@ export interface AsideNavItem {
             </a>
           </li>
 
-          <!-- 5. Meu Perfil (Inerte) -->
+          <!-- 5. Meu Perfil -->
           <li>
-            <button
-              type="button"
-              disabled
-              aria-disabled="true"
-              class="aside__item aside__item--disabled"
-              [title]="!expanded() ? 'Meu Perfil (Em breve)' : ''"
-              [attr.aria-label]="!expanded() ? 'Meu Perfil (Em breve)' : null"
+            <a
+              routerLink="/dashboard/perfil"
+              routerLinkActive="is-active"
+              #perfilLink="routerLinkActive"
+              [attr.aria-current]="perfilLink.isActive ? 'page' : null"
+              class="aside__item"
+              [title]="!expanded() ? 'Meu Perfil' : ''"
+              [attr.aria-label]="!expanded() ? 'Meu Perfil' : null"
+              (click)="onNavClick('/dashboard/perfil')"
             >
               <app-icon-user class="aside__icon" />
               @if (expanded()) {
                 <span class="aside__label">Meu Perfil</span>
-                <span class="aside__badge u-mono">Em breve</span>
               }
-            </button>
+            </a>
           </li>
 
           <!-- 5. Jogos (Inerte) -->

@@ -49,6 +49,8 @@ describe('DashboardPage', () => {
       phone: '47999991234',
       bio: 'Bio',
       grade: 5,
+      linkedin: null,
+      instagram: null,
       profileCompleted: true,
       role: null,
       tier: 'dev-tier'
@@ -81,24 +83,27 @@ describe('DashboardPage', () => {
     expect(compiled.textContent).toContain('Jogos');
   });
 
-  it('Trilha, Financeiro e Mural são cartões que navegam, não cartões inertes', () => {
+  it('Trilha, Financeiro, Mural e Meu Perfil são cartões que navegam', () => {
     expect(cardRoutes(fixture.nativeElement)).toEqual([
       '/dashboard/trilha',
       '/dashboard/financeiro',
-      '/dashboard/mural'
+      '/dashboard/mural',
+      '/dashboard/perfil'
     ]);
   });
 
-  it('só Meu Perfil e Jogos ficam inertes', () => {
+  it('só Jogos fica inerte', () => {
     // A trilha destravou na spec 009 e o cartão ficou para trás por três specs.
     // O WhatsApp saiu daqui quando o link do grupo entrou no `environment`.
-    // Inerte agora é só o que não tem rota em `app.routes.ts`.
+    // Meu Perfil destravou na spec 013, junto com o item do aside — a regra é
+    // que menu e painel espelham um ao outro, e destravar um e esquecer o outro
+    // é a assimetria que este par de testes existe para impedir.
     const root = fixture.nativeElement as HTMLElement;
     const disabled = Array.from(
       root.querySelectorAll<HTMLElement>('.card--disabled .card__title')
     ).map((title) => title.textContent?.trim());
 
-    expect(disabled).toEqual(['Meu Perfil', 'Jogos']);
+    expect(disabled).toEqual(['Jogos']);
   });
 
   it('o cartão do WhatsApp aponta para o grupo e abre em nova aba com segurança', () => {
@@ -124,6 +129,8 @@ describe('DashboardPage', () => {
       phone: '47999991234',
       bio: 'Bio',
       grade: 5,
+      linkedin: null,
+      instagram: null,
       profileCompleted: true,
       role: 'admin',
       tier: 'dev-tier'
@@ -156,6 +163,8 @@ describe('DashboardPage', () => {
         phone: '47999991234',
         bio: 'Bio',
         grade: 5,
+        linkedin: null,
+        instagram: null,
         profileCompleted: true,
         role,
         tier: 'dev-tier'

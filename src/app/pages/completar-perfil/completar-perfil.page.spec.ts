@@ -23,6 +23,8 @@ describe('CompletarPerfilPage', () => {
     phone: '47999991234',
     bio: '',
     grade: 1,
+    linkedin: null,
+    instagram: null,
     profileCompleted: false,
     role: null,
     tier: 'dev-tier'
@@ -77,6 +79,8 @@ describe('CompletarPerfilPage', () => {
         ...initialProfile,
         name: 'Leno Borges',
         bio: 'Bio com mais de dez caracteres.',
+        linkedin: null,
+        instagram: null,
         profileCompleted: true
       })
     );

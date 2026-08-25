@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   inject,
+  signal,
   OnInit
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -81,10 +82,18 @@ export class LandingPage implements OnInit {
    *
    * O parâmetro é limpo da URL logo em seguida, com `replaceUrl` para não
    * empilhar entrada no histórico: um F5 depois não deve reabrir o diálogo.
+   *
+   * O `?senha=trocada` vem junto quando a volta é da troca de senha (spec 013):
+   * a sessão terminou de propósito, e sem essa linha cair numa tela de login é
+   * indistinguível de ter sido deslogado por erro.
    */
   ngOnInit(): void {
     if (this.route.snapshot.queryParamMap.get('entrar') !== '1') {
       return;
+    }
+
+    if (this.route.snapshot.queryParamMap.get('senha') === 'trocada') {
+      this.senhaTrocada.set(true);
     }
 
     this.authStore.openAuthDialog('login');
@@ -95,6 +104,9 @@ export class LandingPage implements OnInit {
       replaceUrl: true
     });
   }
+
+  /** Mensagem de volta da troca de senha (spec 013, decisão 7). */
+  protected readonly senhaTrocada = signal(false);
 
   protected openLogin(): void {
     this.authStore.openAuthDialog('login');

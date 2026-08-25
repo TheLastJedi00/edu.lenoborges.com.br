@@ -1,0 +1,399 @@
+<section class="page">
+  <header class="page__head">
+    <div class="page__brand">
+      <app-logo />
+      <p class="u-mono page__eyebrow">Meu Perfil</p>
+    </div>
+    <h1 class="page__title">Seus dados e seu acesso</h1>
+    <p class="page__lead">
+      O que a Liga Dev sabe sobre você, quem você é para entrar, e a saída — se um dia for a hora.
+    </p>
+  </header>
+
+  @switch (loadState()) {
+    @case ('loading') {
+      <!-- Esqueleto na forma das seções. Campo que aparece vazio e depois
+           preenchido é o que faz alguém salvar por cima do que ainda não
+           chegou. -->
+      <div class="skeletons" aria-busy="true" aria-label="Carregando seu perfil">
+        <div class="skeleton"></div>
+        <div class="skeleton skeleton--short"></div>
+        <div class="skeleton skeleton--short"></div>
+      </div>
+    }
+
+    @case ('error') {
+      <div class="block" role="alert">
+        <p class="feedback__text">Não consegui carregar seu perfil agora.</p>
+        <button type="button" class="btn btn--solid" (click)="recarregar()">
+          Tentar de novo
+        </button>
+      </div>
+    }
+
+    @case ('ready') {
+      <section class="block" aria-labelledby="titulo-dados">
+        <h2 class="block__title" id="titulo-dados">Seus dados</h2>
+
+        <form class="form" [formGroup]="dadosForm" (ngSubmit)="salvarDados()" novalidate>
+          <label class="field">
+            <span class="field__label">Nome completo</span>
+            <input
+              class="field__input"
+              type="text"
+              formControlName="name"
+              autocomplete="name"
+              [attr.aria-invalid]="isDadoInvalido('name') ? 'true' : null"
+              [attr.aria-describedby]="isDadoInvalido('name') ? 'erro-nome' : 'nota-nome'"
+            />
+            <!-- Informação, não alerta: uma linha, sem ícone de aviso. -->
+            <span class="field__note" id="nota-nome">
+              As perguntas que você já publicou no Mural continuam assinadas com o nome de quando
+              foram escritas.
+            </span>
+            @if (isDadoInvalido('name')) {
+              <span class="field__error" id="erro-nome">
+                Informe o seu nome (entre 2 e 120 caracteres).
+              </span>
+            }
+          </label>
+
+          <label class="field">
+            <span class="field__label">Telefone com DDD</span>
+            <input
+              class="field__input"
+              type="tel"
+              inputmode="tel"
+              formControlName="phone"
+              autocomplete="tel"
+              [attr.aria-invalid]="isDadoInvalido('phone') ? 'true' : null"
+              [attr.aria-describedby]="isDadoInvalido('phone') ? 'erro-telefone' : null"
+            />
+            @if (isDadoInvalido('phone')) {
+              <span class="field__error" id="erro-telefone">
+                Informe um telefone válido com DDD (10 ou 11 dígitos).
+              </span>
+            }
+          </label>
+
+          <label class="field">
+            <div class="field__head">
+              <span class="field__label">Bio</span>
+              <span class="field__counter u-mono">{{ bioLength() }}/500</span>
+            </div>
+            <textarea
+              class="field__textarea"
+              rows="4"
+              formControlName="bio"
+              [attr.aria-invalid]="isDadoInvalido('bio') ? 'true' : null"
+              [attr.aria-describedby]="isDadoInvalido('bio') ? 'erro-bio' : null"
+            ></textarea>
+            @if (isDadoInvalido('bio')) {
+              <span class="field__error" id="erro-bio">
+                A bio deve conter entre 10 e 500 caracteres.
+              </span>
+            }
+          </label>
+
+          @if (dadosError()) {
+            <p class="form__error" role="alert">{{ dadosError() }}</p>
+          }
+
+          @if (dadosSaved()) {
+            <p class="form__ok" role="status">Dados salvos.</p>
+          }
+
+          <button
+            class="btn btn--solid"
+            type="submit"
+            [disabled]="!dadosDirty() || dadosForm.invalid || savingDados()"
+          >
+            @if (savingDados()) {
+              Salvando…
+            } @else {
+              Salvar dados
+            }
+          </button>
+        </form>
+      </section>
+
+      <section class="block" aria-labelledby="titulo-redes">
+        <h2 class="block__title" id="titulo-redes">Suas redes</h2>
+        <p class="block__lead">
+          Os dois são opcionais. Pode colar <code>&#64;fulano</code>, só o nome de usuário, ou o
+          endereço inteiro — o campo mostra no que virou. Apagar o campo remove a rede.
+        </p>
+
+        <form class="form" [formGroup]="redesForm" (ngSubmit)="salvarRedes()" novalidate>
+          <label class="field">
+            <span class="field__label">
+              <app-icon-linkedin class="field__icon" />
+              LinkedIn
+            </span>
+            <input
+              class="field__input"
+              type="text"
+              formControlName="linkedin"
+              autocomplete="url"
+              placeholder="@fulano"
+              (blur)="normalizarLinkedin()"
+              [attr.aria-invalid]="linkedinError() ? 'true' : null"
+              [attr.aria-describedby]="linkedinError() ? 'erro-linkedin' : null"
+            />
+            @if (linkedinError()) {
+              <span class="field__error" id="erro-linkedin">{{ linkedinError() }}</span>
+            }
+          </label>
+
+          <label class="field">
+            <span class="field__label">
+              <app-icon-instagram class="field__icon" />
+              Instagram
+            </span>
+            <input
+              class="field__input"
+              type="text"
+              formControlName="instagram"
+              autocomplete="url"
+              placeholder="@fulano"
+              (blur)="normalizarInstagram()"
+              [attr.aria-invalid]="instagramError() ? 'true' : null"
+              [attr.aria-describedby]="instagramError() ? 'erro-instagram' : null"
+            />
+            @if (instagramError()) {
+              <span class="field__error" id="erro-instagram">{{ instagramError() }}</span>
+            }
+          </label>
+
+          @if (redesError()) {
+            <p class="form__error" role="alert">{{ redesError() }}</p>
+          }
+
+          @if (redesSaved()) {
+            <p class="form__ok" role="status">Redes salvas.</p>
+          }
+
+          <button class="btn btn--solid" type="submit" [disabled]="savingRedes()">
+            @if (savingRedes()) {
+              Salvando…
+            } @else {
+              Salvar redes
+            }
+          </button>
+        </form>
+      </section>
+
+      <section class="block" aria-labelledby="titulo-acesso">
+        <h2 class="block__title" id="titulo-acesso">Acesso</h2>
+
+        <!-- E-mail. Fechado, mostra só o estado. -->
+        <div class="acesso">
+          @if (acessoAberto() !== 'email') {
+            <div class="acesso__row">
+              <div>
+                <p class="acesso__label">E-mail de acesso</p>
+                <p class="acesso__value">{{ profile()?.email }}</p>
+              </div>
+              <button type="button" class="btn btn--outline" (click)="abrirAcesso('email')">
+                Trocar
+              </button>
+            </div>
+          } @else {
+            <form class="form" [formGroup]="emailForm" (ngSubmit)="pedirTrocaDeEmail()" novalidate>
+              <p class="acesso__label">Trocar o e-mail de acesso</p>
+
+              <label class="field">
+                <span class="field__label">Novo e-mail</span>
+                <input
+                  class="field__input"
+                  type="email"
+                  inputmode="email"
+                  formControlName="newEmail"
+                  autocomplete="email"
+                />
+              </label>
+
+              <label class="field">
+                <span class="field__label">Senha atual</span>
+                <input
+                  class="field__input"
+                  type="password"
+                  formControlName="password"
+                  autocomplete="current-password"
+                />
+                <!-- Um campo de senha sem explicação numa tela de perfil parece
+                     bug ou golpe, e é o momento em que alguém desiste. -->
+                <span class="field__note">Confirmamos que é você antes de mudar o acesso.</span>
+              </label>
+
+              @if (emailEnviadoPara()) {
+                <p class="acesso__ok" role="status">
+                  <strong>Confirmação enviada para {{ emailEnviadoPara() }}.</strong>
+                  O e-mail só muda depois que você clicar no link. Até lá, continue entrando com o
+                  endereço atual — e, quando a troca for confirmada, sua sessão termina e você
+                  entra de novo com o endereço novo.
+                </p>
+              }
+
+              @if (emailError()) {
+                <p class="form__error" role="alert">{{ emailError() }}</p>
+              }
+
+              <div class="acesso__actions">
+                <button type="button" class="btn btn--ghost" (click)="fecharAcesso()">Cancelar</button>
+                <button class="btn btn--solid" type="submit" [disabled]="emailForm.invalid || savingEmail()">
+                  @if (savingEmail()) {
+                    Enviando…
+                  } @else {
+                    Enviar confirmação
+                  }
+                </button>
+              </div>
+            </form>
+          }
+        </div>
+
+        <!-- Senha. Fechado, não mostra dado nenhum. -->
+        <div class="acesso">
+          @if (acessoAberto() !== 'senha') {
+            <div class="acesso__row">
+              <div>
+                <p class="acesso__label">Senha</p>
+                <p class="acesso__value">Senha · alterada por você</p>
+              </div>
+              <button type="button" class="btn btn--outline" (click)="abrirAcesso('senha')">
+                Trocar
+              </button>
+            </div>
+          } @else {
+            <form class="form" [formGroup]="senhaForm" (ngSubmit)="trocarSenha()" novalidate>
+              <p class="acesso__label">Trocar a senha</p>
+
+              <label class="field">
+                <span class="field__label">Senha atual</span>
+                <input
+                  class="field__input"
+                  type="password"
+                  formControlName="currentPassword"
+                  autocomplete="current-password"
+                />
+                <span class="field__note">Confirmamos que é você antes de mudar o acesso.</span>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Nova senha</span>
+                <input
+                  class="field__input"
+                  type="password"
+                  formControlName="newPassword"
+                  autocomplete="new-password"
+                />
+              </label>
+
+              <label class="field">
+                <span class="field__label">Repita a nova senha</span>
+                <input
+                  class="field__input"
+                  type="password"
+                  formControlName="confirmPassword"
+                  autocomplete="new-password"
+                  [attr.aria-invalid]="!senhasConferem() ? 'true' : null"
+                />
+                @if (!senhasConferem()) {
+                  <span class="field__error">As duas senhas precisam ser iguais.</span>
+                }
+              </label>
+
+              <!-- O aviso vem ANTES do botão, e não há diálogo em cima dele:
+                   diálogo sobre aviso ensina a clicar em Confirmar sem ler. -->
+              <p class="acesso__warn">
+                Ao trocar a senha, você sai de todos os aparelhos e precisa entrar de novo.
+              </p>
+
+              @if (senhaError()) {
+                <p class="form__error" role="alert">{{ senhaError() }}</p>
+              }
+
+              <div class="acesso__actions">
+                <button type="button" class="btn btn--ghost" (click)="fecharAcesso()">Cancelar</button>
+                <button
+                  class="btn btn--solid"
+                  type="submit"
+                  [disabled]="senhaForm.invalid || !senhasConferem() || savingSenha()"
+                >
+                  @if (savingSenha()) {
+                    Trocando…
+                  } @else {
+                    Trocar senha
+                  }
+                </button>
+              </div>
+            </form>
+          }
+        </div>
+      </section>
+
+      <!--
+        A saída fica no fim, separada por um respiro grande e com borda de
+        atenção — e não em vermelho gritante. É a seção mais séria da tela, não
+        a mais barulhenta; o vermelho é do botão final, dentro do diálogo.
+      -->
+      <section class="block block--danger" aria-labelledby="titulo-excluir">
+        <h2 class="block__title" id="titulo-excluir">Excluir conta</h2>
+        <p class="block__lead">
+          A exclusão é imediata e não tem volta. Não há período de carência e não dá para desfazer.
+        </p>
+
+        <!--
+          A lista é requisito de consentimento, não texto de apoio: "sua conta
+          será excluída" não informa nada sobre a pergunta que virou vídeo na
+          trilha.
+        -->
+        <div class="excluir__listas">
+          <div>
+            <h3 class="excluir__col">Some para sempre</h3>
+            <ul class="excluir__itens">
+              <li>Sua conta e seu acesso</li>
+              <li>Nome, telefone, bio e redes</li>
+              <li>Seus votos no Mural</li>
+              <li>Seu progresso na trilha</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="excluir__col">Fica, sem o seu nome</h3>
+            <ul class="excluir__itens">
+              <li>As perguntas que você escreveu no Mural</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="excluir__nota">
+          As perguntas continuam no Mural porque outras pessoas votaram nelas e algumas viraram
+          vídeo — mas passam a aparecer como "Membro removido".
+        </p>
+
+        <button type="button" class="btn btn--outline-danger" (click)="abrirExclusao()">
+          Excluir conta
+        </button>
+      </section>
+    }
+  }
+</section>
+
+<app-delete-account-dialog
+  #excluirDialog
+  [busy]="excluindo()"
+  [errorMessage]="exclusaoError()"
+  (confirmed)="excluirConta($event)"
+/>
+
+<app-confirm-dialog
+  #sairDialog
+  title="Sair sem salvar?"
+  message="Você mudou seus dados e ainda não salvou. Se sair agora, a alteração se perde."
+  confirmLabel="Sair sem salvar"
+  cancelLabel="Continuar editando"
+  [danger]="true"
+  (confirmed)="confirmarSaida()"
+  (cancelled)="cancelarSaida()"
+/>
