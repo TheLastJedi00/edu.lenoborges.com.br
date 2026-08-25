@@ -99,6 +99,96 @@ describe('PerfilPage', () => {
     expect(fixture.nativeElement.querySelector('.block')).toBeNull();
   });
 
+  describe('Seus dados', () => {
+    it('pré-preenche com o que veio do GET /me', async () => {
+      await montar();
+
+      const nome = fixture.nativeElement.querySelector(
+        'input[formControlName="name"]'
+      ) as HTMLInputElement;
+      expect(nome.value).toBe('Leno Borges');
+    });
+
+    it('o botão fica travado enquanto nada mudou', async () => {
+      await montar();
+
+      const botao = fixture.nativeElement.querySelector('.submit') as HTMLButtonElement;
+      expect(botao.disabled).toBeTrue();
+    });
+
+    it('salvar manda o PATCH e atualiza o perfil da tela', async () => {
+      await montar();
+
+      component['dadosForm'].controls.name.setValue('Leno Novo');
+      fixture.detectChanges();
+
+      const botao = fixture.nativeElement.querySelector('.submit') as HTMLButtonElement;
+      expect(botao.disabled).toBeFalse();
+
+      authService.updateProfile.and.returnValue(of({ ...PERFIL, name: 'Leno Novo' }));
+      await component.salvarDados();
+      fixture.detectChanges();
+
+      expect(authService.updateProfile).toHaveBeenCalledWith(
+        jasmine.objectContaining({ name: 'Leno Novo' })
+      );
+      // Depois de salvar o botão volta a travar: o que está na tela é o que
+      // está no servidor.
+      const depois = fixture.nativeElement.querySelector('.submit') as HTMLButtonElement;
+      expect(depois.disabled).toBeTrue();
+    });
+
+    it('erro de rede aparece ABAIXO do formulário, sem navegar', async () => {
+      await montar();
+
+      component['dadosForm'].controls.name.setValue('Leno Novo');
+      authService.updateProfile.and.returnValue(throwError(() => new Error('offline')));
+
+      await component.salvarDados();
+      fixture.detectChanges();
+
+      const alerta = fixture.nativeElement.querySelector('.form__error') as HTMLElement;
+      expect(alerta.getAttribute('role')).toBe('alert');
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('a linha sobre o nome antigo no Mural está na tela', async () => {
+      await montar();
+
+      const nota = fixture.nativeElement.querySelector('#nota-nome') as HTMLElement;
+      expect(nota.textContent).toContain('Mural');
+    });
+
+    it('sair sem mudar nada não pergunta nada', async () => {
+      await montar();
+
+      await expectAsync(Promise.resolve(component.canDeactivate())).toBeResolvedTo(true);
+    });
+
+    it('teste-trava: apagar um espaço no fim da bio NÃO conta como alteração', async () => {
+      // A comparação é contra o valor normalizado. Contra o texto cru, um espaço
+      // a menos dispararia o diálogo de saída.
+      await montar();
+
+      component['dadosForm'].controls.bio.setValue(`${PERFIL.bio} `);
+      fixture.detectChanges();
+
+      await expectAsync(Promise.resolve(component.canDeactivate())).toBeResolvedTo(true);
+    });
+
+    it('sair com alteração não salva abre o diálogo, e cancelar segura a saída', async () => {
+      await montar();
+
+      component['dadosForm'].controls.bio.setValue('Uma bio completamente diferente da anterior.');
+      fixture.detectChanges();
+
+      const pendente = component.canDeactivate() as Promise<boolean>;
+      component['cancelarSaida']();
+
+      await expectAsync(pendente).toBeResolvedTo(false);
+    });
+  });
+
   it('falha de rede sem perfil em memória mostra o erro com um caminho de volta', async () => {
     authService.getMe.and.returnValue(throwError(() => new Error('offline')));
     fixture = TestBed.createComponent(PerfilPage);

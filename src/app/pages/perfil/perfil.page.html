@@ -34,6 +34,87 @@
     @case ('ready') {
       <section class="block" aria-labelledby="titulo-dados">
         <h2 class="block__title" id="titulo-dados">Seus dados</h2>
+
+        <form class="form" [formGroup]="dadosForm" (ngSubmit)="salvarDados()" novalidate>
+          <label class="field">
+            <span class="field__label">Nome completo</span>
+            <input
+              class="field__input"
+              type="text"
+              formControlName="name"
+              autocomplete="name"
+              [attr.aria-invalid]="isDadoInvalido('name') ? 'true' : null"
+              [attr.aria-describedby]="isDadoInvalido('name') ? 'erro-nome' : 'nota-nome'"
+            />
+            <!-- Informação, não alerta: uma linha, sem ícone de aviso. -->
+            <span class="field__note" id="nota-nome">
+              As perguntas que você já publicou no Mural continuam assinadas com o nome de quando
+              foram escritas.
+            </span>
+            @if (isDadoInvalido('name')) {
+              <span class="field__error" id="erro-nome">
+                Informe o seu nome (entre 2 e 120 caracteres).
+              </span>
+            }
+          </label>
+
+          <label class="field">
+            <span class="field__label">Telefone com DDD</span>
+            <input
+              class="field__input"
+              type="tel"
+              inputmode="tel"
+              formControlName="phone"
+              autocomplete="tel"
+              [attr.aria-invalid]="isDadoInvalido('phone') ? 'true' : null"
+              [attr.aria-describedby]="isDadoInvalido('phone') ? 'erro-telefone' : null"
+            />
+            @if (isDadoInvalido('phone')) {
+              <span class="field__error" id="erro-telefone">
+                Informe um telefone válido com DDD (10 ou 11 dígitos).
+              </span>
+            }
+          </label>
+
+          <label class="field">
+            <div class="field__head">
+              <span class="field__label">Bio</span>
+              <span class="field__counter u-mono">{{ bioLength() }}/500</span>
+            </div>
+            <textarea
+              class="field__textarea"
+              rows="4"
+              formControlName="bio"
+              [attr.aria-invalid]="isDadoInvalido('bio') ? 'true' : null"
+              [attr.aria-describedby]="isDadoInvalido('bio') ? 'erro-bio' : null"
+            ></textarea>
+            @if (isDadoInvalido('bio')) {
+              <span class="field__error" id="erro-bio">
+                A bio deve conter entre 10 e 500 caracteres.
+              </span>
+            }
+          </label>
+
+          @if (dadosError()) {
+            <p class="form__error" role="alert">{{ dadosError() }}</p>
+          }
+
+          @if (dadosSaved()) {
+            <p class="form__ok" role="status">Dados salvos.</p>
+          }
+
+          <button
+            class="submit"
+            type="submit"
+            [disabled]="!dadosDirty() || dadosForm.invalid || savingDados()"
+          >
+            @if (savingDados()) {
+              Salvando…
+            } @else {
+              Salvar dados
+            }
+          </button>
+        </form>
       </section>
 
       <section class="block" aria-labelledby="titulo-redes">
@@ -55,3 +136,14 @@
     }
   }
 </section>
+
+<app-confirm-dialog
+  #sairDialog
+  title="Sair sem salvar?"
+  message="Você mudou seus dados e ainda não salvou. Se sair agora, a alteração se perde."
+  confirmLabel="Sair sem salvar"
+  cancelLabel="Continuar editando"
+  [danger]="true"
+  (confirmed)="confirmarSaida()"
+  (cancelled)="cancelarSaida()"
+/>
