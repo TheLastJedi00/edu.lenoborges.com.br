@@ -87,7 +87,14 @@ export interface AsideNavItem {
           Fica visível **também com o menu recolhido** — se sumisse, quem
           trabalha com a coluna fechada nunca saberia de nada.
         -->
-        <app-notification-center class="aside__bell" />
+        <!--
+          O sino do desktop mora encostado na borda ESQUERDA da janela, dentro
+          de uma coluna fixa no left: 0. O padrão do painel é abrir para a
+          esquerda do sino, que aqui é para fora da tela — e com o menu
+          recolhido some quase inteiro. A instância da barra do celular fica no
+          padrão, porque lá o sino está na borda direita.
+        -->
+        <app-notification-center class="aside__bell" align="start" />
 
         <!-- Botão de recolher/expandir (Desktop) -->
         <button

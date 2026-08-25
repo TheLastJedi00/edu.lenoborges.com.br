@@ -51,6 +51,27 @@ describe('DashboardAside', () => {
     });
   });
 
+  /**
+   * O teste da Fase 02 da spec 012 garante que **o sino** aparece com o menu
+   * recolhido; nunca garantiu que **o painel** cabia, e é por essa fresta que o
+   * bug do alinhamento passou.
+   */
+  it('o sino do aside abre o painel para a direita, e o da barra do celular não', () => {
+    const bells = fixture.nativeElement.querySelectorAll(
+      'app-notification-center'
+    ) as NodeListOf<HTMLElement>;
+
+    const doAside = fixture.nativeElement.querySelector(
+      'app-notification-center.aside__bell'
+    ) as HTMLElement;
+    expect(doAside.getAttribute('align')).toBe('start');
+
+    const outras = Array.from(bells).filter((bell) => bell !== doAside);
+    outras.forEach((bell) => {
+      expect(bell.getAttribute('align')).toBeNull();
+    });
+  });
+
   it('emit logout ao clicar no botão de sair', () => {
     let logoutEmitted = false;
     component.logout.subscribe(() => {
