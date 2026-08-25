@@ -53,6 +53,12 @@
               @if (user.role === 'admin') {
                 <span class="tag tag--admin">Admin</span>
               }
+
+              <!-- Discreto e sempre visível quando vale: sem ele, "não chegou o
+                   e-mail para o fulano" é investigação sem pista. -->
+              @if (user.emailOptOut) {
+                <span class="tag tag--sem-email">Não recebe e-mails</span>
+              }
             </div>
 
             <button type="button" class="btn btn--ghost" (click)="startEdit(user)">

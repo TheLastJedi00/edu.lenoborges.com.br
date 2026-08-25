@@ -241,6 +241,35 @@ export class AuthService {
   }
 
   /**
+   * Liga e desliga o recebimento de e-mails do produto (spec 014).
+   *
+   * **É o mesmo opt-out que o link do rodapé de todo e-mail escreve**, e vale
+   * para tudo que o produto dispara. Os e-mails de conta — definir senha,
+   * verificar endereço — são do Firebase e não passam por aqui, e é isso que
+   * permite a regra ser absoluta sem prejudicar ninguém.
+   *
+   * Mora no `AuthService` porque é onde vivem `updateProfile`, `changeEmail` e
+   * `deleteAccount` — todas as escritas em `/me`. O `services/profile.service.ts`
+   * é outra coisa: o conteúdo estático do portfólio da landing.
+   *
+   * Atualiza o `AuthStore` no sucesso, para o interruptor não depender de um
+   * `GET /me` novo para refletir o que a pessoa acabou de fazer.
+   */
+  setEmailPreference(receber: boolean): Observable<void> {
+    return this.http
+      .patch<void>(`${environment.apiUrl}/me/emails`, { receber })
+      .pipe(
+        tap(() => {
+          const profile = this.authStore.profile();
+          if (profile) {
+            this.authStore.setProfile({ ...profile, emailOptOut: !receber });
+          }
+        }),
+        map(() => undefined)
+      );
+  }
+
+  /**
    * Carrega o perfil completo do membro autenticado.
    *
    * A resposta é achatada, sem `user` nem `profile` aninhados. Quem chama são as

@@ -15,6 +15,15 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/comunidade/comunidade.page').then((m) => m.ComunidadePage),
     title: 'Liga Dev · Comunidade de programação do Leno Borges'
   },
+  {
+    // **Pública, sem guard nenhum e fora do `dashboard-shell`.** É aonde o
+    // rodapé de todo e-mail leva, e ela precisa funcionar para quem nunca
+    // entrou naquele navegador. Ver a decisão 11 da spec 014.
+    path: 'descadastro',
+    loadComponent: () =>
+      import('./pages/descadastro/descadastro.page').then((m) => m.DescadastroPage),
+    title: 'Cancelar inscrição · Liga Dev'
+  },
   // Não existe rota `definir-senha`, e a ausência é proposital.
   //
   // O Firebase hospeda a própria tela de definição de senha, e o link do e-mail
@@ -107,6 +116,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/admin/usuarios/usuarios.page').then((m) => m.AdminUsuariosPage),
         title: 'Usuários · Administração'
+      },
+      {
+        path: 'admin/emails',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/admin/emails/emails.page').then((m) => m.AdminEmailsPage),
+        title: 'E-mails · Administração'
       },
       {
         path: 'admin/trilha',

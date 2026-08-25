@@ -22,6 +22,7 @@ function user(overrides: Partial<AdminUser> = {}): AdminUser {
     grade: 3,
     tier: 'dev-tier',
     profileCompleted: true,
+    emailOptOut: false,
     ...overrides
   };
 }
@@ -166,6 +167,26 @@ describe('AdminUsuariosPage', () => {
       (node) => node.textContent?.trim()
     );
     expect(legendas).toEqual(['Conquista', 'Acesso']);
+  });
+
+  /**
+   * Sem este selo, "não chegou o e-mail para o fulano" é investigação sem
+   * pista: nada mais na Administração diz que a pessoa saiu da lista.
+   */
+  it('quem nao recebe e-mails ganha um selo na linha', () => {
+    const { fixture, el } = setup();
+    flushList([user({ emailOptOut: true })]);
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain('Não recebe e-mails');
+  });
+
+  it('quem recebe nao ganha selo nenhum', () => {
+    const { fixture, el } = setup();
+    flushList([user({ emailOptOut: false })]);
+    fixture.detectChanges();
+
+    expect(el.textContent).not.toContain('Não recebe e-mails');
   });
 
   /**

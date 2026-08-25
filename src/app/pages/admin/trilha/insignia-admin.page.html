@@ -84,6 +84,19 @@
         </ol>
       }
 
+      <!--
+        Uma linha, e nada mais: sem contagem, sem caixa de seleção e sem
+        diálogo novo.
+
+        **Isto revoga a linha da spec 012** que dizia que a tela do admin não
+        mudaria e não ganharia aviso de "isto vai notificar N pessoas". Aquele
+        argumento era bom para o sino e não sobrevive ao e-mail: um aviso dentro
+        do painel é reversível pela indiferença de quem não abre; um e-mail é
+        irreversível para todo mundo. O que continua valendo da 012 é a forma —
+        nada de confirmação a cada publicação, porque isso vira pedágio diário.
+      -->
+      <p class="aviso-email">Publicar envia um e-mail para a comunidade.</p>
+
       @if (showForm()) {
         <div class="form-panel">
           <h2 class="form-panel__title">Publicar um vídeo</h2>

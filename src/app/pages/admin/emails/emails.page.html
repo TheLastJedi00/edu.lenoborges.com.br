@@ -1,0 +1,331 @@
+<section class="page">
+  <header class="page__head">
+    <p class="u-mono page__eyebrow">Administração</p>
+    <h1 class="page__title">E-mails</h1>
+    <p class="page__lead">
+      O que sai daqui chega na caixa de entrada de quem está fora do produto — e não tem volta.
+      A contagem aparece antes, o teste vem antes do envio, e o botão diz o número.
+    </p>
+  </header>
+
+  <!-- ------------------------------------------------------------- Escrever -->
+  <section class="bloco" aria-labelledby="titulo-escrever">
+    <h2 class="bloco__title" id="titulo-escrever">Escrever</h2>
+
+    <form class="form" [formGroup]="form" novalidate>
+      <label class="field">
+        <span class="field__label">Assunto</span>
+        <input
+          class="field__input"
+          type="text"
+          formControlName="subject"
+          maxlength="150"
+          placeholder="Vídeo novo na insígnia da Lógica"
+        />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Corpo</span>
+        <!--
+          Texto simples, com quebras de linha preservadas. Sem negrito, sem
+          lista, sem imagem e sem HTML colado: o backend recusa marcação do
+          admin, e o front não pode oferecer o que o backend recusa. O e-mail
+          sai com o template do código, que já está diagramado.
+        -->
+        <textarea
+          class="field__textarea"
+          rows="8"
+          formControlName="body"
+          maxlength="5000"
+          placeholder="Escreva como escreveria uma mensagem. Uma linha em branco separa parágrafos."
+        ></textarea>
+      </label>
+
+      <fieldset class="cta">
+        <legend class="field__label">Botão (opcional)</legend>
+        <div class="cta__campos">
+          <label class="field">
+            <span class="field__hint">Rótulo</span>
+            <input
+              class="field__input"
+              type="text"
+              formControlName="ctaLabel"
+              maxlength="40"
+              placeholder="Ver na trilha"
+            />
+          </label>
+          <label class="field">
+            <span class="field__hint">Endereço</span>
+            <input
+              class="field__input"
+              type="url"
+              formControlName="ctaUrl"
+              placeholder="https://edu.lenoborges.com.br/dashboard/trilha/logica"
+            />
+          </label>
+        </div>
+        @if (ctaIncompleto()) {
+          <p class="field__error" role="alert">
+            O botão precisa dos dois: rótulo sem endereço não leva a lugar nenhum, e endereço sem
+            rótulo é um link invisível.
+          </p>
+        }
+      </fieldset>
+    </form>
+  </section>
+
+  <!-- ------------------------------------------------------------ Para quem -->
+  <section class="bloco" aria-labelledby="titulo-para-quem">
+    <h2 class="bloco__title" id="titulo-para-quem">Para quem</h2>
+
+    <!--
+      NÃO existe filtro de status de pagamento aqui, e não é esquecimento: não
+      há pagamento no produto. Não existe gateway, `tier` é campo que o admin
+      edita à mão, e não existe estado de assinatura — nem em dia, nem
+      atrasado, nem cancelado. Inventar um criaria um segundo dono da verdade
+      de acesso ao lado do tier, alimentado à mão pela mesma pessoa, e os dois
+      divergiriam na primeira semana movimentada. Quando existir cobrança de
+      verdade, o filtro entra derivado do gateway, e não digitado.
+    -->
+    <fieldset class="filtros">
+      <legend class="field__label">Tiers</legend>
+      <div class="filtros__caixas">
+        @for (tier of tiers(); track tier.id) {
+          <label class="caixa">
+            <input
+              type="checkbox"
+              [checked]="tiersSelecionados().includes(tier.id)"
+              (change)="alternarTier(tier.id)"
+            />
+            <span>{{ tier.name }}</span>
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <fieldset class="filtros">
+      <legend class="field__label">Faixa de insígnia</legend>
+      <div class="filtros__faixa">
+        <label class="field">
+          <span class="field__hint">De</span>
+          <select
+            class="field__input"
+            [value]="gradeMin() ?? ''"
+            (change)="definirGrade('min', $any($event.target).value)"
+          >
+            <option value="">Sem piso</option>
+            @for (grade of grades; track grade) {
+              <option [value]="grade">{{ grade }}</option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          <span class="field__hint">Até</span>
+          <select
+            class="field__input"
+            [value]="gradeMax() ?? ''"
+            (change)="definirGrade('max', $any($event.target).value)"
+          >
+            <option value="">Sem teto</option>
+            @for (grade of grades; track grade) {
+              <option [value]="grade">{{ grade }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <p class="field__hint">
+        <code>grade</code> conta etapas concluídas: "de 3 a 8" é quem está entre a terceira e a
+        oitava, e não quem conquistou a insígnia 3.
+      </p>
+    </fieldset>
+
+    <!--
+      Um estado vazio que silenciosamente significa "todo mundo" é o pior padrão
+      possível numa tela de disparo. Por isso ele é escrito com essas palavras.
+    -->
+    <p class="contagem" role="status">
+      @if (audienceFalhou()) {
+        <span class="contagem__erro">
+          — Não consegui calcular a audiência. O envio fica bloqueado até o número voltar.
+        </span>
+      } @else if (audienceCount() === null) {
+        <span class="contagem__carregando">Calculando…</span>
+      } @else {
+        @if (semFiltro()) {
+          <strong>Todos os membros</strong>
+          <span> · {{ audienceCount() }} membros vão receber</span>
+        } @else {
+          <strong>{{ audienceCount() }} membros vão receber</strong>
+        }
+      }
+    </p>
+  </section>
+
+  <!-- ---------------------------------------------------- Conferir e enviar -->
+  <section class="bloco" aria-labelledby="titulo-conferir">
+    <h2 class="bloco__title" id="titulo-conferir">Conferir e enviar</h2>
+
+    <p class="previa__aviso">
+      A prévia é uma aproximação: o que sai é o template do e-mail, e cada cliente renderiza do
+      jeito dele. É por isso que o teste existe.
+    </p>
+
+    <app-pixel-panel class="previa">
+      <p class="previa__eyebrow u-mono">Liga Dev</p>
+      <h3 class="previa__assunto">
+        {{ form.controls.subject.value || 'Assunto do e-mail' }}
+      </h3>
+      @for (paragrafo of paragrafos(); track $index) {
+        <p class="previa__paragrafo">{{ paragrafo }}</p>
+      } @empty {
+        <p class="previa__paragrafo previa__paragrafo--vazio">
+          O corpo do e-mail aparece aqui conforme você escreve.
+        </p>
+      }
+      @if (temCta()) {
+        <p class="previa__cta">{{ form.controls.ctaLabel.value }}</p>
+      }
+      <p class="previa__rodape">
+        Você recebe este e-mail porque é membro da Liga Dev. Cancelar inscrição.
+      </p>
+    </app-pixel-panel>
+
+    <div class="acoes">
+      <button
+        type="button"
+        class="btn btn--ghost"
+        [disabled]="!formValido() || ctaIncompleto() || enviandoTeste() || enviando()"
+        (click)="enviarTeste()"
+      >
+        @if (enviandoTeste()) {
+          Enviando teste…
+        } @else {
+          Enviar teste para mim
+        }
+      </button>
+
+      @if (testeEnviado() && !precisaTestar()) {
+        <p class="acoes__ok" role="status">Teste enviado. Confira sua caixa de entrada.</p>
+      }
+    </div>
+
+    <!--
+      O botão de disparo fica travado até um teste ter sido enviado, e volta a
+      travar assim que o assunto, o corpo ou o botão mudam. É a decisão mais
+      impositiva da spec e é deliberada: o custo é um clique e trinta segundos
+      olhando a caixa de entrada; o que ela evita é o link quebrado, a frase
+      cortada e o "Olá {nome}" não substituído indo para a base inteira.
+
+      Mudar de filtro NÃO trava: o conteúdo é o mesmo.
+    -->
+    @if (precisaTestar()) {
+      <p class="acoes__trava">
+        Mande um teste para você antes de disparar. Editar o conteúdo pede um teste novo.
+      </p>
+    }
+
+    @if (erro()) {
+      <p class="form__error" role="alert">{{ erro() }}</p>
+    }
+
+    @if (talvezInterrompido()) {
+      <!--
+        NUNCA "não foi enviado, tente de novo". O backend gravou a campanha
+        antes do primeiro lote e guarda onde parou; quem lê "não foi enviado"
+        clica de novo, e a segunda tentativa manda tudo outra vez para quem já
+        recebeu.
+      -->
+      <p class="acoes__aviso" role="alert">
+        <strong>O envio começou e pode ter sido interrompido.</strong>
+        Não mande de novo: olhe em <em>Enviados</em>, logo abaixo. Se estiver como
+        <em>Interrompido</em>, use <em>Retomar</em> — ele continua de onde parou.
+      </p>
+    }
+
+    <!--
+      No fluxo da página, NUNCA fixo na tela. Um disparo irreversível não pode
+      ficar no caminho do polegar que rola a página.
+    -->
+    <button
+      type="button"
+      class="btn btn--enviar"
+      [disabled]="!podeEnviar()"
+      (click)="abrirConfirmacao()"
+    >
+      @if (enviando()) {
+        Enviando…
+      } @else {
+        {{ rotuloDoEnvio() }}
+      }
+    </button>
+  </section>
+
+  <!-- ------------------------------------------------------------- Enviados -->
+  <section class="bloco" aria-labelledby="titulo-enviados">
+    <h2 class="bloco__title" id="titulo-enviados">Enviados</h2>
+
+    @if (campanhas().length === 0) {
+      <p class="vazio">Nenhum e-mail enviado ainda</p>
+    } @else {
+      <!-- Nenhuma linha é clicável, e não existe tela de detalhe: quem quer ver
+           o que foi enviado tem a própria caixa de entrada, porque o admin
+           sempre recebe o teste. -->
+      <ul class="enviados">
+        @for (campanha of campanhas(); track campanha.id) {
+          <li class="enviado">
+            <div class="enviado__texto">
+              <p class="enviado__assunto">{{ campanha.subject }}</p>
+              <p class="enviado__meta u-mono">
+                {{ quando(campanha.createdAt) }} ·
+                {{ campanha.sentCount }} de {{ campanha.audienceCount }} pessoas
+                @if (campanha.kind === 'video') {
+                  · aviso de vídeo
+                }
+              </p>
+            </div>
+
+            @switch (campanha.status) {
+              @case ('concluida') {
+                <span class="selo selo--ok u-mono">Concluído</span>
+              }
+              @case ('enviando') {
+                <span class="selo u-mono">Enviando…</span>
+              }
+              @case ('interrompida') {
+                <span class="enviado__acao">
+                  <span class="selo selo--alerta u-mono">Interrompido</span>
+                  <button
+                    type="button"
+                    class="btn btn--ghost"
+                    [disabled]="retomando() !== null"
+                    (click)="retomar(campanha.id)"
+                  >
+                    @if (retomando() === campanha.id) {
+                      Retomando…
+                    } @else {
+                      Retomar
+                    }
+                  </button>
+                </span>
+              }
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</section>
+
+<app-confirm-dialog
+  #confirmDialog
+  title="Disparar este e-mail?"
+  [message]="
+    'Assunto: ' +
+    (form.controls.subject.value || '—') +
+    '. Não há como cancelar depois de enviar.'
+  "
+  [confirmLabel]="rotuloDoEnvio()"
+  cancelLabel="Cancelar"
+  [danger]="true"
+  (confirmed)="enviar()"
+/>
