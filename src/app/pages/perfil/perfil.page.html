@@ -334,6 +334,42 @@
       </section>
 
       <!--
+        Uma seção, um interruptor, e nada mais. Não entra tela de preferências:
+        com dois tipos de disparo, "quero o vídeo mas não a campanha" é
+        configuração que ninguém pediu e que dobra o caminho de cada envio.
+
+        Quem foi descadastrado por bounce ou reclamação vê o interruptor
+        desligado e pode religar. **A tela não explica por que estava
+        desligado**, e a ausência é deliberada: "seu provedor recusou nossos
+        e-mails" é uma frase que não ajuda ninguém a fazer nada.
+      -->
+      <section class="block" aria-labelledby="titulo-emails">
+        <h2 class="block__title" id="titulo-emails">E-mails</h2>
+
+        <div class="switch">
+          <label class="switch__linha">
+            <input
+              type="checkbox"
+              class="switch__input"
+              [checked]="recebeEmails()"
+              (change)="alternarEmails()"
+            />
+            <span class="switch__texto">
+              <span class="switch__label">Receber e-mails da Liga Dev</span>
+              <span class="switch__hint">
+                Avisos de vídeo novo na trilha e recados da comunidade. Os e-mails de conta —
+                definir senha e confirmar endereço — continuam chegando de qualquer forma.
+              </span>
+            </span>
+          </label>
+
+          @if (emailsError()) {
+            <p class="form__error" role="alert">{{ emailsError() }}</p>
+          }
+        </div>
+      </section>
+
+      <!--
         A saída fica no fim, separada por um respiro grande e com borda de
         atenção — e não em vermelho gritante. É a seção mais séria da tela, não
         a mais barulhenta; o vermelho é do botão final, dentro do diálogo.

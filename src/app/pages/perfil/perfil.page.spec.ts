@@ -3,7 +3,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { AuthStore } from '../../core/auth/auth.store';
 import { MemberProfile } from '../../models/auth.model';
@@ -46,7 +46,8 @@ describe('PerfilPage', () => {
       'updateProfile',
       'changeEmail',
       'changePassword',
-      'deleteAccount'
+      'deleteAccount',
+      'setEmailPreference'
     ]);
 
     await TestBed.configureTestingModule({
@@ -86,7 +87,13 @@ describe('PerfilPage', () => {
       fixture.nativeElement.querySelectorAll('.block__title') as NodeListOf<HTMLElement>
     ).map((el) => el.textContent?.trim());
 
-    expect(titulos).toEqual(['Seus dados', 'Suas redes', 'Acesso', 'Excluir conta']);
+    expect(titulos).toEqual([
+      'Seus dados',
+      'Suas redes',
+      'Acesso',
+      'E-mails',
+      'Excluir conta'
+    ]);
   });
 
   it('não desenha os campos antes de o perfil chegar', () => {
@@ -556,6 +563,114 @@ describe('PerfilPage', () => {
     });
   });
 
+  describe('E-mails', () => {
+    function interruptor(): HTMLInputElement {
+      return fixture.nativeElement.querySelector('.switch__input') as HTMLInputElement;
+    }
+
+    /**
+     * emailOptOut: true significa que a pessoa SAIU da lista, então o
+     * interruptor tem de nascer DESLIGADO. Ligar é o que um booleano invertido
+     * lido às pressas produz — e o efeito é mostrar "recebendo" para quem acabou
+     * de descadastrar.
+     */
+    it('teste-trava: perfil com emailOptOut TRUE desenha o interruptor DESLIGADO', async () => {
+      await montar({ ...PERFIL, emailOptOut: true });
+
+      expect(interruptor().checked).toBeFalse();
+    });
+
+    it('perfil recebendo desenha o interruptor ligado', async () => {
+      await montar({ ...PERFIL, emailOptOut: false });
+
+      expect(interruptor().checked).toBeTrue();
+    });
+
+    it('o gesto salva sozinho, sem botao de salvar na secao', async () => {
+      await montar();
+      authService.setEmailPreference.and.returnValue(of(undefined));
+
+      await component['alternarEmails']();
+      fixture.detectChanges();
+
+      expect(authService.setEmailPreference).toHaveBeenCalledWith(false);
+
+      const secao = fixture.nativeElement.querySelector(
+        'section[aria-labelledby="titulo-emails"]'
+      ) as HTMLElement;
+      expect(secao.querySelector('button')).toBeNull();
+    });
+
+    it('o salvamento e otimista: o estado muda antes da resposta', async () => {
+      await montar();
+      let resolver: (() => void) | undefined;
+      authService.setEmailPreference.and.returnValue(
+        new Observable<void>((subscriber) => {
+          resolver = () => {
+            subscriber.next();
+            subscriber.complete();
+          };
+        })
+      );
+
+      const pendente = component['alternarEmails']();
+      fixture.detectChanges();
+
+      expect(interruptor().checked).toBeFalse();
+
+      resolver?.();
+      await pendente;
+    });
+
+    it('falha reverte o interruptor e mostra o erro', async () => {
+      await montar();
+      authService.setEmailPreference.and.returnValue(
+        throwError(() => new Error('offline'))
+      );
+
+      await component['alternarEmails']();
+      fixture.detectChanges();
+
+      expect(interruptor().checked).toBeTrue();
+      const erro = fixture.nativeElement.querySelector(
+        'section[aria-labelledby="titulo-emails"] .form__error'
+      ) as HTMLElement;
+      expect(erro.getAttribute('role')).toBe('alert');
+    });
+
+    it('quem foi descadastrado por bounce religa aqui, e a tela nao explica por que', async () => {
+      // A ausência é deliberada: "seu provedor recusou nossos e-mails" é uma
+      // frase que não ajuda ninguém a fazer nada.
+      await montar({ ...PERFIL, emailOptOut: true });
+
+      const secao = (
+        fixture.nativeElement.querySelector(
+          'section[aria-labelledby="titulo-emails"]'
+        ) as HTMLElement
+      ).textContent?.toLowerCase() ?? '';
+
+      expect(secao).not.toContain('bounce');
+      expect(secao).not.toContain('recusou');
+      expect(secao).not.toContain('reclamação');
+    });
+
+    it('a secao fica entre Acesso e Excluir conta', async () => {
+      await montar();
+
+      const titulos = Array.from(
+        fixture.nativeElement.querySelectorAll('.block__title') as NodeListOf<HTMLElement>
+      ).map((el) => el.textContent?.trim());
+
+      expect(titulos).toEqual([
+        'Seus dados',
+        'Suas redes',
+        'Acesso',
+        'E-mails',
+        'Excluir conta'
+      ]);
+    });
+  });
+
   describe('acabamento', () => {
     /**
      * Sem `autocomplete` o gerenciador de senhas oferece a senha errada no campo
@@ -595,7 +710,7 @@ describe('PerfilPage', () => {
         fixture.nativeElement.querySelectorAll('section.block') as NodeListOf<HTMLElement>
       );
 
-      expect(secoes.length).toBe(4);
+      expect(secoes.length).toBe(5);
       secoes.forEach((secao) => {
         const id = secao.getAttribute('aria-labelledby');
         expect(id).not.toBeNull();

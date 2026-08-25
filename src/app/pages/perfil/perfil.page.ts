@@ -306,6 +306,51 @@ export class PerfilPage implements OnInit {
     }
   }
 
+
+  // -------------------------------------------------------------------- E-mails
+
+  /**
+   * O interruptor de recebimento (spec 014, decisão 12).
+   *
+   * **É o inverso do `emailOptOut`**: perfil com `emailOptOut: true` desenha o
+   * interruptor DESLIGADO. Ler o booleano às pressas e ligar o switch é o erro
+   * que mostra "recebendo" para quem acabou de descadastrar.
+   */
+  protected readonly recebeEmails = signal(true);
+  protected readonly emailsError = signal('');
+
+  /**
+   * **Isto abre exceção à decisão 2 desta spec** — "salvar é um botão, e a tela
+   * não salva sozinha" — e a exceção está nomeada.
+   *
+   * Aquela decisão governa **um formulário de campos de texto**, onde salvar
+   * junto é o que dá sentido a editar três coisas de uma vez, e onde autosave
+   * gravaria a bio pela metade. Um interruptor não é formulário: ele tem dois
+   * estados, o gesto já é a decisão, e um botão "Salvar" ao lado de um switch é
+   * a interface pedindo confirmação de um clique que não tem ambiguidade.
+   *
+   * O salvamento é **otimista, com reversão na falha** — o mesmo desenho do voto
+   * do Mural e do check da notificação, e pela mesma razão: o estado que a
+   * pessoa acabou de escolher aparece na hora, e volta atrás se o servidor
+   * recusar.
+   */
+  async alternarEmails(): Promise<void> {
+    const anterior = this.recebeEmails();
+    const proximo = !anterior;
+
+    this.recebeEmails.set(proximo);
+    this.emailsError.set('');
+
+    try {
+      await firstValueFrom(this.authService.setEmailPreference(proximo));
+    } catch (error: unknown) {
+      this.recebeEmails.set(anterior);
+      this.emailsError.set(
+        httpErrorMessage(error, 'Não consegui salvar essa preferência agora.'),
+      );
+    }
+  }
+
   // ------------------------------------------------------------ Excluir conta
 
   private readonly excluirDialog = viewChild<DeleteAccountDialog>('excluirDialog');
@@ -518,6 +563,9 @@ export class PerfilPage implements OnInit {
     );
     this.linkedinError.set('');
     this.instagramError.set('');
+
+    // O interruptor nasce do que veio do `GET /me`, invertido.
+    this.recebeEmails.set(!profile.emailOptOut);
 
     // O que acabou de chegar da API é o novo ponto de comparação: sem isto,
     // salvar deixaria o formulário "sujo" para sempre e o aviso de saída
