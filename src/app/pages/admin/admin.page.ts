@@ -4,9 +4,13 @@ import { RouterLink } from '@angular/router';
 /**
  * Índice da Administração.
  *
- * Duas portas, e nada mais: usuários e conteúdo da trilha. Uma tela de índice
- * com dois cartões parece pouco, mas é o que evita empilhar administração de
- * naturezas diferentes num menu lateral que é do aluno.
+ * Quatro portas, e nada mais: usuários, mural, conteúdo da trilha e e-mails.
+ * Uma tela de índice parece pouco, e continua sendo o que evita empilhar
+ * administração de naturezas diferentes num menu lateral que é do aluno — o
+ * argumento estava certo com duas portas e continua certo com quatro.
+ *
+ * **Nenhuma delas vai para o `dashboard-aside`**: o aside é a navegação de quem
+ * estuda, e a Administração inteira entra por uma porta só.
  */
 @Component({
   selector: 'app-admin-page',
@@ -34,6 +38,15 @@ import { RouterLink } from '@angular/router';
             <span class="card__title">Mural de Perguntas</span>
             <span class="card__text">
               Moderar as perguntas das duas semanas vivas e ver a vencedora que virou pauta.
+            </span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/dashboard/admin/emails" class="card">
+            <span class="card__title">E-mails</span>
+            <span class="card__text">
+              Escrever e disparar para a comunidade, com a contagem na frente e o histórico do
+              que já saiu.
             </span>
           </a>
         </li>

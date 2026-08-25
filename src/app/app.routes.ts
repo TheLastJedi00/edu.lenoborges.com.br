@@ -109,6 +109,13 @@ export const routes: Routes = [
         title: 'Usuários · Administração'
       },
       {
+        path: 'admin/emails',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/admin/emails/emails.page').then((m) => m.AdminEmailsPage),
+        title: 'E-mails · Administração'
+      },
+      {
         path: 'admin/trilha',
         canActivate: [adminGuard],
         loadComponent: () =>

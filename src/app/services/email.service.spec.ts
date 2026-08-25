@@ -134,6 +134,7 @@ describe('EmailService', () => {
       const req = httpMock.expectOne(
         `${environment.apiUrl}/emails/descadastro?token=a%2Bb%2Fc%3Dd`
       );
+      expect(req.request.url).toContain('%2B');
       req.flush(null, { status: 204, statusText: 'No Content' });
 
       await pending;

@@ -1,0 +1,193 @@
+<section class="page">
+  <header class="page__head">
+    <p class="u-mono page__eyebrow">Administração</p>
+    <h1 class="page__title">E-mails</h1>
+    <p class="page__lead">
+      O que sai daqui chega na caixa de entrada de quem está fora do produto — e não tem volta.
+      A contagem aparece antes, o teste vem antes do envio, e o botão diz o número.
+    </p>
+  </header>
+
+  <!-- ------------------------------------------------------------- Escrever -->
+  <section class="bloco" aria-labelledby="titulo-escrever">
+    <h2 class="bloco__title" id="titulo-escrever">Escrever</h2>
+
+    <form class="form" [formGroup]="form" novalidate>
+      <label class="field">
+        <span class="field__label">Assunto</span>
+        <input
+          class="field__input"
+          type="text"
+          formControlName="subject"
+          maxlength="150"
+          placeholder="Vídeo novo na insígnia da Lógica"
+        />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Corpo</span>
+        <!--
+          Texto simples, com quebras de linha preservadas. Sem negrito, sem
+          lista, sem imagem e sem HTML colado: o backend recusa marcação do
+          admin, e o front não pode oferecer o que o backend recusa. O e-mail
+          sai com o template do código, que já está diagramado.
+        -->
+        <textarea
+          class="field__textarea"
+          rows="8"
+          formControlName="body"
+          maxlength="5000"
+          placeholder="Escreva como escreveria uma mensagem. Uma linha em branco separa parágrafos."
+        ></textarea>
+      </label>
+
+      <fieldset class="cta">
+        <legend class="field__label">Botão (opcional)</legend>
+        <div class="cta__campos">
+          <label class="field">
+            <span class="field__hint">Rótulo</span>
+            <input
+              class="field__input"
+              type="text"
+              formControlName="ctaLabel"
+              maxlength="40"
+              placeholder="Ver na trilha"
+            />
+          </label>
+          <label class="field">
+            <span class="field__hint">Endereço</span>
+            <input
+              class="field__input"
+              type="url"
+              formControlName="ctaUrl"
+              placeholder="https://edu.lenoborges.com.br/dashboard/trilha/logica"
+            />
+          </label>
+        </div>
+        @if (ctaIncompleto()) {
+          <p class="field__error" role="alert">
+            O botão precisa dos dois: rótulo sem endereço não leva a lugar nenhum, e endereço sem
+            rótulo é um link invisível.
+          </p>
+        }
+      </fieldset>
+    </form>
+  </section>
+
+  <!-- ------------------------------------------------------------ Para quem -->
+  <section class="bloco" aria-labelledby="titulo-para-quem">
+    <h2 class="bloco__title" id="titulo-para-quem">Para quem</h2>
+
+    <!--
+      NÃO existe filtro de status de pagamento aqui, e não é esquecimento: não
+      há pagamento no produto. Não existe gateway, `tier` é campo que o admin
+      edita à mão, e não existe estado de assinatura — nem em dia, nem
+      atrasado, nem cancelado. Inventar um criaria um segundo dono da verdade
+      de acesso ao lado do tier, alimentado à mão pela mesma pessoa, e os dois
+      divergiriam na primeira semana movimentada. Quando existir cobrança de
+      verdade, o filtro entra derivado do gateway, e não digitado.
+    -->
+    <fieldset class="filtros">
+      <legend class="field__label">Tiers</legend>
+      <div class="filtros__caixas">
+        @for (tier of tiers(); track tier.id) {
+          <label class="caixa">
+            <input
+              type="checkbox"
+              [checked]="tiersSelecionados().includes(tier.id)"
+              (change)="alternarTier(tier.id)"
+            />
+            <span>{{ tier.name }}</span>
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <fieldset class="filtros">
+      <legend class="field__label">Faixa de insígnia</legend>
+      <div class="filtros__faixa">
+        <label class="field">
+          <span class="field__hint">De</span>
+          <select
+            class="field__input"
+            [value]="gradeMin() ?? ''"
+            (change)="definirGrade('min', $any($event.target).value)"
+          >
+            <option value="">Sem piso</option>
+            @for (grade of grades; track grade) {
+              <option [value]="grade">{{ grade }}</option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          <span class="field__hint">Até</span>
+          <select
+            class="field__input"
+            [value]="gradeMax() ?? ''"
+            (change)="definirGrade('max', $any($event.target).value)"
+          >
+            <option value="">Sem teto</option>
+            @for (grade of grades; track grade) {
+              <option [value]="grade">{{ grade }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <p class="field__hint">
+        <code>grade</code> conta etapas concluídas: "de 3 a 8" é quem está entre a terceira e a
+        oitava, e não quem conquistou a insígnia 3.
+      </p>
+    </fieldset>
+
+    <!--
+      Um estado vazio que silenciosamente significa "todo mundo" é o pior padrão
+      possível numa tela de disparo. Por isso ele é escrito com essas palavras.
+    -->
+    <p class="contagem" role="status">
+      @if (audienceFalhou()) {
+        <span class="contagem__erro">
+          — Não consegui calcular a audiência. O envio fica bloqueado até o número voltar.
+        </span>
+      } @else if (audienceCount() === null) {
+        <span class="contagem__carregando">Calculando…</span>
+      } @else {
+        @if (semFiltro()) {
+          <strong>Todos os membros</strong>
+          <span> · {{ audienceCount() }} membros vão receber</span>
+        } @else {
+          <strong>{{ audienceCount() }} membros vão receber</strong>
+        }
+      }
+    </p>
+  </section>
+
+  <!-- ---------------------------------------------------- Conferir e enviar -->
+  <section class="bloco" aria-labelledby="titulo-conferir">
+    <h2 class="bloco__title" id="titulo-conferir">Conferir e enviar</h2>
+
+    <p class="previa__aviso">
+      A prévia é uma aproximação: o que sai é o template do e-mail, e cada cliente renderiza do
+      jeito dele. É por isso que o teste existe.
+    </p>
+
+    <app-pixel-panel class="previa">
+      <p class="previa__eyebrow u-mono">Liga Dev</p>
+      <h3 class="previa__assunto">
+        {{ form.controls.subject.value || 'Assunto do e-mail' }}
+      </h3>
+      @for (paragrafo of paragrafos(); track $index) {
+        <p class="previa__paragrafo">{{ paragrafo }}</p>
+      } @empty {
+        <p class="previa__paragrafo previa__paragrafo--vazio">
+          O corpo do e-mail aparece aqui conforme você escreve.
+        </p>
+      }
+      @if (temCta()) {
+        <p class="previa__cta">{{ form.controls.ctaLabel.value }}</p>
+      }
+      <p class="previa__rodape">
+        Você recebe este e-mail porque é membro da Liga Dev. Cancelar inscrição.
+      </p>
+    </app-pixel-panel>
+  </section>
+</section>

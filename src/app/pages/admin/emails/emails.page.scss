@@ -1,0 +1,221 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.25rem 1rem 4rem;
+}
+
+.page__eyebrow {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.05;
+  margin: 0.2rem 0 0;
+}
+
+.page__lead {
+  margin: 0.5rem 0 0;
+  max-width: 58ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.bloco {
+  display: grid;
+  gap: 1rem;
+  padding: 1.4rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.bloco__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.15;
+}
+
+.form,
+.filtros {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field__label {
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.field__hint {
+  color: var(--ink-soft);
+  font-size: var(--step--2);
+  line-height: 1.45;
+}
+
+.field__input,
+.field__textarea {
+  // 44px de verdade. A tela é de admin e mesmo assim segue a régua: o "quase
+  // sempre do computador" é o motivo de a exceção não valer.
+  min-height: 2.75rem;
+  padding: 0.65rem 0.8rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--screen);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  width: 100%;
+}
+
+.field__textarea {
+  min-height: 10rem;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.field__input:focus-visible,
+.field__textarea:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 1px;
+}
+
+.field__error {
+  margin: 0;
+  color: #c0392b;
+  font-size: var(--step--1);
+}
+
+.cta {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.cta__campos,
+.filtros__faixa {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.filtros__caixas {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.caixa {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.caixa input {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.contagem {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: var(--border-w) solid var(--accent-deep);
+  border-radius: var(--radius-sm);
+  background: var(--screen);
+  font-size: var(--step-0);
+}
+
+.contagem__erro {
+  color: #c0392b;
+}
+
+.contagem__carregando {
+  color: var(--ink-soft);
+}
+
+.previa__aviso {
+  margin: 0;
+  max-width: 58ch;
+  color: var(--ink-soft);
+  font-size: var(--step--2);
+  line-height: 1.5;
+}
+
+.previa {
+  display: block;
+}
+
+.previa__eyebrow {
+  margin: 0 0 0.6rem;
+  color: var(--accent-deep);
+  font-size: var(--step--2);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.previa__assunto {
+  margin: 0 0 1rem;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.25;
+}
+
+.previa__paragrafo {
+  margin: 0 0 0.9rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.previa__paragrafo--vazio {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.previa__cta {
+  display: inline-block;
+  margin: 0.4rem 0 1rem;
+  padding: 0.65rem 1.2rem;
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.previa__rodape {
+  margin: 1rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border-soft);
+  color: var(--ink-soft);
+  font-size: var(--step--2);
+}
+
+// Campos lado a lado só quando há largura para eles. No celular tudo empilha,
+// que é o padrão do grid acima.
+@media (min-width: 48rem) {
+  .cta__campos,
+  .filtros__faixa {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filtros__caixas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
