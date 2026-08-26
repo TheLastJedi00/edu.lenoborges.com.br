@@ -97,33 +97,33 @@ mudam.
   ao abrir e volta para a linha ao fechar — o mesmo comportamento dos diálogos que o sistema já tem, **sem
   inventar um segundo padrão**.
 
-# Fase 04: O e-mail direto [ ]
+# Fase 04: O e-mail direto [x]
 Branch: `feat/015-email-direto`
 
 > Depende da spec 014 estar no código.
 
-- [ ] Task 01 (TDD + implementação): O serviço. Arquivos: `src/app/services/admin.service.ts`, `.spec.ts`.
+- [x] Task 01 (TDD + implementação): O serviço. Arquivos: `src/app/services/admin.service.ts`, `.spec.ts`.
   Objetivo: `enviarEmailDireto(userId, { subject, body })` em `POST /admin/users/:id/email`. **Sem
   `ctaLabel` e sem `ctaUrl`** (decisão 12), e o comentário diz por quê — é o primeiro campo que alguém vai
   querer "só adicionar".
-- [ ] Task 02: O diálogo. Arquivos: `usuarios.page.html`, `.scss`. Objetivo: **"Escrever e-mail"** no detalhe
+- [x] Task 02: O diálogo. Arquivos: `usuarios.page.html`, `.scss`. Objetivo: **"Escrever e-mail"** no detalhe
   abre um diálogo com assunto e corpo (`textarea`), os dois obrigatórios. **Nenhum editor rico, nenhuma
   prévia, nenhum filtro** — a tela de campanha é outra, e o motivo está na decisão 12.
-- [ ] Task 03: O botão diz o endereço. Objetivo: **"Enviar para membro@email.com"**, e **nenhum
+- [x] Task 03: O botão diz o endereço. Objetivo: **"Enviar para membro@email.com"**, e **nenhum
   `confirm-dialog` por cima** (decisão 14). Comentário registrando a diferença para a spec 014: lá o diálogo
   existe porque o número é grande e abstrato; aqui o destinatário está escrito no botão.
-- [ ] Task 04 (TDD + implementação): Quem não pode receber. Objetivo: `canReceiveEmail: false` nasce com o
+- [x] Task 04 (TDD + implementação): Quem não pode receber. Objetivo: `canReceiveEmail: false` nasce com o
   botão **desabilitado** e o motivo escrito ao lado, pela tabela da decisão 15. Teste-trava: membro
   descadastrado **não consegue abrir o diálogo** — deixar o botão ligado faria o admin escrever um recado
   inteiro para descobrir no fim que ele não sai.
-- [ ] Task 05 (TDD + implementação): O `422`. Objetivo: o erro é tratado escolhendo o texto pelo **`reason`
+- [x] Task 05 (TDD + implementação): O `422`. Objetivo: o erro é tratado escolhendo o texto pelo **`reason`
   do corpo**, e nunca por leitura da mensagem. Teste-trava: `reason: 'descadastrado'` mostra a frase da
   tabela — texto de erro do backend não é contrato, e um `includes('descadastr')` quebra na primeira revisão
   de copy de lá.
-- [ ] Task 06 (TDD + implementação): O `409`. Objetivo: campanha em andamento vira **"Tem um disparo
+- [x] Task 06 (TDD + implementação): O `409`. Objetivo: campanha em andamento vira **"Tem um disparo
   acontecendo agora. Tente daqui a pouco."** — e não um erro genérico. É o trinco da spec 014 aparecendo
   numa tela que não fala de campanha, e sem esse texto ele é indistinguível de falha.
-- [ ] Task 07 (TDD + implementação): Enviando e enviado. Objetivo: campos desabilitados e botão em
+- [x] Task 07 (TDD + implementação): Enviando e enviado. Objetivo: campos desabilitados e botão em
   **"Enviando…"** durante a requisição; ao terminar, o diálogo fecha e o detalhe mostra **"E-mail enviado"**
   por alguns segundos (decisão 14). Teste-trava: **um clique duplo no botão não manda dois e-mails** — é a
   única ação irreversível desta tela, e a proteção é do front porque o backend não tem como saber que são o
