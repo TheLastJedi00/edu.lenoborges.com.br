@@ -132,6 +132,17 @@ Branch: `feat/015-email-direto`
 # Fase 05: Verificação [ ]
 Branch: `feat/015-verificacao`
 
+> **As Tasks 01 a 03 não foram executadas, e o motivo não é esquecimento: o backend não sobe nesta
+> máquina.** O boot exige `EMAIL_UNSUBSCRIBE_SECRET` (`getOrThrow` em `EmailCampaignService`, validado em
+> `env.validation.ts`) e ela não está no `.env` — a variável entrou com a spec 014 e o arquivo local ficou
+> para trás. Sem servidor não há sessão de admin, e sem sessão a tela só sabe mostrar o estado de erro.
+>
+> Some-se a isso que o `.env` aponta para o **Firestore de produção** e traz um `RESEND_API_KEY` de
+> verdade: a Task 01 termina em "mandar um e-mail direto para si mesmo", e isso é um envio real a partir
+> de uma máquina de desenvolvimento. Ele fica para quem tem o ambiente, de propósito.
+>
+> **A Task 04 foi executada** — ela não depende de servidor nenhum.
+
 - [ ] Task 01: O caminho inteiro com o backend ligado. Objetivo: buscar por trecho do sobrenome, filtrar por
   onboarding pendente, conferir que **aparece alguém que não tem perfil**, abrir o detalhe, editar a etapa,
   editar o tier, e mandar um e-mail direto para si mesmo. Abrir o e-mail e conferir que o rodapé de
@@ -142,6 +153,8 @@ Branch: `feat/015-verificacao`
 - [ ] Task 03: Chrome, nas duas larguras. Objetivo: celular e desktop. O caso a olhar com atenção é o
   **diálogo do membro no celular**: ele rola por dentro, não estica a página, e o botão de enviar não fica
   fixo no rodapé.
-- [ ] Task 04: Conferir que a tela de e-mails não mudou. Objetivo: abrir `/dashboard/admin/emails` e provar
-  que nada dela foi tocado por esta spec — mesmo recorte, mesma contagem, mesmo teste obrigatório. **A
-  exceção da decisão 13 vale só para o e-mail direto**, e é aqui que se verifica que ela não vazou.
+- [x] Task 04: Conferir que a tela de e-mails não mudou. **Feito por diff, que é a prova mais forte que
+  esta task admite**: `git diff dev...feat/015-email-direto -- src/app/pages/admin/emails/
+  src/app/services/email.service.ts src/app/models/email.model.ts` volta vazio. Nenhum arquivo daquela
+  tela, do serviço dela ou do modelo dela foi tocado pela spec 015 — a exceção da decisão 13 vale só para
+  o e-mail direto, e ela não vazou.

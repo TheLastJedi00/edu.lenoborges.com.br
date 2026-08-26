@@ -1,5 +1,27 @@
 # Spec 015: Encontrar um Membro
 
+> ## Ajustes durante a execução
+>
+> 1. **O diálogo do membro passou a ser `<dialog>` nativo, com `showModal`.** A Task 07 pedia "o mesmo
+>    comportamento dos diálogos que o sistema já tem, sem inventar um segundo padrão", e o padrão que o
+>    sistema já tem é o do `confirm-dialog`: `<dialog>` nativo. Ele traz de graça o Esc, o foco preso
+>    dentro e o resto da página inerte — reimplementar isso à mão *seria* o segundo padrão.
+> 2. **`showModal` mora num `effect`, e não no `startEdit`.** No momento do clique o `@if` ainda não
+>    renderizou o elemento, e `showModal` num nó fora do documento lança `InvalidStateError`. O `effect`
+>    roda depois da detecção de mudanças, quando o `viewChild` já resolveu.
+> 3. **Os rascunhos do e-mail são sinais.** Um `computed` que lê propriedade comum nunca recalcula, e o
+>    sintoma seria o botão de envio travado com tudo preenchido — a mesma armadilha que a spec 014
+>    registrou para a validade do formulário dela.
+>
+> **O `usuarios.page.scss` passou do orçamento de estilo por componente** (7,2 kB contra um aviso em 5 kB;
+> o erro é em 8 kB). O aviso é real e fica registrado: a tela ganhou um bloco de filtros e dois diálogos
+> nesta spec. A saída certa não é afrouxar o orçamento — é extrair o detalhe do membro para um componente
+> burro, que é o que a regra de UI do projeto pede de qualquer forma. **Fica como dívida nomeada**, e não
+> como um número mexido no `angular.json`.
+>
+> As Tasks 01 a 03 da Fase 05 **não foram executadas**, e o motivo está escrito na primeira linha daquela
+> fase: o backend não sobe nesta máquina.
+
 ## Objetivo
 `/dashboard/admin/usuarios` existe desde a spec 009 e faz uma coisa: mostra os cadastrados, 50 por vez, na
 ordem que o Firebase Auth quiser, com um botão "Carregar mais" que não sabe dizer quantos faltam.
