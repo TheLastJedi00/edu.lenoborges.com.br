@@ -202,7 +202,11 @@
                 }
               </div>
 
-              <button type="button" class="btn btn--ghost" (click)="startEdit(user)">
+              <button
+                type="button"
+                class="btn btn--ghost"
+                (click)="startEdit(user, $any($event.currentTarget))"
+              >
                 Abrir
               </button>
             </li>
@@ -218,10 +222,163 @@
     }
   }
 
+  <!--
+    O membro abre num diálogo POR CIMA da lista, e não numa sub-rota (decisão 1).
+    Uma `/usuarios/:id` seria linkável e custaria o que importa mais: voltar dela
+    teria que restaurar o recorte, a rolagem e a página. O diálogo não perde nada
+    disso porque nunca sai da tela.
+
+    `<dialog>` nativo com `showModal`: Esc fecha, o foco entra e não escapa, e o
+    resto da página fica inerte — o mesmo padrão do `confirm-dialog` que o
+    sistema já tem, e não um segundo inventado aqui.
+  -->
   @if (editing(); as user) {
-    <div class="editor" role="dialog" aria-modal="true" aria-labelledby="editor-titulo">
+    <dialog
+      #detalheDialog
+      class="editor"
+      aria-labelledby="editor-titulo"
+      (close)="cancelEdit()"
+    >
       <div class="editor__panel">
         <h2 id="editor-titulo" class="editor__title">{{ user.name ?? user.email }}</h2>
+
+        <!--
+          Enquanto o detalhe não volta, o diálogo mostra o que a LINHA já sabia —
+          nome, e-mail, tier, etapa — e o resto entra em esqueleto. Abrir vazio e
+          preencher depois faz o clique parecer que falhou.
+        -->
+        <section class="bloco">
+          <h3 class="bloco__titulo">Identidade</h3>
+          <dl class="dados">
+            <div class="dados__item">
+              <dt>Nome</dt>
+              <dd>{{ user.name ?? 'Sem nome ainda' }}</dd>
+            </div>
+            <div class="dados__item">
+              <dt>E-mail</dt>
+              <dd class="u-mono">{{ user.email }}</dd>
+            </div>
+
+            @if (detailState() === 'ready' && detail(); as d) {
+              <div class="dados__item">
+                <dt>Telefone</dt>
+                <dd class="u-mono">{{ d.phone ?? 'Não informado' }}</dd>
+              </div>
+              <div class="dados__item">
+                <dt>Bio</dt>
+                <dd>{{ d.bio ?? 'Não preencheu' }}</dd>
+              </div>
+              <div class="dados__item">
+                <dt>LinkedIn</dt>
+                <dd>
+                  @if (d.linkedin) {
+                    <a [href]="d.linkedin" target="_blank" rel="noopener noreferrer">
+                      {{ d.linkedin }}
+                    </a>
+                  } @else {
+                    Não informado
+                  }
+                </dd>
+              </div>
+              <div class="dados__item">
+                <dt>Instagram</dt>
+                <dd>
+                  @if (d.instagram) {
+                    <a [href]="d.instagram" target="_blank" rel="noopener noreferrer">
+                      {{ d.instagram }}
+                    </a>
+                  } @else {
+                    Não informado
+                  }
+                </dd>
+              </div>
+            } @else if (detailState() === 'loading') {
+              <div class="dados__item"><dt>Telefone</dt><dd class="skeleton skeleton--linha"></dd></div>
+              <div class="dados__item"><dt>Bio</dt><dd class="skeleton skeleton--linha"></dd></div>
+              <div class="dados__item"><dt>Redes</dt><dd class="skeleton skeleton--linha"></dd></div>
+            }
+          </dl>
+        </section>
+
+        <section class="bloco">
+          <h3 class="bloco__titulo">Estado</h3>
+          <div class="user__meta">
+            @if (user.profileCompleted) {
+              <span class="tag tag--grade">{{ labelFor(user.grade ?? 0) }}</span>
+            } @else {
+              <span class="tag tag--pending">Onboarding pendente</span>
+            }
+            @if (user.tier) {
+              <span class="tag tag--tier">{{ tierLabel(user.tier) }}</span>
+            }
+            @if (user.role === 'admin') {
+              <span class="tag tag--admin">Admin</span>
+            }
+            @if (!user.emailVerified) {
+              <span class="tag tag--sem-email">E-mail não confirmado</span>
+            }
+            @if (user.disabled) {
+              <span class="tag tag--sem-email">Conta desativada</span>
+            }
+          </div>
+
+          @if (detailState() === 'ready' && detail(); as d) {
+            <dl class="dados">
+              <div class="dados__item">
+                <dt>Entrou em</dt>
+                <dd>{{ dataCurta(user.createdAt) }}</dd>
+              </div>
+              <div class="dados__item">
+                <dt>Última entrada</dt>
+                <dd>{{ user.lastSignInAt ? dataCurta(user.lastSignInAt) : 'Nunca entrou' }}</dd>
+              </div>
+              <div class="dados__item">
+                <dt>Perfil atualizado em</dt>
+                <dd>{{ d.profileUpdatedAt ? dataCurta(d.profileUpdatedAt) : 'Sem perfil' }}</dd>
+              </div>
+            </dl>
+          }
+        </section>
+
+        <!--
+          O detalhe diz quem não recebe e-mail E DIZ POR QUÊ.
+
+          Isto é o oposto do que a spec 014 faz em Meu Perfil, de propósito: lá o
+          interruptor aparece desligado e a tela cala, porque para o membro "seu
+          provedor recusou nossos e-mails" é uma frase que não o ajuda a fazer
+          nada. Aqui quem lê é o admin, e ele é quem pode agir — conferir o
+          endereço, falar com a pessoa por outro caminho, corrigir.
+        -->
+        <section class="bloco">
+          <h3 class="bloco__titulo">E-mails</h3>
+          @if (detailState() === 'ready' && detail(); as d) {
+            @if (d.emailOptOut) {
+              <p class="email-estado email-estado--fora">
+                <strong>Não recebe e-mails</strong>
+                — {{ motivoDoDescadastro(d.emailOptOutReason) }}@if (d.emailOptOutAt) {
+                  , em {{ dataCurta(d.emailOptOutAt) }}
+                }.
+              </p>
+            } @else {
+              <p class="email-estado">Recebe os e-mails da Liga Dev</p>
+            }
+          } @else if (detailState() === 'loading') {
+            <p class="skeleton skeleton--linha"></p>
+          }
+        </section>
+
+        @if (detailState() === 'error') {
+          <!--
+            A falha vira mensagem DENTRO do diálogo, e ele não fecha: fechar
+            sozinho parece que o clique não pegou, e o admin clica de novo.
+          -->
+          <div class="editor__error" role="alert">
+            <p>Não consegui carregar o cadastro completo deste membro.</p>
+            <button type="button" class="btn btn--ghost" (click)="carregarDetalhe(user.id)">
+              Tentar de novo
+            </button>
+          </div>
+        }
 
         <!--
           Os dois campos ficam em blocos separados, com rótulos que dizem o que
@@ -263,10 +420,17 @@
           <p class="editor__error" role="alert">{{ erro }}</p>
         }
 
+        <!--
+          Não há botão de desativar, excluir ou promover, e a ausência é
+          deliberada: é o lugar onde os três parecem caber, e os três foram
+          recusados com argumento em specs anteriores. Promover é script de
+          terminal (spec 009), excluir conta de terceiros é a decisão 11 da spec
+          013, e desativar é moderação com pergunta própria.
+        -->
         <div class="editor__actions">
           <button type="button" class="btn btn--ghost" (click)="cancelEdit()">Fechar</button>
         </div>
       </div>
-    </div>
+    </dialog>
   }
 </section>

@@ -2,11 +2,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  effect,
+  ElementRef,
   InjectionToken,
   OnInit,
   computed,
   inject,
-  signal
+  signal,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -17,8 +20,11 @@ import { AdminService } from '../../../services/admin.service';
 import { BillingService } from '../../../services/billing.service';
 import {
   AdminUser,
+  AdminUserDetail,
   AdminUserFilters,
   AdminUserPage,
+  CannotReceiveEmailReason,
+  EmailOptOutReason,
   OnboardingFilter
 } from '../../../models/admin.model';
 import type { BillingTier } from '../../../models/billing.model';
@@ -151,12 +157,26 @@ export class AdminUsuariosPage implements OnInit {
   /** Cada mexida em busca ou filtro empurra um evento aqui. */
   private readonly recorteMudou = new Subject<void>();
 
-  /** Usuário aberto no detalhe, ou nulo. */
+  /**
+   * O membro aberto, **com o que a linha já sabia** (decisão 9).
+   *
+   * O diálogo abre com isto preenchido enquanto a requisição do detalhe não
+   * volta: abrir vazio e preencher depois faz o clique parecer que falhou.
+   */
   protected readonly editing = signal<AdminUser | null>(null);
+  /** O que só o detalhe conhece: telefone, bio, redes, datas, estado de e-mail. */
+  protected readonly detail = signal<AdminUserDetail | null>(null);
+  protected readonly detailState = signal<LoadState>('loading');
+
   protected gradeDraft = 0;
   protected tierDraft: TierId = 'dev-tier';
   protected readonly saving = signal(false);
   protected readonly saveError = signal<string | null>(null);
+
+  private readonly dialogRef =
+    viewChild<ElementRef<HTMLDialogElement>>('detalheDialog');
+  /** Para onde o foco volta ao fechar: a linha de onde ele saiu. */
+  private origemDoFoco: HTMLElement | null = null;
 
   /**
    * Mensagem própria para o 403.
@@ -169,6 +189,26 @@ export class AdminUsuariosPage implements OnInit {
   protected readonly forbidden = signal(false);
 
   constructor() {
+    /**
+     * Abrir é `showModal`, e ele acontece **depois** de o `@if` ter renderizado
+     * o elemento.
+     *
+     * Por isso é um `effect` e não uma chamada dentro do `startEdit`: lá o
+     * `<dialog>` ainda não existe no DOM, e `showModal` num elemento fora do
+     * documento lança `InvalidStateError`. O `effect` roda depois da detecção de
+     * mudanças, quando o `viewChild` já resolveu.
+     *
+     * `showModal` traz de graça o que a spec pediu e o sistema já tem: Esc
+     * fecha, o foco entra no diálogo e não escapa dele, e o resto da página fica
+     * inerte. Inventar um segundo padrão aqui seria manter dois.
+     */
+    effect(() => {
+      const dialog = this.dialogRef()?.nativeElement;
+      if (this.editing() && dialog?.isConnected && !dialog.open) {
+        dialog.showModal();
+      }
+    });
+
     /**
      * `debounceTime` para não varrer a base a cada tecla, e **`switchMap` para a
      * resposta antiga nunca vencer a nova**: duas respostas fora de ordem
@@ -375,6 +415,65 @@ export class AdminUsuariosPage implements OnInit {
     return describeProgress(grade).label;
   }
 
+  /**
+   * Por que este membro não recebe e-mail (decisão 11).
+   *
+   * **Isto é o oposto do que a decisão 12 da spec 014 faz em Meu Perfil, e é de
+   * propósito.** Lá o interruptor aparece desligado e a tela cala, porque para o
+   * membro "seu provedor recusou nossos e-mails" é uma frase que não o ajuda a
+   * fazer nada. Aqui a frase aparece inteira, porque quem lê é o admin — a única
+   * pessoa que pode agir sobre ela: conferir o endereço, falar com a pessoa por
+   * outro caminho, corrigir.
+   *
+   * Sem este comentário, a diferença entre as duas telas vira "inconsistência"
+   * no próximo code review, e alguém a "conserta" apagando a informação do lado
+   * de quem podia usá-la.
+   */
+  protected motivoDoDescadastro(motivo: EmailOptOutReason | null): string {
+    switch (motivo) {
+      case 'membro':
+        return 'descadastrou-se';
+      case 'bounce':
+        return 'o provedor recusou o endereço';
+      case 'reclamacao':
+        return 'marcou como spam';
+      default:
+        return 'motivo não registrado';
+    }
+  }
+
+  /**
+   * Por que não dá para escrever para este membro (decisão 15).
+   *
+   * O texto é escolhido pelo **código** que veio no corpo, e nunca por leitura
+   * da mensagem: texto de erro não é contrato, e um `includes('descadastr')`
+   * quebraria na primeira revisão de copy do backend.
+   */
+  protected motivoDeNaoReceber(motivo: CannotReceiveEmailReason | null): string {
+    switch (motivo) {
+      case 'descadastrado':
+        return 'Esse membro pediu para não receber e-mails.';
+      case 'email-nao-verificado':
+        return 'O e-mail dele ainda não foi confirmado.';
+      case 'desativado':
+        return 'A conta está desativada.';
+      default:
+        return '';
+    }
+  }
+
+  /** A data do descadastro, curta e legível. */
+  protected dataCurta(iso: string | null): string {
+    if (!iso) {
+      return '';
+    }
+    return new Date(iso).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
+
   protected tierLabel(tier: TierId | null): string {
     if (!tier) {
       return '';
@@ -384,18 +483,61 @@ export class AdminUsuariosPage implements OnInit {
 
   // ------------------------------------------------------------------- Edições
 
-  protected startEdit(user: AdminUser): void {
+  /**
+   * Abre o membro (decisões 1 e 9).
+   *
+   * **Sem sub-rota.** Uma `/usuarios/:id` seria linkável e sobreviveria ao F5, e
+   * custaria o que importa mais: voltar do detalhe teria que restaurar o
+   * recorte, a rolagem e a página em que o admin estava. O diálogo não perde
+   * nada disso porque nunca sai da tela — e o que precisava mesmo sobreviver ao
+   * F5 é o recorte, que já está na URL.
+   */
+  protected startEdit(user: AdminUser, origem?: HTMLElement): void {
     this.saveError.set(null);
     this.gradeDraft = user.grade ?? 0;
     // O seletor abre NO VALOR DO MEMBRO. Ele abria vazio desde a spec 010,
     // porque a API declarava o campo e nunca o devolvia — e o admin escolhia às
     // cegas. `dev-tier` aqui é só o caso de quem ainda não tem perfil.
     this.tierDraft = user.tier ?? 'dev-tier';
+    this.origemDoFoco = origem ?? null;
     this.editing.set(user);
+    this.detail.set(null);
+    this.carregarDetalhe(user.id);
+  }
+
+  /**
+   * O detalhe busca os próprios dados (decisão 9).
+   *
+   * Telefone, bio, redes e as datas **não vêm na listagem**, e a tela não tenta
+   * contornar isso guardando o que já teria: é uma requisição por clique, e o
+   * clique é raro.
+   */
+  protected carregarDetalhe(userId: string): void {
+    this.detailState.set('loading');
+
+    this.admin
+      .getUser(userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (detalhe) => {
+          this.detail.set(detalhe);
+          this.detailState.set('ready');
+        },
+        // **A falha não fecha o diálogo** (decisão 9): fechar sozinho parece que
+        // o clique não pegou, e o admin clica de novo. O erro aparece dentro
+        // dele, com "Tentar de novo".
+        error: () => this.detailState.set('error')
+      });
   }
 
   protected cancelEdit(): void {
+    this.dialogRef()?.nativeElement.close();
     this.editing.set(null);
+    this.detail.set(null);
+    // O foco volta para a linha de onde saiu: sem isto ele cai no começo da
+    // pagina, e quem navega por teclado perde o lugar na lista.
+    this.origemDoFoco?.focus();
+    this.origemDoFoco = null;
   }
 
   protected saveGrade(): void {

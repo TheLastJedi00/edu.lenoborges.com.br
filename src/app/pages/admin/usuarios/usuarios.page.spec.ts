@@ -11,7 +11,7 @@ import {
   AdminUsuariosPage,
   USUARIOS_BUSCA_DEBOUNCE_MS
 } from './usuarios.page';
-import { AdminUser } from '../../../models/admin.model';
+import { AdminUser, AdminUserDetail } from '../../../models/admin.model';
 
 function user(overrides: Partial<AdminUser> = {}): AdminUser {
   return {
@@ -170,9 +170,44 @@ describe('AdminUsuariosPage', () => {
     expect(seletor.value).toBe('ultra-dev-tier');
   });
 
-  function abrirEditor(el: HTMLElement, fixture: { detectChanges(): void }) {
+  /** O que `GET /admin/users/:id` devolve. */
+  function detalhe(overrides: Partial<AdminUserDetail> = {}): AdminUserDetail {
+    return {
+      ...user(),
+      phone: '47999990000',
+      bio: 'Estudando back-end.',
+      linkedin: null,
+      instagram: null,
+      emailOptOutReason: null,
+      emailOptOutAt: null,
+      waitlistEntryId: 'membro@test.com',
+      profileCreatedAt: '2026-08-18T09:02:00.000Z',
+      profileUpdatedAt: '2026-08-24T11:00:00.000Z',
+      canReceiveEmail: true,
+      cannotReceiveReason: null,
+      ...overrides
+    };
+  }
+
+  /**
+   * Abre o membro. O detalhe dispara `GET /admin/users/:id`, e quem chama
+   * decide o que responder — inclusive não responder, para inspecionar o
+   * esqueleto.
+   */
+  function abrirEditor(
+    el: HTMLElement,
+    fixture: { detectChanges(): void },
+    resposta: AdminUserDetail | null = detalhe()
+  ) {
     (el.querySelector('.user .btn--ghost') as HTMLButtonElement).click();
     fixture.detectChanges();
+
+    if (resposta) {
+      http
+        .expectOne((r) => /\/admin\/users\/[^/]+$/.test(r.url))
+        .flush(resposta);
+      fixture.detectChanges();
+    }
   }
 
   function clicar(el: HTMLElement, texto: string) {
@@ -266,6 +301,163 @@ describe('AdminUsuariosPage', () => {
     fixture.detectChanges();
 
     expect(el.textContent).toContain('saia e entre de novo');
+  });
+
+  describe('o detalhe do membro', () => {
+    /**
+     * **Teste-trava: o diálogo não abre vazio.**
+     *
+     * Enquanto a requisição do detalhe não volta, ele mostra o que a linha já
+     * sabia — nome, e-mail, tier, etapa. Abrir vazio e preencher depois faz o
+     * clique parecer que falhou.
+     */
+    it('teste-trava: abre com o que a linha ja sabia, e o resto em esqueleto', () => {
+      const { fixture, el } = setup();
+      flushList([user({ name: 'Membro Teste' })]);
+      fixture.detectChanges();
+
+      // Sem responder ao detalhe: e o instante em que o dialogo ja esta aberto.
+      abrirEditor(el, fixture, null);
+
+      const dialogo = el.querySelector('.editor') as HTMLElement;
+      expect(dialogo.textContent).toContain('Membro Teste');
+      expect(dialogo.textContent).toContain('membro@test.com');
+      expect(dialogo.querySelectorAll('.skeleton--linha').length).toBeGreaterThan(0);
+
+      http
+        .expectOne((r) => /\/admin\/users\/[^/]+$/.test(r.url))
+        .flush(detalhe());
+    });
+
+    it('busca o detalhe ao abrir, e mostra o que so ele conhece', () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+      abrirEditor(el, fixture);
+
+      const dialogo = el.querySelector('.editor') as HTMLElement;
+      // O telefone nao trafega na listagem: ele so existe aqui.
+      expect(dialogo.textContent).toContain('47999990000');
+      expect(dialogo.textContent).toContain('Estudando back-end.');
+    });
+
+    /**
+     * **Teste-trava: a falha não fecha o diálogo.**
+     *
+     * Fechar sozinho é indistinguível de o clique não ter pego, e o admin clica
+     * de novo — e de novo.
+     */
+    it('teste-trava: falha no detalhe mostra o erro DENTRO do dialogo, sem fechar', () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+      abrirEditor(el, fixture, null);
+
+      http
+        .expectOne((r) => /\/admin\/users\/[^/]+$/.test(r.url))
+        .flush('', { status: 500, statusText: 'Server Error' });
+      fixture.detectChanges();
+
+      const dialogo = el.querySelector('.editor');
+      expect(dialogo).not.toBeNull();
+      expect(dialogo?.textContent).toContain('Tentar de novo');
+    });
+
+    it('"Tentar de novo" refaz a requisicao do detalhe', () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+      abrirEditor(el, fixture, null);
+      http
+        .expectOne((r) => /\/admin\/users\/[^/]+$/.test(r.url))
+        .flush('', { status: 500, statusText: 'Server Error' });
+      fixture.detectChanges();
+
+      const botao = Array.from(el.querySelectorAll('.editor button')).find((n) =>
+        n.textContent?.includes('Tentar de novo')
+      ) as HTMLButtonElement;
+      botao.click();
+      fixture.detectChanges();
+
+      http
+        .expectOne((r) => /\/admin\/users\/[^/]+$/.test(r.url))
+        .flush(detalhe());
+      fixture.detectChanges();
+
+      expect(el.querySelector('.editor')?.textContent).toContain('47999990000');
+    });
+
+    /**
+     * **O oposto do que Meu Perfil faz, e de propósito** (decisão 11). Lá quem
+     * lê não pode agir sobre um bounce; aqui pode.
+     */
+    it('diz que nao recebe e-mails E diz por que, com a data', () => {
+      const { fixture, el } = setup();
+      flushList([user({ emailOptOut: true })]);
+      fixture.detectChanges();
+      abrirEditor(
+        el,
+        fixture,
+        detalhe({
+          emailOptOut: true,
+          emailOptOutReason: 'bounce',
+          emailOptOutAt: '2026-08-20T12:00:00.000Z',
+          canReceiveEmail: false,
+          cannotReceiveReason: 'descadastrado'
+        })
+      );
+
+      const dialogo = el.querySelector('.editor') as HTMLElement;
+      expect(dialogo.textContent).toContain('Não recebe e-mails');
+      expect(dialogo.textContent).toContain('o provedor recusou o endereço');
+      expect(dialogo.textContent).toContain('20/08/2026');
+    });
+
+    it('quem recebe ve a frase inteira, e nao um estado mudo', () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+      abrirEditor(el, fixture);
+
+      expect(el.querySelector('.editor')?.textContent).toContain(
+        'Recebe os e-mails da Liga Dev'
+      );
+    });
+
+    /**
+     * A ausência é deliberada: é o lugar onde os três parecem caber, e os três
+     * foram recusados com argumento em specs anteriores.
+     */
+    it('nao oferece desativar, excluir nem promover', () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+      abrirEditor(el, fixture);
+
+      const textos = Array.from(el.querySelectorAll('.editor button')).map((n) =>
+        n.textContent?.toLowerCase() ?? ''
+      );
+      expect(textos.some((t) => t.includes('excluir'))).toBeFalse();
+      expect(textos.some((t) => t.includes('desativar'))).toBeFalse();
+      expect(textos.some((t) => t.includes('promover'))).toBeFalse();
+    });
+
+    it('o membro sem perfil abre normalmente, com os campos vazios', () => {
+      // Um dialogo que falhasse aqui esconderia justamente quem o filtro de
+      // onboarding pendente existe para achar.
+      const { fixture, el } = setup();
+      flushList([user({ name: null, grade: null, profileCompleted: false })]);
+      fixture.detectChanges();
+      abrirEditor(
+        el,
+        fixture,
+        detalhe({ name: null, phone: null, bio: null, tier: null })
+      );
+
+      const dialogo = el.querySelector('.editor') as HTMLElement;
+      expect(dialogo.textContent).toContain('Não informado');
+      expect(dialogo.textContent).toContain('Onboarding pendente');
+    });
   });
 
   describe('buscar e filtrar', () => {
