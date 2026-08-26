@@ -460,6 +460,241 @@ describe('AdminUsuariosPage', () => {
     });
   });
 
+  describe('o e-mail direto', () => {
+    /** Abre o detalhe e o diálogo de escrever, com assunto e corpo válidos. */
+    async function escrever(
+      el: HTMLElement,
+      fixture: { detectChanges(): void; whenStable(): Promise<unknown> },
+      detalheDoMembro = detalhe()
+    ) {
+      abrirEditor(el, fixture, detalheDoMembro);
+
+      const abrir = Array.from(el.querySelectorAll('.editor button')).find((n) =>
+        n.textContent?.includes('Escrever e-mail')
+      ) as HTMLButtonElement;
+      abrir.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const assunto = el.querySelector('#assunto') as HTMLInputElement;
+      const corpo = el.querySelector('#corpo') as HTMLTextAreaElement;
+      assunto.value = 'Sobre a sua dúvida';
+      assunto.dispatchEvent(new Event('input'));
+      corpo.value = 'Oi. Vi sua pergunta no Mural e queria responder.';
+      corpo.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const enviar = Array.from(el.querySelectorAll('.editor button')).find((n) =>
+        n.textContent?.includes('Enviar para')
+      ) as HTMLButtonElement;
+
+      return { enviar };
+    }
+
+    /**
+     * **O botão diz o endereço, e nunca só "Enviar"** (decisão 14). É o eco do
+     * "botão diz o número" da spec 014: a informação que decide o clique fica
+     * dentro do botão.
+     */
+    it('teste-trava: o botao diz o endereco, e nao ha confirm-dialog por cima', async () => {
+      const { fixture, el } = setup();
+      flushList([user({ email: 'membro@test.com' })]);
+      fixture.detectChanges();
+
+      const { enviar } = await escrever(el, fixture);
+      expect(enviar.textContent).toContain('Enviar para membro@test.com');
+
+      enviar.click();
+      fixture.detectChanges();
+
+      // Envia direto: nenhum dialogo de confirmacao no meio do caminho.
+      const req = http.expectOne((r) =>
+        r.url.endsWith('/admin/users/uid-1/email')
+      );
+      expect(req.request.body).toEqual({
+        subject: 'Sobre a sua dúvida',
+        body: 'Oi. Vi sua pergunta no Mural e queria responder.'
+      });
+      req.flush({ id: 'camp-1', status: 'concluida', sentCount: 1 });
+    });
+
+    /**
+     * **Teste-trava: um clique duplo não manda dois e-mails.**
+     *
+     * É a única ação irreversível desta tela, e a proteção é do front: o backend
+     * não tem como saber que os dois pedidos são o mesmo recado.
+     */
+    it('teste-trava: clique duplo nao manda dois e-mails', async () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+
+      const { enviar } = await escrever(el, fixture);
+      enviar.click();
+      enviar.click();
+      fixture.detectChanges();
+
+      const pedidos = http.match((r) =>
+        r.url.endsWith('/admin/users/uid-1/email')
+      );
+      expect(pedidos.length).toBe(1);
+      pedidos[0].flush({ id: 'camp-1', status: 'concluida', sentCount: 1 });
+    });
+
+    it('enquanto envia, o botao diz "Enviando…" e os campos ficam desabilitados', async () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+
+      const { enviar } = await escrever(el, fixture);
+      enviar.click();
+      fixture.detectChanges();
+
+      expect(enviar.textContent).toContain('Enviando…');
+
+      // `ngModel` e quem recebe o `[disabled]` e desabilita o controle num
+      // microtask, entao a leitura do DOM espera a estabilizacao.
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect((el.querySelector('#assunto') as HTMLInputElement).disabled).toBeTrue();
+
+      http
+        .expectOne((r) => r.url.endsWith('/admin/users/uid-1/email'))
+        .flush({ id: 'camp-1', status: 'concluida', sentCount: 1 });
+      fixture.detectChanges();
+
+      // Ao terminar, o dialogo fecha e o detalhe avisa.
+      expect(el.querySelector('#assunto')).toBeNull();
+      expect(el.textContent).toContain('E-mail enviado');
+    });
+
+    /**
+     * **Teste-trava: membro descadastrado não consegue abrir o diálogo.**
+     *
+     * Deixar o botão ligado faria o admin escrever um recado inteiro para
+     * descobrir no fim que ele não sai — e a informação que faltava estava na
+     * tela o tempo todo.
+     */
+    it('teste-trava: quem nao pode receber nasce com o botao desabilitado, e o motivo ao lado', () => {
+      const { fixture, el } = setup();
+      flushList([user({ emailOptOut: true })]);
+      fixture.detectChanges();
+      abrirEditor(
+        el,
+        fixture,
+        detalhe({
+          emailOptOut: true,
+          emailOptOutReason: 'membro',
+          canReceiveEmail: false,
+          cannotReceiveReason: 'descadastrado'
+        })
+      );
+
+      const botao = Array.from(el.querySelectorAll('.editor button')).find((n) =>
+        n.textContent?.includes('Escrever e-mail')
+      ) as HTMLButtonElement;
+
+      expect(botao.disabled).toBeTrue();
+      expect(el.querySelector('.escrever__motivo')?.textContent).toContain(
+        'Esse membro pediu para não receber e-mails.'
+      );
+
+      botao.click();
+      fixture.detectChanges();
+      expect(el.querySelector('#assunto')).toBeNull();
+    });
+
+    it('cada motivo tem a sua frase, e elas vem da tabela da spec', () => {
+      const casos = [
+        ['email-nao-verificado', 'O e-mail dele ainda não foi confirmado.'],
+        ['desativado', 'A conta está desativada.']
+      ] as const;
+
+      for (const [reason, frase] of casos) {
+        const { fixture, el } = setup();
+        flushList([user()]);
+        fixture.detectChanges();
+        abrirEditor(
+          el,
+          fixture,
+          detalhe({ canReceiveEmail: false, cannotReceiveReason: reason })
+        );
+
+        expect(el.querySelector('.escrever__motivo')?.textContent).toContain(frase);
+        TestBed.resetTestingModule();
+      }
+    });
+
+    /**
+     * **Teste-trava: o texto do 422 sai do `reason`, e nunca da mensagem.**
+     *
+     * Texto de erro do backend não é contrato, e um `includes('descadastr')`
+     * quebra na primeira revisão de copy de lá.
+     */
+    it('teste-trava: 422 com reason descadastrado mostra a frase da tabela', async () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+
+      const { enviar } = await escrever(el, fixture);
+      enviar.click();
+      fixture.detectChanges();
+
+      http.expectOne((r) => r.url.endsWith('/admin/users/uid-1/email')).flush(
+        // A mensagem do corpo vem em outra redacao de proposito: a tela nao pode
+        // depender dela.
+        { statusCode: 422, reason: 'descadastrado', message: 'outra redacao' },
+        { status: 422, statusText: 'Unprocessable Entity' }
+      );
+      fixture.detectChanges();
+
+      expect(el.querySelector('.editor__error')?.textContent).toContain(
+        'Esse membro pediu para não receber e-mails.'
+      );
+    });
+
+    /**
+     * O trinco da spec 014 aparecendo numa tela que não fala de campanha. Sem
+     * este texto ele é indistinguível de falha.
+     */
+    it('teste-trava: 409 vira "Tem um disparo acontecendo agora"', async () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+
+      const { enviar } = await escrever(el, fixture);
+      enviar.click();
+      fixture.detectChanges();
+
+      http
+        .expectOne((r) => r.url.endsWith('/admin/users/uid-1/email'))
+        .flush('', { status: 409, statusText: 'Conflict' });
+      fixture.detectChanges();
+
+      expect(el.querySelector('.editor__error')?.textContent).toContain(
+        'Tem um disparo acontecendo agora'
+      );
+      // E o dialogo continua aberto, com o texto escrito: o recado nao se perde.
+      expect(el.querySelector('#corpo')).not.toBeNull();
+    });
+
+    it('nao oferece previa, filtro nem botao de acao no e-mail', async () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+      await escrever(el, fixture);
+
+      // A tela de campanha e outra, e o motivo esta na decisao 12.
+      expect(el.querySelector('#ctaLabel')).toBeNull();
+      expect(el.querySelector('#ctaUrl')).toBeNull();
+      expect(el.textContent).not.toContain('Prévia');
+      expect(el.textContent).not.toContain('Enviar teste');
+    });
+  });
+
   describe('buscar e filtrar', () => {
     function digitar(el: HTMLElement, texto: string) {
       const campo = el.querySelector('#busca') as HTMLInputElement;

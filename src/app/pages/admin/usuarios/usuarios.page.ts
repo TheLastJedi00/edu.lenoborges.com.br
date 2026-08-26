@@ -30,6 +30,7 @@ import {
 import type { BillingTier } from '../../../models/billing.model';
 import type { TierId } from '../../../models/auth.model';
 import { describeProgress, MAX_GRADE } from '../../../core/progress/progress';
+import { httpStatus } from '../../../core/http-error';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
@@ -205,6 +206,14 @@ export class AdminUsuariosPage implements OnInit {
     effect(() => {
       const dialog = this.dialogRef()?.nativeElement;
       if (this.editing() && dialog?.isConnected && !dialog.open) {
+        dialog.showModal();
+      }
+    });
+
+    // O diálogo de escrever, pelo mesmo caminho e pelo mesmo motivo.
+    effect(() => {
+      const dialog = this.emailDialogRef()?.nativeElement;
+      if (this.escrevendo() && dialog?.isConnected && !dialog.open) {
         dialog.showModal();
       }
     });
@@ -603,6 +612,149 @@ export class AdminUsuariosPage implements OnInit {
           this.saveError.set(mensagemDeSalvar(error.status));
         }
       });
+  }
+
+  // -------------------------------------------------------------- E-mail direto
+
+  /**
+   * O e-mail direto é um diálogo **dentro** do detalhe (decisão 12).
+   *
+   * Reusar `/dashboard/admin/emails` para uma pessoa obrigaria aquela tela a
+   * ganhar um modo — "para quem: um membro" — e o modo estragaria a tela que
+   * mais depende de não ter modos. **O que é compartilhado é o que importa e
+   * está no backend**: o mesmo caminho de envio, o mesmo template, o mesmo
+   * rodapé de descadastro. A tela é a parte barata.
+   */
+  protected readonly escrevendo = signal(false);
+  /**
+   * Os rascunhos são **sinais**, e não propriedades comuns.
+   *
+   * Um `computed` que lê propriedade comum produz um valor que nunca mais se
+   * atualiza — o computed só recalcula quando um *sinal* de que ele depende
+   * muda. O sintoma aqui seria o pior possível: o botão de envio travado com
+   * tudo preenchido. É a mesma armadilha que a tela de e-mails registrou.
+   */
+  protected readonly assuntoDraft = signal('');
+  protected readonly corpoDraft = signal('');
+  protected readonly enviando = signal(false);
+  protected readonly envioError = signal<string | null>(null);
+  /** "E-mail enviado", por alguns segundos, depois que o diálogo fecha. */
+  protected readonly enviado = signal(false);
+
+  private readonly emailDialogRef =
+    viewChild<ElementRef<HTMLDialogElement>>('emailDialog');
+
+  protected readonly podeEscrever = computed(
+    () => this.detail()?.canReceiveEmail === true
+  );
+
+  /**
+   * O botão diz o endereço, e nunca só "Enviar" (decisão 14).
+   *
+   * É o eco da spec 014 — *o botão diz o número* — com a mesma lógica aplicada a
+   * um destinatário: a informação que decide o clique fica dentro do botão. Lá
+   * ela precisa de um diálogo repetindo o número, porque o número é grande e
+   * abstrato; aqui o destinatário é um endereço que o admin está lendo na tela
+   * desde que abriu o detalhe. **Por isso não há `confirm-dialog` por cima**: um
+   * diálogo perguntando "tem certeza?" sobre uma pessoa nomeada é a interface
+   * duvidando de uma decisão que não tem ambiguidade.
+   */
+  protected readonly rotuloDeEnvio = computed(() => {
+    if (this.enviando()) {
+      return 'Enviando…';
+    }
+    return `Enviar para ${this.editing()?.email ?? 'este membro'}`;
+  });
+
+  protected readonly envioValido = computed(
+    () =>
+      this.assuntoDraft().trim().length >= 3 &&
+      this.corpoDraft().trim().length >= 10
+  );
+
+  protected abrirEmail(): void {
+    // Quem nao pode receber nem chega aqui: o botao nasce desabilitado, e o
+    // motivo fica escrito ao lado dele (decisao 15). Deixar o botao ligado faria
+    // o admin escrever um recado inteiro para descobrir no fim que ele nao sai.
+    if (!this.podeEscrever()) {
+      return;
+    }
+
+    this.assuntoDraft.set('');
+    this.corpoDraft.set('');
+    this.envioError.set(null);
+    this.escrevendo.set(true);
+  }
+
+  protected fecharEmail(): void {
+    this.emailDialogRef()?.nativeElement.close();
+    this.escrevendo.set(false);
+  }
+
+  protected enviarEmail(): void {
+    const user = this.editing();
+    // **Um clique duplo não manda dois e-mails.** É a única ação irreversível
+    // desta tela, e a proteção é do front: o backend não tem como saber que os
+    // dois pedidos são o mesmo recado.
+    if (!user || this.enviando() || !this.envioValido()) {
+      return;
+    }
+
+    this.enviando.set(true);
+    this.envioError.set(null);
+
+    this.admin
+      .enviarEmailDireto(user.id, {
+        subject: this.assuntoDraft().trim(),
+        body: this.corpoDraft().trim()
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.enviando.set(false);
+          this.fecharEmail();
+          this.enviado.set(true);
+          setTimeout(() => this.enviado.set(false), 4000);
+        },
+        error: (error: unknown) => {
+          this.enviando.set(false);
+          this.envioError.set(this.mensagemDeEnvio(error));
+        }
+      });
+  }
+
+  /**
+   * O texto do erro, escolhido pelo **código** e nunca pela prosa.
+   *
+   * O `422` traz `reason` no corpo, e é ele que decide a frase — a mesma da
+   * tabela da decisão 15. Ler a mensagem do backend com um
+   * `includes('descadastr')` quebraria na primeira revisão de copy de lá, e o
+   * sintoma seria um erro genérico no lugar da explicação.
+   */
+  private mensagemDeEnvio(error: unknown): string {
+    const status = httpStatus(error);
+
+    if (status === 422) {
+      const reason = (
+        error as { error?: { reason?: CannotReceiveEmailReason } }
+      )?.error?.reason;
+      return (
+        this.motivoDeNaoReceber(reason ?? null) ||
+        'Esse membro não pode receber e-mails agora.'
+      );
+    }
+
+    if (status === 409) {
+      // O trinco da spec 014 aparecendo numa tela que nao fala de campanha. Sem
+      // este texto ele e indistinguivel de falha.
+      return 'Tem um disparo acontecendo agora. Tente daqui a pouco.';
+    }
+
+    if (status === 404) {
+      return 'Esse membro não existe mais.';
+    }
+
+    return 'Não consegui enviar agora. Tente de novo.';
   }
 
   protected readonly tierOptions: readonly { id: TierId; label: string }[] = [

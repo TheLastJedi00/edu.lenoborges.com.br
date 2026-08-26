@@ -365,6 +365,35 @@
           } @else if (detailState() === 'loading') {
             <p class="skeleton skeleton--linha"></p>
           }
+
+          @if (detailState() === 'ready' && detail(); as d) {
+            <!--
+              Quem não pode receber tem o botão desabilitado, com a frase escrita
+              ao lado (decisão 15). O backend recusa de qualquer forma, com 422 —
+              deixar o botão ligado faria o admin escrever um recado inteiro para
+              descobrir no fim que ele não sai, e a informação que faltava estava
+              na tela o tempo todo.
+            -->
+            <div class="escrever">
+              <button
+                type="button"
+                class="btn"
+                [disabled]="!d.canReceiveEmail"
+                (click)="abrirEmail()"
+              >
+                Escrever e-mail
+              </button>
+              @if (!d.canReceiveEmail) {
+                <p class="escrever__motivo">
+                  {{ motivoDeNaoReceber(d.cannotReceiveReason) }}
+                </p>
+              }
+            </div>
+
+            @if (enviado()) {
+              <p class="escrever__ok" role="status">E-mail enviado</p>
+            }
+          }
         </section>
 
         @if (detailState() === 'error') {
@@ -432,5 +461,90 @@
         </div>
       </div>
     </dialog>
+
+    <!--
+      Escrever é um diálogo com dois campos, e nada mais: sem filtros, sem
+      contagem, sem prévia, sem botão de ação no e-mail (decisão 12).
+
+      Sem prévia porque o template é o mesmo de sempre e o admin já o viu; sem
+      botão de ação porque um recado para uma pessoa não tem para onde apontar,
+      e o único que existiria seria "clique aqui".
+
+      A decisão 5 da spec 014 — teste obrigatório antes do disparo — NÃO se
+      aplica aqui, e a exceção tem nome: o que aquela decisão protege é o
+      tamanho. Um recado com erro de digitação chega a uma pessoa que conhece o
+      remetente e pode responder. Exigir um envio de teste para depois mandar
+      para um destinatário é atrito que não compra nada — e atrito que não compra
+      nada é o que ensina a clicar sem ler nos lugares onde ele compra.
+    -->
+    @if (escrevendo()) {
+      <dialog
+        #emailDialog
+        class="editor"
+        aria-labelledby="email-titulo"
+        (close)="fecharEmail()"
+      >
+        <div class="editor__panel">
+          <h2 id="email-titulo" class="editor__title">
+            E-mail para {{ user.name ?? user.email }}
+          </h2>
+
+          <label class="editor__label" for="assunto">Assunto</label>
+          <input
+            id="assunto"
+            type="text"
+            class="editor__select"
+            maxlength="150"
+            [disabled]="enviando()"
+            [ngModel]="assuntoDraft()"
+            (ngModelChange)="assuntoDraft.set($event)"
+          />
+
+          <label class="editor__label" for="corpo">Mensagem</label>
+          <textarea
+            id="corpo"
+            class="editor__textarea"
+            rows="8"
+            maxlength="5000"
+            [disabled]="enviando()"
+            [ngModel]="corpoDraft()"
+            (ngModelChange)="corpoDraft.set($event)"
+          ></textarea>
+          <p class="editor__hint">
+            Texto simples, com quebras de linha. O e-mail sai com o template da Liga Dev, e o
+            rodapé de descadastro vai junto.
+          </p>
+
+          @if (envioError(); as erro) {
+            <p class="editor__error" role="alert">{{ erro }}</p>
+          }
+
+          <!--
+            O botão diz o endereço, e envia direto — sem `confirm-dialog` por
+            cima (decisão 14). Um diálogo perguntando "tem certeza?" sobre uma
+            pessoa nomeada é a interface duvidando de uma decisão que não tem
+            ambiguidade.
+          -->
+          <div class="editor__actions">
+            <button
+              type="button"
+              class="btn btn--ghost"
+              [disabled]="enviando()"
+              (click)="fecharEmail()"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [disabled]="enviando() || !envioValido()"
+              (click)="enviarEmail()"
+            >
+              {{ rotuloDeEnvio() }}
+            </button>
+          </div>
+        </div>
+      </dialog>
+    }
   }
 </section>

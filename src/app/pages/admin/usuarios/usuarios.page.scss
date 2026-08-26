@@ -129,7 +129,15 @@
   color: var(--ink-soft);
 }
 
-.busca__input {
+/*
+ * Um campo é um campo: busca, seletores de faixa, assunto e mensagem partilham a
+ * mesma base. Quatro blocos quase iguais é como eles divergem no primeiro ajuste
+ * de altura, e a tela passa a ter dois tamanhos de controle.
+ */
+.busca__input,
+.filtros__select,
+.editor__select,
+.editor__textarea {
   min-height: 2.75rem;
   padding: 0.6rem 0.85rem;
   border: var(--border-w) solid var(--border-soft);
@@ -140,7 +148,10 @@
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.busca__input:focus-visible {
+.busca__input:focus-visible,
+.filtros__select:focus-visible,
+.editor__select:focus-visible,
+.editor__textarea:focus-visible {
   outline: none;
   border-color: var(--accent-deep);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-deep) 22%, transparent);
@@ -243,16 +254,6 @@
 .filtros__campo {
   display: grid;
   gap: 0.25rem;
-}
-
-.filtros__select {
-  min-height: 2.75rem;
-  padding: 0.5rem 0.7rem;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  background: var(--paper);
-  color: var(--ink);
-  font: inherit;
 }
 
 .filtros__hint {
@@ -493,6 +494,50 @@
   border-radius: var(--radius-sm);
 }
 
+/*
+ * O botão e, ao lado dele, o motivo de ele estar desligado. A frase fica na tela
+ * o tempo todo em vez de aparecer como erro depois de o recado estar escrito.
+ */
+.escrever {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.escrever__motivo {
+  margin: 0;
+  flex: 1 1 14rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.escrever__ok {
+  margin: 0.5rem 0 0;
+  font-weight: 700;
+  color: var(--accent-deep);
+  animation: aviso-enter 200ms ease both;
+}
+
+.editor__textarea {
+  min-height: 9rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+@keyframes aviso-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .editor__title {
   margin: 0;
   font-family: var(--font-display);
@@ -504,16 +549,6 @@
   font-size: var(--step--1);
   font-weight: 700;
   color: var(--ink-soft);
-}
-
-.editor__select {
-  min-height: 2.75rem;
-  padding: 0.5rem;
-  border: var(--border-w) solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  background: var(--paper);
-  font-family: var(--font-body);
-  font-size: var(--step-0);
 }
 
 .editor__error {
