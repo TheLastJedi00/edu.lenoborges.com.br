@@ -36,33 +36,33 @@ Nenhuma mudança visível. Ao fim desta fase a tela continua exatamente como est
   página não duplica linhas** — o erro clássico ao trocar cursor por deslocamento, e ele só aparece com mais
   de uma página.
 
-# Fase 02: Buscar e filtrar [ ]
+# Fase 02: Buscar e filtrar [x]
 Branch: `feat/015-busca-e-filtros`
 
-- [ ] Task 01: O campo de busca. Arquivos: `src/app/pages/admin/usuarios/usuarios.page.html`, `.scss`.
+- [x] Task 01: O campo de busca. Arquivos: `src/app/pages/admin/usuarios/usuarios.page.html`, `.scss`.
   Objetivo: um campo com o rótulo **"Buscar por nome ou e-mail"**, `type="search"`, sempre visível — **fora
   do bloco de filtros** (decisão 16), porque é o controle que resolve a maior parte dos casos.
-- [ ] Task 02 (TDD + implementação): O atraso e a corrida. Arquivos: `usuarios.page.ts`, `.spec.ts`.
+- [x] Task 02 (TDD + implementação): O atraso e a corrida. Arquivos: `usuarios.page.ts`, `.spec.ts`.
   Objetivo: `debounceTime(400)` mais `switchMap`, como a contagem da spec 014. Testes-trava: (a) duas teclas
   rápidas fazem **uma** requisição; (b) resposta antiga chegando depois da nova **não** vence — a lista
   ficaria contradizendo o que está escrito no campo, e nada na tela denunciaria.
-- [ ] Task 03: O bloco de filtros. Objetivo: "Onboarding pendente", os quatro tiers em caixas e a faixa de
+- [x] Task 03: O bloco de filtros. Objetivo: "Onboarding pendente", os quatro tiers em caixas e a faixa de
   insígnia em dois seletores de 0 a 13. **Os rótulos de tier saem do `billing.model` e os de etapa do
   `core/progress`** — nenhum texto redigitado, e a mesma ordem da tela de e-mails (decisão 5).
-- [ ] Task 04 (TDD + implementação): O recorte na URL. Objetivo: filtros e busca viram query da rota, lidos
+- [x] Task 04 (TDD + implementação): O recorte na URL. Objetivo: filtros e busca viram query da rota, lidos
   na inicialização e escritos a cada mudança (decisão 2). **Teste-trava: a busca escreve com
   `replaceUrl: true`** — sem isso, "voltar" caminha letra por letra e a tela fica irrecuperável. Segundo
   teste: abrir a rota já com `?q=&tiers=` aplica o recorte antes da primeira requisição, e não depois.
-- [ ] Task 05 (TDD + implementação): A contagem. Objetivo: **"213 membros"** sem filtro e **"12 de 213
+- [x] Task 05 (TDD + implementação): A contagem. Objetivo: **"213 membros"** sem filtro e **"12 de 213
   membros"** com filtro (decisão 6), e o botão vira **"Carregar mais (163 restantes)"**. Teste-trava: com
   filtro ligado, o texto **não** é só o número — um número solto é lido como o tamanho da comunidade.
-- [ ] Task 06: "Todos os membros". Objetivo: sem nenhum filtro marcado, o rótulo do recorte é **"Todos os
+- [x] Task 06: "Todos os membros". Objetivo: sem nenhum filtro marcado, o rótulo do recorte é **"Todos os
   membros"**, com as mesmas palavras da tela de e-mails (decisão 4). Um estado vazio que não se explica é o
   pior padrão de uma tela de filtro, nas duas telas e por razões opostas — e o comentário registra as duas.
-- [ ] Task 07: Os dois vazios. Objetivo: **"Nenhum membro com esse recorte"** com **"Limpar filtros"** ao
+- [x] Task 07: Os dois vazios. Objetivo: **"Nenhum membro com esse recorte"** com **"Limpar filtros"** ao
   lado, separado do vazio de base sem cadastros (decisão 7). A mensagem própria do **403 não muda** — a
   claim de admin só vale no próximo token, e mandar sair e entrar de novo continua sendo a resposta certa.
-- [ ] Task 08: Mobile. Objetivo: os filtros num `details` fechado com **"Filtros (2)"** contando os ativos,
+- [x] Task 08: Mobile. Objetivo: os filtros num `details` fechado com **"Filtros (2)"** contando os ativos,
   a busca fora dele, alvos de 44px e nada fixo na borda (decisão 16). Conferir no Chrome nas duas larguras.
 
 # Fase 03: O detalhe do membro [ ]
