@@ -100,6 +100,211 @@
 }
 
 /*
+ * O tier virou etiqueta na linha (spec 015).
+ *
+ * Filtrar por um campo que a linha não mostra é uma tela que mente — e ele fica
+ * visivelmente diferente do selo de etapa, porque acesso e conquista não podem
+ * parecer a mesma coisa nem de relance.
+ */
+.tag--tier {
+  background: color-mix(in srgb, var(--accent-deep) 12%, transparent);
+  color: var(--accent-deep);
+}
+
+/* --------------------------------------------------------------- O recorte */
+
+/*
+ * O campo de busca fica FORA do bloco de filtros e sempre visível: é o controle
+ * que resolve a maior parte dos casos, e no celular ele não pode custar um toque
+ * a mais.
+ */
+.busca {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.busca__label {
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+/*
+ * Um campo é um campo: busca, seletores de faixa, assunto e mensagem partilham a
+ * mesma base. Quatro blocos quase iguais é como eles divergem no primeiro ajuste
+ * de altura, e a tela passa a ter dois tamanhos de controle.
+ */
+.busca__input,
+.filtros__select,
+.editor__select,
+.editor__textarea {
+  min-height: 2.75rem;
+  padding: 0.6rem 0.85rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.busca__input:focus-visible,
+.filtros__select:focus-visible,
+.editor__select:focus-visible,
+.editor__textarea:focus-visible {
+  outline: none;
+  border-color: var(--accent-deep);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-deep) 22%, transparent);
+}
+
+/*
+ * Os cinco controles empilhados ocupariam a tela inteira antes da primeira linha
+ * da lista, no celular. Eles entram num `details` fechado — e ele nasce aberto
+ * quando há filtro ativo, para o recorte nunca ficar escondido de quem o montou.
+ */
+.filtros {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+
+.filtros__resumo {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 0.85rem;
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+}
+
+.filtros__resumo::-webkit-details-marker {
+  display: none;
+}
+
+.filtros__resumo::after {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-left: auto;
+  border-right: 2px solid var(--ink-soft);
+  border-bottom: 2px solid var(--ink-soft);
+  transform: rotate(45deg);
+  transition: transform 180ms ease;
+}
+
+.filtros[open] .filtros__resumo::after {
+  transform: rotate(-135deg);
+}
+
+.filtros__contador {
+  color: var(--accent-deep);
+}
+
+.filtros__corpo {
+  display: grid;
+  gap: 1rem;
+  padding: 0 0.85rem 0.9rem;
+  animation: filtros-enter 180ms ease both;
+}
+
+.filtros__grupo {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.filtros__legenda {
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--ink-soft);
+  padding: 0;
+}
+
+.filtros__caixas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.caixa {
+  /* 44px de alvo, inclusive na caixa de seleção do celular. */
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.caixa input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent-deep);
+}
+
+.filtros__faixa {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.filtros__campo {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.filtros__hint {
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.recorte {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+}
+
+.recorte__contagem {
+  margin: 0;
+  font-weight: 700;
+}
+
+.recorte__rotulo {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.vazio {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  margin: 0;
+  padding: 1.25rem;
+  border: 1px dashed var(--border-soft);
+  border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+@keyframes filtros-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
  * Quem nao recebe e-mail (spec 014). Discreto de proposito: e informacao de
  * diagnostico, nao alerta -- a pessoa pode ter saido da lista por vontade
  * propria, e isso nao e problema nenhum.
@@ -177,18 +382,43 @@
  * ou o seletor nativo abertos, um modal centralizado fica com três linhas
  * visíveis.
  */
+/*
+ * `<dialog>` nativo (spec 015): Esc fecha, o foco fica preso dentro e o resto da
+ * página fica inerte, sem nada disso ser reimplementado aqui. É o mesmo padrão
+ * do `confirm-dialog` que o sistema já tem.
+ *
+ * No celular ele cola no rodapé como folha; a partir de 48rem, centraliza.
+ */
 .editor {
+  /* O `dialog` nasce com borda e padding do agente do usuário. */
+  margin: 0;
+  padding: 0;
+  border: 0;
+  max-width: 100vw;
+  max-height: 100dvh;
+  width: 100%;
+  background: transparent;
+  /* Colado embaixo: a mão alcança o rodapé antes do topo. */
   position: fixed;
-  inset: 0;
-  z-index: 120;
-  display: grid;
-  align-items: end;
+  inset: auto 0 0;
+}
+
+.editor::backdrop {
   background: rgba(16, 24, 40, 0.6);
 }
 
+/*
+ * **O diálogo rola por dentro**, e não estica a página (decisão 16). O membro
+ * ganhou quatro blocos nesta spec, e no celular eles passam da altura da tela —
+ * sem isto, o conteúdo empurraria a lista atrás e o "Fechar" ficaria fora de
+ * alcance.
+ */
 .editor__panel {
   display: grid;
   gap: 0.6rem;
+  max-height: 90dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background: var(--paper);
@@ -197,13 +427,114 @@
 
 @media (min-width: 48rem) {
   .editor {
-    align-items: center;
-    justify-items: center;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    height: 100dvh;
   }
 
   .editor__panel {
-    width: min(28rem, calc(100vw - 2rem));
+    width: min(32rem, calc(100vw - 2rem));
+    max-height: 85dvh;
     border-radius: var(--radius-lg);
+  }
+}
+
+/* ------------------------------------------------------- Os blocos do detalhe */
+
+.bloco {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-soft);
+}
+
+.bloco__titulo {
+  margin: 0;
+  font-size: var(--step--1);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.dados {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.dados__item {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.dados__item dt {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.dados__item dd {
+  margin: 0;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.email-estado {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.email-estado--fora {
+  color: var(--ink-soft);
+}
+
+.skeleton--linha {
+  height: 1.1rem;
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * O botão e, ao lado dele, o motivo de ele estar desligado. A frase fica na tela
+ * o tempo todo em vez de aparecer como erro depois de o recado estar escrito.
+ */
+.escrever {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.escrever__motivo {
+  margin: 0;
+  flex: 1 1 14rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.escrever__ok {
+  margin: 0.5rem 0 0;
+  font-weight: 700;
+  color: var(--accent-deep);
+  animation: aviso-enter 200ms ease both;
+}
+
+.editor__textarea {
+  min-height: 9rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+@keyframes aviso-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -218,16 +549,6 @@
   font-size: var(--step--1);
   font-weight: 700;
   color: var(--ink-soft);
-}
-
-.editor__select {
-  min-height: 2.75rem;
-  padding: 0.5rem;
-  border: var(--border-w) solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  background: var(--paper);
-  font-family: var(--font-body);
-  font-size: var(--step-0);
 }
 
 .editor__error {
@@ -255,7 +576,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .skeleton,
-  .editor__panel {
+  .editor__panel,
+  .filtros__corpo {
     animation: none;
   }
 }
