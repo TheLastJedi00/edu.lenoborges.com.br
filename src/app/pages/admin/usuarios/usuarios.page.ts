@@ -30,7 +30,14 @@ export class AdminUsuariosPage implements OnInit {
 
   protected readonly state = signal<LoadState>('loading');
   protected readonly users = signal<readonly AdminUser[]>([]);
-  protected readonly nextPageToken = signal<string | null>(null);
+  /**
+   * O tamanho do **recorte**, e não da base (spec 015, decisão 6).
+   *
+   * Sem filtro os dois coincidem; com filtro, não — e é por isso que a tela
+   * escreve "12 de 213 membros" em vez de um número solto. Um número grande
+   * sozinho é lido como o tamanho da comunidade.
+   */
+  protected readonly total = signal(0);
   protected readonly loadingMore = signal(false);
 
   /** Usuário em edição de `grade`, ou nulo. */
@@ -57,7 +64,18 @@ export class AdminUsuariosPage implements OnInit {
     (_, index) => index
   );
 
-  protected readonly hasMore = computed(() => this.nextPageToken() !== null);
+  protected readonly hasMore = computed(() => this.users().length < this.total());
+
+  /**
+   * Quantos ainda faltam no recorte.
+   *
+   * O "Carregar mais" de antes não conseguia dizer isto, porque o `pageToken` do
+   * Auth é opaco e não carrega total. Agora ele sabe: **"Carregar mais (163
+   * restantes)"**.
+   */
+  protected readonly restantes = computed(() =>
+    Math.max(this.total() - this.users().length, 0)
+  );
 
   ngOnInit(): void {
     this.load();
@@ -73,7 +91,7 @@ export class AdminUsuariosPage implements OnInit {
       .subscribe({
         next: (page) => {
           this.users.set(page.users);
-          this.nextPageToken.set(page.nextPageToken);
+          this.total.set(page.total);
           this.state.set('ready');
         },
         error: (error: { status?: number }) => {
@@ -84,26 +102,26 @@ export class AdminUsuariosPage implements OnInit {
   }
 
   /**
-   * "Carregar mais", e não paginação numerada.
+   * "Carregar mais", e não paginação numerada — agora sabendo quantos faltam.
    *
-   * O `pageToken` do Firebase Auth é opaco e não diz quantas páginas existem —
-   * um paginador com números precisaria de um total que a fonte não fornece.
+   * **O `offset` é o tamanho do que já está na tela**, e não um contador
+   * próprio: um contador paralelo é como a segunda página vem duplicada, que é o
+   * erro clássico ao trocar cursor por deslocamento.
    */
   protected loadMore(): void {
-    const token = this.nextPageToken();
-    if (!token || this.loadingMore()) {
+    if (!this.hasMore() || this.loadingMore()) {
       return;
     }
 
     this.loadingMore.set(true);
 
     this.admin
-      .listUsers(token)
+      .listUsers({}, this.users().length)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (page) => {
           this.users.update((current) => [...current, ...page.users]);
-          this.nextPageToken.set(page.nextPageToken);
+          this.total.set(page.total);
           this.loadingMore.set(false);
         },
         error: () => this.loadingMore.set(false)
@@ -117,7 +135,10 @@ export class AdminUsuariosPage implements OnInit {
   protected startEdit(user: AdminUser): void {
     this.saveError.set(null);
     this.gradeDraft = user.grade ?? 0;
-    this.tierDraft = user.tier;
+    // O seletor abre NO VALOR DO MEMBRO. Ele abria vazio desde a spec 010,
+    // porque a API declarava o campo e nunca o devolvia — e o admin escolhia às
+    // cegas. `dev-tier` aqui é só o caso de quem ainda não tem perfil.
+    this.tierDraft = user.tier ?? 'dev-tier';
     this.editing.set(user);
   }
 
