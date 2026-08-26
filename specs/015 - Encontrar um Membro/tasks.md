@@ -7,31 +7,31 @@
 > troca `nextPageToken` por `total`/`offset` e passa a aceitar busca e filtros; a tela de hoje quebra no dia
 > em que o backend subir sem esta spec. **As duas entram juntas.**
 
-# Fase 01: O contrato novo [ ]
+# Fase 01: O contrato novo [x]
 Branch: `feat/015-contrato-da-lista`
 
 Nenhuma mudança visível. Ao fim desta fase a tela continua exatamente como está, sobre uma API diferente.
 
-- [ ] Task 01: O modelo. Arquivo: `src/app/models/admin.model.ts`. Objetivo: `AdminUserPage` troca
+- [x] Task 01: O modelo. Arquivo: `src/app/models/admin.model.ts`. Objetivo: `AdminUserPage` troca
   `nextPageToken` por `total`, `offset` e `limit`; `AdminUser` perde `phone` e ganha `emailOptOut`; nasce
   `AdminUserFilters` (`q`, `onboarding`, `tiers`, `gradeMin`, `gradeMax`). Comentário registrando que
   **`total` é do recorte e não da base** — é a frase que impede a tela de escrever "213 membros" com um
   filtro ligado.
-- [ ] Task 02 (TDD + implementação): O serviço. Arquivos: `src/app/services/admin.service.ts`, `.spec.ts`.
+- [x] Task 02 (TDD + implementação): O serviço. Arquivos: `src/app/services/admin.service.ts`, `.spec.ts`.
   Objetivo: `listUsers(filters, offset, limit)` montando `HttpParams` **sem os parâmetros vazios** — `q=` e
   `tiers=` vazios na URL são ruído que acaba virando filtro por string vazia no dia em que alguém trocar a
   validação do backend. Testes-trava: filtro ausente não aparece na URL; `tiers` com dois itens vira dois
   valores do mesmo parâmetro.
-- [ ] Task 03 (TDD + implementação): `getUser(id)`. Objetivo: `GET /admin/users/:id` devolvendo
+- [x] Task 03 (TDD + implementação): `getUser(id)`. Objetivo: `GET /admin/users/:id` devolvendo
   `AdminUserDetail` — a linha mais `phone`, `bio`, `linkedin`, `instagram`, os três campos de descadastro,
   as datas do perfil, `canReceiveEmail` e `cannotReceiveReason`. O tipo do motivo é uma **união literal**, e
   não `string`: a tela escolhe o texto pelo código (decisão 15), e um `string` deixaria o `switch` sem
   exaustividade.
-- [ ] Task 04: `tier` enfim chega. Arquivos: `usuarios.page.ts`, `.spec.ts`. Objetivo: remover qualquer
+- [x] Task 04: `tier` enfim chega. Arquivos: `usuarios.page.ts`, `.spec.ts`. Objetivo: remover qualquer
   contorno para `tier` vindo `undefined` e provar com teste que o seletor de tier do editor **abre no valor
   do membro** — hoje ele abre vazio porque a API nunca mandou o campo (spec 010). Está escrito como task
   para o conserto ser verificado, e não presumido.
-- [ ] Task 05 (TDD + implementação): "Carregar mais" por `offset`. Objetivo: a paginação passa a somar
+- [x] Task 05 (TDD + implementação): "Carregar mais" por `offset`. Objetivo: a paginação passa a somar
   `offset`, e o botão só aparece enquanto `offset + carregados < total`. Teste-trava: **carregar a segunda
   página não duplica linhas** — o erro clássico ao trocar cursor por deslocamento, e ele só aparece com mais
   de uma página.
