@@ -70,7 +70,7 @@
 
       @if (hasMore()) {
         <button type="button" class="btn" [disabled]="loadingMore()" (click)="loadMore()">
-          {{ loadingMore() ? 'Carregando…' : 'Carregar mais' }}
+          {{ loadingMore() ? 'Carregando…' : 'Carregar mais (' + restantes() + ' restantes)' }}
         </button>
       }
     }

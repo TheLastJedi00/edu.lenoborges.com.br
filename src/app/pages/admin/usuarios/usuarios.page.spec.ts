@@ -18,7 +18,6 @@ function user(overrides: Partial<AdminUser> = {}): AdminUser {
     createdAt: '2026-08-18T09:00:00.000Z',
     lastSignInAt: '2026-08-18T10:00:00.000Z',
     name: 'Membro Teste',
-    phone: '47999990000',
     grade: 3,
     tier: 'dev-tier',
     profileCompleted: true,
@@ -47,10 +46,10 @@ describe('AdminUsuariosPage', () => {
     return { fixture, el: fixture.nativeElement as HTMLElement };
   }
 
-  function flushList(users: AdminUser[], nextPageToken: string | null = null) {
+  function flushList(users: AdminUser[], total = users.length) {
     http
       .expectOne((req) => req.url.endsWith('/admin/users'))
-      .flush({ users, nextPageToken });
+      .flush({ users, total, offset: 0, limit: 50 });
   }
 
   it('lista os usuários com a etapa em palavra', () => {
@@ -85,25 +84,69 @@ describe('AdminUsuariosPage', () => {
     expect(el.textContent).toContain('Onboarding pendente');
   });
 
-  it('carrega mais páginas pelo pageToken, sem paginador numerado', () => {
-    // O token do Firebase Auth é opaco e não diz quantas páginas existem, então
-    // não há total para numerar.
+  /**
+   * **Teste-trava: carregar a segunda página não duplica linhas.**
+   *
+   * É o erro clássico ao trocar cursor por deslocamento — o `offset` sai de um
+   * contador próprio em vez do tamanho do que já está na tela, os dois
+   * divergem, e a segunda página repete metade da primeira. Ele só aparece com
+   * mais de uma página, que é justamente o caso que ninguém testa à mão.
+   */
+  it('teste-trava: a segunda página vem por offset, e não duplica linhas', () => {
     const { fixture, el } = setup();
-    flushList([user()], 'proxima');
+    flushList([user({ id: 'uid-1' })], 2);
     fixture.detectChanges();
 
     const botao = Array.from(el.querySelectorAll('button')).find((node) =>
       node.textContent?.includes('Carregar mais')
     );
-    expect(botao).toBeDefined();
+    // E o botao sabe quantos faltam, coisa que o pageToken opaco nunca soube.
+    expect(botao?.textContent).toContain('1 restantes');
 
     botao?.click();
     const segunda = http.expectOne((req) => req.url.endsWith('/admin/users'));
-    expect(segunda.request.params.get('pageToken')).toBe('proxima');
-    segunda.flush({ users: [user({ id: 'uid-2' })], nextPageToken: null });
+    expect(segunda.request.params.get('offset')).toBe('1');
+    segunda.flush({
+      users: [user({ id: 'uid-2' })],
+      total: 2,
+      offset: 1,
+      limit: 50
+    });
     fixture.detectChanges();
 
     expect(el.querySelectorAll('.user').length).toBe(2);
+  });
+
+  it('sem nada a carregar, o botão não aparece', () => {
+    const { fixture, el } = setup();
+    flushList([user()], 1);
+    fixture.detectChanges();
+
+    const botao = Array.from(el.querySelectorAll('button')).find((node) =>
+      node.textContent?.includes('Carregar mais')
+    );
+    expect(botao).toBeUndefined();
+  });
+
+  /**
+   * A spec 010 fez o PATCH aceitar `tier` e a API nunca devolveu o campo: o
+   * seletor abria vazio, e o admin escolhia às cegas. Este teste existe para o
+   * conserto ser **verificado**, e não presumido.
+   */
+  it('teste-trava: o seletor de tier abre no valor do membro', async () => {
+    const { fixture, el } = setup();
+    flushList([user({ tier: 'ultra-dev-tier' })]);
+    fixture.detectChanges();
+    abrirEditor(el, fixture);
+
+    // `ngModel` escreve o valor inicial num microtask, entao a leitura do DOM
+    // precisa esperar a estabilizacao — sem isto o teste le '' e acusa um
+    // defeito que nao existe.
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const seletor = el.querySelector('#tier') as HTMLSelectElement;
+    expect(seletor.value).toBe('ultra-dev-tier');
   });
 
   function abrirEditor(el: HTMLElement, fixture: { detectChanges(): void }) {
