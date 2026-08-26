@@ -65,35 +65,35 @@ Branch: `feat/015-busca-e-filtros`
 - [x] Task 08: Mobile. Objetivo: os filtros num `details` fechado com **"Filtros (2)"** contando os ativos,
   a busca fora dele, alvos de 44px e nada fixo na borda (decisão 16). Conferir no Chrome nas duas larguras.
 
-# Fase 03: O detalhe do membro [ ]
+# Fase 03: O detalhe do membro [x]
 Branch: `feat/015-detalhe-do-membro`
 
 O diálogo de edição de hoje vira o lugar onde se olha para uma pessoa. As duas edições vão junto, e não
 mudam.
 
-- [ ] Task 01: O diálogo cresce. Arquivos: `usuarios.page.html`, `.scss`. Objetivo: o `editing` de hoje vira
+- [x] Task 01: O diálogo cresce. Arquivos: `usuarios.page.html`, `.scss`. Objetivo: o `editing` de hoje vira
   o detalhe, com quatro blocos: **identidade** (nome, e-mail, telefone, bio, redes), **estado** (tier, etapa,
   onboarding, e-mail verificado, conta ativa, admin), **e-mails** (decisão 11) e **as duas edições**. Sem
   sub-rota (decisão 1).
-- [ ] Task 02 (TDD + implementação): Buscar ao abrir. Arquivos: `usuarios.page.ts`, `.spec.ts`. Objetivo:
+- [x] Task 02 (TDD + implementação): Buscar ao abrir. Arquivos: `usuarios.page.ts`, `.spec.ts`. Objetivo:
   abrir dispara `getUser(id)`; enquanto não volta, o diálogo mostra o que a **linha** já sabia e o resto em
   esqueleto (decisão 9). Teste-trava: o diálogo **não abre vazio** — abrir vazio e preencher depois faz o
   clique parecer que falhou.
-- [ ] Task 03 (TDD + implementação): Falha no detalhe não fecha o diálogo. Objetivo: erro vira mensagem
+- [x] Task 03 (TDD + implementação): Falha no detalhe não fecha o diálogo. Objetivo: erro vira mensagem
   **dentro** dele, com "Tentar de novo". Teste-trava explícito: fechar sozinho na falha faz o admin clicar
   de novo, e é indistinguível de o clique não ter pego.
-- [ ] Task 04: As duas edições, no lugar novo e sem mudança nenhuma. Objetivo: `grade` e `tier` em
+- [x] Task 04: As duas edições, no lugar novo e sem mudança nenhuma. Objetivo: `grade` e `tier` em
   `fieldset`s separados, com um botão cada e uma requisição cada. **O comentário de hoje vai junto,
   literal** — *encostados sem explicação, `tier` e `grade` viram a mesma coisa na cabeça de quem clica* — e a
   task existe para deixar escrito que mover é a única mudança permitida (decisão 10).
-- [ ] Task 05: O estado de e-mail, com motivo. Objetivo: **"Recebe os e-mails da Liga Dev"** ou **"Não recebe
+- [x] Task 05: O estado de e-mail, com motivo. Objetivo: **"Recebe os e-mails da Liga Dev"** ou **"Não recebe
   e-mails"** seguido do motivo e da data (decisão 11). Comentário obrigatório registrando que **isto é o
   oposto do que a decisão 12 da spec 014 faz em Meu Perfil, de propósito**: lá quem lê não pode agir, aqui
   pode. Sem o comentário, isto vira "inconsistência" no próximo code review.
-- [ ] Task 06: Nada de desativar, excluir ou promover. Objetivo: nenhum botão desses no detalhe. Está escrito
+- [x] Task 06: Nada de desativar, excluir ou promover. Objetivo: nenhum botão desses no detalhe. Está escrito
   como task para a ausência ser deliberada — é o lugar onde os três parecem caber, e os três foram recusados
   com argumento em specs anteriores.
-- [ ] Task 07: Rolagem e foco. Objetivo: o diálogo rola por dentro no celular, `Esc` fecha, o foco entra nele
+- [x] Task 07: Rolagem e foco. Objetivo: o diálogo rola por dentro no celular, `Esc` fecha, o foco entra nele
   ao abrir e volta para a linha ao fechar — o mesmo comportamento dos diálogos que o sistema já tem, **sem
   inventar um segundo padrão**.
 
