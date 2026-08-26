@@ -5,7 +5,12 @@ import {
   HttpTestingController,
   provideHttpClientTesting
 } from '@angular/common/http/testing';
-import { AdminUsuariosPage } from './usuarios.page';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { provideRouter } from '@angular/router';
+import {
+  AdminUsuariosPage,
+  USUARIOS_BUSCA_DEBOUNCE_MS
+} from './usuarios.page';
 import { AdminUser } from '../../../models/admin.model';
 
 function user(overrides: Partial<AdminUser> = {}): AdminUser {
@@ -26,24 +31,40 @@ function user(overrides: Partial<AdminUser> = {}): AdminUser {
   };
 }
 
+/** O atraso real é 400ms; aqui ele é curto porque não há `fakeAsync` zoneless. */
+const DEBOUNCE = 5;
+
 describe('AdminUsuariosPage', () => {
   let http: HttpTestingController;
 
-  function setup() {
+  /**
+   * `query` simula a rota já aberta com um recorte colado — que é o caso que a
+   * decisão 2 existe para atender: F5, "voltar", e o link mandado num chat.
+   */
+  function setup(query: Record<string, string | string[]> = {}) {
     TestBed.configureTestingModule({
       imports: [AdminUsuariosPage],
       providers: [
         provideZonelessChangeDetection(),
         provideHttpClient(),
-        provideHttpClientTesting()
+        provideHttpClientTesting(),
+        provideRouter([]),
+        { provide: USUARIOS_BUSCA_DEBOUNCE_MS, useValue: DEBOUNCE },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { queryParamMap: convertToParamMap(query) }
+          }
+        }
       ]
     });
 
     http = TestBed.inject(HttpTestingController);
+    const router = TestBed.inject(Router);
     const fixture = TestBed.createComponent(AdminUsuariosPage);
     fixture.detectChanges();
 
-    return { fixture, el: fixture.nativeElement as HTMLElement };
+    return { fixture, router, el: fixture.nativeElement as HTMLElement };
   }
 
   function flushList(users: AdminUser[], total = users.length) {
@@ -245,5 +266,212 @@ describe('AdminUsuariosPage', () => {
     fixture.detectChanges();
 
     expect(el.textContent).toContain('saia e entre de novo');
+  });
+
+  describe('buscar e filtrar', () => {
+    function digitar(el: HTMLElement, texto: string) {
+      const campo = el.querySelector('#busca') as HTMLInputElement;
+      campo.value = texto;
+      campo.dispatchEvent(new Event('input'));
+    }
+
+    /** O debounce é encurtado nos testes: a app é zoneless e não há fakeAsync. */
+    const esperarDebounce = () => new Promise((r) => setTimeout(r, DEBOUNCE + 10));
+
+    /**
+     * **Teste-trava: duas teclas rápidas fazem UMA requisição.**
+     *
+     * Cada requisição varre a base inteira no backend. Sem o atraso, "borges"
+     * são seis varreduras — e o atraso é a única contenção que existe.
+     */
+    it('teste-trava: duas teclas rapidas fazem uma requisicao so', async () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+
+      digitar(el, 'bor');
+      digitar(el, 'borges');
+      await esperarDebounce();
+
+      const pedidos = http.match((req) => req.url.endsWith('/admin/users'));
+      expect(pedidos.length).toBe(1);
+      expect(pedidos[0].request.params.get('q')).toBe('borges');
+      pedidos[0].flush({ users: [], total: 0, offset: 0, limit: 50 });
+    });
+
+    /**
+     * **Teste-trava: resposta antiga não vence a nova.**
+     *
+     * Duas respostas fora de ordem deixariam na tela o resultado de uma busca
+     * que o admin já abandonou — e ele não tem como saber que a lista não
+     * corresponde ao que está escrito no campo. O `switchMap` cancela a
+     * anterior; um `mergeMap` deixaria as duas chegarem.
+     */
+    it('teste-trava: a resposta antiga nao vence a nova', async () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+
+      digitar(el, 'maria');
+      await esperarDebounce();
+      const primeira = http.expectOne((r) => r.url.endsWith('/admin/users'));
+
+      digitar(el, 'jose');
+      await esperarDebounce();
+      const segunda = http.expectOne((r) => r.url.endsWith('/admin/users'));
+
+      // A nova responde primeiro, e a antiga chega depois: com switchMap ela ja
+      // foi cancelada e nao tem como sobrescrever a tela.
+      segunda.flush({
+        users: [user({ id: 'uid-jose', name: 'José da Silva' })],
+        total: 1,
+        offset: 0,
+        limit: 50
+      });
+      expect(primeira.cancelled).toBeTrue();
+      fixture.detectChanges();
+
+      expect(el.textContent).toContain('José da Silva');
+      expect(el.textContent).not.toContain('Maria');
+    });
+
+    it('manda o recorte inteiro para a API', async () => {
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+
+      (el.querySelector('.filtros__grupo input') as HTMLInputElement).click();
+      await esperarDebounce();
+
+      const req = http.expectOne((r) => r.url.endsWith('/admin/users'));
+      expect(req.request.params.get('onboarding')).toBe('pendente');
+      req.flush({ users: [], total: 0, offset: 0, limit: 50 });
+    });
+
+    /**
+     * **Teste-trava: a busca escreve na URL com `replaceUrl`.**
+     *
+     * Sem isso, cada tecla vira uma entrada no histórico e o botão "voltar"
+     * caminha letra por letra até a tela ficar irrecuperável. É o defeito
+     * clássico de filtro na URL, e ele só aparece depois de a tela estar pronta.
+     */
+    it('teste-trava: a busca escreve na URL com replaceUrl, e o filtro nao', async () => {
+      const { fixture, el, router } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+      const navigate = spyOn(router, 'navigate').and.resolveTo(true);
+
+      digitar(el, 'borges');
+      expect(navigate.calls.mostRecent().args[1]).toEqual(
+        jasmine.objectContaining({ replaceUrl: true })
+      );
+
+      (el.querySelector('.filtros__grupo input') as HTMLInputElement).click();
+      // Clicar num filtro e um gesto deliberado: "voltar" tem que desfazer o
+      // ultimo filtro, e nao caminhar por letras digitadas.
+      expect(navigate.calls.mostRecent().args[1]).toEqual(
+        jasmine.objectContaining({ replaceUrl: false })
+      );
+
+      await esperarDebounce();
+      http
+        .match((r) => r.url.endsWith('/admin/users'))
+        .forEach((r) => r.flush({ users: [], total: 0, offset: 0, limit: 50 }));
+    });
+
+    /**
+     * O recorte da URL é aplicado **antes** da primeira requisição, e não
+     * depois: uma busca com o filtro chegando em seguida seria duas varreduras
+     * da base e uma lista que pisca com o recorte errado.
+     */
+    it('teste-trava: abrir a rota com query ja aplica o recorte na PRIMEIRA requisicao', () => {
+      const { fixture } = setup({ q: 'borges', tiers: ['ultra-dev-tier'] });
+
+      const req = http.expectOne((r) => r.url.endsWith('/admin/users'));
+      expect(req.request.params.get('q')).toBe('borges');
+      expect(req.request.params.getAll('tiers')).toEqual(['ultra-dev-tier']);
+      req.flush({ users: [], total: 0, offset: 0, limit: 50 });
+      fixture.detectChanges();
+    });
+
+    it('sem filtro, a contagem e so o numero de membros e o rotulo diz "Todos os membros"', () => {
+      const { fixture, el } = setup();
+      flushList([user()], 213);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.recorte__contagem')?.textContent).toContain(
+        '213 membros'
+      );
+      expect(el.textContent).toContain('Todos os membros');
+    });
+
+    /**
+     * **Teste-trava: com filtro ligado, o texto não é só o número.**
+     *
+     * Um número solto é lido como o tamanho da comunidade — e com um recorte
+     * aplicado ele não é.
+     */
+    it('teste-trava: com filtro, a contagem e "12 de 213 membros"', () => {
+      const { fixture, el } = setup({ q: 'silva' });
+      http
+        .expectOne((r) => r.url.endsWith('/admin/users'))
+        .flush({
+          users: Array.from({ length: 12 }, (_, i) => user({ id: `uid-${i}` })),
+          total: 213,
+          offset: 0,
+          limit: 50
+        });
+      fixture.detectChanges();
+
+      const contagem = el.querySelector('.recorte__contagem')?.textContent ?? '';
+      expect(contagem).toContain('12 de 213 membros');
+      expect(el.textContent).not.toContain('Todos os membros');
+    });
+
+    /**
+     * Os dois vazios parecem o mesmo estado e são opostos: um significa "ajuste
+     * o filtro", o outro significa "não há nada". A tela de antes só tinha o
+     * segundo.
+     */
+    it('recorte sem resultado oferece limpar os filtros', () => {
+      const { fixture, el } = setup({ q: 'ninguem' });
+      http
+        .expectOne((r) => r.url.endsWith('/admin/users'))
+        .flush({ users: [], total: 0, offset: 0, limit: 50 });
+      fixture.detectChanges();
+
+      expect(el.textContent).toContain('Nenhum membro com esse recorte');
+      expect(el.textContent).toContain('Limpar filtros');
+    });
+
+    it('base sem ninguem diz que ainda nao ha cadastros, e nao oferece limpar nada', () => {
+      const { fixture, el } = setup();
+      flushList([], 0);
+      fixture.detectChanges();
+
+      expect(el.textContent).toContain('Ninguém se cadastrou ainda');
+      expect(el.textContent).not.toContain('Nenhum membro com esse recorte');
+    });
+
+    it('o campo de busca fica FORA do bloco de filtros', () => {
+      // Ele resolve a maior parte dos casos e nao pode custar um toque a mais no
+      // celular (decisao 16).
+      const { fixture, el } = setup();
+      flushList([user()]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('#busca')).toBeTruthy();
+      expect(el.querySelector('.filtros #busca')).toBeNull();
+    });
+
+    it('o bloco de filtros conta quantos estao ativos', () => {
+      const { fixture, el } = setup({ onboarding: 'pendente', gradeMin: '3' });
+      http
+        .expectOne((r) => r.url.endsWith('/admin/users'))
+        .flush({ users: [], total: 0, offset: 0, limit: 50 });
+      fixture.detectChanges();
+
+      expect(el.querySelector('.filtros__resumo')?.textContent).toContain('(2)');
+    });
   });
 });

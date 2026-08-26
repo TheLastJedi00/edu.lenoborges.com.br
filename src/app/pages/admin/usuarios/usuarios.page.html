@@ -8,6 +8,109 @@
     </p>
   </header>
 
+  <!--
+    O campo de busca fica FORA do bloco de filtros, e sempre visível (decisão
+    16): é o controle que resolve a maior parte dos casos, e não pode custar um
+    toque a mais no celular.
+  -->
+  <div class="busca">
+    <label class="busca__label" for="busca">Buscar por nome ou e-mail</label>
+    <input
+      id="busca"
+      type="search"
+      class="busca__input"
+      autocomplete="off"
+      placeholder="borges, @gmail.com, José…"
+      [value]="busca()"
+      (input)="buscar($any($event.target).value)"
+    />
+  </div>
+
+  <details class="filtros" [open]="filtrosAtivos() > 0">
+    <summary class="filtros__resumo">
+      Filtros@if (filtrosAtivos() > 0) { <span class="filtros__contador">({{ filtrosAtivos() }})</span> }
+    </summary>
+
+    <div class="filtros__corpo">
+      <fieldset class="filtros__grupo">
+        <legend class="filtros__legenda">Etapa do cadastro</legend>
+        <!--
+          O selo "Onboarding pendente" já existia na linha desde a spec 009,
+          anunciando um caso de uso que não tinha como ser exercido. O filtro
+          nasce do que a tela já dizia, e usa as mesmas palavras.
+        -->
+        <label class="caixa">
+          <input
+            type="checkbox"
+            [checked]="onboarding() === 'pendente'"
+            (change)="alternarOnboarding()"
+          />
+          <span>Onboarding pendente</span>
+        </label>
+      </fieldset>
+
+      <!--
+        Os mesmos rótulos, na mesma ordem, com o mesmo vocabulário da tela de
+        e-mails (decisão 5). O admin recorta aqui, vê quem são as pessoas, e
+        monta o mesmo recorte lá com a certeza de que o número vai bater — dois
+        vocabulários para o mesmo filtro é como ele deixa de confiar nos dois.
+      -->
+      <fieldset class="filtros__grupo">
+        <legend class="filtros__legenda">Tiers</legend>
+        <div class="filtros__caixas">
+          @for (tier of tiers(); track tier.id) {
+            <label class="caixa">
+              <input
+                type="checkbox"
+                [checked]="tiersSelecionados().includes(tier.id)"
+                (change)="alternarTier(tier.id)"
+              />
+              <span>{{ tier.name }}</span>
+            </label>
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="filtros__grupo">
+        <legend class="filtros__legenda">Faixa de insígnia</legend>
+        <div class="filtros__faixa">
+          <label class="filtros__campo">
+            <span class="filtros__hint">De</span>
+            <select
+              class="filtros__select"
+              aria-label="Insígnia mínima"
+              [value]="gradeMin() ?? ''"
+              (change)="definirGrade('min', $any($event.target).value)"
+            >
+              <option value="">Sem piso</option>
+              @for (grade of gradeOptions; track grade) {
+                <option [value]="grade">{{ grade }}</option>
+              }
+            </select>
+          </label>
+          <label class="filtros__campo">
+            <span class="filtros__hint">Até</span>
+            <select
+              class="filtros__select"
+              aria-label="Insígnia máxima"
+              [value]="gradeMax() ?? ''"
+              (change)="definirGrade('max', $any($event.target).value)"
+            >
+              <option value="">Sem teto</option>
+              @for (grade of gradeOptions; track grade) {
+                <option [value]="grade">{{ grade }}</option>
+              }
+            </select>
+          </label>
+        </div>
+        <p class="filtros__hint">
+          A faixa conta etapas concluídas: "de 3 a 8" é quem está entre a terceira e a oitava, e
+          não quem conquistou a insígnia 3.
+        </p>
+      </fieldset>
+    </div>
+  </details>
+
   @switch (state()) {
     @case ('loading') {
       <ul class="list" aria-busy="true" aria-label="Carregando os usuários">
@@ -33,45 +136,84 @@
     }
 
     @case ('ready') {
-      <ul class="list">
-        @for (user of users(); track user.id) {
-          <li class="user" [class.user--pending]="!user.profileCompleted">
-            <div class="user__main">
-              <p class="user__name">{{ user.name ?? 'Sem nome ainda' }}</p>
-              <p class="user__email u-mono">{{ user.email }}</p>
-            </div>
-
-            <div class="user__meta">
-              @if (user.profileCompleted) {
-                <span class="tag tag--grade">{{ labelFor(user.grade ?? 0) }}</span>
-              } @else {
-                <!-- Este selo é o ponto da tela: a pessoa criou conta e parou.
-                     Ela não pode sumir da lista nem parecer um registro quebrado. -->
-                <span class="tag tag--pending">Onboarding pendente</span>
-              }
-
-              @if (user.role === 'admin') {
-                <span class="tag tag--admin">Admin</span>
-              }
-
-              <!-- Discreto e sempre visível quando vale: sem ele, "não chegou o
-                   e-mail para o fulano" é investigação sem pista. -->
-              @if (user.emailOptOut) {
-                <span class="tag tag--sem-email">Não recebe e-mails</span>
-              }
-            </div>
-
-            <button type="button" class="btn btn--ghost" (click)="startEdit(user)">
-              Editar etapa
-            </button>
-          </li>
+      <!--
+        A contagem fica visível sempre, e diz que é do recorte. Um número grande
+        sozinho na tela é lido como o tamanho da comunidade, e com um filtro
+        ligado ele não é.
+      -->
+      <div class="recorte" aria-live="polite">
+        <p class="recorte__contagem">{{ contagem() }}</p>
+        @if (semFiltro()) {
+          <!-- Um estado vazio que não se explica é o pior padrão de uma tela de
+               filtro, e as mesmas palavras da tela de e-mails. -->
+          <p class="recorte__rotulo">Todos os membros</p>
         }
-      </ul>
+      </div>
 
-      @if (hasMore()) {
-        <button type="button" class="btn" [disabled]="loadingMore()" (click)="loadMore()">
-          {{ loadingMore() ? 'Carregando…' : 'Carregar mais (' + restantes() + ' restantes)' }}
-        </button>
+      @if (users().length === 0) {
+        <!--
+          Os dois vazios parecem o mesmo estado e são opostos: um significa
+          "ajuste o filtro", o outro significa "não há nada".
+        -->
+        @if (semFiltro()) {
+          <p class="vazio">
+            Ninguém se cadastrou ainda. Assim que a primeira pessoa criar conta, ela aparece aqui.
+          </p>
+        } @else {
+          <div class="vazio">
+            <p>Nenhum membro com esse recorte</p>
+            <button type="button" class="btn btn--ghost" (click)="limparFiltros()">
+              Limpar filtros
+            </button>
+          </div>
+        }
+      } @else {
+        <ul class="list">
+          @for (user of users(); track user.id) {
+            <li class="user" [class.user--pending]="!user.profileCompleted">
+              <div class="user__main">
+                <p class="user__name">{{ user.name ?? 'Sem nome ainda' }}</p>
+                <p class="user__email u-mono">{{ user.email }}</p>
+              </div>
+
+              <div class="user__meta">
+                @if (user.profileCompleted) {
+                  <span class="tag tag--grade">{{ labelFor(user.grade ?? 0) }}</span>
+                } @else {
+                  <!-- Este selo é o ponto da tela: a pessoa criou conta e parou.
+                       Ela não pode sumir da lista nem parecer um registro quebrado. -->
+                  <span class="tag tag--pending">Onboarding pendente</span>
+                }
+
+                <!-- Filtrar por um campo que a linha não mostra é uma tela que
+                     mente, e é por isso que o tier virou etiqueta aqui. -->
+                @if (user.tier) {
+                  <span class="tag tag--tier">{{ tierLabel(user.tier) }}</span>
+                }
+
+                @if (user.role === 'admin') {
+                  <span class="tag tag--admin">Admin</span>
+                }
+
+                <!-- Discreto e sempre visível quando vale: sem ele, "não chegou o
+                     e-mail para o fulano" é investigação sem pista. -->
+                @if (user.emailOptOut) {
+                  <span class="tag tag--sem-email">Não recebe e-mails</span>
+                }
+              </div>
+
+              <button type="button" class="btn btn--ghost" (click)="startEdit(user)">
+                Abrir
+              </button>
+            </li>
+          }
+        </ul>
+
+        @if (hasMore()) {
+          <button type="button" class="btn" [disabled]="loadingMore()" (click)="loadMore()">
+            {{ loadingMore() ? 'Carregando…' : 'Carregar mais (' + restantes() + ' restantes)' }}
+          </button>
+        }
       }
     }
   }
@@ -79,7 +221,7 @@
   @if (editing(); as user) {
     <div class="editor" role="dialog" aria-modal="true" aria-labelledby="editor-titulo">
       <div class="editor__panel">
-        <h2 id="editor-titulo" class="editor__title">Etapa de {{ user.name ?? user.email }}</h2>
+        <h2 id="editor-titulo" class="editor__title">{{ user.name ?? user.email }}</h2>
 
         <!--
           Os dois campos ficam em blocos separados, com rótulos que dizem o que

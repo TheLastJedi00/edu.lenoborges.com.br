@@ -100,6 +100,210 @@
 }
 
 /*
+ * O tier virou etiqueta na linha (spec 015).
+ *
+ * Filtrar por um campo que a linha não mostra é uma tela que mente — e ele fica
+ * visivelmente diferente do selo de etapa, porque acesso e conquista não podem
+ * parecer a mesma coisa nem de relance.
+ */
+.tag--tier {
+  background: color-mix(in srgb, var(--accent-deep) 12%, transparent);
+  color: var(--accent-deep);
+}
+
+/* --------------------------------------------------------------- O recorte */
+
+/*
+ * O campo de busca fica FORA do bloco de filtros e sempre visível: é o controle
+ * que resolve a maior parte dos casos, e no celular ele não pode custar um toque
+ * a mais.
+ */
+.busca {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.busca__label {
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.busca__input {
+  min-height: 2.75rem;
+  padding: 0.6rem 0.85rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.busca__input:focus-visible {
+  outline: none;
+  border-color: var(--accent-deep);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-deep) 22%, transparent);
+}
+
+/*
+ * Os cinco controles empilhados ocupariam a tela inteira antes da primeira linha
+ * da lista, no celular. Eles entram num `details` fechado — e ele nasce aberto
+ * quando há filtro ativo, para o recorte nunca ficar escondido de quem o montou.
+ */
+.filtros {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+
+.filtros__resumo {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 0.85rem;
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+}
+
+.filtros__resumo::-webkit-details-marker {
+  display: none;
+}
+
+.filtros__resumo::after {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-left: auto;
+  border-right: 2px solid var(--ink-soft);
+  border-bottom: 2px solid var(--ink-soft);
+  transform: rotate(45deg);
+  transition: transform 180ms ease;
+}
+
+.filtros[open] .filtros__resumo::after {
+  transform: rotate(-135deg);
+}
+
+.filtros__contador {
+  color: var(--accent-deep);
+}
+
+.filtros__corpo {
+  display: grid;
+  gap: 1rem;
+  padding: 0 0.85rem 0.9rem;
+  animation: filtros-enter 180ms ease both;
+}
+
+.filtros__grupo {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.filtros__legenda {
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--ink-soft);
+  padding: 0;
+}
+
+.filtros__caixas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.caixa {
+  /* 44px de alvo, inclusive na caixa de seleção do celular. */
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.caixa input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent-deep);
+}
+
+.filtros__faixa {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.filtros__campo {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.filtros__select {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.filtros__hint {
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.recorte {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+}
+
+.recorte__contagem {
+  margin: 0;
+  font-weight: 700;
+}
+
+.recorte__rotulo {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.vazio {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  margin: 0;
+  padding: 1.25rem;
+  border: 1px dashed var(--border-soft);
+  border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+@keyframes filtros-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
  * Quem nao recebe e-mail (spec 014). Discreto de proposito: e informacao de
  * diagnostico, nao alerta -- a pessoa pode ter saido da lista por vontade
  * propria, e isso nao e problema nenhum.
@@ -255,7 +459,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .skeleton,
-  .editor__panel {
+  .editor__panel,
+  .filtros__corpo {
     animation: none;
   }
 }
