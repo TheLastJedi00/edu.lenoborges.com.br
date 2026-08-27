@@ -21,41 +21,41 @@ Nenhuma tela muda. Ao fim desta fase o front sabe descrever e pedir o adiantamen
   'votacao' | 'encerrada'`, separado de `MuralPhase` porque **`'coleta'` não é um destino possível**
   (decisão 2 do backend). Um tipo que aceita o que a API recusa é um `if` esperando para ser esquecido.
 
-# Fase 02: O admin adianta []
+# Fase 02: O admin adianta [x]
 Branch: `feat/016-admin-adiantar`
 
-- [ ] Task 01: O carregamento em paralelo. Arquivo: `pages/admin/mural/mural-admin.page.ts`. Objetivo:
+- [x] Task 01: O carregamento em paralelo. Arquivo: `pages/admin/mural/mural-admin.page.ts`. Objetivo:
   trocar as três assinaturas encadeadas por um `forkJoin` (regra 8 de UI). Vem primeiro na fase de
   propósito: a pauta da Task 04 fica **acima** das listas e, na ordem atual, seria a última a aparecer.
-- [ ] Task 02: Quais botões cada linha tem. Arquivo: `mural-admin.page.ts`. Objetivo: um `computed` por
+- [x] Task 02: Quais botões cada linha tem. Arquivo: `mural-admin.page.ts`. Objetivo: um `computed` por
   pergunta, ou um método puro, respondendo quais promoções ainda cabem — `coleta` sem promoção tem as duas,
   `votacao` tem só "Responder logo", promovida a `encerrada` não tem nenhuma. **O botão que não faz sentido
   não é renderizado**, e não renderizado desabilitado: desabilitado ainda ocupa o lugar e ainda faz a pessoa
   perguntar por quê.
-- [ ] Task 03: Os dois botões no template. Arquivos: `mural-admin.page.html`, `.scss`. Objetivo:
+- [x] Task 03: Os dois botões no template. Arquivos: `mural-admin.page.html`, `.scss`. Objetivo:
   "Adiantar para votação" e "Responder logo" ao lado de "Remover", com a linha da invariante no diálogo de
   confirmação — **as outras perguntas seguem o ciclo normal** —, e com `aria-label` incluindo o título da
   pergunta — igual ao que "Remover" já faz. Mobile first: em tela estreita os botões empilham abaixo do
   texto, e o alvo de toque não encolhe para caber.
-- [ ] Task 04: A seção de pauta. Arquivos: `mural-admin.page.ts`, `.html`, `.scss`. Objetivo: o bloco
+- [x] Task 04: A seção de pauta. Arquivos: `mural-admin.page.ts`, `.html`, `.scss`. Objetivo: o bloco
   `pendingWinner` de uma vencedora só vira uma lista de tudo que espera vídeo, no topo, cada linha com o
   atalho para a insígnia certa e com o rótulo de origem — **"venceu a semana"** ou **"adiantada"**. O
   comentário registra por que o rótulo existe: as duas pedem vídeos de peso diferente, e sem ele o admin não
   distingue a escolha da comunidade da própria.
-- [ ] Task 05: A confirmação. Arquivo: `mural-admin.page.ts`, `.html`. Objetivo: reusar o `ConfirmDialog` da
+- [x] Task 05: A confirmação. Arquivo: `mural-admin.page.ts`, `.html`. Objetivo: reusar o `ConfirmDialog` da
   remoção, com o título da pergunta no corpo e a consequência escrita — votação diz que **o autor não vai
   mais poder editar**, responder diz que ela **sai do Mural e não recebe mais votos**. Nos dois, a frase de
   que não dá para desfazer. **Um diálogo só, com a mensagem trocada**, e não três componentes.
-- [ ] Task 06 (teste): O cartão troca de seção. Arquivo: `mural-admin.page.spec.ts`. Objetivo:
+- [x] Task 06 (teste): O cartão troca de seção. Arquivo: `mural-admin.page.spec.ts`. Objetivo:
   teste-trava de que, confirmada a promoção para votação, a pergunta **sai da lista de coleta e entra na de
   votação** usando a resposta do `PATCH`, sem recarregar a tela. E o teste do caminho de erro: falhando, o
   cartão volta para onde estava e a mensagem aparece.
-- [ ] Task 06b (teste): **Só um cartão se move.** Arquivo: `mural-admin.page.spec.ts`. Objetivo: com quatro
+- [x] Task 06b (teste): **Só um cartão se move.** Arquivo: `mural-admin.page.spec.ts`. Objetivo: com quatro
   perguntas na coleta, promover uma e provar que as outras três continuam na coleta, na mesma ordem, e que
   nenhuma requisição de recarregamento foi disparada. É a invariante do backend virada em asserção de tela:
   o `PATCH` devolve uma pergunta e **substitui um item**, e recarregar tudo depois seria o atalho que faz o
   admin achar que o ciclo inteiro andou.
-- [ ] Task 07 (teste): O botão inexistente. Arquivo: `mural-admin.page.spec.ts`. Objetivo: teste-trava de
+- [x] Task 07 (teste): O botão inexistente. Arquivo: `mural-admin.page.spec.ts`. Objetivo: teste-trava de
   que uma pergunta já em votação **não tem** o botão "Adiantar para votação" na tela. É a decisão 1 do
   contexto virada em asserção: o front não oferece o que a API responde 409.
 
