@@ -20,7 +20,9 @@ const MOCK_PROFILE: MemberProfile = {
   emailOptOut: false,
   profileCompleted: true,
   role: null,
-  tier: 'dev-tier'
+  tier: 'dev-tier',
+  pendingLegal: [],
+  legalAcceptances: {}
 };
 
 const MOCK_SESSION: Session = {
@@ -387,7 +389,9 @@ describe('AuthService (TDD)', () => {
         profileCompleted: true,
         grade: 7,
         role: null,
-        tier: 'dev-tier'
+        tier: 'dev-tier',
+        pendingLegal: [],
+        legalAcceptances: {}
       });
 
       await pending;
@@ -411,7 +415,9 @@ describe('AuthService (TDD)', () => {
         profileCompleted: false,
         grade: 1,
         role: null,
-        tier: 'dev-tier'
+        tier: 'dev-tier',
+        pendingLegal: [],
+        legalAcceptances: {}
       });
 
       await pending;
@@ -431,7 +437,9 @@ describe('AuthService (TDD)', () => {
         grade: 7,
         profileCompleted: true,
         role: null,
-        tier: 'dev-tier'
+        tier: 'dev-tier',
+        pendingLegal: [],
+        legalAcceptances: {}
       });
 
       const profile = await pending;
