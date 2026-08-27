@@ -8,6 +8,11 @@ import { CommunityService } from '../../services/community.service';
  * O layout é de uma coluna com o ícone da insígnia à esquerda e o voto à
  * direita, **no lado do polegar** — é o toque mais frequente do app inteiro, e
  * o mais fácil de errar com a mão em movimento.
+ *
+ * **Componente burro.** Ele lê `promotedTo` e desenha o selo; não decide fase,
+ * não compara `weekId` e não deduz nada do relógio. Qualquer tentativa de
+ * inferir a fase aqui produz o mesmo erro: um cartão desenhado como coleta com
+ * voto aberto por baixo.
  */
 @Component({
   selector: 'app-question-card',
@@ -25,6 +30,9 @@ import { CommunityService } from '../../services/community.service';
           {{ question().authorName }}
           @if (question().isMine) {
             <span class="card__flag">a sua</span>
+          }
+          @if (question().promotedTo) {
+            <span class="card__flag card__flag--fast">adiantada</span>
           }
         </p>
       </div>
@@ -108,6 +116,21 @@ import { CommunityService } from '../../services/community.service';
       color: var(--paper);
       font-size: 0.6rem;
       text-transform: uppercase;
+    }
+
+    /*
+     * O selo de adiantada, no mesmo lugar do "a sua".
+     *
+     * Ele não é ornamento: sem ele, a pergunta muda de aba sozinha e some da
+     * coleta — o que, do lado de quem escreveu, é indistinguível de ter sido
+     * removida pela moderação. E é do produto inteiro, não do "meu cartão":
+     * uma pergunta que pulou a fila sem explicação é a pior leitura possível de
+     * um mural que promete que a comunidade escolhe.
+     */
+    .card__flag--fast {
+      background: transparent;
+      border: var(--border-w) solid var(--accent-deep);
+      color: var(--accent-deep);
     }
 
     /*

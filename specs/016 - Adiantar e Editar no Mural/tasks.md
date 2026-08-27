@@ -59,22 +59,22 @@ Branch: `feat/016-admin-adiantar`
   que uma pergunta já em votação **não tem** o botão "Adiantar para votação" na tela. É a decisão 1 do
   contexto virada em asserção: o front não oferece o que a API responde 409.
 
-# Fase 03: O membro vê o adiantamento []
+# Fase 03: O membro vê o adiantamento [x]
 Branch: `feat/016-selo-adiantada`
 
-- [ ] Task 01: O selo no cartão. Arquivo: `components/question-card/question-card.ts`. Objetivo: pergunta
+- [x] Task 01: O selo no cartão. Arquivo: `components/question-card/question-card.ts`. Objetivo: pergunta
   com `promotedTo` ganha o selo "Adiantada", no mesmo lugar do selo "a sua" que já existe. Componente burro:
   ele lê o campo e desenha, e não decide nada. Sem emoji e sem caractere decorativo — o selo é texto e
   estilo.
-- [ ] Task 02: A pauta na tela do membro. Arquivos: `pages/mural/mural.page.html`, `.ts`. Objetivo: a lista
+- [x] Task 02: A pauta na tela do membro. Arquivos: `pages/mural/mural.page.html`, `.ts`. Objetivo: a lista
   de vencedoras passa a mostrar o rótulo de origem, e a entrada adiantada diz **"vai ser respondida"** em
   vez de "venceu a semana". Sem isso, a pergunta adiantada aparece na lista de vencedoras dizendo que venceu
   uma votação que não aconteceu.
-- [ ] Task 03: O botão de editar respeita a fase. Arquivo: `pages/mural/mural.page.html`. Objetivo: "Editar
+- [x] Task 03: O botão de editar respeita a fase. Arquivo: `pages/mural/mural.page.html`. Objetivo: "Editar
   minha pergunta" aparece só enquanto a pergunta do estado estiver em `coleta` — hoje a condição é ter
   `myQuestionId`, e ela ficaria verdadeira depois de a pergunta ser adiantada, levando a pessoa a um
   formulário que só sabe responder 409. A condição passa a ler `myQuestion.phase`, que vem pronto.
-- [ ] Task 04 (teste): O que aparece depois de adiantada. Arquivo: `pages/mural/mural.page.spec.ts`.
+- [x] Task 04 (teste): O que aparece depois de adiantada. Arquivo: `pages/mural/mural.page.spec.ts`.
   Objetivo: dois testes-trava — pergunta adiantada para votação mostra o selo e **não** mostra o botão de
   editar; pergunta adiantada para responder aparece na pauta com "vai ser respondida".
 
