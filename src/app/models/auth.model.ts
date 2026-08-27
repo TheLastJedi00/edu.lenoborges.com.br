@@ -1,3 +1,5 @@
+import { LegalAcceptance, LegalDocumentSummary } from './legal.model';
+
 export interface Credentials {
   readonly email: string;
   readonly password: string;
@@ -52,6 +54,16 @@ export interface MemberProfile {
   /** Papel vindo da custom claim do Firebase Auth. Nulo para o membro comum. */
   readonly role: UserRole | null;
   readonly tier: TierId;
+  /**
+   * Documentos legais vigentes que esta pessoa ainda não aceitou (spec 018).
+   *
+   * Lista vazia é o estado normal. **É a mesma lista que o corpo do `428`
+   * carrega**, calculada pelo mesmo serviço do backend — este avisa na entrada,
+   * o `428` pega a versão publicada enquanto a aba estava aberta.
+   */
+  readonly pendingLegal: readonly LegalDocumentSummary[];
+  /** O aceite vigente de cada documento, por id. É o que Contratos mostra. */
+  readonly legalAcceptances: Readonly<Record<string, LegalAcceptance>>;
 }
 
 export interface UpdateProfileRequest {
