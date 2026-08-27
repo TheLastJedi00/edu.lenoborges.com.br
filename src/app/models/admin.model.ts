@@ -1,4 +1,5 @@
 import type { TierId } from './auth.model';
+import type { BadgeVideoKind } from './track.model';
 /** Administração da Liga Dev (spec 009). */
 
 export interface AdminUser {
@@ -127,8 +128,24 @@ export interface SendDirectEmailRequest {
 export interface CreateVideoRequest {
   readonly title: string;
   readonly description?: string;
-  /** A URL como o admin colou. A API extrai o ID. */
+  /**
+   * A URL como o admin colou. A API extrai o ID.
+   *
+   * Seis formas servem, **link de Shorts incluído** desde a spec 017 — que é a
+   * forma em que todo vídeo de resposta nasce.
+   */
   readonly youtubeUrl: string;
+  /**
+   * A aba da insígnia. Sem valor, a API grava como aula.
+   *
+   * **`kind` e `questionId` andam juntos, nos dois sentidos:** resposta sem
+   * pergunta e aula com pergunta são os dois 400 do backend. Quem garante isso
+   * é o modo do formulário — ou ele está em modo resposta e manda os dois, ou
+   * não manda nenhum —, e não uma validação espalhada por quem chama.
+   */
+  readonly kind?: BadgeVideoKind;
+  /** A pergunta do Mural que este vídeo responde. Só com `kind: 'resposta'`. */
+  readonly questionId?: string;
 }
 
 export interface UpdateVideoRequest {

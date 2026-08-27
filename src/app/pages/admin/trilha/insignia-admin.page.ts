@@ -14,8 +14,13 @@ import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog
 import { VideoForm } from '../../../components/video-form/video-form';
 import { AdminService } from '../../../services/admin.service';
 import { CommunityService } from '../../../services/community.service';
+import { MuralService } from '../../../services/mural.service';
 import { CreateVideoRequest } from '../../../models/admin.model';
-import { BadgeVideo } from '../../../models/track.model';
+import {
+  AnsweredQuestion,
+  BadgeVideo,
+  BadgeVideoKind
+} from '../../../models/track.model';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
@@ -31,6 +36,7 @@ export class AdminInsigniaPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly admin = inject(AdminService);
   private readonly community = inject(CommunityService);
+  private readonly mural = inject(MuralService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly confirmDialog = viewChild.required(ConfirmDialog);
@@ -39,6 +45,23 @@ export class AdminInsigniaPage implements OnInit {
   protected readonly state = signal<LoadState>('loading');
   protected readonly videos = signal<readonly BadgeVideo[]>([]);
   protected readonly badgeId = signal('');
+
+  /**
+   * A aba corrente. **Não é enfeite de simetria com a trilha do aluno.**
+   *
+   * A reordenação valida a lista contra os vídeos de **uma** aba, e até a spec
+   * 017 esta tela listava as duas juntas e mandava a lista misturada. Não
+   * quebrava porque não existia resposta nenhuma; a partir da primeira, seria
+   * 400 em toda seta clicada.
+   */
+  protected readonly aba = signal<BadgeVideoKind>('aula');
+
+  /**
+   * A pergunta a responder, quando a tela foi aberta pela pauta do Mural.
+   *
+   * Preenchida, o formulário nasce aberto e em modo resposta.
+   */
+  protected readonly perguntaAlvo = signal<AnsweredQuestion | null>(null);
 
   protected readonly showForm = signal(false);
   protected readonly saving = signal(false);
@@ -64,13 +87,35 @@ export class AdminInsigniaPage implements OnInit {
   ngOnInit(): void {
     this.badgeId.set(this.route.snapshot.paramMap.get('badgeId') ?? '');
     this.load();
+
+    const questionId = this.route.snapshot.queryParamMap.get('resposta');
+    if (questionId) {
+      this.aba.set('resposta');
+      this.carregarPergunta(questionId);
+    }
+  }
+
+  /**
+   * Troca de aba, e recarrega.
+   *
+   * Não filtra a lista em memória: cada aba tem a própria ordem, 0..n-1 **dentro
+   * dela**, e filtrar uma lista das duas juntas daria posições que não batem com
+   * o que o servidor guardou.
+   */
+  protected selectTab(aba: BadgeVideoKind): void {
+    if (this.aba() === aba) {
+      return;
+    }
+
+    this.aba.set(aba);
+    this.load();
   }
 
   protected load(): void {
     this.state.set('loading');
 
     this.admin
-      .listVideos(this.badgeId())
+      .listVideos(this.badgeId(), this.aba())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (list) => {
@@ -78,6 +123,42 @@ export class AdminInsigniaPage implements OnInit {
           this.state.set('ready');
         },
         error: () => this.state.set('error')
+      });
+  }
+
+  /**
+   * Resolve a pergunta do `?resposta=` **pela pauta**, que já é uma leitura que
+   * existe.
+   *
+   * Sem rota nova: um "buscar pergunta por id" seria um endpoint a mais para um
+   * dado que já está na mão de quem veio da tela do Mural.
+   *
+   * Se o id não estiver na pauta, a tela abre em modo aula e **não** mostra
+   * erro. O backend recusaria a publicação de qualquer jeito, e um erro na
+   * abertura da tela por causa de um parâmetro de query é ruído — quem chegou
+   * aqui pela pauta nunca vê isso.
+   */
+  private carregarPergunta(questionId: string): void {
+    this.mural
+      .listWinners()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (pauta) => {
+          const alvo = pauta.find((linha) => linha.question?.id === questionId);
+          if (!alvo?.question) {
+            this.aba.set('aula');
+            return;
+          }
+
+          this.perguntaAlvo.set({
+            id: alvo.question.id,
+            title: alvo.question.title,
+            authorName: alvo.question.authorName,
+            askedAt: alvo.question.createdAt
+          });
+          this.showForm.set(true);
+        },
+        error: () => this.aba.set('aula')
       });
   }
 
@@ -103,15 +184,28 @@ export class AdminInsigniaPage implements OnInit {
           this.saving.set(false);
           this.showForm.set(false);
           this.form()?.reset();
+          // A pergunta é consumida na publicação: uma resposta responde uma
+          // pergunta, e reabrir o formulário ainda apontando para ela publicaria
+          // a segunda resposta da mesma — que o backend aceita e que ninguém
+          // quis.
+          this.perguntaAlvo.set(null);
         },
         error: (error: { status?: number }) => {
           this.saving.set(false);
           this.formError.set(
             error.status === 409
               ? 'Esse vídeo já está nesta insígnia. Ele pode entrar em outra, mas não duas vezes na mesma.'
-              : error.status === 400
-                ? 'Não reconheci esse link do YouTube. Cole a URL do vídeo.'
-                : 'Não consegui publicar agora. Tente de novo.'
+              : error.status === 404
+                ? 'Não achei essa pergunta no Mural. Volte à pauta e tente pelo botão de lá.'
+                : error.status === 400
+                  ? // A mensagem antiga dizia só "cole a URL do vídeo", e passou a
+                    // mentir quando o link de Shorts virou formato aceito: quem
+                    // colou um Short certo lia que o formato estava errado.
+                    // Mensagem de erro que não diz o que serve faz a pessoa tentar
+                    // de novo com a mesma coisa.
+                    'Não reconheci esse link. Servem youtube.com/watch, youtu.be, ' +
+                    'youtube.com/shorts ou o ID do vídeo.'
+                  : 'Não consegui publicar agora. Tente de novo.'
           );
         }
       });
@@ -184,7 +278,11 @@ export class AdminInsigniaPage implements OnInit {
     this.admin
       .reorderVideos(
         this.badgeId(),
-        reordenado.map((video) => video.id)
+        reordenado.map((video) => video.id),
+        // A aba corrente, e não o padrão: o backend valida a lista contra os
+        // vídeos daquela aba, e mandar uma lista de respostas como se fossem
+        // aulas é 400 na certa.
+        this.aba()
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

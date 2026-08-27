@@ -8,6 +8,32 @@
     </p>
   </header>
 
+  <!--
+    As mesmas duas abas da trilha do aluno, e por um motivo que não é simetria:
+    a reordenação valida a lista contra os vídeos de UMA aba. Sem separar aqui,
+    a tela manda a lista das duas juntas e leva 400 em toda seta.
+  -->
+  <nav class="tabs" aria-label="Conteudo da insignia">
+    <button
+      type="button"
+      class="tab"
+      [class.tab--on]="aba() === 'aula'"
+      [attr.aria-current]="aba() === 'aula' ? 'true' : null"
+      (click)="selectTab('aula')"
+    >
+      Aulas
+    </button>
+    <button
+      type="button"
+      class="tab"
+      [class.tab--on]="aba() === 'resposta'"
+      [attr.aria-current]="aba() === 'resposta' ? 'true' : null"
+      (click)="selectTab('resposta')"
+    >
+      Respostas
+    </button>
+  </nav>
+
   @if (reorderError(); as erro) {
     <p class="alert" role="alert">{{ erro }}</p>
   }
@@ -29,10 +55,17 @@
 
     @case ('ready') {
       @if (videos().length === 0) {
-        <p class="empty">
-          Nenhum vídeo nesta insígnia ainda. Para o aluno, ela aparece com o aviso de material em
-          preparo.
-        </p>
+        @if (aba() === 'resposta') {
+          <p class="empty">
+            Nenhuma resposta publicada nesta insígnia. As respostas saem da pauta do Mural —
+            o botão de lá abre este formulário já com a pergunta.
+          </p>
+        } @else {
+          <p class="empty">
+            Nenhuma aula nesta insígnia ainda. Para o aluno, ela aparece com o aviso de material em
+            preparo.
+          </p>
+        }
       } @else {
         <ol class="videos">
           @for (video of videos(); track video.id; let i = $index, first = $first, last = $last) {
@@ -99,10 +132,13 @@
 
       @if (showForm()) {
         <div class="form-panel">
-          <h2 class="form-panel__title">Publicar um vídeo</h2>
+          <h2 class="form-panel__title">
+            {{ perguntaAlvo() ? 'Responder esta pergunta' : 'Publicar um vídeo' }}
+          </h2>
           <app-video-form
             [saving]="saving()"
             [error]="formError()"
+            [question]="perguntaAlvo()"
             (submitted)="create($event)"
             (cancel)="closeForm()"
           />

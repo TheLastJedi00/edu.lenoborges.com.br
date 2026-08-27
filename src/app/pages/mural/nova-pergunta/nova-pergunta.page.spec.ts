@@ -35,7 +35,8 @@ const EDITANDO: MuralState = {
     hasVoted: false,
     isMine: true,
     answerVideoId: null,
-    promotedTo: null
+    promotedTo: null,
+    createdAt: '2026-08-16T18:00:00.000Z'
   }
 };
 

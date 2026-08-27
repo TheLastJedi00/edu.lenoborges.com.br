@@ -51,9 +51,17 @@
                     {{ linha.question!.authorName }} · {{ linha.question!.voteCount }} votos
                   </p>
                 </div>
+                <!--
+                  A pergunta viaja no link (spec 017): a tela de destino abre o
+                  formulário já em modo resposta, com ela fixada. É o caminho
+                  inteiro, e é o único — quem escolhe a pergunta é quem estava
+                  lendo esta linha, e não uma lista de títulos parecidos dentro
+                  do formulário.
+                -->
                 <a
                   class="btn"
                   [routerLink]="['/dashboard/admin/trilha', linha.question!.badgeId]"
+                  [queryParams]="{ resposta: linha.question!.id }"
                 >
                   Cadastrar o vídeo de resposta
                 </a>
