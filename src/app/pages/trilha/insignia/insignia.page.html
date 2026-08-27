@@ -95,16 +95,41 @@
                 <p class="free">Livre para todos</p>
               }
 
-              @if (video.kind === 'resposta' && video.questionId) {
-                <p class="answered">
-                  Resposta a uma pergunta do Mural
-                </p>
-              }
-
               @if (video.description) {
                 <p class="video__description">{{ video.description }}</p>
               }
-              <div class="video__frame">
+
+              @if (video.question; as pergunta) {
+                <!--
+                  O balão vem ANTES do player porque a resposta só faz sentido
+                  depois da pergunta, e o rabicho é o que diz que aquele vídeo
+                  responde AQUELA pergunta — numa lista de oito respostas
+                  seguidas, sem ele o leitor conta de cima para saber a quem cada
+                  balão pertence.
+
+                  O texto é uma foto do momento da publicação: pode divergir do
+                  que está hoje no Mural, e isso é o certo — o vídeo respondeu o
+                  que foi perguntado.
+                -->
+                <blockquote class="balao">
+                  <p class="balao__pergunta">{{ pergunta.title }}</p>
+                  <p class="balao__meta u-mono">
+                    <cite class="balao__autor">{{ pergunta.authorName }}</cite>
+                    · {{ dataDaPergunta(pergunta) }}
+                  </p>
+                </blockquote>
+              }
+
+              <!--
+                A proporção vem de `orientation`, que o servidor derivou — a
+                tela NÃO olha `kind`. Derivar aqui poria a mesma regra de produto
+                em três arquivos, e cada um envelheceria por conta própria.
+              -->
+              <div
+                class="video__frame"
+                [class.video__frame--retrato]="video.orientation === 'retrato'"
+                [class.video__frame--paisagem]="video.orientation === 'paisagem'"
+              >
                 <iframe
                   [src]="embedUrl(video)"
                   [title]="video.title"

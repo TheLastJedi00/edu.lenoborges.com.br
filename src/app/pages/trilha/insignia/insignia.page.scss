@@ -71,15 +71,52 @@
   color: var(--ink-soft);
 }
 
-/* 16:9 responsivo. `aspect-ratio` evita o truque do padding-top, que exige um
-   filho absoluto e quebra silenciosamente quando alguém mexe no layout depois. */
+/* `aspect-ratio` evita o truque do padding-top, que exige um filho absoluto e
+   quebra silenciosamente quando alguém mexe no layout depois.
+
+   A proporção mora AQUI, e não num `[style.aspect-ratio]` no template: ela
+   precisa mudar por media query — o retrato tem um teto de altura no celular e
+   um teto de largura no desktop —, e um `style` inline é exatamente o lugar
+   onde ela deixaria de ser alterável. */
 .video__frame {
-  aspect-ratio: 16 / 9;
   width: 100%;
   border: var(--border-w) solid var(--border-soft);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--screen-deep);
+}
+
+.video__frame--paisagem {
+  aspect-ratio: 16 / 9;
+}
+
+/* O Short.
+
+   No celular ele ocupa a largura toda, que é o formato nativo do dedo e onde
+   ele vai ser assistido — com um teto em `vh` para caber na tela junto do
+   balão. */
+.video__frame--retrato {
+  aspect-ratio: 9 / 16;
+  max-height: 68vh;
+  /* Com o teto de altura ativo, a largura precisa encolher junto, ou a moldura
+     fica mais larga que o vídeo e sobra fundo dos dois lados. */
+  width: auto;
+  max-width: 100%;
+}
+
+/* A partir do tablet o retrato PARA de crescer.
+
+   9:16 com largura de desktop dá mais de mil pixels de altura: empurra tudo
+   para fora da tela, e três respostas viram quatro rolagens de página.
+
+   Alinhado à esquerda, e não centralizado: ele fica sob o rabicho do balão, na
+   mesma coluna do título e de todo o resto, que é o que preserva a leitura
+   vertical. */
+@media (min-width: 48rem) {
+  .video__frame--retrato {
+    max-height: none;
+    width: min(22rem, 100%);
+  }
 }
 
 .video__frame iframe {
@@ -240,10 +277,74 @@
   text-transform: uppercase;
 }
 
-.answered {
-  margin: 0.15rem 0 0;
+/* O balão da pergunta (spec 017).
+
+   Ele substitui a frase genérica "Resposta a uma pergunta do Mural", que era um
+   marcador de lugar: dizia que existia uma pergunta e não dizia qual, nem de
+   quem, nem quando. */
+.balao {
+  position: relative;
+  margin: 0.35rem 0 0;
+  padding: 0.9rem 1.05rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--screen);
+  /* A largura do balão acompanha a coluna de texto, e não a do vídeo: uma
+     pergunta longa em linha cheia de desktop fica ilegível. */
+  max-width: 46ch;
+}
+
+.balao__pergunta {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  line-height: 1.3;
+}
+
+.balao__meta {
+  margin: 0.45rem 0 0;
   color: var(--ink-soft);
   font-size: var(--step--1);
+}
+
+.balao__autor {
+  font-style: normal;
+}
+
+/* O rabicho, apontando para o vídeo logo abaixo.
+
+   É o que diz que aquele vídeo responde AQUELA pergunta, e não que os dois
+   estão perto por acaso. Feito com borda em vez de imagem: acompanha a cor do
+   tema sem um segundo arquivo, e some junto com o balão.
+
+   São duas camadas — a de baixo com a cor da borda, a de cima com a do fundo,
+   um pixel acima — porque um triângulo só não tem como ter contorno. */
+.balao::before,
+.balao::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 1.75rem;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.balao::before {
+  border-width: 0.85rem 0.85rem 0 0;
+  border-color: var(--border-soft) transparent transparent transparent;
+}
+
+.balao::after {
+  /* Um fio acima do de baixo, para tapar o miolo e deixar só o contorno. */
+  top: calc(100% - var(--border-w));
+  border-width: 0.85rem 0.85rem 0 0;
+  border-color: var(--screen) transparent transparent transparent;
+}
+
+/* O espaço do rabicho: sem ele, o vídeo encosta no bico. */
+.balao + .video__frame {
+  margin-top: 0.85rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
