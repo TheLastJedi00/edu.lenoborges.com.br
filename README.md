@@ -21,6 +21,8 @@ Aplicação web e plataforma de membros da **Seita Dev**, desenvolvida com Angul
 | `/dashboard/perfil` | Meu Perfil: dados, redes, e-mail, senha, recebimento de e-mails e exclusão de conta | Protegida | `authGuard`, `profileCompleteGuard`, `unsavedChangesGuard` (saída) |
 | `/dashboard/admin/emails` | Escrever e disparar e-mail para a comunidade | Protegida | `adminGuard` |
 | `/descadastro` | Sair da lista de e-mails pelo link do rodapé | **Pública** | — |
+| `/termos-de-uso` | Termos de Uso, para ler antes de ter conta | **Pública** | — |
+| `/politica-de-privacidade` | Política de Privacidade | **Pública** | — |
 
 ## Notificações Internas (spec 012)
 
@@ -168,6 +170,76 @@ ambiguidade. O salvamento é otimista, com reversão na falha — o mesmo desenh
 `emailOptOut: true` desenha o interruptor **desligado**. Quem foi descadastrado por bounce vê isso e pode
 religar; **a tela não explica por que estava desligado**, e a ausência é deliberada: "seu provedor recusou
 nossos e-mails" é uma frase que não ajuda ninguém a fazer nada.
+
+## Termos e Privacidade (spec 018)
+
+O aceite dos dois documentos passou a ser condição para usar o painel. Três lugares e um componente: o
+onboarding, o bloqueio do painel para quem já era membro, e a consulta — rodapé da landing e a seção
+**Contratos** de Meu Perfil.
+
+### O front não tem opinião sobre versão de documento legal
+
+Título, versão, data e texto vêm de `GET /legal/documents/:id`. Quem diz o que falta aceitar é o
+backend, por dois canais: `pendingLegal` no `GET /me` e o corpo do `428`.
+
+A tentação é guardar as versões numa constante daqui e comparar. Ela cria o estado que a spec descreve:
+texto novo, número velho, ninguém chamado a aceitar de novo, **nenhum erro em lugar nenhum**. Se o front
+souber comparar versões, ele vai comparar errado um dia — e o sintoma é o produto funcionando
+perfeitamente sob um contrato que não é mais o contrato.
+
+O front só sabe fazer três coisas: buscar documento, mostrar documento, mandar aceite.
+
+### O `428` é tratado fora do caminho do refresh
+
+No `authInterceptor` o ramo do `428` vem **antes** do de `401`, e a ordem é o ponto: ele não chama
+`refresh()`, não limpa a sessão e não navega. Cair no caminho do `401` deslogaria a base inteira no
+deploy desta spec — a pior estreia possível para uma feature cujo assunto é confiança. Há teste-trava
+para as três coisas.
+
+Os dois canais existem e não é redundância: o `GET /me` avisa **na entrada**, e é por ele que o painel já
+nasce bloqueado; o `428` pega a versão publicada **enquanto a pessoa estava com a aba aberta**, que é o
+caso que nenhuma checagem de carregamento alcança. Quem traduz `pendingLegal` em bloqueio é o
+`AuthService`, num lugar só — duas traduções divergem, e a que fica velha libera o painel de quem não
+aceitou.
+
+### Nunca `innerHTML`
+
+`sections` é `{ heading, paragraphs }[]` e a renderização é `@for` sobre `@for`, com interpolação. É a
+única forma de garantir que este caminho continue seguro depois que alguém resolver que o texto legal
+ficaria melhor em markdown: o dia em que houver um `bypassSecurityTrustHtml` aqui, ele fica — e a fonte
+do texto pode deixar de ser uma constante do backend sem que ninguém reveja aquela linha.
+
+### O check não depende de rolar até o fim
+
+O modal rola; o check fica habilitado desde o primeiro instante. Prendê-lo à rolagem prova que uma roda
+girou, não que alguém leu — e quebra para leitor de tela, para Ctrl+F e para quem está no celular com um
+texto de trinta telas. O que o modal faz, e é o que importa, é **abrir no texto**, e não numa tela de
+resumo com um link "leia os termos".
+
+### O bloqueio do painel não é dispensável
+
+`LegalBlockDialog` não fecha no Esc — o `cancel` é prevenido —, não tem botão de fechar, não tem "agora
+não" e não fecha no backdrop. **Não reusa o `ConfirmDialog`** de propósito: aquele existe para ser
+cancelável, e a "melhoria" mais provável de alguém tentar é devolver o botão de fechar. Um componente
+chamado `LegalBlockDialog` cujo `cancel` é `preventDefault` se explica ao ser lido.
+
+O tom é de alerta e não de erro: quem está vendo aquilo não fez nada errado.
+
+### O aceite é gravado no clique do modal
+
+E não no submit do formulário do onboarding: quem aceitou e abandonou o formulário **aceitou**. Há um
+caminho de gravação só — `LegalService.accept` —, usado pelo onboarding e pelo bloqueio do painel; um
+segundo caminho seria o que esquece um campo no dia em que o terceiro documento entrar.
+
+O `disabled` do submit do onboarding é conveniência. Quem barra de verdade é o `428` do
+`PATCH /me/profile` — mesma divisão do `adminGuard`.
+
+### Nada disto encosta no `localStorage`
+
+Um flag local mentiria nas duas direções: navegador limpo faria quem já aceitou aceitar de novo, e —
+pior — um flag "aceito" gravado por engano esconderia um pendente real e o bloqueio nunca apareceria. O
+aceite é do servidor, e só.
+
 
 ## Variáveis de Ambiente
 
