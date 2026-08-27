@@ -6,7 +6,8 @@ import {
   CreateQuestionRequest,
   MuralQuestion,
   MuralState,
-  MuralWinner
+  MuralWinner,
+  PromotionTarget
 } from '../models/mural.model';
 
 @Injectable({ providedIn: 'root' })
@@ -74,6 +75,27 @@ export class MuralService {
 
   unvote(questionId: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/perguntas/${questionId}/voto`);
+  }
+
+  /**
+   * Adianta uma pergunta (spec 016). Só admin.
+   *
+   * **A resposta é a pergunta nova, e é ela que a tela usa.** Recalcular a fase
+   * no cliente depois de promover seria reimplementar a regra do lado errado —
+   * a fase é o maior entre a conta do relógio e o piso da promoção, e essa
+   * conta tem um dono só, no servidor.
+   *
+   * A promoção é de mão única: não existe desfazer, e por isso a tela confirma
+   * antes. O caminho de arrependimento é o `removeQuestion` daqui de baixo.
+   */
+  promoteQuestion(
+    id: string,
+    fase: PromotionTarget
+  ): Observable<MuralQuestion> {
+    return this.http.patch<MuralQuestion>(
+      `${environment.apiUrl}/admin/mural/perguntas/${id}/fase`,
+      { fase }
+    );
   }
 
   /** Moderação: remove pergunta ofensiva, duplicada ou fora de tema. */

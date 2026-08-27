@@ -22,6 +22,7 @@ function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
     hasVoted: false,
     isMine: false,
     answerVideoId: null,
+    promotedTo: null,
     ...overrides
   };
 }
@@ -128,6 +129,7 @@ describe('AdminMuralPage', () => {
       [
         {
           weekId: '2026-08-02',
+          origem: 'voto',
           question: question({ badgeId: 'angular', title: 'A vencedora' })
         }
       ]
@@ -148,6 +150,7 @@ describe('AdminMuralPage', () => {
       [
         {
           weekId: '2026-08-02',
+          origem: 'voto',
           question: question({ answerVideoId: 'angular__aaaaaaaaaaa' })
         }
       ]

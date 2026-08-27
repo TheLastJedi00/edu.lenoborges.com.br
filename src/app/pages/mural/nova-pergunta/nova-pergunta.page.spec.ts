@@ -14,7 +14,8 @@ const PODE: MuralState = {
   votingWeekId: '2026-08-09',
   currentWeekEndsAt: '2099-01-03T03:00:00.000Z',
   canAsk: true,
-  myQuestionId: null
+  myQuestionId: null,
+  myQuestion: null
 };
 
 describe('NovaPerguntaPage', () => {

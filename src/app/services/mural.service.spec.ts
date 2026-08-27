@@ -6,14 +6,15 @@ import {
   provideHttpClientTesting
 } from '@angular/common/http/testing';
 import { MuralService } from './mural.service';
-import { MuralState } from '../models/mural.model';
+import { MuralQuestion, MuralState } from '../models/mural.model';
 
 const STATE: MuralState = {
   currentWeekId: '2026-08-16',
   votingWeekId: '2026-08-09',
   currentWeekEndsAt: '2026-08-23T03:00:00.000Z',
   canAsk: true,
-  myQuestionId: null
+  myQuestionId: null,
+  myQuestion: null
 };
 
 describe('MuralService', () => {
@@ -137,5 +138,28 @@ describe('MuralService', () => {
     );
     expect(request.request.method).toBe('DELETE');
     request.flush(null);
+  });
+
+  /**
+   * A resposta do PATCH é a pergunta nova, e é ela que a tela usa. Recalcular a
+   * fase no cliente depois de promover seria reimplementar a regra do lado
+   * errado.
+   */
+  it('adianta pela rota de admin, e devolve a pergunta atualizada', () => {
+    let recebida: MuralQuestion | undefined;
+    service
+      .promoteQuestion('2026-08-16__uid-1', 'votacao')
+      .subscribe((question) => (recebida = question));
+
+    const request = http.expectOne((req) =>
+      req.url.endsWith('/admin/mural/perguntas/2026-08-16__uid-1/fase')
+    );
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ fase: 'votacao' });
+
+    request.flush({ id: '2026-08-16__uid-1', phase: 'votacao', promotedTo: 'votacao' });
+
+    expect(recebida?.phase).toBe('votacao');
+    expect(recebida?.promotedTo).toBe('votacao');
   });
 });

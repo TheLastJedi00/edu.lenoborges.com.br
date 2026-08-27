@@ -19,7 +19,8 @@ const STATE: MuralState = {
   // Bem no futuro para o contador não depender de quando a suíte roda.
   currentWeekEndsAt: '2099-01-03T03:00:00.000Z',
   canAsk: true,
-  myQuestionId: null
+  myQuestionId: null,
+  myQuestion: null
 };
 
 function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
@@ -35,6 +36,7 @@ function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
     hasVoted: false,
     isMine: false,
     answerVideoId: null,
+    promotedTo: null,
     ...overrides
   };
 }
