@@ -105,11 +105,28 @@ A metade da spec que não tem nada a ver com adiantar, e a que conserta o que j�
   `updateQuestion` e **não** `createQuestion`; (c) o 409 fecha o formulário em vez de manter o botão
   clicável — o terceiro é o que impede a tela de convidar a pessoa a tentar de novo o que nunca vai passar.
 
-# Fase 05: Verificação no navegador []
+# Fase 05: Verificação no navegador [ ]
 Branch: `feat/016-verificacao`
 
-> Depende do backend rodando nesta máquina. A spec 015 registrou a mesma ressalva e as tasks equivalentes
-> ficaram abertas.
+> **O backend sobe nesta máquina agora** — a `EMAIL_UNSUBSCRIBE_SECRET` que faltava na spec 015 está no
+> `.env`, e o projeto apontado é o de desenvolvimento (`dev-liga-dev`), não o de produção. Os dois
+> servidores subiram, a rota `PATCH /admin/mural/perguntas/:id/fase` foi mapeada no boot e o
+> `GET /mural` respondeu com o `myQuestion` novo. **Mesmo assim as tasks abaixo ficaram abertas, e por
+> dois motivos concretos:**
+>
+> 1. **O projeto `dev-liga-dev` não tem os índices compostos que a produção tem.** O primeiro
+>    `GET /mural/perguntas` responde 500 com `The query requires an index` em `weekId` + `voteCount` +
+>    `createdAt`. É exatamente a armadilha que o README do backend registra — os índices foram criados à
+>    mão no console, e só em produção; nada no repositório os versiona. Sem eles, as duas abas e a pauta
+>    não carregam, e é sobre elas que estas tasks são.
+> 2. **A sessão aberta neste navegador é a conta pessoal do dono do projeto** (`lenoborges.dev@gmail.com`),
+>    e o roteiro pede escrever, adiantar e editar perguntas. Trocar a sessão dele por uma de teste é
+>    decisão dele, não da execução da spec.
+>
+> As contas de verificação já estão criadas no projeto de desenvolvimento, prontas para quando os índices
+> existirem: `admin-016@teste.local` (admin, ultra tier), `membro1-016@teste.local` e
+> `membro2-016@teste.local` (great tier), todas com a mesma senha `Verificacao016Segura` e com
+> `emailOptOut` ligado, para nenhuma delas receber disparo.
 
 - [ ] Task 01: O ciclo completo no Chrome. Objetivo: escrever uma pergunta como membro, adiantar como admin,
   e conferir na tela do membro que **ela mudou de aba, ganhou o selo e o botão de editar sumiu** — as três
