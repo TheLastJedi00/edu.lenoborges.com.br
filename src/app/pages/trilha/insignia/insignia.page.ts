@@ -11,10 +11,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import {
+  AnsweredQuestion,
   BadgeVideo,
   BadgeVideoKind,
   youtubeEmbedUrl
 } from '../../../models/track.model';
+import { dataPorExtenso } from '../../../core/datas';
 import { TrackService } from '../../../services/track.service';
 import { Logo } from '../../../shared/logo/logo';
 import { CommunityService } from '../../../services/community.service';
@@ -107,5 +109,15 @@ export class InsigniaPage implements OnInit {
     return this.sanitizer.bypassSecurityTrustResourceUrl(
       youtubeEmbedUrl(video.youtubeId)
     );
+  }
+
+  /**
+   * A data que vai no balão: a da **pergunta**, e não a do vídeo.
+   *
+   * O balão conta quando alguém teve aquela dúvida. A data em que o vídeo foi
+   * gravado não é informação de ninguém, e por isso ela nem chega aqui.
+   */
+  protected dataDaPergunta(pergunta: AnsweredQuestion): string {
+    return dataPorExtenso(pergunta.askedAt);
   }
 }

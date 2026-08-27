@@ -109,9 +109,24 @@ export class AdminService {
     return this.http.patch<void>(`${this.base}/users/${userId}`, { tier });
   }
 
-  listVideos(badgeId: string): Observable<BadgeVideoList> {
+  /**
+   * Os vídeos de **uma aba** da insígnia (spec 017).
+   *
+   * O parâmetro entrou junto com a primeira resposta publicável, e não por
+   * simetria: **a reordenação valida a lista contra os vídeos daquela aba**, e
+   * até aqui a tela listava as duas juntas e mandava essa lista misturada. Não
+   * quebrava porque não existia resposta nenhuma; a partir da primeira, seria
+   * 400 em toda seta clicada.
+   */
+  listVideos(
+    badgeId: string,
+    kind?: BadgeVideoKind
+  ): Observable<BadgeVideoList> {
+    const params = kind ? new HttpParams().set('kind', kind) : undefined;
+
     return this.http.get<BadgeVideoList>(
-      `${this.base}/badges/${badgeId}/videos`
+      `${this.base}/badges/${badgeId}/videos`,
+      { params }
     );
   }
 

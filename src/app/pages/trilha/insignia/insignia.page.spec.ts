@@ -187,6 +187,8 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       youtubeId: 'aaaaaaaaaaa',
       kind: 'aula',
       questionId: null,
+      question: null,
+      orientation: 'paisagem',
       devTierFree: false,
       order: 0,
       ...overrides
@@ -263,5 +265,107 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
     expect(el.textContent).toContain('Nenhuma pergunta desta insígnia');
     // Vazio é convite, não erro.
     expect(el.querySelector('[role="alert"]')).toBeNull();
+  });
+
+  describe('o balão e o retrato (spec 017)', () => {
+    const resposta = (overrides: Record<string, unknown> = {}) =>
+      video({
+        kind: 'resposta',
+        questionId: '2026-08-09__uid-1',
+        orientation: 'retrato',
+        question: {
+          id: '2026-08-09__uid-1',
+          title: 'Quando usar herança em vez de composição?',
+          authorName: 'Ana Prado',
+          askedAt: `${new Date().getFullYear()}-08-09T18:00:00.000Z`
+        },
+        ...overrides
+      });
+
+    /**
+     * **Teste-trava da decisão 4.** O teste olha `orientation` e NUNCA `kind`:
+     * é ele que impede alguém "simplificar" derivando a proporção do tipo do
+     * vídeo — a simplificação passa despercebida até o dia em que existir uma
+     * resposta gravada em paisagem.
+     */
+    it('a moldura sai de orientation, e nao de kind', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([
+        // Uma aula marcada como retrato: combinação que o produto não gera
+        // hoje, e que é exatamente o que separa "leu o campo" de "olhou o kind".
+        video({ orientation: 'retrato' })
+      ]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.video__frame--retrato')).not.toBeNull();
+      expect(el.querySelector('.video__frame--paisagem')).toBeNull();
+    });
+
+    it('a aula sai em paisagem', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([video()]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.video__frame--paisagem')).not.toBeNull();
+      expect(el.querySelector('.video__frame--retrato')).toBeNull();
+    });
+
+    it('o balao mostra a pergunta, o autor e a data por extenso', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta()]);
+      fixture.detectChanges();
+
+      const balao = el.querySelector('.balao');
+      expect(balao?.textContent).toContain(
+        'Quando usar herança em vez de composição?'
+      );
+      expect(balao?.textContent).toContain('Ana Prado');
+      expect(balao?.textContent).toContain('9 de agosto');
+    });
+
+    /**
+     * Vídeo marcado como resposta antes da spec 017 chega sem a foto. A tela não
+     * desenha nada — sem balão, sem espaço reservado e sem aviso: um balão vazio
+     * explicando dado faltando é pior que a ausência dele.
+     */
+    it('resposta sem a foto da pergunta renderiza sem balao e sem erro', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([
+        video({
+          kind: 'resposta',
+          questionId: '2026-08-09__uid-1',
+          question: null,
+          orientation: 'retrato'
+        })
+      ]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.balao')).toBeNull();
+      expect(el.querySelector('[role="alert"]')).toBeNull();
+      expect(el.querySelector('.video__frame--retrato')).not.toBeNull();
+    });
+
+    /**
+     * O título da plataforma não é substituído pela pergunta. Ele é o que o
+     * admin escreveu para a trilha; a pergunta é o que o aluno escreveu para o
+     * Mural. Fundir os dois deixa a aba ilegível.
+     */
+    it('o titulo da plataforma continua acima do balao', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta({ title: 'Herança e composição, na prática' })]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.video__title')?.textContent?.trim()).toBe(
+        'Herança e composição, na prática'
+      );
+    });
+
+    it('a frase generica de resposta nao existe mais', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta()]);
+      fixture.detectChanges();
+
+      expect(el.textContent).not.toContain('Resposta a uma pergunta do Mural');
+    });
   });
 });

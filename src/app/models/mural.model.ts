@@ -50,6 +50,14 @@ export interface MuralQuestion {
    * resultado: um cartão desenhado como coleta com voto aberto por baixo.
    */
   readonly promotedTo: PromotionTarget | null;
+  /**
+   * Quando a pergunta foi feita, em ISO 8601 (spec 017).
+   *
+   * **Não é o `weekId`**: aquele é o domingo que abre a semana, e a pergunta
+   * pode ter nascido na quinta. É esta data que vai no balão da resposta, na
+   * trilha e na pré-visualização do painel.
+   */
+  readonly createdAt: string;
 }
 
 export interface MuralState {

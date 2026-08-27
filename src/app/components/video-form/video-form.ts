@@ -5,6 +5,8 @@ import {
   Validators
 } from '@angular/forms';
 import { CreateVideoRequest } from '../../models/admin.model';
+import { AnsweredQuestion } from '../../models/track.model';
+import { dataPorExtenso } from '../../core/datas';
 
 /**
  * Formulário de publicação de vídeo numa insígnia.
@@ -14,6 +16,14 @@ import { CreateVideoRequest } from '../../models/admin.model';
  * diz onde a pessoa está na trilha. Um preenchimento automático faria todo mundo
  * aceitar o do algoritmo, que é exatamente o que a decisão 6 da spec 009 do
  * backend evita.
+ *
+ * **Ele tem dois modos** (spec 017). Com uma pergunta em `question`, está em
+ * modo resposta: mostra a pergunta no topo com o mesmo desenho do balão da
+ * trilha — o admin vê o que o aluno vai ver —, troca o rótulo do botão e diz
+ * que link de Shorts serve. Sem ela, é exatamente o formulário de antes.
+ *
+ * Não basta mandar `kind` por baixo: o modo muda o formulário inteiro, porque a
+ * pessoa precisa saber que está publicando outra coisa.
  */
 @Component({
   selector: 'app-video-form',
@@ -22,6 +32,25 @@ import { CreateVideoRequest } from '../../models/admin.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      @if (question(); as pergunta) {
+        <!--
+          A pergunta NÃO é um campo do formulário: ela veio da URL, o servidor
+          vai verificá-la, e um campo editável aqui só criaria a chance de
+          alguém colar um id errado.
+
+          O desenho é o do balão da trilha, de propósito: quem publica vê o que
+          o aluno vai ver.
+        -->
+        <blockquote class="balao">
+          <p class="balao__eyebrow u-mono">Respondendo</p>
+          <p class="balao__pergunta">{{ pergunta.title }}</p>
+          <p class="balao__meta u-mono">
+            <cite class="balao__autor">{{ pergunta.authorName }}</cite>
+            · {{ dataDaPergunta(pergunta) }}
+          </p>
+        </blockquote>
+      }
+
       <label class="form__label" for="video-title">Título na plataforma</label>
       <input
         id="video-title"
@@ -42,11 +71,21 @@ import { CreateVideoRequest } from '../../models/admin.model';
         class="form__input"
         type="url"
         formControlName="youtubeUrl"
-        placeholder="https://youtu.be/…"
+        [placeholder]="question() ? 'https://youtube.com/shorts/…' : 'https://youtu.be/…'"
         autocomplete="off"
         inputmode="url"
         enterkeyhint="done"
       />
+      @if (question()) {
+        <!--
+          A informação que faltava e que causava o 400: link de Shorts era
+          recusado até a spec 017, e o admin não tinha como saber que aquele era
+          o problema.
+        -->
+        <p class="form__hint">
+          Link de Shorts serve — é a forma em que a resposta costuma nascer.
+        </p>
+      }
 
       <label class="form__label" for="video-description">Descrição (opcional)</label>
       <input
@@ -65,7 +104,7 @@ import { CreateVideoRequest } from '../../models/admin.model';
       <div class="form__actions">
         <button type="button" class="btn btn--ghost" (click)="cancel.emit()">Cancelar</button>
         <button type="submit" class="btn" [disabled]="form.invalid || saving()">
-          {{ saving() ? 'Publicando…' : 'Publicar' }}
+          {{ saving() ? 'Publicando…' : question() ? 'Publicar a resposta' : 'Publicar' }}
         </button>
       </div>
     </form>
@@ -74,6 +113,41 @@ import { CreateVideoRequest } from '../../models/admin.model';
     .form {
       display: grid;
       gap: 0.35rem;
+    }
+
+    /* O mesmo desenho do balão da trilha, sem o rabicho: aqui não há vídeo
+       abaixo para ele apontar. O admin vê o que o aluno vai ver. */
+    .balao {
+      margin: 0 0 0.4rem;
+      padding: 0.85rem 1rem;
+      border: var(--border-w) solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      background: var(--screen);
+    }
+
+    .balao__eyebrow {
+      margin: 0 0 0.35rem;
+      color: var(--ink-soft);
+      font-size: var(--step--2);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .balao__pergunta {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: var(--step-0);
+      line-height: 1.3;
+    }
+
+    .balao__meta {
+      margin: 0.4rem 0 0;
+      color: var(--ink-soft);
+      font-size: var(--step--1);
+    }
+
+    .balao__autor {
+      font-style: normal;
     }
 
     .form__label {
@@ -145,6 +219,13 @@ export class VideoForm {
 
   readonly saving = input<boolean>(false);
   readonly error = input<string | null>(null);
+  /**
+   * A pergunta a responder. Preenchida, põe o formulário em modo resposta.
+   *
+   * É **entrada do componente e não campo do formulário**: não é editável, não
+   * participa da validação, e não pode ser trocada por quem publica.
+   */
+  readonly question = input<AnsweredQuestion | null>(null);
 
   readonly submitted = output<CreateVideoRequest>();
   readonly cancel = output<void>();
@@ -161,14 +242,25 @@ export class VideoForm {
     }
 
     const { title, youtubeUrl, description } = this.form.getRawValue();
+    const pergunta = this.question();
 
     // A URL vai como o admin colou. Extrair o ID aqui criaria uma segunda
-    // implementação da mesma regra — e ela chega em cinco formas.
+    // implementação da mesma regra — e ela chega em seis formas.
+    //
+    // `kind` e `questionId` saem **juntos ou nenhum dos dois**: resposta sem
+    // pergunta e aula com pergunta são os dois 400 do backend, e o modo é o
+    // único lugar que decide isso.
     this.submitted.emit({
       title: title.trim(),
       youtubeUrl: youtubeUrl.trim(),
-      ...(description.trim() ? { description: description.trim() } : {})
+      ...(description.trim() ? { description: description.trim() } : {}),
+      ...(pergunta ? { kind: 'resposta' as const, questionId: pergunta.id } : {})
     });
+  }
+
+  /** A data da pergunta, por extenso. Nunca a da publicação do vídeo. */
+  protected dataDaPergunta(pergunta: AnsweredQuestion): string {
+    return dataPorExtenso(pergunta.askedAt);
   }
 
   reset(): void {

@@ -31,6 +31,7 @@ import type { BillingTier } from '../../../models/billing.model';
 import type { TierId } from '../../../models/auth.model';
 import { describeProgress, MAX_GRADE } from '../../../core/progress/progress';
 import { httpStatus } from '../../../core/http-error';
+import { dataCurta } from '../../../core/datas';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
@@ -471,16 +472,15 @@ export class AdminUsuariosPage implements OnInit {
     }
   }
 
-  /** A data do descadastro, curta e legível. */
+  /**
+   * A data do descadastro, curta e legível.
+   *
+   * A formatação em si mora em `core/datas.ts` desde a spec 017: era o único
+   * lugar do produto que escrevia data, e a segunda tela a precisar de uma teria
+   * inventado outro formato.
+   */
   protected dataCurta(iso: string | null): string {
-    if (!iso) {
-      return '';
-    }
-    return new Date(iso).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    return dataCurta(iso);
   }
 
   protected tierLabel(tier: TierId | null): string {
