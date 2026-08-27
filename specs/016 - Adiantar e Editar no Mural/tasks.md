@@ -78,29 +78,29 @@ Branch: `feat/016-selo-adiantada`
   Objetivo: dois testes-trava — pergunta adiantada para votação mostra o selo e **não** mostra o botão de
   editar; pergunta adiantada para responder aparece na pauta com "vai ser respondida".
 
-# Fase 04: Editar de verdade []
+# Fase 04: Editar de verdade [x]
 Branch: `feat/016-editar-preenchido`
 
 A metade da spec que não tem nada a ver com adiantar, e a que conserta o que já estava quebrado.
 
-- [ ] Task 01: O formulário preenche. Arquivo: `pages/mural/nova-pergunta/nova-pergunta.page.ts`. Objetivo:
+- [x] Task 01: O formulário preenche. Arquivo: `pages/mural/nova-pergunta/nova-pergunta.page.ts`. Objetivo:
   quando `myQuestion` vier no estado, dar `patchValue` em título, corpo e insígnia, e atualizar o contador
   de caracteres junto. Teste-trava: **abrir a tela com pergunta existente deixa o formulário válido sem
   ninguém digitar nada** — hoje ele nasce inválido porque a insígnia obrigatória está vazia, e é por isso
   que editar exige reescrever.
-- [ ] Task 02: A insígnia travada. Arquivos: `nova-pergunta.page.html`, `.ts`, `.scss`. Objetivo: em modo
+- [x] Task 02: A insígnia travada. Arquivos: `nova-pergunta.page.html`, `.ts`, `.scss`. Objetivo: em modo
   edição, a insígnia escolhida aparece marcada e **as outras não são clicáveis**, com a linha explicando que
   trocar de insígnia é fazer outra pergunta, e que ela tem semana própria. Comentário no componente
   registrando que a trava é o desenho da decisão 8 do backend: o `PUT` descarta `badgeId`, e um seletor que
   aceita clique descartado mente para quem usa.
-- [ ] Task 03: Os rótulos. Arquivos: `nova-pergunta.page.html`, `.ts`. Objetivo: título da tela e rótulo do
+- [x] Task 03: Os rótulos. Arquivos: `nova-pergunta.page.html`, `.ts`. Objetivo: título da tela e rótulo do
   botão mudam em modo edição — editar e salvar, em vez de escrever e publicar. Hoje os dois textos são
   iguais nos dois modos, e quem chega para editar acredita que vai criar uma segunda pergunta.
-- [ ] Task 04: O 409 vira leitura. Arquivo: `nova-pergunta.page.ts`. Objetivo: recebido o 409 na edição,
+- [x] Task 04: O 409 vira leitura. Arquivo: `nova-pergunta.page.ts`. Objetivo: recebido o 409 na edição,
   recarregar o estado e mostrar a pergunta em modo leitura com a explicação, em vez de deixar o formulário
   aberto com um texto que não vai ser salvo. **Uma mensagem só para os dois motivos** — a semana virou ou o
   admin adiantou —, porque o resultado é o mesmo e o servidor manda uma só de propósito.
-- [ ] Task 05 (teste): A edição inteira. Arquivo: `nova-pergunta.page.spec.ts`. Objetivo: três
+- [x] Task 05 (teste): A edição inteira. Arquivo: `nova-pergunta.page.spec.ts`. Objetivo: três
   testes-trava: (a) com `myQuestion` no estado, o formulário abre com o texto dentro; (b) o `submit` chama
   `updateQuestion` e **não** `createQuestion`; (c) o 409 fecha o formulário em vez de manter o botão
   clicável — o terceiro é o que impede a tela de convidar a pessoa a tentar de novo o que nunca vai passar.

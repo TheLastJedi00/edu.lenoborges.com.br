@@ -4,7 +4,7 @@
   @if (state(); as ciclo) {
     @if (canAsk() || editing()) {
       <h1 class="page__title">
-        {{ editing() ? 'Sua pergunta desta semana' : 'Escreva a sua pergunta' }}
+        {{ editing() ? 'Editar minha pergunta' : 'Escreva a sua pergunta' }}
       </h1>
 
       @if (editing()) {
@@ -23,10 +23,28 @@
         </p>
       }
 
+      @if (locked()) {
+        <!--
+          O formulário fechou: a pergunta saiu da coleta enquanto a pessoa
+          escrevia. Manter o formulário aberto seria convidá-la a tentar de novo
+          o que nunca vai passar.
+        -->
+        <div class="locked animate-enter" role="alert">
+          <p class="locked__text">{{ error() }}</p>
+          @if (myQuestion(); as pergunta) {
+            <p class="reading__title">{{ pergunta.title }}</p>
+            @if (pergunta.body) {
+              <p class="reading__text">{{ pergunta.body }}</p>
+            }
+          }
+          <a routerLink="/dashboard/mural" class="btn">Voltar ao Mural</a>
+        </div>
+      } @else {
       <form class="form" [formGroup]="form" (ngSubmit)="submit()">
-        @if (!editing()) {
           <fieldset class="chips">
-            <legend class="form__label">Sobre qual insígnia?</legend>
+            <legend class="form__label">
+              {{ editing() ? 'A insígnia desta pergunta' : 'Sobre qual insígnia?' }}
+            </legend>
             <!--
               Chips com o ícone da trilha, e não um <select>. No celular o select
               abre uma roda nativa com treze linhas de texto, sem os ícones que a
@@ -40,14 +58,24 @@
                   class="chip"
                   [class.chip--on]="form.controls.badgeId.value === stage.id"
                   [attr.aria-pressed]="form.controls.badgeId.value === stage.id"
+                  [disabled]="!!editing()"
                   (click)="selectBadge(stage.id)"
                 >
                   {{ stage.title }}
                 </button>
               }
             </div>
+            @if (editing()) {
+              <!--
+                Travada, e não escondida: o `PUT` descarta `badgeId`, e um
+                seletor que aceita cliques cujo resultado a API joga fora é a
+                pior forma de mentir para quem está usando.
+              -->
+              <p class="chips__note">
+                Trocar de insígnia é fazer outra pergunta, e ela tem semana própria.
+              </p>
+            }
           </fieldset>
-        }
 
         <label class="form__label" for="titulo">A pergunta</label>
         <input
@@ -82,6 +110,7 @@
           {{ saving() ? 'Enviando…' : editing() ? 'Salvar' : 'Publicar no Mural' }}
         </button>
       </form>
+      }
     } @else {
       <!--
         O bloqueio aparece ANTES do clique, e no lugar do formulário — nunca como

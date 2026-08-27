@@ -49,6 +49,19 @@ export class NovaPerguntaPage implements OnInit {
     () => this.state()?.myQuestionId ?? null
   );
 
+  /** A pergunta que está sendo editada, inteira, para preencher o formulário. */
+  protected readonly myQuestion = computed(() => this.state()?.myQuestion ?? null);
+
+  /**
+   * O formulário fechou porque a pergunta saiu da coleta (spec 016).
+   *
+   * Acontece por dois caminhos — a semana virou enquanto a pessoa escrevia, ou
+   * o admin adiantou a pergunta — e **a tela não os distingue de propósito**: o
+   * servidor manda uma mensagem só, porque o resultado é o mesmo e a causa não
+   * muda nada para quem está lendo.
+   */
+  protected readonly locked = signal(false);
+
   protected readonly form = this.fb.nonNullable.group({
     badgeId: ['', Validators.required],
     title: [
@@ -74,7 +87,7 @@ export class NovaPerguntaPage implements OnInit {
     this.mural
       .getState()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: (state) => this.state.set(state) });
+      .subscribe({ next: (state) => this.fill(state) });
 
     this.form.controls.title.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -82,7 +95,45 @@ export class NovaPerguntaPage implements OnInit {
   }
 
   protected selectBadge(badgeId: string): void {
+    // Em edição a insígnia não muda: o `PUT` a descarta, e um seletor que aceita
+    // clique descartado mente para quem está usando.
+    if (this.editing()) {
+      return;
+    }
+
     this.form.controls.badgeId.setValue(badgeId);
+  }
+
+  /**
+   * Guarda o estado e, havendo pergunta, **abre o formulário preenchido**.
+   *
+   * Sem isto, editar é reescrever: o título abre vazio, o corpo abre vazio, e a
+   * insígnia obrigatória abre sem seleção — o que deixa o formulário inválido
+   * de saída, com o botão desabilitado, para quem só queria corrigir uma
+   * vírgula.
+   */
+  /** Relê o estado depois do 409, para a leitura mostrar o texto que valeu. */
+  private reload(): void {
+    this.mural
+      .getState()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: (state) => this.state.set(state) });
+  }
+
+  private fill(state: MuralState): void {
+    this.state.set(state);
+
+    const minha = state.myQuestion;
+    if (!minha) {
+      return;
+    }
+
+    this.form.patchValue({
+      badgeId: minha.badgeId,
+      title: minha.title,
+      body: minha.body ?? ''
+    });
+    this.titleLength.set(minha.title.length);
   }
 
   protected submit(): void {
@@ -114,6 +165,23 @@ export class NovaPerguntaPage implements OnInit {
       },
       error: (erro: { status?: number }) => {
         this.saving.set(false);
+
+        // O 409 na edição fecha o formulário e mostra a pergunta em modo
+        // leitura: deixá-lo aberto convidaria a pessoa a tentar de novo o que
+        // nunca vai passar, com um texto que não vai ser salvo.
+        //
+        // **Uma mensagem só para os dois motivos** — a semana virou ou o admin
+        // adiantou —, porque o resultado é o mesmo e o servidor manda uma só de
+        // propósito.
+        if (erro.status === 409 && editando) {
+          this.locked.set(true);
+          this.error.set(
+            'A sua pergunta já está em votação, e o texto não muda mais — quem votou votou nele.'
+          );
+          this.reload();
+          return;
+        }
+
         // Os três erros pedem ações diferentes de quem está lendo, e tratá-los
         // como um só é o atalho que arruína a decisão 3.
         this.error.set(

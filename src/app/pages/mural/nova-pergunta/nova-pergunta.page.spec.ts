@@ -18,6 +18,27 @@ const PODE: MuralState = {
   myQuestion: null
 };
 
+/** O estado de quem já perguntou: o formulário abre para editar. */
+const EDITANDO: MuralState = {
+  ...PODE,
+  canAsk: false,
+  myQuestionId: '2026-08-16__uid-1',
+  myQuestion: {
+    id: '2026-08-16__uid-1',
+    weekId: '2026-08-16',
+    phase: 'coleta',
+    badgeId: 'poo',
+    authorName: 'Leno',
+    title: 'O texto que já estava lá, inteiro',
+    body: 'E o contexto que veio junto.',
+    voteCount: 0,
+    hasVoted: false,
+    isMine: true,
+    answerVideoId: null,
+    promotedTo: null
+  }
+};
+
 describe('NovaPerguntaPage', () => {
   let http: HttpTestingController;
 
@@ -132,16 +153,87 @@ describe('NovaPerguntaPage', () => {
    * cota estourada. O limite é o mesmo; o enquadramento muda o que ele produz.
    */
   it('vira edição quando a pessoa já perguntou nesta semana', () => {
-    const { el } = setup({
-      ...PODE,
-      canAsk: false,
-      myQuestionId: '2026-08-16__uid-1'
-    });
+    const { el } = setup(EDITANDO);
 
     expect(el.querySelector('form')).not.toBeNull();
-    expect(el.textContent).toContain('Sua pergunta desta semana');
-    // Insígnia não se troca na edição: mudar de insígnia é fazer outra pergunta.
-    expect(el.querySelector('.chip')).toBeNull();
+    expect(el.textContent).toContain('Editar minha pergunta');
+    expect(
+      (el.querySelector('button[type="submit"]') as HTMLButtonElement)
+        .textContent
+    ).toContain('Salvar');
+  });
+
+  /**
+   * **O conserto desta spec.** Antes, o formulário abria em branco: quem
+   * clicava em "Editar minha pergunta" reescrevia tudo do zero, com a insígnia
+   * obrigatória zerada — o que deixava o formulário inválido de saída.
+   */
+  it('abre preenchido, e válido, sem ninguém digitar nada', () => {
+    const { el } = setup(EDITANDO);
+
+    const titulo = el.querySelector('#titulo') as HTMLInputElement;
+    const contexto = el.querySelector('#contexto') as HTMLTextAreaElement;
+    const salvar = el.querySelector(
+      'button[type="submit"]'
+    ) as HTMLButtonElement;
+
+    expect(titulo.value).toBe('O texto que já estava lá, inteiro');
+    expect(contexto.value).toBe('E o contexto que veio junto.');
+    expect(salvar.disabled).toBe(false);
+  });
+
+  /**
+   * Travada, e não escondida: o `PUT` descarta `badgeId`, e um seletor que
+   * aceita cliques cujo resultado a API joga fora mente para quem usa.
+   */
+  it('mostra a insígnia marcada e não clicável em modo edição', () => {
+    const { el } = setup(EDITANDO);
+
+    const chips = Array.from(
+      el.querySelectorAll('.chip')
+    ) as HTMLButtonElement[];
+
+    expect(chips.length).toBeGreaterThan(0);
+    expect(chips.every((chip) => chip.disabled)).toBe(true);
+    expect(el.textContent).toContain('Trocar de insígnia é fazer outra pergunta');
+  });
+
+  it('salva pela rota de edição, e não cria uma segunda pergunta', () => {
+    const { fixture, el } = setup(EDITANDO);
+
+    (el.querySelector('button[type="submit"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const requisicao = http.expectOne((req) =>
+      req.url.endsWith('/mural/perguntas/2026-08-16__uid-1')
+    );
+    expect(requisicao.request.method).toBe('PUT');
+    expect(requisicao.request.body.badgeId).toBeUndefined();
+    requisicao.flush({});
+  });
+
+  /**
+   * O 409 fecha o formulário em vez de manter o botão clicável: deixá-lo aberto
+   * convidaria a pessoa a tentar de novo o que nunca vai passar.
+   */
+  it('o 409 na edição fecha o formulário e mostra a pergunta em leitura', () => {
+    const { fixture, el } = setup(EDITANDO);
+
+    (el.querySelector('button[type="submit"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    http
+      .expectOne((req) => req.url.endsWith('/mural/perguntas/2026-08-16__uid-1'))
+      .flush('', { status: 409, statusText: 'Conflict' });
+    fixture.detectChanges();
+
+    // A tela relê o estado para mostrar o texto que valeu.
+    http.expectOne((req) => req.url.endsWith('/mural')).flush(EDITANDO);
+    fixture.detectChanges();
+
+    expect(el.querySelector('form')).toBeNull();
+    expect(el.textContent).toContain('já está em votação');
+    expect(el.textContent).toContain('O texto que já estava lá, inteiro');
   });
 
   it('traduz 403 e 409 em mensagens diferentes', () => {
