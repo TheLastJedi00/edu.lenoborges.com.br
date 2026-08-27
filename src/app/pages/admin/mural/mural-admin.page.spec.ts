@@ -23,6 +23,7 @@ function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
     isMine: false,
     answerVideoId: null,
     promotedTo: null,
+    createdAt: '2026-08-09T18:00:00.000Z',
     ...overrides
   };
 }

@@ -237,3 +237,49 @@
   font-size: var(--step--1);
   line-height: 1.5;
 }
+
+/* As abas do painel (spec 017).
+
+   Mesmo desenho das da trilha do aluno: quem administra e quem assiste estão
+   olhando a mesma divisão, e dois desenhos para a mesma coisa fariam parecer
+   que são coisas diferentes. */
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex: none;
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--motion-2, 200ms) var(--ease-out, ease),
+    color var(--motion-2, 200ms) var(--ease-out, ease);
+}
+
+.tab--on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab {
+    transition: none;
+  }
+}
