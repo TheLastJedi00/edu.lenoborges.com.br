@@ -20,7 +20,9 @@ const MOCK_PROFILE: MemberProfile = {
   emailOptOut: false,
   profileCompleted: true,
   role: null,
-  tier: 'dev-tier'
+  tier: 'dev-tier',
+  pendingLegal: [],
+  legalAcceptances: {}
 };
 
 const MOCK_SESSION: Session = {

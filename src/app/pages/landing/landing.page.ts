@@ -6,7 +6,7 @@ import {
   signal,
   OnInit
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ContactLinks } from '../../components/contact-links/contact-links';
 import { CtaSplit } from '../../components/cta-split/cta-split';
 import { DialogBox } from '../../components/dialog-box/dialog-box';
@@ -37,7 +37,8 @@ import { ProfileService } from '../../services/profile.service';
     LessonTrack,
     TimelineEntry,
     ContactLinks,
-    Reveal
+    Reveal,
+    RouterLink
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './landing.page.html',

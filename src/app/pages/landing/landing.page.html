@@ -169,6 +169,17 @@
   <footer class="footer u-shell u-mono">
     <p>{{ identity().name }} · Professor particular de programação</p>
     <p>Blumenau, SC e aulas online</p>
+    <!--
+      Os documentos legais (spec 018, decisão 12). Não vira menu, não vira
+      colunas e não ganha logo: é a landing de um professor particular, e um
+      rodapé de SaaS com quatro colunas seria a única parte da página que parece
+      de outro produto.
+    -->
+    <p class="footer__legal">
+      <a routerLink="/termos-de-uso">Termos de Uso</a>
+      <span aria-hidden="true">·</span>
+      <a routerLink="/politica-de-privacidade">Política de Privacidade</a>
+    </p>
   </footer>
 </main>
 

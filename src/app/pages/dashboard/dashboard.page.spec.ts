@@ -54,7 +54,9 @@ describe('DashboardPage', () => {
       emailOptOut: false,
       profileCompleted: true,
       role: null,
-      tier: 'dev-tier'
+      tier: 'dev-tier',
+      pendingLegal: [],
+      legalAcceptances: {}
     });
 
     fixture = TestBed.createComponent(DashboardPage);
@@ -135,7 +137,9 @@ describe('DashboardPage', () => {
       emailOptOut: false,
       profileCompleted: true,
       role: 'admin',
-      tier: 'dev-tier'
+      tier: 'dev-tier',
+      pendingLegal: [],
+      legalAcceptances: {}
     });
     fixture.detectChanges();
 
@@ -170,7 +174,9 @@ describe('DashboardPage', () => {
         emailOptOut: false,
         profileCompleted: true,
         role,
-        tier: 'dev-tier'
+        tier: 'dev-tier',
+        pendingLegal: [],
+        legalAcceptances: {}
       });
       fixture.detectChanges();
 

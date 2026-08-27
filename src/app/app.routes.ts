@@ -24,6 +24,30 @@ export const routes: Routes = [
       import('./pages/descadastro/descadastro.page').then((m) => m.DescadastroPage),
     title: 'Cancelar inscrição · Liga Dev'
   },
+  // Os documentos legais (spec 018, decisão 10).
+  //
+  // **Públicas, sem guard nenhum e fora do `dashboard-shell`**, pela mesma razão
+  // do `/descadastro` logo acima: quem lê pelo rodapé da landing não tem conta,
+  // e é justamente a pessoa que mais precisa ler antes. Uma página de contrato
+  // atrás de login é um contrato que só se lê depois de assinar.
+  //
+  // O `documentId` vem em `data` e não como `:id`: são duas rotas fixas, e um
+  // parâmetro aberto convidaria a tratar documento inexistente como caso de
+  // tela em vez de rota que não existe.
+  {
+    path: 'termos-de-uso',
+    data: { documentId: 'termos-de-uso' },
+    loadComponent: () =>
+      import('./pages/legal/legal-document.page').then((m) => m.LegalDocumentPage),
+    title: 'Termos de Uso · Liga Dev'
+  },
+  {
+    path: 'politica-de-privacidade',
+    data: { documentId: 'politica-de-privacidade' },
+    loadComponent: () =>
+      import('./pages/legal/legal-document.page').then((m) => m.LegalDocumentPage),
+    title: 'Política de Privacidade · Liga Dev'
+  },
   // Não existe rota `definir-senha`, e a ausência é proposital.
   //
   // O Firebase hospeda a própria tela de definição de senha, e o link do e-mail

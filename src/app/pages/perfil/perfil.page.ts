@@ -23,6 +23,10 @@ import { httpErrorMessage } from '../../core/http-error';
 import { normalizeName, normalizePhone } from '../../core/normalize';
 import { toInstagramUrl, toLinkedinUrl } from '../../core/social-url';
 import { MemberProfile } from '../../models/auth.model';
+import { LegalDocumentSummary } from '../../models/legal.model';
+import { LegalAcceptDialog } from '../../components/legal-accept-dialog/legal-accept-dialog';
+import { LegalService } from '../../core/legal/legal.service';
+import { dataCurta, dataDeVersao } from '../../core/datas';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
@@ -47,7 +51,8 @@ type LoadState = 'loading' | 'ready' | 'error';
     DeleteAccountDialog,
     IconLinkedin,
     IconInstagram,
-    Logo
+    Logo,
+    LegalAcceptDialog
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './perfil.page.html',
@@ -64,6 +69,46 @@ export class PerfilPage implements OnInit {
 
   protected readonly loadState = signal<LoadState>('loading');
   protected readonly profile = signal<MemberProfile | null>(null);
+
+  // ---------------------------------------------------------------- Contratos
+
+  private readonly legalService = inject(LegalService);
+  private readonly contratoDialog = viewChild<LegalAcceptDialog>('contratoDialog');
+
+  protected readonly legalDocuments = signal<readonly LegalDocumentSummary[]>([]);
+  protected readonly contratoAberto = signal<string | null>(null);
+
+  /**
+   * Uma linha por documento vigente, com a data do aceite (spec 018, decisão 11).
+   *
+   * **Documento sem aceite registrado mostra "não aceita", e não célula vazia.**
+   * É o estado de quem tem pendência aberta e navegou até aqui — improvável com
+   * o bloqueio de pé, e é exatamente por isso que ninguém veria a célula em
+   * branco antes de um usuário ver.
+   */
+  protected readonly contratos = computed(() => {
+    const aceites = this.profile()?.legalAcceptances ?? {};
+
+    return this.legalDocuments().map((doc) => {
+      const aceite = aceites[doc.id];
+
+      return {
+        id: doc.id,
+        title: doc.title,
+        versionLabel: dataDeVersao(doc.version),
+        // Aceite de versão antiga não conta como aceite desta versão: é a mesma
+        // comparação que o backend faz, e mostrar a data velha aqui diria que
+        // está tudo em ordem enquanto o bloqueio sobe na próxima navegação.
+        acceptedLabel:
+          aceite && aceite.version === doc.version ? dataCurta(aceite.acceptedAt) : ''
+      };
+    });
+  });
+
+  protected abrirContrato(documentId: string): void {
+    this.contratoAberto.set(documentId);
+    queueMicrotask(() => this.contratoDialog()?.open());
+  }
 
   // ---------------------------------------------------------------- Seus dados
 
@@ -422,6 +467,16 @@ export class PerfilPage implements OnInit {
     if (carregado) {
       this.aplicar(carregado);
     }
+
+    // Contratos (spec 018). A lista vem da API, nunca de uma constante desta
+    // tela: um terceiro documento aparece aqui sem nenhuma mudança.
+    this.legalService
+      .list()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (documents) => this.legalDocuments.set(documents),
+        error: () => undefined
+      });
 
     this.dadosForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.bioLength.set(this.dadosForm.controls.bio.value.length);

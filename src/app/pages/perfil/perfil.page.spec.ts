@@ -21,7 +21,9 @@ export const PERFIL: MemberProfile = {
   emailOptOut: false,
   profileCompleted: true,
   role: null,
-  tier: 'ultra-dev-tier'
+  tier: 'ultra-dev-tier',
+  pendingLegal: [],
+  legalAcceptances: {}
 };
 
 describe('PerfilPage', () => {
@@ -78,7 +80,7 @@ describe('PerfilPage', () => {
     });
   });
 
-  it('pede GET /me e mostra as quatro seções', async () => {
+  it('pede GET /me e mostra as seis seções', async () => {
     await montar();
 
     expect(authService.getMe).toHaveBeenCalled();
@@ -92,6 +94,7 @@ describe('PerfilPage', () => {
       'Suas redes',
       'Acesso',
       'E-mails',
+      'Contratos',
       'Excluir conta'
     ]);
   });
@@ -661,11 +664,14 @@ describe('PerfilPage', () => {
         fixture.nativeElement.querySelectorAll('.block__title') as NodeListOf<HTMLElement>
       ).map((el) => el.textContent?.trim());
 
+      // Contratos entra como quinta seção, e **Excluir conta continua sendo a
+      // última, sozinha, no fim** (spec 018, decisão 11).
       expect(titulos).toEqual([
         'Seus dados',
         'Suas redes',
         'Acesso',
         'E-mails',
+        'Contratos',
         'Excluir conta'
       ]);
     });
@@ -710,7 +716,7 @@ describe('PerfilPage', () => {
         fixture.nativeElement.querySelectorAll('section.block') as NodeListOf<HTMLElement>
       );
 
-      expect(secoes.length).toBe(5);
+      expect(secoes.length).toBe(6);
       secoes.forEach((secao) => {
         const id = secao.getAttribute('aria-labelledby');
         expect(id).not.toBeNull();

@@ -184,3 +184,55 @@
     padding: 2.25rem 2rem;
   }
 }
+
+/* ---------- Aceite dos documentos legais (spec 018) ---------- */
+.legal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.9rem 1rem 1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-md, 0.5rem);
+  background: var(--screen);
+}
+
+.legal__legend {
+  padding-inline: 0.35rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.legal__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.legal__btn {
+  padding: 0.45rem 0.9rem;
+  border: var(--border-w) solid var(--screen-deep);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--step--1);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.legal__btn:hover {
+  background: var(--screen-lit);
+}
+
+.legal__state {
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+.legal__state--ok {
+  color: var(--accent-deep);
+}

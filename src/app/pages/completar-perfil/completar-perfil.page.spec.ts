@@ -28,7 +28,9 @@ describe('CompletarPerfilPage', () => {
     emailOptOut: false,
     profileCompleted: false,
     role: null,
-    tier: 'dev-tier'
+    tier: 'dev-tier',
+    pendingLegal: [],
+    legalAcceptances: {}
   };
 
   beforeEach(async () => {
