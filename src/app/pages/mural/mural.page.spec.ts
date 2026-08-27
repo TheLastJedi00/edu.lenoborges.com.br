@@ -19,7 +19,8 @@ const STATE: MuralState = {
   // Bem no futuro para o contador não depender de quando a suíte roda.
   currentWeekEndsAt: '2099-01-03T03:00:00.000Z',
   canAsk: true,
-  myQuestionId: null
+  myQuestionId: null,
+  myQuestion: null
 };
 
 function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
@@ -35,6 +36,7 @@ function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
     hasVoted: false,
     isMine: false,
     answerVideoId: null,
+    promotedTo: null,
     ...overrides
   };
 }
@@ -179,11 +181,85 @@ describe('MuralPage', () => {
     const { el } = setup([question()], {
       ...STATE,
       canAsk: false,
-      myQuestionId: '2026-08-16__uid-1'
+      myQuestionId: '2026-08-16__uid-1',
+      myQuestion: question({
+        id: '2026-08-16__uid-1',
+        weekId: '2026-08-16',
+        phase: 'coleta',
+        isMine: true
+      })
     });
 
     expect(el.textContent).toContain('Editar minha pergunta');
     expect(el.textContent).not.toContain('limite');
+  });
+
+  /**
+   * **O que aparece depois de a pergunta ser adiantada** (spec 016).
+   *
+   * O selo, porque sem ele a pergunta muda de aba sozinha e some da coleta — o
+   * que, do lado de quem escreveu, é indistinguível de ter sido removida pela
+   * moderação. E o botão de editar some, porque a condição passou a ler a fase:
+   * com `myQuestionId` sozinho ela continuaria verdadeira e levaria a pessoa a
+   * um formulário que só sabe responder 409.
+   */
+  it('a pergunta adiantada mostra o selo e não oferece mais editar', () => {
+    const adiantada = question({
+      id: '2026-08-16__uid-1',
+      weekId: '2026-08-16',
+      phase: 'votacao',
+      promotedTo: 'votacao',
+      isMine: true
+    });
+
+    const { el } = setup([adiantada], {
+      ...STATE,
+      canAsk: false,
+      myQuestionId: '2026-08-16__uid-1',
+      myQuestion: adiantada
+    });
+
+    expect(el.textContent).toContain('adiantada');
+    expect(el.textContent).not.toContain('Editar minha pergunta');
+  });
+
+  /**
+   * Na pauta, a adiantada não pode dizer que venceu uma votação que não
+   * aconteceu.
+   */
+  it('a adiantada aparece na pauta como "vai ser respondida"', () => {
+    const { fixture, el } = setup([question()]);
+
+    const respondidas = Array.from(el.querySelectorAll('button')).find((node) =>
+      node.textContent?.includes('Respondidas')
+    ) as HTMLButtonElement;
+    respondidas.click();
+    fixture.detectChanges();
+
+    http.expectOne((req) => req.url.endsWith('/mural/vencedoras')).flush([
+      {
+        weekId: '2026-08-16',
+        origem: 'adiantada',
+        question: question({ id: 'a', title: 'A que foi adiantada' })
+      },
+      {
+        weekId: '2026-08-02',
+        origem: 'voto',
+        question: question({ id: 'b', title: 'A que venceu o voto' })
+      }
+    ]);
+    fixture.detectChanges();
+
+    const linhas = Array.from(el.querySelectorAll('.winner')).map(
+      (node) => node.textContent ?? ''
+    );
+
+    expect(
+      linhas.find((texto) => texto.includes('A que foi adiantada'))
+    ).toContain('vai ser respondida');
+    expect(
+      linhas.find((texto) => texto.includes('A que venceu o voto'))
+    ).toContain('venceu a semana');
   });
 
   /**

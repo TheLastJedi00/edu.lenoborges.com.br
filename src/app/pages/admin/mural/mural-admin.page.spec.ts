@@ -22,6 +22,7 @@ function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
     hasVoted: false,
     isMine: false,
     answerVideoId: null,
+    promotedTo: null,
     ...overrides
   };
 }
@@ -48,18 +49,42 @@ describe('AdminMuralPage', () => {
     const fixture = TestBed.createComponent(AdminMuralPage);
     fixture.detectChanges();
 
-    http.expectOne((req) => req.url.endsWith('/mural/perguntas')).flush(votacao);
-    fixture.detectChanges();
+    // As três saem juntas num `forkJoin` (spec 016): a pauta fica acima das
+    // listas e, encadeada, seria a última a aparecer.
+    const perguntas = http.match((req) =>
+      req.url.endsWith('/mural/perguntas')
+    );
+    expect(perguntas.length).toBe(2);
 
-    http.expectOne((req) => req.url.endsWith('/mural/perguntas')).flush(coleta);
-    fixture.detectChanges();
+    const porFase = (fase: string) =>
+      perguntas.find((req) => req.request.params.get('fase') === fase)!;
 
+    porFase('votacao').flush(votacao);
+    porFase('coleta').flush(coleta);
     http
       .expectOne((req) => req.url.endsWith('/mural/vencedoras'))
       .flush(winners);
     fixture.detectChanges();
 
     return { fixture, el: fixture.nativeElement as HTMLElement };
+  }
+
+  /** O primeiro botão da tela com este rótulo. */
+  function botao(el: HTMLElement, rotulo: string): HTMLButtonElement {
+    return Array.from(el.querySelectorAll('.row__actions .btn')).find((node) =>
+      node.textContent?.includes(rotulo)
+    ) as HTMLButtonElement;
+  }
+
+  function confirmar(el: HTMLElement, rotulo: string): void {
+    const acao = Array.from(el.querySelectorAll('.modal .btn')).find((node) =>
+      node.textContent?.includes(rotulo)
+    ) as HTMLButtonElement;
+    acao.click();
+  }
+
+  function secao(el: HTMLElement, id: string): HTMLElement {
+    return el.querySelector(`section[aria-labelledby="${id}"]`) as HTMLElement;
   }
 
   it('lista as perguntas das duas semanas vivas', () => {
@@ -128,6 +153,7 @@ describe('AdminMuralPage', () => {
       [
         {
           weekId: '2026-08-02',
+          origem: 'voto',
           question: question({ badgeId: 'angular', title: 'A vencedora' })
         }
       ]
@@ -141,6 +167,138 @@ describe('AdminMuralPage', () => {
     );
   });
 
+  /**
+   * O cartão troca de seção com a resposta do `PATCH`, e sem recarregar a tela.
+   */
+  it('a pergunta adiantada sai da coleta e entra na votação', () => {
+    const { fixture, el } = setup(
+      [],
+      [question({ id: 'x', title: 'Vai ser adiantada', phase: 'coleta' })]
+    );
+
+    const adiantar = botao(el, 'Adiantar para votação');
+    adiantar.click();
+    fixture.detectChanges();
+
+    confirmar(el, 'Adiantar');
+
+    http
+      .expectOne((req) => req.url.endsWith('/admin/mural/perguntas/x/fase'))
+      .flush(
+        question({
+          id: 'x',
+          title: 'Vai ser adiantada',
+          phase: 'votacao',
+          promotedTo: 'votacao'
+        })
+      );
+    fixture.detectChanges();
+
+    const votacao = secao(el, 'votacao-titulo');
+    const coleta = secao(el, 'coleta-titulo');
+
+    expect(votacao.textContent).toContain('Vai ser adiantada');
+    expect(coleta.textContent).not.toContain('Vai ser adiantada');
+    // Nenhuma recarga: só o PATCH saiu.
+    http.verify();
+  });
+
+  it('falhando o adiantamento, o cartão volta para onde estava e a mensagem aparece', () => {
+    const { fixture, el } = setup(
+      [],
+      [question({ id: 'x', title: 'Vai falhar', phase: 'coleta' })]
+    );
+
+    botao(el, 'Adiantar para votação').click();
+    fixture.detectChanges();
+    confirmar(el, 'Adiantar');
+
+    http
+      .expectOne((req) => req.url.endsWith('/admin/mural/perguntas/x/fase'))
+      .flush({ message: 'nao deu' }, { status: 500, statusText: 'Erro' });
+    fixture.detectChanges();
+
+    expect(secao(el, 'coleta-titulo').textContent).toContain('Vai falhar');
+    expect(secao(el, 'votacao-titulo').textContent).not.toContain('Vai falhar');
+    expect(el.querySelector('[role="alert"]')?.textContent).toContain(
+      'Não consegui adiantar'
+    );
+  });
+
+  /**
+   * **A invariante do adiantamento, virada em asserção de tela.** O `PATCH`
+   * devolve uma pergunta e **substitui um item**; recarregar tudo depois seria
+   * o atalho que faz o admin achar que o ciclo inteiro andou.
+   */
+  it('só um cartão se move, e nenhuma recarga é disparada', () => {
+    const { fixture, el } = setup(
+      [],
+      [
+        question({ id: 'q1', title: 'Primeira', phase: 'coleta' }),
+        question({ id: 'q2', title: 'Segunda', phase: 'coleta' }),
+        question({ id: 'q3', title: 'Terceira', phase: 'coleta' }),
+        question({ id: 'q4', title: 'Quarta', phase: 'coleta' })
+      ]
+    );
+
+    // O primeiro "Adiantar para votação" da tela é o da pergunta q1.
+    botao(el, 'Adiantar para votação').click();
+    fixture.detectChanges();
+    confirmar(el, 'Adiantar');
+
+    http
+      .expectOne((req) => req.url.endsWith('/admin/mural/perguntas/q1/fase'))
+      .flush(
+        question({
+          id: 'q1',
+          title: 'Primeira',
+          phase: 'votacao',
+          promotedTo: 'votacao'
+        })
+      );
+    fixture.detectChanges();
+
+    const restantes = Array.from(
+      secao(el, 'coleta-titulo').querySelectorAll('.row__title')
+    ).map((node) => node.textContent?.trim());
+
+    expect(restantes).toEqual(['Segunda', 'Terceira', 'Quarta']);
+    // Nenhuma requisição de recarregamento foi disparada.
+    http.verify();
+  });
+
+  /**
+   * O front não oferece o que a API responde 409: uma pergunta já em votação
+   * não tem para onde ser adiantada além de "responder logo".
+   */
+  it('pergunta já em votação não tem o botão de adiantar para votação', () => {
+    const { el } = setup([question({ id: 'v', title: 'Já em votação' })]);
+
+    const rotulos = Array.from(el.querySelectorAll('.row__actions .btn')).map(
+      (node) => node.textContent?.trim()
+    );
+
+    expect(rotulos).not.toContain('Adiantar para votação');
+    expect(rotulos).toContain('Responder logo');
+  });
+
+  it('pergunta já adiantada para responder não tem botão de promoção nenhum', () => {
+    const { el } = setup([
+      question({
+        id: 'p',
+        title: 'Já na pauta',
+        phase: 'encerrada',
+        promotedTo: 'encerrada'
+      })
+    ]);
+
+    const rotulos = Array.from(el.querySelectorAll('.row__actions .btn')).map(
+      (node) => node.textContent?.trim()
+    );
+
+    expect(rotulos).toEqual(['Remover']);
+  });
+
   it('não oferece atalho quando a vencedora já tem vídeo', () => {
     const { el } = setup(
       [],
@@ -148,6 +306,7 @@ describe('AdminMuralPage', () => {
       [
         {
           weekId: '2026-08-02',
+          origem: 'voto',
           question: question({ answerVideoId: 'angular__aaaaaaaaaaa' })
         }
       ]

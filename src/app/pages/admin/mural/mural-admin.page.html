@@ -4,10 +4,15 @@
   <header>
     <h1 class="page__title">Mural de Perguntas</h1>
     <p class="page__lead">
-      Duas semanas vivas: a que recebe votos e a que recebe perguntas. Remover é irreversível e
-      leva os votos junto.
+      Duas semanas vivas: a que recebe votos e a que recebe perguntas. Adiantar move uma pergunta
+      só, não pode ser desfeito, e as outras seguem o ciclo normal. Remover é irreversível e leva
+      os votos junto.
     </p>
   </header>
+
+  @if (actionError(); as erro) {
+    <p class="feedback feedback--inline animate-enter" role="alert">{{ erro }}</p>
+  }
 
   @switch (state()) {
     @case ('loading') {
@@ -25,24 +30,37 @@
     }
 
     @case ('ready') {
-      @if (pendingWinner(); as semana) {
-        @if (semana.question; as vencedora) {
-          <!--
-            O fluxo mais repetido do admin: toda semana tem uma vencedora para
-            virar vídeo. O atalho já chega no formulário com a insígnia certa,
-            porque é o único caminho que se percorre 52 vezes por ano.
-          -->
-          <section class="winner">
-            <p class="winner__eyebrow u-mono">Vencedora de {{ semana.weekId }}</p>
-            <p class="winner__title">{{ vencedora.title }}</p>
-            <p class="winner__meta u-mono">
-              {{ vencedora.authorName }} · {{ vencedora.voteCount }} votos
-            </p>
-            <a class="btn" [routerLink]="['/dashboard/admin/trilha', vencedora.badgeId]">
-              Cadastrar o vídeo de resposta
-            </a>
-          </section>
-        }
+      <!--
+        A pauta vem primeiro porque é o fluxo mais repetido do admin: o que está
+        esperando vídeo. O rótulo de origem existe porque a vencedora da semana e
+        a pergunta que ele mesmo adiantou pedem vídeos de peso diferente.
+      -->
+      @if (pauta().length > 0) {
+        <section class="pauta animate-enter" aria-labelledby="pauta-titulo">
+          <h2 id="pauta-titulo" class="section-title">Esperando vídeo</h2>
+          <ul class="pauta__list">
+            @for (linha of pauta(); track linha.question!.id) {
+              <li class="pauta__row">
+                <div class="pauta__text">
+                  <p class="pauta__eyebrow u-mono">
+                    {{ linha.origem === 'voto' ? 'venceu a semana' : 'adiantada' }} ·
+                    {{ linha.weekId }}
+                  </p>
+                  <p class="pauta__title">{{ linha.question!.title }}</p>
+                  <p class="pauta__meta u-mono">
+                    {{ linha.question!.authorName }} · {{ linha.question!.voteCount }} votos
+                  </p>
+                </div>
+                <a
+                  class="btn"
+                  [routerLink]="['/dashboard/admin/trilha', linha.question!.badgeId]"
+                >
+                  Cadastrar o vídeo de resposta
+                </a>
+              </li>
+            }
+          </ul>
+        </section>
       }
 
       <section aria-labelledby="votacao-titulo">
@@ -52,21 +70,38 @@
         } @else {
           <ul class="list">
             @for (question of votacao(); track question.id) {
-              <li class="row">
-                <div>
-                  <p class="row__title">{{ question.title }}</p>
+              <li class="row animate-enter">
+                <div class="row__text">
+                  <p class="row__title">
+                    {{ question.title }}
+                    @if (question.promotedTo) {
+                      <span class="tag u-mono">Adiantada</span>
+                    }
+                  </p>
                   <p class="row__meta u-mono">
                     {{ question.authorName }} · {{ question.voteCount }} votos
                   </p>
                 </div>
-                <button
-                  type="button"
-                  class="btn btn--danger"
-                  [attr.aria-label]="'Remover ' + question.title"
-                  (click)="askRemove(question)"
-                >
-                  Remover
-                </button>
+                <div class="row__actions">
+                  @for (fase of promotionsFor(question); track fase) {
+                    <button
+                      type="button"
+                      class="btn btn--ghost"
+                      [attr.aria-label]="promotionLabel(fase) + ': ' + question.title"
+                      (click)="askPromote(question, fase)"
+                    >
+                      {{ promotionLabel(fase) }}
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    class="btn btn--danger"
+                    [attr.aria-label]="'Remover ' + question.title"
+                    (click)="askRemove(question)"
+                  >
+                    Remover
+                  </button>
+                </div>
               </li>
             }
           </ul>
@@ -80,19 +115,31 @@
         } @else {
           <ul class="list">
             @for (question of coleta(); track question.id) {
-              <li class="row">
-                <div>
+              <li class="row animate-enter">
+                <div class="row__text">
                   <p class="row__title">{{ question.title }}</p>
                   <p class="row__meta u-mono">{{ question.authorName }}</p>
                 </div>
-                <button
-                  type="button"
-                  class="btn btn--danger"
-                  [attr.aria-label]="'Remover ' + question.title"
-                  (click)="askRemove(question)"
-                >
-                  Remover
-                </button>
+                <div class="row__actions">
+                  @for (fase of promotionsFor(question); track fase) {
+                    <button
+                      type="button"
+                      class="btn btn--ghost"
+                      [attr.aria-label]="promotionLabel(fase) + ': ' + question.title"
+                      (click)="askPromote(question, fase)"
+                    >
+                      {{ promotionLabel(fase) }}
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    class="btn btn--danger"
+                    [attr.aria-label]="'Remover ' + question.title"
+                    (click)="askRemove(question)"
+                  >
+                    Remover
+                  </button>
+                </div>
               </li>
             }
           </ul>
@@ -103,10 +150,10 @@
 </section>
 
 <app-confirm-dialog
-  title="Remover esta pergunta?"
+  [title]="confirmTitle()"
   [message]="confirmMessage()"
-  confirmLabel="Remover"
-  [danger]="true"
-  (confirmed)="confirmRemove()"
-  (cancelled)="cancelRemove()"
+  [confirmLabel]="confirmLabel()"
+  [danger]="isDanger()"
+  (confirmed)="confirm()"
+  (cancelled)="cancel()"
 />
