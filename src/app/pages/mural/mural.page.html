@@ -71,7 +71,18 @@
         <ul class="list">
           @for (semana of winners(); track semana.weekId) {
             <li class="winner">
-              <p class="winner__week u-mono">Semana de {{ semana.weekId }}</p>
+              <!--
+                O rótulo de origem: sem ele, a pergunta adiantada aparece na
+                lista de vencedoras dizendo que venceu uma votação que não
+                aconteceu.
+              -->
+              <p class="winner__week u-mono">
+                Semana de {{ semana.weekId }}
+                @if (semana.question) {
+                  ·
+                  {{ semana.origem === 'voto' ? 'venceu a semana' : 'vai ser respondida' }}
+                }
+              </p>
               @if (semana.question; as pergunta) {
                 <p class="winner__title">{{ pergunta.title }}</p>
                 <p class="winner__author u-mono">
@@ -123,7 +134,12 @@
   @if (state(); as ciclo) {
     @if (ciclo.canAsk) {
       <a routerLink="/dashboard/mural/nova" class="btn btn--sticky">Escrever minha pergunta</a>
-    } @else if (ciclo.myQuestionId) {
+    } @else if (ciclo.myQuestion?.phase === 'coleta') {
+      <!--
+        A condição lê a fase da própria pergunta, e não só a existência do id.
+        Depois de a pergunta ser adiantada, ter `myQuestionId` continuaria
+        verdadeiro e levaria a pessoa a um formulário que só sabe responder 409.
+      -->
       <a routerLink="/dashboard/mural/nova" class="btn btn--sticky btn--ghost">
         Editar minha pergunta
       </a>

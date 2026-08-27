@@ -119,6 +119,43 @@
   transform: scale(0.96);
 }
 
+/*
+  Em edição a insígnia está travada: o `PUT` a descarta. O chip escolhido segue
+  legível, os outros recuam — e nenhum reage ao toque.
+*/
+.chip:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.chip--on:disabled {
+  opacity: 1;
+}
+
+.chip:disabled:active {
+  transform: none;
+}
+
+.chips__note {
+  margin: 0.6rem 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+
+.reading__title {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.25;
+}
+
+.reading__text {
+  margin: 0.3rem 0 0.6rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
 .btn {
   min-height: 2.75rem;
   display: inline-flex;

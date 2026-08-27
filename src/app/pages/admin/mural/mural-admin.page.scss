@@ -70,17 +70,46 @@
   font-size: var(--step--1);
 }
 
-.winner {
-  display: grid;
-  justify-items: start;
-  gap: 0.25rem;
-  padding: 1.2rem;
+/* A pauta: o que espera vídeo, das duas origens. */
+.pauta {
+  padding: 1.2rem 1rem;
   border: var(--border-w) solid var(--accent-deep);
   border-radius: var(--radius-lg);
   background: var(--gradient-panel);
 }
 
-.winner__eyebrow {
+.pauta__list {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+  Mobile first: uma coluna, o atalho embaixo do texto e com alvo de toque
+  inteiro. Só a partir de 48rem o botão sobe para a mesma linha.
+*/
+.pauta__row {
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 0.9rem;
+  border-top: var(--border-w) dashed var(--border-soft);
+}
+
+.pauta__row:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+@media (min-width: 48rem) {
+  .pauta__row {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}
+
+.pauta__eyebrow {
   margin: 0;
   font-size: 0.65rem;
   letter-spacing: 0.06em;
@@ -88,17 +117,31 @@
   color: var(--accent-deep);
 }
 
-.winner__title {
+.pauta__title {
   margin: 0.1rem 0 0;
   font-family: var(--font-display);
   font-size: var(--step-1);
   line-height: 1.2;
 }
 
-.winner__meta {
-  margin: 0.2rem 0 0.6rem;
+.pauta__meta {
+  margin: 0.2rem 0 0;
   color: var(--ink-soft);
   font-size: var(--step--1);
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  border: var(--border-w) solid var(--accent-deep);
+  border-radius: var(--radius-sm);
+  color: var(--accent-deep);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
 }
 
 .empty {
@@ -129,6 +172,34 @@
 .btn--danger {
   border-color: #c0392b;
   background: transparent;
+  color: #c0392b;
+}
+
+.btn--ghost {
+  border-color: var(--border-soft);
+  background: transparent;
+  color: var(--ink);
+}
+
+/*
+  Mobile first: os botões empilham abaixo do texto e ocupam a largura toda, e o
+  alvo de toque não encolhe para caber três numa linha estreita.
+*/
+.row__actions {
+  display: grid;
+  gap: 0.5rem;
+}
+
+@media (min-width: 30rem) {
+  .row__actions {
+    grid-auto-flow: column;
+    justify-content: start;
+  }
+}
+
+.feedback--inline {
+  padding: 0.85rem 1rem;
+  border-color: #c0392b;
   color: #c0392b;
 }
 
