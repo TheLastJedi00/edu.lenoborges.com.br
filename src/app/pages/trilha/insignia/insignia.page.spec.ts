@@ -222,7 +222,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
     const { el } = setup('logica');
     const request = flushWith([video()]);
 
-    expect(request.request.params.get('kind')).toBe('aula');
+    expect(request.request.params.get('tab')).toBe('aula');
     expect(el.querySelector('.tab--on')?.textContent?.trim()).toBe('Aulas');
   });
 
@@ -242,7 +242,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
     fixture.detectChanges();
 
     const request = http.expectOne((req) => req.url.includes('/videos'));
-    expect(request.request.params.get('kind')).toBe('resposta');
+    expect(request.request.params.get('tab')).toBe('resposta');
     request.flush({ badgeId: 'logica', videos: [] });
   });
 
@@ -563,7 +563,10 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
 
       expect(check(el).checked).toBeFalse();
       expect(store.xp()).toBe(340);
-      expect(el.querySelector('dialog')).toBeNull();
+      // O <dialog> da resposta (spec 021) fica sempre no DOM e fechado. O que
+      // uma falha de marcação não pode fazer é ABRIR um: erro de check é uma
+      // linha, nunca um modal.
+      expect(el.querySelector('dialog[open]')).toBeNull();
       expect(el.querySelector('.visto__erro')?.textContent).toContain(
         'Não consegui salvar agora.'
       );
@@ -603,6 +606,214 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       fixture.detectChanges();
 
       expect(check(el).checked).toBeFalse();
+    });
+  });
+
+  /**
+   * A resposta posicionada na trilha (spec 021).
+   *
+   * As duas abas desenham **formas diferentes de propósito**, e é isso que estes
+   * testes travam: na trilha a resposta é uma pergunta com botão, e na aba de
+   * Perguntas Frequentes ela continua sendo balão com player embutido. Um teste
+   * de uma aba só deixaria a outra ser "unificada" na próxima refatoração.
+   */
+  describe('· a resposta na trilha (spec 021)', () => {
+    function resposta(overrides: Record<string, unknown> = {}) {
+      return {
+        id: 'logica__rrrrrrrrrrr',
+        badgeId: 'logica',
+        title: 'Herança e composição, na prática',
+        description: null,
+        youtubeId: 'rrrrrrrrrrr',
+        kind: 'resposta',
+        tab: 'aula',
+        questionId: '2026-08-09__uid-1',
+        question: {
+          id: '2026-08-09__uid-1',
+          title: 'Como saber quando usar herança em vez de composição?',
+          authorName: 'Ana Prado',
+          askedAt: '2026-08-09T18:00:00.000Z'
+        },
+        orientation: 'retrato',
+        devTierFree: false,
+        watched: false,
+        order: 0,
+        ...overrides
+      };
+    }
+
+    /** A aba de Perguntas Frequentes, com a mesma resposta dentro. */
+    function naAbaDeRespostas(el: HTMLElement, fixture: { detectChanges(): void }) {
+      (el.querySelectorAll('.tab')[1] as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      http
+        .expectOne((req) => req.url.includes('/badges/logica/videos'))
+        .flush({
+          badgeId: 'logica',
+          videos: [resposta({ tab: 'resposta' })]
+        });
+      fixture.detectChanges();
+    }
+
+    /**
+     * **O cartão de pergunta não carrega player nenhum.** Oito respostas numa
+     * página seriam oito iframes do YouTube carregados para nada, e um 9:16 no
+     * meio de uma coluna de 16:9 quebra o ritmo da sequência.
+     */
+    it('na trilha, a resposta é pergunta com botão e não desenha iframe', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta()]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('iframe')).toBeNull();
+      expect(el.querySelector('.ver-resposta')?.textContent?.trim()).toBe(
+        'Ver a resposta'
+      );
+
+      // O título continua vindo primeiro (decisão 2): uma coluna só de
+      // perguntas some para quem está procurando onde parou.
+      expect(el.querySelector('.video__title')?.textContent?.trim()).toBe(
+        'Herança e composição, na prática'
+      );
+      expect(el.textContent).toContain(
+        'Como saber quando usar herança em vez de composição?'
+      );
+    });
+
+    // O rabicho aponta para o vídeo, e no cartão da trilha o que está abaixo é
+    // um botão (decisão 7).
+    it('na trilha, o balão vem sem rabicho', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta()]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.balao--sem-rabicho')).not.toBeNull();
+    });
+
+    it('na aba de Perguntas Frequentes, a mesma resposta mantém o player embutido', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta()]);
+      fixture.detectChanges();
+
+      naAbaDeRespostas(el, fixture);
+
+      expect(el.querySelector('.ver-resposta')).toBeNull();
+      expect(el.querySelector('.video__frame iframe')).not.toBeNull();
+      expect(el.querySelector('.balao--sem-rabicho')).toBeNull();
+    });
+
+    /**
+     * **O teste da decisão 4, e o único jeito de provar que o áudio para.** Um
+     * player do YouTube escondido continua tocando: fechar o modal deixando o
+     * iframe no DOM é som saindo de uma página sem vídeo nenhum à vista.
+     */
+    it('teste-trava: abrir o modal cria o iframe e fechar o REMOVE do DOM', async () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta()]);
+      fixture.detectChanges();
+
+      (el.querySelector('.ver-resposta') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      const dialog = el.querySelector('dialog') as HTMLDialogElement;
+      expect(dialog.querySelector('iframe')).not.toBeNull();
+
+      (dialog.querySelector('.resposta__fechar') as HTMLButtonElement).click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(dialog.querySelector('iframe')).toBeNull();
+      expect(el.querySelector('iframe')).toBeNull();
+    });
+
+    /**
+     * A saída por `Esc`, que fecha o `<dialog>` sem passar pelo botão. O
+     * navegador a anuncia pelo evento `close` do elemento, e é ele que este
+     * teste dispara — sem tratá-lo, o iframe ficaria vivo atrás de um modal
+     * fechado, tocando.
+     */
+    it('teste-trava: fechar por Esc também destrói o iframe', async () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta()]);
+      fixture.detectChanges();
+
+      (el.querySelector('.ver-resposta') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      const dialog = el.querySelector('dialog') as HTMLDialogElement;
+      expect(dialog.querySelector('iframe')).not.toBeNull();
+
+      dialog.dispatchEvent(new Event('close'));
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(dialog.querySelector('iframe')).toBeNull();
+    });
+
+    // O foco volta para o botão que abriu (decisão 3): sem isso ele cai no
+    // `body` e quem navega por teclado recomeça a lista do topo.
+    it('devolve o foco ao botão que abriu o modal', async () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta()]);
+      fixture.detectChanges();
+
+      const botao = el.querySelector('.ver-resposta') as HTMLButtonElement;
+      botao.click();
+      fixture.detectChanges();
+
+      const dialog = el.querySelector('dialog') as HTMLDialogElement;
+      (dialog.querySelector('.resposta__fechar') as HTMLButtonElement).click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(document.activeElement).toBe(botao);
+    });
+
+    // O check acompanha o vídeo (decisão 5), e continua fora da moldura
+    // (decisão 4 da spec 019).
+    it('o check mora dentro do modal, e fora do video__frame', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta()]);
+      fixture.detectChanges();
+
+      // Fechado, o cartão não oferece check: marcar sem abrir seria XP a um
+      // clique de distância de quem só estava rolando a página.
+      expect(el.querySelector('.visto__input')).toBeNull();
+
+      (el.querySelector('.ver-resposta') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      const dialog = el.querySelector('dialog') as HTMLDialogElement;
+      expect(dialog.querySelector('.visto__input')).not.toBeNull();
+      expect(dialog.querySelector('.video__frame .visto__input')).toBeNull();
+    });
+
+    // A marca é leitura, e não controle (decisão 6): sem ela a pessoa abre o
+    // modal só para descobrir se já viu.
+    it('o cartão fechado diz se já foi assistido, sem virar controle', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta({ watched: true })]);
+      fixture.detectChanges();
+
+      const marca = el.querySelector('.assistido');
+      expect(marca?.textContent?.trim()).toBe('Já assistido');
+      expect(marca?.querySelector('input')).toBeNull();
+    });
+
+    /**
+     * O caso do ponto em aberto 4: uma resposta na trilha sem `question` é
+     * impossível hoje, e a tela desenha o cartão normal em vez de um estado de
+     * erro — a mesma escolha da decisão 9 da spec 017.
+     */
+    it('um vídeo sem pergunta na trilha continua sendo o cartão de aula de sempre', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta({ question: null, questionId: null })]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.ver-resposta')).toBeNull();
+      expect(el.querySelector('.video__frame iframe')).not.toBeNull();
+      expect(el.querySelector('.visto__input')).not.toBeNull();
     });
   });
 });

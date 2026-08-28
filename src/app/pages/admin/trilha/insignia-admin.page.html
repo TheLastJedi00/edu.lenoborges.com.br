@@ -38,6 +38,15 @@
     <p class="alert" role="alert">{{ erro }}</p>
   }
 
+  @if (avisoDaTrilha(); as aviso) {
+    <!--
+      Uma linha, nunca um modal — a mesma forma dos outros avisos desta tela. Ela
+      diz onde o vídeo ficou porque a publicação trocou de aba embaixo do admin,
+      e um item no fim de uma lista de doze é um item que ele não vê sem rolar.
+    -->
+    <p class="alert alert--ok" role="status">{{ aviso }}</p>
+  }
+
   @switch (state()) {
     @case ('loading') {
       <ul class="videos" aria-busy="true" aria-label="Carregando os vídeos">
@@ -75,6 +84,20 @@
               <div class="video__main">
                 <p class="video__title">{{ video.title }}</p>
                 <p class="video__id u-mono">{{ video.youtubeId }}</p>
+                @if (video.kind === 'resposta' && aba() === 'aula') {
+                  <!--
+                    A etiqueta da decisão 11. Na lista da trilha um item de
+                    resposta é indistinguível de uma aula — os dois mostram
+                    título e id do YouTube —, e o admin precisa saber o que está
+                    movendo. Sem ela, ele vai procurar a aula que jurava ter
+                    publicado.
+
+                    A leitura é de kind aqui de propósito: o que a etiqueta
+                    conta é a NATUREZA do vídeo, e a lista já é a da aba
+                    corrente.
+                  -->
+                  <p class="video__etiqueta u-mono">Resposta</p>
+                }
               </div>
 
               <!--

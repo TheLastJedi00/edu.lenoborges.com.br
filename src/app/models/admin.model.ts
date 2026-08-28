@@ -1,5 +1,5 @@
 import type { TierId } from './auth.model';
-import type { BadgeVideoKind } from './track.model';
+import type { BadgeVideoKind, BadgeVideoTab } from './track.model';
 /** Administração da Liga Dev (spec 009). */
 
 export interface AdminUser {
@@ -144,6 +144,20 @@ export interface CreateVideoRequest {
    * não manda nenhum —, e não uma validação espalhada por quem chama.
    */
   readonly kind?: BadgeVideoKind;
+  /**
+   * A **lista** em que o vídeo vai viver (spec 021). Sem valor, a API deriva
+   * `tab = kind`.
+   *
+   * Só é enviado em **modo resposta**: em modo aula ele não teria significado,
+   * porque aula vive na trilha e ponto. E `kind: 'aula'` com `tab: 'resposta'`
+   * é **400** no backend — o terceiro estado incoerente da família que a spec
+   * 017 abriu, junto de resposta sem pergunta e aula com pergunta.
+   *
+   * Em modo resposta com o toggle desligado ele também não vai: mandar
+   * `tab: 'resposta'` explicitamente seria só ruído, já que o servidor deriva
+   * exatamente isso.
+   */
+  readonly tab?: BadgeVideoTab;
   /** A pergunta do Mural que este vídeo responde. Só com `kind: 'resposta'`. */
   readonly questionId?: string;
 }

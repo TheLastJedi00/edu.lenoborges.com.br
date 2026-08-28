@@ -7,6 +7,19 @@
 export type BadgeVideoKind = 'aula' | 'resposta';
 
 /**
+ * A lista em que o vídeo aparece (spec 021).
+ *
+ * **`kind` é a natureza do vídeo e `tab` é a lista em que ele aparece.** Os
+ * dois divergem em exatamente um caso, e é o desta spec: a resposta que o admin
+ * posicionou na trilha tem `kind: 'resposta'` e `tab: 'aula'`.
+ *
+ * Toda listagem e toda reordenação são por este campo. Ler `kind` para decidir
+ * em que aba um vídeo aparece é o erro que esta spec inteira existe para
+ * separar.
+ */
+export type BadgeVideoTab = 'aula' | 'resposta';
+
+/**
  * A proporção do player (spec 017).
  *
  * `retrato` é 9:16 — o Short em que os vídeos de resposta são gravados —, e
@@ -44,13 +57,26 @@ export interface BadgeVideo {
   /** Só o ID do vídeo. A URL de embed é derivada, não guardada. */
   readonly youtubeId: string;
   /**
-   * A aba da insígnia (spec 010).
+   * A **natureza** do vídeo (spec 010), e não a lista em que ele aparece —
+   * essa é `tab`.
    *
-   * Aula se assiste em ordem; resposta se consulta por assunto. Misturadas, a
-   * trilha fica com respostas avulsas no meio da sequência — e a sequência
-   * deixa de ser sequência.
+   * Aula se assiste em ordem; resposta tem pergunta, tem balão e é Short. É de
+   * `kind` que `orientation` sai, e continua saindo depois da spec 021.
    */
   readonly kind: BadgeVideoKind;
+  /**
+   * A **lista** em que o vídeo aparece (spec 021).
+   *
+   * `kind` é a natureza, `tab` é a lista, e os dois divergem em exatamente um
+   * caso: a resposta posicionada na trilha, com `kind: 'resposta'` e
+   * `tab: 'aula'`. Ela continua com balão, continua em `retrato` e continua
+   * carregando a pergunta — o que mudou foi o endereço.
+   *
+   * Vídeo publicado antes da spec 021 chega com `tab` igual ao `kind` dele,
+   * que é onde ele já estava: o servidor deriva no converter, e nenhum
+   * documento foi migrado.
+   */
+  readonly tab: BadgeVideoTab;
   /** A pergunta do Mural que originou a resposta. Nulo em toda aula. */
   readonly questionId: string | null;
   /**
@@ -64,10 +90,14 @@ export interface BadgeVideo {
   /**
    * A proporção do player, **derivada no servidor** (spec 017).
    *
-   * **Não se deriva de `kind` aqui.** Seria uma linha, e é por ser uma linha
-   * que ela viraria três — template, folha de estilo e teste —, cada uma
-   * envelhecendo por conta própria. O servidor afirma, a tela obedece, e o dia
-   * em que existir uma resposta longa em paisagem nenhum arquivo daqui muda.
+   * **Não se deriva de `kind` aqui, e nem de `tab`.** Seria uma linha, e é por
+   * ser uma linha que ela viraria três — template, folha de estilo e teste —,
+   * cada uma envelhecendo por conta própria. O servidor afirma, a tela obedece,
+   * e o dia em que existir uma resposta longa em paisagem nenhum arquivo daqui
+   * muda. **A decisão 4 da spec 017 não é revogada pela 021:** a resposta
+   * posicionada na trilha continua chegando `retrato`, e o que a tela decide é
+   * apenas **onde** pintar esse retrato — dentro de um modal, e não na coluna
+   * da trilha.
    */
   readonly orientation: VideoOrientation;
   /** Livre para todos, mesmo numa insígnia adiantada. */

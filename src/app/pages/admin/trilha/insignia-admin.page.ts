@@ -19,7 +19,7 @@ import { CreateVideoRequest } from '../../../models/admin.model';
 import {
   AnsweredQuestion,
   BadgeVideo,
-  BadgeVideoKind
+  BadgeVideoTab
 } from '../../../models/track.model';
 
 type LoadState = 'loading' | 'ready' | 'error';
@@ -54,7 +54,7 @@ export class AdminInsigniaPage implements OnInit {
    * quebrava porque não existia resposta nenhuma; a partir da primeira, seria
    * 400 em toda seta clicada.
    */
-  protected readonly aba = signal<BadgeVideoKind>('aula');
+  protected readonly aba = signal<BadgeVideoTab>('aula');
 
   /**
    * A pergunta a responder, quando a tela foi aberta pela pauta do Mural.
@@ -69,6 +69,17 @@ export class AdminInsigniaPage implements OnInit {
 
   /** Aviso de reordenação que falhou e foi revertida. */
   protected readonly reorderError = signal<string | null>(null);
+
+  /**
+   * A linha que diz onde a resposta ficou, depois de uma publicação que trocou
+   * de aba (spec 021, decisão 10).
+   *
+   * Existe porque um vídeo que aparece **no fim** de uma lista de doze é um
+   * vídeo que a pessoa não vê sem rolar — e o admin acabou de vir da pauta do
+   * Mural, numa aba que não é esta. Some na próxima ação, e é uma linha, nunca
+   * um modal: é a mesma forma dos avisos que esta tela já tem.
+   */
+  protected readonly avisoDaTrilha = signal<string | null>(null);
 
   private pendingRemoval: BadgeVideo | null = null;
   protected readonly removalTarget = signal<BadgeVideo | null>(null);
@@ -102,7 +113,7 @@ export class AdminInsigniaPage implements OnInit {
    * dela**, e filtrar uma lista das duas juntas daria posições que não batem com
    * o que o servidor guardou.
    */
-  protected selectTab(aba: BadgeVideoKind): void {
+  protected selectTab(aba: BadgeVideoTab): void {
     if (this.aba() === aba) {
       return;
     }
@@ -164,6 +175,7 @@ export class AdminInsigniaPage implements OnInit {
 
   protected openForm(): void {
     this.formError.set(null);
+    this.avisoDaTrilha.set(null);
     this.showForm.set(true);
   }
 
@@ -180,10 +192,30 @@ export class AdminInsigniaPage implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (video) => {
-          this.videos.update((current) => [...current, video]);
           this.saving.set(false);
           this.showForm.set(false);
           this.form()?.reset();
+
+          if (video.tab !== this.aba()) {
+            // **Não empurra na lista em memória** (spec 021, decisão 10). O
+            // vídeo foi para outra aba, e o empurrão o poria na aba errada: o
+            // admin veio da pauta do Mural, está em Respostas, e o vídeo entrou
+            // na trilha. O defeito é invisível até alguém recarregar a página.
+            //
+            // Trocar de aba e recarregar não é só cosmético: a etapa de
+            // posicionar precisa da lista vinda do SERVIDOR, com as posições
+            // certas, antes de as setas fazerem sentido.
+            this.aba.set(video.tab);
+            this.load();
+            this.avisoDaTrilha.set(
+              `"${video.title}" entrou no fim da trilha. Use as setas para mover ela de lugar.`
+            );
+            this.perguntaAlvo.set(null);
+            return;
+          }
+
+          this.videos.update((current) => [...current, video]);
+          this.avisoDaTrilha.set(null);
           // A pergunta é consumida na publicação: uma resposta responde uma
           // pergunta, e reabrir o formulário ainda apontando para ela publicaria
           // a segunda resposta da mesma — que o backend aceita e que ninguém

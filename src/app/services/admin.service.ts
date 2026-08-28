@@ -13,8 +13,8 @@ import {
 import type { CampaignResult } from '../models/email.model';
 import {
   BadgeVideo,
-  BadgeVideoKind,
-  BadgeVideoList
+  BadgeVideoList,
+  BadgeVideoTab
 } from '../models/track.model';
 import type { TierId } from '../models/auth.model';
 
@@ -120,9 +120,13 @@ export class AdminService {
    */
   listVideos(
     badgeId: string,
-    kind?: BadgeVideoKind
+    tab?: BadgeVideoTab
   ): Observable<BadgeVideoList> {
-    const params = kind ? new HttpParams().set('kind', kind) : undefined;
+    // A aba é `tab` desde a spec 021, e o nome do argumento importa tanto
+    // quanto o do parâmetro: é ele que faz a próxima pessoa mandar a lista, e
+    // não a natureza do vídeo. A aba Aulas inclui as respostas posicionadas na
+    // trilha, e elas têm `kind: 'resposta'`.
+    const params = tab ? new HttpParams().set('tab', tab) : undefined;
 
     return this.http.get<BadgeVideoList>(
       `${this.base}/badges/${badgeId}/videos`,
@@ -167,24 +171,29 @@ export class AdminService {
   reorderVideos(
     badgeId: string,
     videoIds: readonly string[],
-    kind: BadgeVideoKind = 'aula'
+    tab: BadgeVideoTab = 'aula'
   ): Observable<void> {
     // A ordem é por aba (spec 010): reordenar Aulas não pode mexer nas
-    // Perguntas Frequentes, e o `kind` é o que separa as duas sequências.
+    // Perguntas Frequentes, e o `tab` é o que separa as duas sequências.
+    //
+    // **É `tab`, e não `kind` (spec 021).** A lista da trilha pode conter uma
+    // resposta posicionada nela, e é uma lista válida; mandada como `kind`, o
+    // backend a validaria contra a outra sequência e responderia 400 em toda
+    // seta clicada.
     return this.http.patch<void>(
       `${this.base}/badges/${badgeId}/videos/order`,
       { videoIds },
-      { params: new HttpParams().set('kind', kind) }
+      { params: new HttpParams().set('tab', tab) }
     );
   }
 
-  listVideosByKind(
+  listVideosByTab(
     badgeId: string,
-    kind: BadgeVideoKind
+    tab: BadgeVideoTab
   ): Observable<BadgeVideoList> {
     return this.http.get<BadgeVideoList>(
       `${this.base}/badges/${badgeId}/videos`,
-      { params: new HttpParams().set('kind', kind) }
+      { params: new HttpParams().set('tab', tab) }
     );
   }
 }

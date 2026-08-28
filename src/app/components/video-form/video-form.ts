@@ -24,6 +24,11 @@ import { dataPorExtenso } from '../../core/datas';
  *
  * Não basta mandar `kind` por baixo: o modo muda o formulário inteiro, porque a
  * pessoa precisa saber que está publicando outra coisa.
+ *
+ * **Em modo resposta ele ganha um toggle** (spec 021): ligado, a resposta entra
+ * na trilha em vez da aba de Perguntas Frequentes. A escolha acontece uma vez,
+ * na publicação, e não existe rota para movê-la depois — o conserto de um
+ * engano é remover e republicar.
  */
 @Component({
   selector: 'app-video-form',
@@ -96,6 +101,34 @@ import { dataPorExtenso } from '../../core/datas';
         placeholder="Uma linha sobre o que o vídeo resolve"
         autocomplete="off"
       />
+
+      @if (question()) {
+        <!--
+          O toggle da spec 021, e ele só existe em modo resposta: em modo aula
+          não teria significado, porque aula vive na trilha e ponto.
+
+          Nasce desligado, e o padrão é a decisão — o comportamento de hoje
+          continua sendo o que acontece quando ninguém decide nada.
+
+          A etiqueta diz que é uma TROCA DE LUGAR, e não uma adição: "posicionar
+          na trilha" sozinho não conta que a resposta sai da aba de Perguntas
+          Frequentes, e essa é a metade que surpreende depois.
+        -->
+        <label class="trilha">
+          <input
+            type="checkbox"
+            class="trilha__input"
+            formControlName="posicionarNaTrilha"
+          />
+          <span class="trilha__texto">
+            <span class="trilha__label">Posicionar na trilha</span>
+            <span class="trilha__hint">
+              A resposta entra na sequência das aulas e sai da aba de Perguntas
+              Frequentes. Depois de publicar, as setas movem ela de lugar.
+            </span>
+          </span>
+        </label>
+      }
 
       @if (error(); as mensagem) {
         <p class="form__error" role="alert">{{ mensagem }}</p>
@@ -184,6 +217,46 @@ import { dataPorExtenso } from '../../core/datas';
       color: #c0392b;
     }
 
+    /* O toggle da spec 021. Um checkbox de verdade dentro de um label: foco por
+       teclado, espaço para alternar, estado anunciado pelo leitor de tela e o
+       alvo de toque estendido para o texto inteiro. */
+    .trilha {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-top: 0.85rem;
+      padding: 0.75rem 0.85rem;
+      min-height: 2.75rem;
+      border: var(--border-w) solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      background: var(--screen);
+      cursor: pointer;
+    }
+
+    .trilha__input {
+      flex: 0 0 auto;
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-top: 0.15rem;
+    }
+
+    .trilha__texto {
+      display: grid;
+      gap: 0.2rem;
+    }
+
+    .trilha__label {
+      font-family: var(--font-display);
+      font-size: var(--step--1);
+      font-weight: 700;
+    }
+
+    .trilha__hint {
+      color: var(--ink-soft);
+      font-size: var(--step--2);
+      line-height: 1.5;
+    }
+
     .form__actions {
       display: flex;
       justify-content: flex-end;
@@ -233,7 +306,16 @@ export class VideoForm {
   protected readonly form = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(140)]],
     youtubeUrl: ['', [Validators.required]],
-    description: ['']
+    description: [''],
+    /**
+     * O toggle da spec 021, **desligado ao nascer**.
+     *
+     * Ele existe no grupo mesmo em modo aula, onde o campo nem é renderizado:
+     * um controle condicional exigiria `addControl`/`removeControl` a cada
+     * troca de modo, e o valor `false` de um campo invisível não vai para o
+     * corpo de jeito nenhum — quem decide isso é o `onSubmit`, pela pergunta.
+     */
+    posicionarNaTrilha: [false]
   });
 
   protected onSubmit(): void {
@@ -241,7 +323,8 @@ export class VideoForm {
       return;
     }
 
-    const { title, youtubeUrl, description } = this.form.getRawValue();
+    const { title, youtubeUrl, description, posicionarNaTrilha } =
+      this.form.getRawValue();
     const pergunta = this.question();
 
     // A URL vai como o admin colou. Extrair o ID aqui criaria uma segunda
@@ -250,11 +333,17 @@ export class VideoForm {
     // `kind` e `questionId` saem **juntos ou nenhum dos dois**: resposta sem
     // pergunta e aula com pergunta são os dois 400 do backend, e o modo é o
     // único lugar que decide isso.
+    // `tab` só sai quando o toggle está ligado, e só em modo resposta (spec
+    // 021). Desligado, ele **não vai**: o servidor deriva `tab = kind`, e
+    // mandar `tab: 'resposta'` explicitamente seria só ruído. Em modo aula ele
+    // não vai nunca — `kind: 'aula'` com `tab: 'resposta'` é 400, e um campo
+    // invisível não pode ser o que produz esse erro.
     this.submitted.emit({
       title: title.trim(),
       youtubeUrl: youtubeUrl.trim(),
       ...(description.trim() ? { description: description.trim() } : {}),
-      ...(pergunta ? { kind: 'resposta' as const, questionId: pergunta.id } : {})
+      ...(pergunta ? { kind: 'resposta' as const, questionId: pergunta.id } : {}),
+      ...(pergunta && posicionarNaTrilha ? { tab: 'aula' as const } : {})
     });
   }
 
@@ -264,6 +353,14 @@ export class VideoForm {
   }
 
   reset(): void {
-    this.form.reset({ title: '', youtubeUrl: '', description: '' });
+    this.form.reset({
+      title: '',
+      youtubeUrl: '',
+      description: '',
+      // Volta a desligado: o padrão é o comportamento de hoje, e uma escolha
+      // que sobrevivesse à publicação anterior mandaria a próxima resposta para
+      // a trilha sem ninguém ter decidido isso de novo.
+      posicionarNaTrilha: false
+    });
   }
 }
