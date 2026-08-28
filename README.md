@@ -15,7 +15,7 @@ Aplicação web e plataforma de membros da **Seita Dev**, desenvolvida com Angul
 | :--- | :--- | :--- | :--- |
 | `/` | Landing page institucional e serviços de aulas | Pública | - |
 | `/comunidade` | Apresentação da Seita Dev e lista de espera | Pública | - |
-| `/definir-senha` | Criação/redefinição de senha via link seguro por e-mail | Pública | - |
+| `/acesso` | Definição de senha e ações de e-mail pelo link do Firebase (`?mode=…&oobCode=…`) | **Pública** | — |
 | `/completar-perfil` | Onboarding obrigatório de novos membros (nome, telefone, bio) | Protegida | `authGuard`, `onboardingPendingGuard` |
 | `/dashboard` | Painel do membro com trilha, grupo e ranking | Protegida | `authGuard`, `profileCompleteGuard` |
 | `/dashboard/perfil` | Meu Perfil: dados, redes, e-mail, senha, recebimento de e-mails e exclusão de conta | Protegida | `authGuard`, `profileCompleteGuard`, `unsavedChangesGuard` (saída) |
@@ -155,6 +155,57 @@ de uma decisão que não é dela.
 **Token inválido mostra a mesma tela de sucesso**, que é o que a API responde — distinguir seria um
 oráculo de `uid`, e é deliberado dos dois lados. E a página fica **fora dos buscadores**: é uma URL com
 token na query, e um rastreador que a visitasse descadastraria a pessoa dona daquele token.
+
+### `/acesso`, a tela de senha (spec 020)
+
+Ela existiu como `/definir-senha`, morreu quando o link do e-mail passou a levar para a tela hospedada
+pelo Google, e voltou. **O que não voltou é o front falando com o Firebase**: o `oobCode` vai para a
+nossa API, que fala com o Identity Toolkit — o SDK web do Firebase aqui seria menos código e um segundo
+caminho de login instalado ao lado do primeiro, para sempre, por causa de uma tela.
+
+**Uma rota para todos os modos**, porque o console do Firebase tem um campo só: ele manda todo link de
+ação para um endereço, com o `mode` na query. O `mode` escolhe qual tela desenhar, e nunca qual operação
+a API executa — quem decide isso é o `oobCode`, que carrega o próprio `requestType`.
+
+| `mode` | O que a tela faz |
+|---|---|
+| `resetPassword` | Formulário de senha nova. É o cadastro **e** o "esqueci minha senha" |
+| `verifyAndChangeEmail`, `verifyEmail`, `recoverEmail` | Aplica e confirma. Sem formulário |
+| qualquer outro, ou ausente | Tela de link inválido, **sem chamar serviço nenhum** |
+
+Três coisas que a tela faz e que parecem detalhe:
+
+- **O código é conferido antes de o formulário aparecer.** Sem isso, quem clicou num link expirado
+  escolhe uma senha, digita duas vezes, submete, e só então descobre que o link morreu. Com isso, ele lê
+  a frase antes de gastar o gesto — e vê de qual conta é a senha que está criando.
+- **O `oobCode` é lido uma vez e some da barra de endereços**, e vive num signal do componente e em
+  nenhum outro lugar. A URL inteira entra no histórico, aparece em print de quem pede ajuda e vaza no
+  `Referer`. A página também vai **fora dos buscadores**, como o `/descadastro`.
+- **O `continueUrl` da query não é obedecido, é conferido**: se não for do mesmo `origin`, o destino é
+  `/?entrar=1`. A query é escrita por quem manda o link, e obedecê-la seria um redirecionamento aberto
+  com a marca do produto em cima.
+
+**Definir a senha não loga.** A resposta é `204` sem token, e o sucesso leva a `/?entrar=1`: o front não
+recebe material de sessão de nenhum caminho que não seja o login. Quem acabou de criar a senha entra com
+ela na hora, o que é, de quebra, a prova de que ela é a senha que a pessoa achou que digitou.
+
+O mínimo de 8 caracteres voltou a existir no front, e **ele é cortesia, não garantia**: quem garante é a
+política do projeto no console do Firebase, e a API é que traduz a recusa dela.
+
+> Trocar a senha **estando logado** continua sendo outra coisa: `/dashboard/perfil` › Acesso, por
+> `POST /me/password`, com reautenticação pela senha atual. Aquele fluxo não tem `oobCode` e não precisa
+> de um — quem está logado já provou identidade.
+
+### A troca de plano está desligada
+
+Os botões "Quero o \<tier\>" do `/dashboard/financeiro` ficam `disabled` com o rótulo **"Em breve"**,
+e o aviso "A troca de plano estará disponível em breve." aparece **uma vez, acima da lista** — `disabled`
+não é anunciado por leitor de tela, e repetir a frase em quatro cartões é a mesma promessa lida quatro
+vezes.
+
+Quem decide é a constante **`TROCA_DE_PLANO_DISPONIVEL`**, no topo de `financeiro.page.ts`. **Uma linha
+para religar**: o `onUpgrade` e o `contactHref` continuam lá, com o teste que os exercita chamando o
+método direto, porque apagá-los transformaria uma linha numa tarefa.
 
 ### O interruptor em Meu Perfil
 

@@ -13,12 +13,35 @@ const PROFILE: Profile = {
       'produção: o que ensino é o que uso todos os dias para construir plataformas SaaS reais, e ' +
       'por isso a aula nunca fica só na teoria.',
     languages: ['Português nativo', 'Inglês B1'],
+    // Os links de contato são conteúdo, e conteúdo mora onde já morava (decisão 1
+    // da spec 020). Não entra `environment`, que é para o que muda entre
+    // ambientes — o Instagram do Leno é o mesmo em preview e em produção, e pôr
+    // lá cria duas cópias do mesmo valor para divergirem.
+    //
+    // **O `?igsi=…` do link compartilhado não entra.** É o identificador de
+    // sessão que o app do Instagram cola ao copiar o link: ele identifica quem
+    // copiou, não o perfil. Colado aqui, manda todo visitante para o Instagram
+    // carregando o identificador de compartilhamento de uma pessoa só — e a
+    // cláusula 8 da Política de Privacidade (spec 018) diz que este produto não
+    // faz rastreio entre sites. O perfil é `lenoborges.dev`, e é só isso que o
+    // `href` precisa dizer.
     links: [
       {
         icon: 'linkedin',
         label: 'LinkedIn',
         handle: '/in/jediaelborges00',
         url: 'https://linkedin.com/in/jediaelborges00'
+      },
+      {
+        icon: 'whatsapp',
+        label: 'WhatsApp',
+        // **O formatado e o do `href` são dois valores escritos à mão, e nenhum
+        // deriva do outro em tempo de execução.** O `wa.me` só aceita o número
+        // cru, sem `+`, sem espaço e sem parêntese; o `handle` é para uma pessoa
+        // ler. Uma função que formatasse um a partir do outro seria a próxima a
+        // receber um número de outro país e a errar em silêncio.
+        handle: '+55 47 99247-8232',
+        url: 'https://wa.me/5547992478232'
       },
       {
         icon: 'portfolio',
@@ -30,7 +53,7 @@ const PROFILE: Profile = {
         icon: 'instagram',
         label: 'Instagram',
         handle: '@lenoborges.dev',
-        url: 'https://instagram.com/lenoborges.dev'
+        url: 'https://www.instagram.com/lenoborges.dev'
       }
     ]
   },

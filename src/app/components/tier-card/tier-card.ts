@@ -47,8 +47,17 @@ import { formatBRL } from '../../core/money';
       </ul>
 
       @if (!current()) {
-        <button type="button" class="card__cta" (click)="upgrade.emit(tier())">
-          Quero o {{ tier().name }}
+        <button
+          type="button"
+          class="card__cta"
+          [disabled]="!upgradeDisponivel()"
+          (click)="upgrade.emit(tier())"
+        >
+          @if (upgradeDisponivel()) {
+            Quero o {{ tier().name }}
+          } @else {
+            Em breve
+          }
         </button>
       }
     </article>
@@ -160,6 +169,17 @@ import { formatBRL } from '../../core/money';
       transform: scale(0.98);
     }
 
+    .card__cta:disabled {
+      border-color: var(--border-soft);
+      background: var(--border-soft);
+      color: var(--ink-soft);
+      cursor: not-allowed;
+    }
+
+    .card__cta:disabled:active {
+      transform: none;
+    }
+
     @media (hover: hover) {
       .card:hover {
         transform: translateY(-4px);
@@ -178,6 +198,19 @@ import { formatBRL } from '../../core/money';
 export class TierCard {
   readonly tier = input.required<BillingTier>();
   readonly current = input<boolean>(false);
+
+  /**
+   * Liga e desliga o botão de troca de plano.
+   *
+   * **O cartão continua burro**: ele não conhece a constante que decide isto,
+   * não sabe de sessão e não sabe por que está desabilitado. Quem sabe é a
+   * página do Financeiro, que é quem tem o contexto (decisão 4 da spec 020).
+   *
+   * `disabled` sozinho é silencioso para quem navega por teclado — o botão
+   * simplesmente não recebe foco — e por isso o aviso de "em breve" é texto na
+   * página, e não uma frase por cartão.
+   */
+  readonly upgradeDisponivel = input<boolean>(true);
 
   readonly upgrade = output<BillingTier>();
 

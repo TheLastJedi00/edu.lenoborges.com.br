@@ -10,8 +10,42 @@ export interface SignupRequest {
   readonly emailConfirmation: string;
 }
 
-// `SetPasswordRequest` foi removida na spec 007: a senha é definida na tela
-// hospedada pelo Firebase, e o front não participa mais desse passo.
+/**
+ * Os modos que o Firebase pode mandar na query da action URL (spec 020).
+ *
+ * **O `mode` chega da URL do navegador e serve para uma coisa só: escolher qual
+ * tela desenhar.** Quem decide qual operação o Firebase executa é o próprio
+ * `oobCode`, no servidor — ele carrega o `requestType`, e a API nem tem campo
+ * `mode` no corpo (decisão 3 da 020 do backend). Tratar este valor como se
+ * mandasse na credencial seria deixar quem escreve o link escolher a operação.
+ *
+ * Os três últimos o produto não dispara hoje, e a tela os trata mesmo assim: o
+ * endereço de ação é do projeto inteiro, e no dia em que alguém ligar a
+ * verificação de e-mail no console o link cai aqui. A alternativa a tratá-los é
+ * uma tela em branco para um membro que fez tudo certo.
+ */
+export type OobMode =
+  | 'resetPassword'
+  | 'verifyAndChangeEmail'
+  | 'verifyEmail'
+  | 'recoverEmail';
+
+/**
+ * Resposta de `POST /auth/password/check` e de `POST /auth/email-action`.
+ *
+ * O e-mail vir aqui **não é vazamento**: o `oobCode` é o segredo, e quem o tem
+ * provou ter a caixa de entrada em que o link chegou. É o mesmo que a tela do
+ * Firebase mostrava no lugar desta.
+ */
+export interface OobCheck {
+  readonly email: string;
+}
+
+/** Corpo de `POST /auth/password`. Sucesso é `204`: não vem sessão nenhuma. */
+export interface ConfirmPasswordRequest {
+  readonly oobCode: string;
+  readonly newPassword: string;
+}
 
 export interface MemberUser {
   readonly id: string;
