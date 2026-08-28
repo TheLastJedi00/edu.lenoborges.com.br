@@ -40,6 +40,8 @@ function perfil(
     role: null,
     tier: 'ultra-dev-tier',
     pendingLegal: [],
+    xp: 0,
+    socialLinksPublic: false,
     legalAcceptances
   };
 }

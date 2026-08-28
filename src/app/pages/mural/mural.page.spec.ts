@@ -30,6 +30,7 @@ function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
     phase: 'votacao',
     badgeId: 'poo',
     authorName: 'Leno',
+    authorUid: 'uid-autor',
     title: 'Como saber quando usar herança em vez de composição?',
     body: null,
     voteCount: 3,

@@ -85,6 +85,60 @@ describe('TrackService', () => {
 
     expect(status).toBe(404);
   });
+
+  describe('setWatched (spec 019)', () => {
+    it('manda um PUT com o estado desejado no corpo', () => {
+      service.setWatched('logica__dQw4w9WgXcQ', true).subscribe();
+
+      const req = http.expectOne((r) =>
+        r.url.endsWith('/me/watched-videos/logica__dQw4w9WgXcQ')
+      );
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual({ watched: true });
+      req.flush({
+        videoId: 'logica__dQw4w9WgXcQ',
+        watched: true,
+        xp: 10
+      });
+    });
+
+    /**
+     * **O teste-trava da decisão 1 na camada de dados.**
+     *
+     * O `xp` vem do corpo da resposta e **este serviço não o calcula**: o número
+     * 10 não existe neste repositório. A soma local acertaria no primeiro clique
+     * de cada vídeo e erraria em todos os seguintes, porque **remarcar não paga
+     * XP** — e o erro só apareceria quando alguém recarregasse a página.
+     */
+    it('teste-trava: o xp vem da resposta, e não de uma conta local', () => {
+      let xp: number | undefined;
+      service
+        .setWatched('logica__dQw4w9WgXcQ', true)
+        .subscribe((resultado) => (xp = resultado.xp));
+
+      // O servidor devolve 340 — não 10, e não "o que estava mais 10".
+      http
+        .expectOne((r) => r.url.endsWith('/me/watched-videos/logica__dQw4w9WgXcQ'))
+        .flush({ videoId: 'logica__dQw4w9WgXcQ', watched: true, xp: 340 });
+
+      expect(xp).toBe(340);
+    });
+
+    it('desmarcar usa a mesma rota, com watched false', () => {
+      service.setWatched('logica__dQw4w9WgXcQ', false).subscribe();
+
+      const req = http.expectOne((r) =>
+        r.url.endsWith('/me/watched-videos/logica__dQw4w9WgXcQ')
+      );
+      expect(req.request.body).toEqual({ watched: false });
+      req.flush({
+        videoId: 'logica__dQw4w9WgXcQ',
+        watched: false,
+        // O XP não cai: desmarcar tira o check e não devolve pontos.
+        xp: 340
+      });
+    });
+  });
 });
 
 describe('youtubeEmbedUrl', () => {

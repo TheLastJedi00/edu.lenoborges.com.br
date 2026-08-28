@@ -39,6 +39,8 @@ function perfil(pendentes: typeof TERMOS[]): MemberProfile {
     role: null,
     tier: 'dev-tier',
     pendingLegal: pendentes,
+    xp: 0,
+    socialLinksPublic: false,
     legalAcceptances: {}
   };
 }
