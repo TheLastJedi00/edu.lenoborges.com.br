@@ -20,10 +20,11 @@ describe('ProfileService', () => {
     expect(identity.summary.length).toBeGreaterThan(80);
   });
 
-  it('expõe três links de contato com URL absoluta', () => {
+  it('expõe quatro links de contato com URL absoluta', () => {
     const links = service.profile().identity.links;
 
-    expect(links.length).toBe(3);
+    // Quatro desde a spec 020, com a entrada do WhatsApp.
+    expect(links.length).toBe(4);
     links.forEach((link) => expect(link.url).toMatch(/^https:\/\//));
   });
 
