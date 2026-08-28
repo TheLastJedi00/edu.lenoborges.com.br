@@ -20,6 +20,7 @@ import { dataPorExtenso } from '../../../core/datas';
 import { TrackService } from '../../../services/track.service';
 import { Logo } from '../../../shared/logo/logo';
 import { CommunityService } from '../../../services/community.service';
+import { AuthStore } from '../../../core/auth/auth.store';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
@@ -37,11 +38,23 @@ export class InsigniaPage implements OnInit {
   private readonly community = inject(CommunityService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly destroyRef = inject(DestroyRef);
+  /**
+   * O XP mora no perfil do `AuthStore`, que o painel le -- e esta tela escreve
+   * nele em vez de guardar um numero proprio (spec 019, decisao 3). Um segundo
+   * signal de XP aqui seria o que fica velho na navegacao de volta.
+   */
+  private readonly authStore = inject(AuthStore);
 
   protected readonly aba = signal<BadgeVideoKind>('aula');
   protected readonly state = signal<LoadState>('loading');
   protected readonly videos = signal<readonly BadgeVideo[]>([]);
   protected readonly badgeId = signal('');
+
+  /** Ids com um `PUT` em voo. Trava o check para o clique não sair duas vezes. */
+  protected readonly marcando = signal<ReadonlySet<string>>(new Set());
+
+  /** O id do vídeo cuja marcação falhou, para a linha de erro sob o check. */
+  protected readonly erroDoVisto = signal<string | null>(null);
 
   protected readonly stage = computed(() =>
     this.community.trackStages().find((item) => item.id === this.badgeId())
@@ -83,7 +96,13 @@ export class InsigniaPage implements OnInit {
 
   protected load(): void {
     this.state.set('loading');
+    this.erroDoVisto.set(null);
 
+    // O `watched` de cada vídeo vem do servidor junto da lista, em toda carga e
+    // em toda troca de aba. **Nada disso mora no navegador** (decisão 11): um
+    // `localStorage` falharia nas duas direções — navegador limpo faria quem já
+    // assistiu ver tudo desmarcado, e um estado gravado por engano esconderia
+    // para sempre um vídeo que a pessoa quis marcar.
     this.track
       .getVideos(this.badgeId(), this.aba())
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -97,6 +116,69 @@ export class InsigniaPage implements OnInit {
         },
         error: () => this.state.set('error')
       });
+  }
+
+  /**
+   * Marca ou desmarca o vídeo (spec 019).
+   *
+   * **Duas coisas mudam, e elas têm origens diferentes** (decisão 2):
+   *
+   * - o **check** muda na hora, otimista, porque é a reação direta a um toque —
+   *   um check que espera 400 ms de rede parece travado no celular, e quem
+   *   duvida clica de novo;
+   * - o **XP** só muda quando a resposta chega, porque ele não é reação a nada:
+   *   é um número que o servidor calculou. Somar 10 aqui seria a decisão 1
+   *   violada no único lugar em que ela é fácil de violar sem perceber — a soma
+   *   acertaria no primeiro clique de cada vídeo e erraria em todos os
+   *   seguintes, porque **remarcar não paga XP**.
+   *
+   * Se o `PUT` falhar, o check volta ao que era e uma linha discreta aparece.
+   */
+  protected alternarVisto(video: BadgeVideo): void {
+    if (this.marcando().has(video.id)) {
+      return;
+    }
+
+    const desejado = !video.watched;
+
+    this.erroDoVisto.set(null);
+    this.marcando.update((atual) => new Set(atual).add(video.id));
+    this.aplicarVisto(video.id, desejado);
+
+    this.track
+      .setWatched(video.id, desejado)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resultado) => {
+          // O número vem do corpo da resposta, sempre. A tela não multiplica.
+          this.authStore.setXp(resultado.xp);
+          // E o check volta a ser o que o servidor afirma — que é o mesmo valor
+          // do palpite otimista, exceto se algo tiver mudado no meio.
+          this.aplicarVisto(video.id, resultado.watched);
+          this.liberar(video.id);
+        },
+        error: () => {
+          this.aplicarVisto(video.id, !desejado);
+          this.erroDoVisto.set(video.id);
+          this.liberar(video.id);
+        }
+      });
+  }
+
+  private aplicarVisto(videoId: string, watched: boolean): void {
+    this.videos.update((lista) =>
+      lista.map((item) =>
+        item.id === videoId ? { ...item, watched } : item
+      )
+    );
+  }
+
+  private liberar(videoId: string): void {
+    this.marcando.update((atual) => {
+      const proximo = new Set(atual);
+      proximo.delete(videoId);
+      return proximo;
+    });
   }
 
   /**

@@ -352,3 +352,55 @@
     transition: none;
   }
 }
+
+/* O check "Já assisti" (spec 019).
+
+   Ele fica FORA do `.video__frame` de propósito: dentro, herdaria a caixa de
+   proporção acima e mudaria de tamanho conforme o vídeo fosse retrato ou
+   paisagem. Aqui ele tem sempre a mesma altura de toque, nos dois formatos. */
+.visto {
+  margin-top: 0.75rem;
+}
+
+.visto__linha {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  /* Alvo de toque de 44px, e o `label` o estende para o texto inteiro. */
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.visto__input {
+  flex: 0 0 auto;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.15rem;
+}
+
+.visto__input:disabled {
+  cursor: progress;
+}
+
+.visto__texto {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.visto__label {
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.visto__hint {
+  color: var(--ink-soft);
+  font-size: var(--step--2);
+  line-height: 1.5;
+}
+
+.visto__erro {
+  margin: 0.25rem 0 0;
+  color: var(--danger, #b3261e);
+  font-size: var(--step--2);
+}

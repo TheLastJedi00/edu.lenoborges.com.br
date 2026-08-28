@@ -139,6 +139,57 @@
                   allowfullscreen
                 ></iframe>
               </div>
+
+              <!--
+                O check fica FORA do `video__frame` (spec 019, decisão 4).
+                Dentro, ele herdaria a caixa de proporção da spec 017 e mudaria
+                de tamanho conforme o vídeo fosse retrato ou paisagem.
+
+                É um `input[type="checkbox"]` de verdade, dentro de um `label`:
+                foco por teclado, espaço para alternar, "marcado" anunciado pelo
+                leitor de tela e o alvo de toque estendido para o texto inteiro
+                — quatro coisas que uma reimplementação com `div` faz pela
+                metade.
+
+                O rótulo é do MEMBRO sobre si mesmo ("Já assisti"), e não uma
+                instrução do sistema ("Marcar como assistido").
+              -->
+              <div class="visto">
+                <label class="visto__linha">
+                  <input
+                    type="checkbox"
+                    class="visto__input"
+                    [checked]="video.watched"
+                    [disabled]="marcando().has(video.id)"
+                    (change)="alternarVisto(video)"
+                  />
+                  <span class="visto__texto">
+                    <span class="visto__label">
+                      {{ video.watched ? 'Assistido' : 'Já assisti' }}
+                    </span>
+                    <!--
+                      A frase existe porque, sem ela, o comportamento parece bug:
+                      alguém desmarca esperando o número cair, ele não cai, e a
+                      conclusão razoável é que a tela está quebrada. A regra é
+                      deliberada, e dizê-la antes do clique é mais barato que a
+                      dúvida depois.
+                    -->
+                    <span class="visto__hint">
+                      Os 10 XP são seus para sempre — desmarcar só tira o check.
+                    </span>
+                  </span>
+                </label>
+
+                @if (erroDoVisto() === video.id) {
+                  <!--
+                    Uma linha, e não um modal: falhar em marcar um vídeo não é
+                    evento que mereça interromper a leitura.
+                  -->
+                  <p class="visto__erro" role="alert">
+                    Não consegui salvar agora. Tente de novo.
+                  </p>
+                }
+              </div>
             </li>
           }
         </ul>

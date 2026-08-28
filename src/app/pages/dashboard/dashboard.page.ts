@@ -10,6 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { BadgeCount } from '../../components/badge-count/badge-count';
+import { XpCount } from '../../components/xp-count/xp-count';
 import { Logo } from '../../shared/logo/logo';
 import { IconBilling } from '../../components/icons/icon-billing';
 import { IconGames } from '../../components/icons/icon-games';
@@ -27,6 +28,7 @@ import { AuthStore } from '../../core/auth/auth.store';
   imports: [
     RouterLink,
     BadgeCount,
+    XpCount,
     IconTrack,
     IconBilling,
     IconMural,
@@ -80,4 +82,13 @@ export class DashboardPage implements OnInit {
 
   /** Vem da sessão até o perfil chegar, então o selo nunca pisca uma insígnia errada. */
   readonly grade = this.authStore.grade;
+
+  /**
+   * O XP vem do perfil, e nao da sessao (spec 019).
+   *
+   * Aparece quando o `GET /me` chega, que e o mesmo momento em que este painel
+   * monta. Ate la o lugar do selo fica vazio -- e vazio e melhor que um `0` que
+   * pisca e vira `340`.
+   */
+  readonly xp = this.authStore.xp;
 }
