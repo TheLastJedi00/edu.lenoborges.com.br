@@ -1,5 +1,117 @@
 <main class="page">
-  <div class="cartao">
-    <app-logo />
-  </div>
+  <app-pixel-panel class="cartao animate-enter" tone="screen">
+    <app-logo class="cartao__logo" />
+
+    @switch (estado()) {
+      @case ('conferindo') {
+        <!-- Estado de carregamento, e não formulário desabilitado: um campo
+             cinza sugere que há algo a preencher agora. -->
+        <h1 class="cartao__titulo">Conferindo o seu link…</h1>
+        <p class="cartao__texto">Só um instante.</p>
+      }
+
+      @case ('aplicando') {
+        <h1 class="cartao__titulo">Confirmando…</h1>
+        <p class="cartao__texto">Só um instante.</p>
+      }
+
+      @case ('confirmado') {
+        <h1 class="cartao__titulo">
+          @switch (modo()) {
+            @case ('verifyAndChangeEmail') {
+              Seu e-mail foi trocado
+            }
+            @case ('recoverEmail') {
+              Seu e-mail foi restaurado
+            }
+            @default {
+              Seu e-mail está confirmado
+            }
+          }
+        </h1>
+        <p class="cartao__texto">
+          A partir de agora você entra com <strong>{{ email() }}</strong>.
+        </p>
+        <app-pixel-button [route]="destinoDeSaida()">Ir para o site</app-pixel-button>
+      }
+
+      @case ('link-invalido') {
+        <!-- Expirado e inválido caem aqui, na mesma tela: distinguir informaria
+             a quem colou um código qualquer se ele existiu algum dia. E o caso é
+             o mais comum de todos — o link de quem já definiu a senha uma vez
+             está morto por definição. -->
+        <h1 class="cartao__titulo">Esse link não vale mais</h1>
+        <p class="cartao__texto">
+          Links de senha expiram e valem uma vez só. Peça um novo na tela de entrar.
+        </p>
+        <app-pixel-button route="/?entrar=1">Pedir um link novo</app-pixel-button>
+      }
+
+      @default {
+        <h1 class="cartao__titulo">Criar a sua senha</h1>
+
+        @if (email()) {
+          <p class="cartao__texto">
+            Criando a senha de <strong>{{ email() }}</strong>.
+          </p>
+        }
+
+        <!-- As regras ficam **acima** dos campos, e não como erro depois do
+             submit (decisão 12). O mínimo de 8 aqui é cortesia: quem garante é a
+             política do projeto no console do Firebase, e a API é que traduz a
+             recusa dela. Uma validação de front que se apresenta como a regra é
+             a próxima a divergir do servidor sem que ninguém note. -->
+        <p class="cartao__regras">Pelo menos 8 caracteres, e as duas iguais.</p>
+
+        <form class="form" [formGroup]="form" (ngSubmit)="submeter()">
+          <label class="field">
+            <span class="field__label">Nova senha</span>
+            <input
+              class="field__input"
+              type="password"
+              formControlName="senha"
+              autocomplete="new-password"
+              [attr.aria-invalid]="senhaCurta() ? 'true' : null"
+              [attr.aria-describedby]="senhaCurta() ? 'erro-senha' : null"
+            />
+            @if (senhaCurta()) {
+              <span class="field__error" id="erro-senha">
+                A senha deve ter no mínimo 8 caracteres.
+              </span>
+            }
+          </label>
+
+          <label class="field">
+            <span class="field__label">Repita a senha</span>
+            <input
+              class="field__input"
+              type="password"
+              formControlName="confirmacao"
+              autocomplete="new-password"
+              [attr.aria-invalid]="senhasDivergem() ? 'true' : null"
+              [attr.aria-describedby]="senhasDivergem() ? 'erro-confirmacao' : null"
+            />
+            @if (senhasDivergem()) {
+              <span class="field__error" id="erro-confirmacao">
+                As duas senhas precisam ser iguais.
+              </span>
+            }
+          </label>
+
+          @if (erro()) {
+            <p class="form__erro" role="alert">{{ erro() }}</p>
+          }
+
+          <button class="submit" type="submit" [disabled]="estado() === 'enviando'">
+            @if (estado() === 'enviando') {
+              <span class="submit__spinner" aria-hidden="true"></span>
+              Salvando…
+            } @else {
+              Salvar senha
+            }
+          </button>
+        </form>
+      }
+    }
+  </app-pixel-panel>
 </main>
