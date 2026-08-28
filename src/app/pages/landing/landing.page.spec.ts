@@ -9,8 +9,8 @@ import { AuthStore } from '../../core/auth/auth.store';
 /**
  * Cobre só o retorno do cadastro.
  *
- * Desde a spec 007 a senha é definida na tela hospedada pelo Firebase, e o botão
- * de retorno de lá traz o usuário para a landing com `?entrar=1`. Esse parâmetro
+ * Desde a spec 020 a senha é definida em `/acesso`, a nossa tela, e é ela que
+ * traz o usuário para a landing com `?entrar=1` ao terminar. Esse parâmetro
  * é o último elo do fluxo: sem ele, quem acabou de criar a senha cai na home sem
  * nenhum sinal de que já pode entrar.
  */
@@ -145,5 +145,70 @@ describe('LandingPage · CTA gratuito', () => {
 
     expect(texto).not.toContain('lista de espera');
     expect(texto).not.toContain('acesso antecipado');
+  });
+});
+
+/**
+ * O CTA de contato da hero, depois da spec 020.
+ *
+ * "Agendar aula particular" apontava para o LinkedIn, que era o canal real por
+ * ausência de outro. Com o WhatsApp na lista, ele passa a apontar para onde a
+ * conversa de agendar uma aula de fato acontece.
+ */
+describe('LandingPage · o CTA de contato', () => {
+  function setup() {
+    TestBed.configureTestingModule({
+      imports: [LandingPage],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap({}) } }
+        }
+      ]
+    });
+
+    const fixture = TestBed.createComponent(LandingPage);
+    fixture.detectChanges();
+
+    return fixture;
+  }
+
+  /** O href do primeiro CTA de contato da hero. */
+  function ctaHref(fixture: ReturnType<typeof setup>): string {
+    const anchor = fixture.nativeElement.querySelector(
+      'a[href^="https://wa.me"]'
+    ) as HTMLAnchorElement | null;
+
+    return anchor?.getAttribute('href') ?? '';
+  }
+
+  it('aponta para o WhatsApp, com a mensagem já na query', () => {
+    const href = ctaHref(setup());
+
+    expect(href).toContain('https://wa.me/5547992478232');
+    expect(href).toContain('?text=');
+    // encodeURIComponent, e não o texto cru: sem ele o primeiro acento quebra a
+    // query.
+    expect(href).toContain(
+      encodeURIComponent('Oi, Leno! Vim pelo site e quero saber sobre as aulas particulares.')
+    );
+  });
+
+  it('abre em aba nova sem entregar a janela de origem', () => {
+    const fixture = setup();
+    const anchor = fixture.nativeElement.querySelector(
+      'a[href^="https://wa.me"]'
+    ) as HTMLAnchorElement;
+
+    expect(anchor.getAttribute('target')).toBe('_blank');
+    expect(anchor.getAttribute('rel')).toBe('noopener noreferrer');
+  });
+
+  it('teste-trava: o CTA não carrega o igsi do Instagram', () => {
+    expect(ctaHref(setup())).not.toContain('igsi');
   });
 });

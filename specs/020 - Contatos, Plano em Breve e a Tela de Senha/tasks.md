@@ -15,29 +15,29 @@ decisões nomeadas dentro delas, e por isso os blocos foram para o parágrafo e 
   repositório seguiu descrevendo por doze dias uma rota que não existia — inclusive na tabela do
   `README.md`, que a Task 22 corrige.
 
-# Fase 01: Os contatos reais [ ]
+# Fase 01: Os contatos reais [x]
 Branch: `feat/020-contatos-reais`
 
 Independente das outras fases. Ao fim dela, todo link de contato do site leva a um lugar que existe.
 
-- [ ] Task 01: O ícone e o tipo. Arquivos: `src/app/models/profile.model.ts`,
+- [x] Task 01: O ícone e o tipo. Arquivos: `src/app/models/profile.model.ts`,
   `src/app/components/icons/icon-social.ts`. Objetivo: `'whatsapp'` em `IconName` e o `@case`
   correspondente no `IconSocial`, apontando para o `IconWhatsapp` que **já existe** em
   `components/icons/icon-whatsapp.ts` desde a spec 003 — nenhum SVG novo.
-- [ ] Task 02: Os links. Arquivo: `src/app/services/profile.service.ts`. Objetivo: Instagram passa a
+- [x] Task 02: Os links. Arquivo: `src/app/services/profile.service.ts`. Objetivo: Instagram passa a
   `https://www.instagram.com/lenoborges.dev`; entra o WhatsApp com `url: 'https://wa.me/5547992478232'` e
   `handle: '+55 47 99247-8232'`; LinkedIn e Portfólio não mudam. **O comentário registra a decisão 1**: o
   `?igsi=` do link compartilhado não entra — é o identificador de sessão de quem copiou, e mandar todo
   visitante com ele é o rastreio que a cláusula 8 da Política diz que não fazemos. E registra que o
   número formatado e o do `href` são dois valores escritos à mão, nunca um derivado do outro.
-- [ ] Task 03: A grade aceita quatro. Arquivo: `src/app/components/contact-links/contact-links.ts`.
+- [x] Task 03: A grade aceita quatro. Arquivo: `src/app/components/contact-links/contact-links.ts`.
   Objetivo: `repeat(auto-fit, minmax(13rem, 1fr))` no lugar de `repeat(3, 1fr)` (decisão 3). O celular
   não muda: a grade já era de uma coluna.
-- [ ] Task 04: O CTA vai para o WhatsApp. Arquivo: `src/app/pages/landing/landing.page.ts`. Objetivo:
+- [x] Task 04: O CTA vai para o WhatsApp. Arquivo: `src/app/pages/landing/landing.page.ts`. Objetivo:
   `contactHref` procura `icon === 'whatsapp'`, com `?text=` curto e `encodeURIComponent`; o `?? links[0].url`
   continua. **O comentário antigo sai** — ele diz "único canal de contato real hoje (LinkedIn)" e deixa de
   ser verdade nesta task; o novo diz por que o `?text=` só é possível agora (decisão 2).
-- [ ] Task 05 (TDD): Spec dos contatos. Arquivos: `contact-links.spec.ts`, `landing.page.spec.ts`.
+- [x] Task 05 (TDD): Spec dos contatos. Arquivos: `contact-links.spec.ts`, `landing.page.spec.ts`.
   Objetivo: três travas — o `href` do WhatsApp é `https://wa.me/5547992478232` com o texto na query; **nenhum
   `href` de contato contém `igsi`** (é o teste que fica vermelho quando alguém colar de novo o link do
   app); e o CTA da hero aponta para o WhatsApp, com `target="_blank"` e `rel="noopener noreferrer"`.

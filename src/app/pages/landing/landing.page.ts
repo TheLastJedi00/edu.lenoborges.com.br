@@ -4,7 +4,7 @@ import {
   computed,
   inject,
   signal,
-  OnInit
+  OnInit,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ContactLinks } from '../../components/contact-links/contact-links';
@@ -38,11 +38,11 @@ import { ProfileService } from '../../services/profile.service';
     TimelineEntry,
     ContactLinks,
     Reveal,
-    RouterLink
+    RouterLink,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './landing.page.html',
-  styleUrl: './landing.page.scss'
+  styleUrl: './landing.page.scss',
 })
 export class LandingPage implements OnInit {
   private readonly profileService = inject(ProfileService);
@@ -57,13 +57,13 @@ export class LandingPage implements OnInit {
     { href: '#dev', label: 'Dev' },
     { route: '/comunidade', label: 'Comunidade' },
     { href: '#formacao', label: 'Formação' },
-    { href: '#contato', label: 'Contato' }
+    { href: '#contato', label: 'Contato' },
   ];
 
   protected readonly menuAction = computed<MenuAction>(() =>
     this.authStore.isLoggedIn()
       ? { label: 'Ir para o painel', route: '/dashboard' }
-      : { label: 'Entrar na Liga Dev' }
+      : { label: 'Entrar na Liga Dev' },
   );
 
   protected readonly identity = computed(() => this.profileService.profile().identity);
@@ -102,7 +102,7 @@ export class LandingPage implements OnInit {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {},
-      replaceUrl: true
+      replaceUrl: true,
     });
   }
 
@@ -125,8 +125,33 @@ export class LandingPage implements OnInit {
     this.authStore.openAuthDialog('signup');
   }
 
-  /** Único canal de contato real hoje (LinkedIn); agendamento por calendário fica fora de escopo. */
-  protected readonly contactHref = computed(
-    () => this.identity().links.find((link) => link.icon === 'linkedin')?.url ?? this.identity().links[0].url
-  );
+  /**
+   * Mensagem que o WhatsApp abre já digitada.
+   *
+   * Curta de propósito: ela aparece na caixa de texto e a pessoa vai apagar o
+   * que sobrar. O `encodeURIComponent` é obrigatório — sem ele, o primeiro
+   * acento ou `&` quebra a query.
+   */
+  private readonly MENSAGEM_DE_CONTATO =
+    'Oi, Leno! Vim pelo site e quero saber sobre as aulas particulares.';
+
+  /**
+   * Destino de "Agendar aula particular": o WhatsApp, que é onde a conversa de
+   * agendar uma aula de fato acontece. O LinkedIn era o canal real por ausência
+   * de outro, e não por escolha (decisão 2 da spec 020).
+   *
+   * O `?text=` só é possível agora: o `wa.me` aceita mensagem na URL, e essa é
+   * exatamente a condição que faltava enquanto o único canal era o LinkedIn.
+   *
+   * O `find` por `icon` continua, e o motivo não mudou: **um lugar só para o
+   * link mudar**. Se o WhatsApp sair da lista um dia, o `?? links[0].url` deixa
+   * o CTA clicável em vez de quebrado.
+   */
+  protected readonly contactHref = computed(() => {
+    const whatsapp = this.identity().links.find((link) => link.icon === 'whatsapp');
+
+    return whatsapp
+      ? `${whatsapp.url}?text=${encodeURIComponent(this.MENSAGEM_DE_CONTATO)}`
+      : this.identity().links[0].url;
+  });
 }

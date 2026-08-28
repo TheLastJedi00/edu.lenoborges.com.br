@@ -72,7 +72,12 @@ import { IconSocial } from '../icons/icon-social';
 
     @media (min-width: 48rem) {
       .links {
-        grid-template-columns: repeat(3, 1fr);
+        /* auto-fit em vez de um número fixo: com quatro canais, repeat(3, 1fr)
+           punha três em cima e um sozinho embaixo, esticado na largura de um
+           terço. A regra deixa de ser um número que precisa ser reeditado toda
+           vez que um canal entra ou sai (decisão 3 da spec 020). No celular
+           nada muda: a grade já era de uma coluna. */
+        grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
       }
     }
   `
