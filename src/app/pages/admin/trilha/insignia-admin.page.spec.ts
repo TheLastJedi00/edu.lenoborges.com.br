@@ -371,5 +371,171 @@ describe('AdminInsigniaPage', () => {
 
       expect(el.textContent).toContain('youtube.com/shorts');
     });
+
+    /**
+     * A resposta posicionada na trilha (spec 021).
+     *
+     * O caso que estes testes travam é o da decisão 10: publicar da aba
+     * Respostas um vídeo que voltou com `tab: 'aula'`. O empurrão na lista em
+     * memória o poria na **aba errada**, e o defeito é invisível até alguém
+     * recarregar a página.
+     */
+    describe('· posicionar a resposta na trilha (spec 021)', () => {
+      /** Abre a tela pela pauta, com o formulário já em modo resposta. */
+      function comPergunta() {
+        const contexto = setup([], { resposta: '2026-08-09__uid-1' });
+
+        http
+          .expectOne((req) => req.url.endsWith('/mural/vencedoras'))
+          .flush(PAUTA);
+        contexto.fixture.detectChanges();
+
+        return contexto;
+      }
+
+      /** Liga o toggle "Posicionar na trilha" do formulário. */
+      function ligarToggle(fixture: { detectChanges(): void }, el: HTMLElement) {
+        const caixa = el.querySelector(
+          'app-video-form .trilha__input'
+        ) as HTMLInputElement;
+        caixa.checked = true;
+        caixa.dispatchEvent(new Event('change'));
+        fixture.detectChanges();
+      }
+
+      /** O que o servidor devolve para uma resposta que foi para a trilha. */
+      function respostaNaTrilha() {
+        return {
+          ...video('logica__rrrrrrrrrrr', 'Herança e composição, na prática', 3),
+          kind: 'resposta' as const,
+          tab: 'aula' as const,
+          questionId: '2026-08-09__uid-1'
+        };
+      }
+
+      it('o toggle liga e o corpo do POST leva tab aula', () => {
+        const { fixture, el } = comPergunta();
+
+        ligarToggle(fixture, el);
+        publicar(fixture, el, 'https://www.youtube.com/shorts/rrrrrrrrrrr');
+
+        const post = http.expectOne(
+          (req) =>
+            req.method === 'POST' &&
+            req.url.endsWith('/admin/badges/logica/videos')
+        );
+
+        expect(post.request.body).toEqual(
+          jasmine.objectContaining({
+            kind: 'resposta',
+            questionId: '2026-08-09__uid-1',
+            tab: 'aula'
+          })
+        );
+        post.flush(respostaNaTrilha());
+      });
+
+      /**
+       * **O bug que a decisão 10 evita.** O admin veio da pauta e está na aba
+       * Respostas; o vídeo entrou na trilha. Empurrar na lista em memória o
+       * mostraria na aba errada, e a etapa de posicionar precisa da lista vinda
+       * do servidor — com as posições certas — antes de as setas fazerem
+       * sentido.
+       */
+      it('publicando na aba Respostas, troca de aba e refaz o listVideos', () => {
+        const { fixture, el } = comPergunta();
+
+        ligarToggle(fixture, el);
+        publicar(fixture, el, 'https://www.youtube.com/shorts/rrrrrrrrrrr');
+
+        http
+          .expectOne(
+            (req) =>
+              req.method === 'POST' &&
+              req.url.endsWith('/admin/badges/logica/videos')
+          )
+          .flush(respostaNaTrilha());
+        fixture.detectChanges();
+
+        // Recarrega, e pede a aba do vídeo — não a que estava na tela.
+        const recarga = http.expectOne(
+          (req) =>
+            req.method === 'GET' &&
+            req.url.endsWith('/admin/badges/logica/videos')
+        );
+        expect(recarga.request.params.get('tab')).toBe('aula');
+        recarga.flush({
+          badgeId: 'logica',
+          videos: [
+            video('a1', 'Aula 1', 0),
+            video('a2', 'Aula 2', 1),
+            respostaNaTrilha()
+          ]
+        });
+        fixture.detectChanges();
+
+        expect(el.querySelector('.tab--on')?.textContent?.trim()).toBe('Aulas');
+        // A linha que diz onde o vídeo ficou: um item no fim de uma lista de
+        // doze é um item que a pessoa não vê sem rolar.
+        expect(el.querySelector('.alert--ok')?.textContent).toContain(
+          'entrou no fim da trilha'
+        );
+      });
+
+      /**
+       * O outro lado, e ele é o comportamento de hoje: com o toggle desligado a
+       * resposta fica na aba, e nada muda.
+       */
+      it('sem o toggle, a resposta continua na aba e não troca de lista', () => {
+        const { fixture, el } = comPergunta();
+
+        publicar(fixture, el, 'https://www.youtube.com/shorts/rrrrrrrrrrr');
+
+        const post = http.expectOne(
+          (req) =>
+            req.method === 'POST' &&
+            req.url.endsWith('/admin/badges/logica/videos')
+        );
+        expect(
+          (post.request.body as { tab?: string }).tab
+        ).toBeUndefined();
+
+        post.flush({
+          ...respostaNaTrilha(),
+          tab: 'resposta' as const
+        });
+        fixture.detectChanges();
+
+        // Nenhuma recarga: o vídeo entrou na lista que já estava na tela.
+        http.expectNone(
+          (req) =>
+            req.method === 'GET' &&
+            req.url.endsWith('/admin/badges/logica/videos')
+        );
+        expect(el.querySelector('.tab--on')?.textContent?.trim()).toBe(
+          'Respostas'
+        );
+        expect(el.querySelector('.alert--ok')).toBeNull();
+      });
+
+      /**
+       * A etiqueta da decisão 11: sem ela o admin move um item sem saber que
+       * não é aula, e vai procurar a aula que jurava ter publicado.
+       */
+      it('a etiqueta aparece no item de resposta da trilha, e não na aula', () => {
+        const { fixture, el } = setup([
+          video('a1', 'Aula 1', 0),
+          respostaNaTrilha()
+        ]);
+        fixture.detectChanges();
+
+        const itens = el.querySelectorAll('.video');
+
+        expect(itens[0].querySelector('.video__etiqueta')).toBeNull();
+        expect(
+          itens[1].querySelector('.video__etiqueta')?.textContent?.trim()
+        ).toBe('Resposta');
+      });
+    });
   });
 });

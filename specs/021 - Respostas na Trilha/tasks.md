@@ -75,37 +75,38 @@ vídeo abre por cima.
   provar que o áudio para; (d) um vídeo sem `question` na aba Aulas continua sendo o cartão de aula de sempre,
   com player embutido — o caso do ponto em aberto 4.
 
-# Fase 03: O toggle e a etapa de posicionar
+# Fase 03: O toggle e a etapa de posicionar [x]
 Branch: `feat/021-toggle-do-admin`
 
 A fase que o professor vê. Ao fim dela, publicar uma resposta é escolher entre dois lugares.
 
-- [ ] Task 01: O toggle no formulário. Arquivo: `src/app/components/video-form/video-form.ts`. Objetivo: um
+- [x] Task 01: O toggle no formulário. Arquivo: `src/app/components/video-form/video-form.ts`. Objetivo: um
   checkbox `posicionarNaTrilha` que **só existe quando `question()` estiver preenchida** (modo resposta),
   nascendo desligado, e que no `submit` vira `tab: 'aula'` — e nada, quando desligado. A etiqueta diz que é
   uma **troca de lugar**, não uma adição: a resposta entra na trilha e sai da aba de Perguntas Frequentes. O
   comentário registra a decisão 9: em modo aula o toggle não teria significado, e o padrão desligado é o que
   mantém o comportamento de hoje como o que acontece quando ninguém decide nada.
-- [ ] Task 02 (TDD + implementação): O teste do formulário. Arquivo: o spec do `VideoForm`. Objetivo:
+- [x] Task 02 (TDD + implementação): O teste do formulário. Arquivo: o spec do `VideoForm` — **ele não
+  existia e foi criado aqui** (`video-form.spec.ts`). Objetivo:
   testes-trava de que (a) sem pergunta, o toggle **não é renderizado** e `tab` nunca sai no corpo; (b) com
   pergunta e toggle desligado, o corpo tem `kind: 'resposta'` e `questionId` e **não tem `tab`** — o servidor
   deriva, e mandar `tab: 'resposta'` explicitamente seria só ruído; (c) com pergunta e toggle ligado, o corpo
   tem `kind: 'resposta'`, `questionId` e `tab: 'aula'`.
-- [ ] Task 03: A etapa de posicionar. Arquivo: `src/app/pages/admin/trilha/insignia-admin.page.ts`.
+- [x] Task 03: A etapa de posicionar. Arquivo: `src/app/pages/admin/trilha/insignia-admin.page.ts`.
   Objetivo: no `create`, quando o vídeo criado tiver `tab` diferente da aba corrente, **não empurrar na lista
   em memória**: trocar para a aba do vídeo e recarregar do servidor. Comentário registrando a decisão 10 — o
   empurrão de hoje poria o vídeo na aba errada, e a etapa de posicionar precisa da lista vinda do servidor com
   as posições certas antes de as setas fazerem sentido.
-- [ ] Task 04: A linha que diz onde o vídeo ficou. Arquivos: `insignia-admin.page.html`, `.ts`, `.scss`.
+- [x] Task 04: A linha que diz onde o vídeo ficou. Arquivos: `insignia-admin.page.html`, `.ts`, `.scss`.
   Objetivo: depois de uma publicação que trocou de aba, uma linha dizendo que a resposta entrou **no fim da
   trilha** e que as setas a movem. Some na próxima ação. É a mesma forma dos avisos que a tela já tem — uma
   linha, nunca um modal —, e existe porque um vídeo que aparece no fim de uma lista de doze é um vídeo que a
   pessoa não vê sem rolar.
-- [ ] Task 05: A etiqueta de resposta na lista da trilha. Arquivos: `insignia-admin.page.html`, `.scss`.
+- [x] Task 05: A etiqueta de resposta na lista da trilha. Arquivos: `insignia-admin.page.html`, `.scss`.
   Objetivo: na aba Aulas, o item com `kind: 'resposta'` ganha uma etiqueta discreta. Sem coluna nova, sem
   filtro e sem contagem. Comentário registrando a decisão 11: sem ela, o admin move um item sem saber que não
   é aula, e vai procurar a aula que jurava ter publicado.
-- [ ] Task 06 (TDD + implementação): Os testes do painel. Arquivo: `insignia-admin.page.spec.ts`. Objetivo:
+- [x] Task 06 (TDD + implementação): Os testes do painel. Arquivo: `insignia-admin.page.spec.ts`. Objetivo:
   testes-trava de que (a) publicar estando na aba Respostas um vídeo que voltou com `tab: 'aula'` **troca a
   aba e refaz o `listVideos`**, e não acrescenta o vídeo à lista na tela — é o bug que a decisão 10 evita, e
   ele é invisível até alguém recarregar a página; (b) publicar uma resposta com `tab: 'resposta'` continua
