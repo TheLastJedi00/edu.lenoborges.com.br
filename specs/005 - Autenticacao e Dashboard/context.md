@@ -29,6 +29,28 @@ O formulário de cadastro tem **dois campos, ambos e-mail**: o endereço e a con
 de senha. Depois do envio, o modal entra em estado de espera e diz para o usuário abrir o e-mail. O
 link do e-mail cai numa página nova, `/definir-senha`, onde ele cria a senha. Só então ele loga.
 
+> **DEPRECATED em 2026-08-28 pela [spec 020](../020%20-%20Contatos,%20Plano%20em%20Breve%20e%20a%20Tela%20de%20Senha/context.md)** — a segunda vez que esta página muda de dono.
+>
+> A rota `/definir-senha` descrita aqui **morreu na decisão 3 da spec 007 do backend** (2026-08-16),
+> quando o Supabase saiu e a tela passou a ser a hospedada pelo Google, em
+> `<projeto>.firebaseapp.com/__/auth/action`. Este arquivo nunca registrou aquela morte, e é por isso
+> que ele descreveu por doze dias uma página que não existia — a mesma linha ficou na tabela de rotas
+> do `README.md`.
+>
+> A spec 020 a traz de volta como **`/acesso`**, e com três diferenças que valem ler antes de
+> reaproveitar qualquer coisa daqui:
+>
+> - **Uma rota para todos os modos**, e não uma por ação. O endereço é configurado uma vez por projeto
+>   no console do Firebase, e o `mode` da query decide qual tela desenhar.
+> - **O `oobCode` não é lido pelo front contra o provedor.** Ele vai para a nossa API, que fala com o
+>   Identity Toolkit — a decisão desta spec de o front nunca falar com o provedor de auth continua
+>   inteira, e é ela que recusa o SDK web do Firebase no bundle.
+> - **O `token_hash` na query e a leitura do fragmento não voltam.** Eram do Supabase. O que volta é o
+>   `scrubTokenFromUrl`: a credencial é lida uma vez e sai da barra de endereços.
+>
+> O resto desta seção continua vigente: o cadastro segue **sem campo de senha**, com dois campos de
+> e-mail, e o botão continua dizendo "Criar conta".
+
 Isso muda o vocabulário da tela: o botão do cadastro não diz "Criar conta e entrar", diz
 **"Criar conta"**, e a tela de sucesso explica o próximo passo em vez de comemorar.
 

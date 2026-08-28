@@ -126,6 +126,28 @@ honesto que sobra é a conta grátis, e ela é de verdade grátis, o que torna o
 defender da página inteira.
 
 ### 4. Financeiro é rota do painel, e o upgrade leva a uma conversa
+
+> ### ⚠️ Parcialmente DEPRECATED em 2026-08-28 pela [spec 020](../020%20-%20Contatos,%20Plano%20em%20Breve%20e%20a%20Tela%20de%20Senha/context.md)
+>
+> **O que caiu é a metade do upgrade**: o botão "Quero o \<tier\>" passa a nascer `disabled`, com o
+> rótulo **"Em breve"**, e a tela diz uma vez, acima da lista, que a troca de plano estará disponível
+> em breve. Vale para todo mundo, admin incluído. O desligamento é uma constante —
+> `TROCA_DE_PLANO_DISPONIVEL` — e não uma deleção: `onUpgrade` e `contactHref` continuam no arquivo,
+> com o teste que os exercita, porque religar precisa ser uma linha.
+>
+> **Todo o resto da decisão continua vigente**: a rota `/dashboard/financeiro` no aside, os três
+> blocos na mesma ordem, os tiers como degraus cumulativos com o "Tudo do \<anterior\>" apagado, e o
+> preço em centavos formatado por um helper só, com o `priceLabel` da API como fallback e nunca como
+> fonte.
+>
+> **O parágrafo "Não existe checkout" continua verdadeiro e é o que motiva o desligamento**: o
+> raciocínio dele — *um botão "Assinar" que não assina promete um fluxo que não existe, e a pessoa
+> descobre no clique* — é exatamente o argumento da decisão 4 da 020, aplicado agora ao botão que
+> abria uma conversa que ninguém tinha combinado.
+>
+> A frase *"o botão de upgrade abre o WhatsApp com uma mensagem pré-preenchida"* nunca chegou a ser
+> verdade: o ponto em aberto criado pela execução, no fim deste arquivo, registra que ele abria o
+> LinkedIn. Com a 020 o WhatsApp passa a existir de fato — só que no CTA da landing, não aqui.
 `/dashboard/financeiro`, item novo no aside, entre Home e Trilha.
 
 A tela tem três blocos, nesta ordem: **seu plano hoje** (Dev Tier, para todo mundo, por enquanto), **os
@@ -339,6 +361,12 @@ o mesmo padrão.
    do Ultra e do Master.
 3. **A mensagem do WhatsApp de upgrade é pré-preenchida com qual texto?** Assumido: *"Quero o <Tier>"*,
    com o nome do tier.
+
+   > **Fechado como não-aplicável em 2026-08-28 pela [spec 020](../020%20-%20Contatos,%20Plano%20em%20Breve%20e%20a%20Tela%20de%20Senha/context.md).**
+   > Não há mensagem de upgrade a redigir: o botão está `disabled` com "Em breve" (decisão 4 da 020).
+   > O `?text=` existe e ficou no CTA da landing, com *"Oi, Leno! Vim pelo site e quero saber sobre as
+   > aulas particulares."*
+
 4. **Insígnia com vídeo mas ainda não conquistada mostra algo diferente?** Assumido: não. O cartão diz o
    estado, o conteúdo abre igual. Gate só quando existir assinatura.
 
@@ -380,6 +408,18 @@ pré-preenchida (*"Quero o &lt;Tier&gt;"*), e ela precisa de um canal que aceite
 contato configurado hoje é o LinkedIn, onde `?text=` não existe — inventar o parâmetro produziria um
 link quebrado. O rótulo do botão já carrega o nome do tier, então a pessoa chega à conversa sabendo o
 que pedir. Configurar um número de WhatsApp resolve, e a mudança é de uma linha.
+
+> **DEPRECATED em 2026-08-28 pela [spec 020](../020%20-%20Contatos,%20Plano%20em%20Breve%20e%20a%20Tela%20de%20Senha/context.md).**
+>
+> As duas metades deste ponto foram resolvidas em direções opostas, e por isso ele fecha.
+>
+> **O WhatsApp passou a existir**: `+55 47 99247-8232` entrou em `PROFILE.identity.links` como
+> `https://wa.me/5547992478232`, e com ele o `?text=` que este parágrafo dizia ser impossível. A
+> mudança foi de uma linha, como previsto aqui.
+>
+> **E o upgrade deixou de levar a uma conversa**: o botão está `disabled` com "Em breve" (decisão 4
+> da 020), então não há mensagem pré-preenchida a compor. Quem passou a usar o `?text=` é o
+> **"Agendar aula particular"** da landing, que é onde a conversa de fato acontece.
 
 ---
 
