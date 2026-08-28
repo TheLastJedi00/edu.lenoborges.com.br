@@ -128,14 +128,14 @@ Branch: `feat/020-tela-de-acesso`
   `continueUrl` de outro domínio **é ignorado** (o teste-trava do redirecionamento aberto); e o sucesso
   navega para `/?entrar=1` **sem tocar no `AuthStore`**.
 
-# Fase 05: Fechar [ ]
+# Fase 05: Fechar [ ] (Task 24 é a prova no navegador)
 Branch: `feat/020-fechamento`
 
-- [ ] Task 22: `README.md`. Objetivo: a tabela de rotas ganha `/acesso` **e perde a linha
+- [x] Task 22: `README.md`. Objetivo: a tabela de rotas ganha `/acesso` **e perde a linha
   `/definir-senha`, que está lá hoje descrevendo uma rota que não existe desde a spec 007**; uma seção
   curta sobre a tela de senha, com as decisões 6, 8 e 11 em três frases; e a nota de que a troca de plano
   está desligada por constante, com o nome dela.
-- [ ] Task 23: `npm run lint` e `npm test`. Suíte verde antes de fechar.
+- [x] Task 23: `npm test` e `ng build`. Suíte verde antes de fechar: **562 testes e build limpo.** (Este repositório não tem script de `lint` — o portão é o build mais a suíte.)
 - [ ] Task 24: Conferir no navegador, e é aqui que esta spec falha se falhar.
   - Os quatro links de contato a 360 px e a 1440 px — a grade da decisão 3 é o que se está olhando.
   - O CTA da hero abrindo o WhatsApp **no celular de verdade**, com o texto preenchido: `wa.me` se
