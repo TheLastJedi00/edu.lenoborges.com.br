@@ -394,6 +394,43 @@ export class PerfilPage implements OnInit {
     }
   }
 
+  // ------------------------------------------------- Redes visíveis (spec 019)
+
+  /**
+   * O interruptor das redes sociais (spec 019, decisão 6).
+   *
+   * **Nasce desligado no backend**, e a posição inicial aqui vem do perfil, nunca
+   * de um padrão local: um chute aqui seria um chute ligado, e um chute ligado
+   * publica o vínculo de alguém que nunca foi perguntado.
+   */
+  protected readonly redesPublicas = signal(false);
+  protected readonly redesPublicasError = signal('');
+
+  /**
+   * Grava **no clique**, e fora do formulário de redes.
+   *
+   * São duas gravações diferentes no mesmo bloco, e isso é escolha: os campos de
+   * LinkedIn e Instagram salvam por submit, o interruptor salva sozinho. Um
+   * interruptor que precisa de "Salvar redes" é um interruptor que fica meio
+   * ligado — e a exceção é a mesma já nomeada no `alternarEmails` acima.
+   */
+  async alternarRedesPublicas(): Promise<void> {
+    const anterior = this.redesPublicas();
+    const proximo = !anterior;
+
+    this.redesPublicas.set(proximo);
+    this.redesPublicasError.set('');
+
+    try {
+      await firstValueFrom(this.authService.setSocialLinksPublic(proximo));
+    } catch (error: unknown) {
+      this.redesPublicas.set(anterior);
+      this.redesPublicasError.set(
+        httpErrorMessage(error, 'Não consegui salvar essa preferência agora.'),
+      );
+    }
+  }
+
   // ------------------------------------------------------------ Excluir conta
 
   private readonly excluirDialog = viewChild<DeleteAccountDialog>('excluirDialog');
@@ -619,6 +656,10 @@ export class PerfilPage implements OnInit {
 
     // O interruptor nasce do que veio do `GET /me`, invertido.
     this.recebeEmails.set(!profile.emailOptOut);
+
+    // E o das redes nasce do campo, **sem inversão e sem padrão local**: o
+    // servidor diz `false` para quem nunca ligou, e é essa a posição certa.
+    this.redesPublicas.set(profile.socialLinksPublic);
 
     // O que acabou de chegar da API é o novo ponto de comparação: sem isto,
     // salvar deixaria o formulário "sujo" para sempre e o aviso de saída
