@@ -18,7 +18,6 @@ const DOCUMENTO = {
   template: `
     <app-legal-accept-dialog
       #dialog
-      documentId="termos-de-uso"
       [readonly]="readonly()"
       (accepted)="aceitos.push($event)"
     />
@@ -54,7 +53,7 @@ describe('LegalAcceptDialog', () => {
   afterEach(() => httpMock.verify());
 
   async function abrir(): Promise<void> {
-    host.dialog().open();
+    host.dialog().open('termos-de-uso');
     httpMock
       .expectOne(`${environment.apiUrl}/legal/documents/termos-de-uso`)
       .flush(DOCUMENTO);

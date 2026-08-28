@@ -76,7 +76,6 @@ export class PerfilPage implements OnInit {
   private readonly contratoDialog = viewChild<LegalAcceptDialog>('contratoDialog');
 
   protected readonly legalDocuments = signal<readonly LegalDocumentSummary[]>([]);
-  protected readonly contratoAberto = signal<string | null>(null);
 
   /**
    * Uma linha por documento vigente, com a data do aceite (spec 018, decisão 11).
@@ -106,8 +105,7 @@ export class PerfilPage implements OnInit {
   });
 
   protected abrirContrato(documentId: string): void {
-    this.contratoAberto.set(documentId);
-    queueMicrotask(() => this.contratoDialog()?.open());
+    this.contratoDialog()?.open(documentId);
   }
 
   // ---------------------------------------------------------------- Seus dados

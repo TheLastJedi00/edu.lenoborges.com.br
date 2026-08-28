@@ -386,7 +386,7 @@
         @if (contratos().length) {
           <ul class="contratos">
             @for (contrato of contratos(); track contrato.id) {
-              <li class="acesso__row">
+              <li class="acesso acesso__row">
                 <div>
                   <p class="acesso__label">{{ contrato.title }}</p>
                   <p class="acesso__value u-mono">
@@ -478,6 +478,4 @@
   Modo leitura: sem check e sem botão de aceitar. Abrir sem `readonly` daria um
   aceite numa tela de consulta (spec 018, decisão 11).
 -->
-@if (contratoAberto(); as docId) {
-  <app-legal-accept-dialog #contratoDialog [documentId]="docId" [readonly]="true" />
-}
+<app-legal-accept-dialog #contratoDialog [readonly]="true" />

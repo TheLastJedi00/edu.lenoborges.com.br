@@ -63,7 +63,6 @@ export class CompletarPerfilPage implements OnInit {
    * esta tela não muda.
    */
   protected readonly legalDocuments = signal<readonly LegalDocumentSummary[]>([]);
-  protected readonly openDocumentId = signal<string | null>(null);
 
   /**
    * O que **o servidor** diz que falta, e não uma marca guardada nesta tela.
@@ -91,10 +90,11 @@ export class CompletarPerfilPage implements OnInit {
   }
 
   protected openLegal(documentId: string): void {
-    this.openDocumentId.set(documentId);
-    // O `documentId` é input do diálogo; abrir no mesmo tique leria o valor
-    // antigo, então a abertura espera o binding ser aplicado.
-    queueMicrotask(() => this.legalDialog()?.open());
+    // O diálogo está sempre renderizado e recebe o id no argumento: não há
+    // binding para esperar nem ordem entre microtask e renderização para
+    // acertar. A versão anterior fazia as duas coisas erradas — `@if` mais
+    // `queueMicrotask` — e o modal abria sem nunca ter buscado o texto.
+    this.legalDialog()?.open(documentId);
   }
 
   protected onLegalAccepted(documentId: string): void {

@@ -185,4 +185,57 @@ describe('CompletarPerfilPage · aceite legal', () => {
       'termos-de-uso'
     );
   });
+
+  /**
+   * **A trava do bug que só o navegador pegou.**
+   *
+   * O diálogo já viveu dentro de um `@if` e era aberto numa `queueMicrotask`.
+   * Em zoneless a microtask roda ANTES de o Angular criar o componente, então a
+   * referência era `undefined`, o `?.` engolia a chamada em silêncio, e o modal
+   * aparecia sem nunca ter buscado o texto. Os testes antigos não pegavam
+   * porque chamavam `open()` com o componente já montado, ou porque um
+   * `whenStable` antes da asserção dava tempo de a ordem se acertar por acaso.
+   *
+   * Este não espera nada: um clique, um ciclo de detecção, e a requisição do
+   * documento **precisa** já ter saído.
+   */
+  it('teste-trava: um clique basta para o documento ser buscado', async () => {
+    await montar([TERMOS, PRIVACIDADE]);
+
+    Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.legal__btn')
+    )
+      .find((b) => b.textContent?.includes('Termos de Uso'))!
+      .click();
+    fixture.detectChanges();
+
+    // Sem `whenStable` no meio: se a abertura depender de uma microtask e de um
+    // ciclo de renderização a mais, não há requisição aqui e o expectOne falha.
+    httpMock
+      .expectOne(`${environment.apiUrl}/legal/documents/termos-de-uso`)
+      .flush(DOCUMENTO);
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // O texto na tela e a prova de que a busca saiu e chegou: com o bug, o
+    // modal ficava parado no "Carregando o documento...".
+    const dialogo = (fixture.nativeElement as HTMLElement).querySelector('app-legal-accept-dialog dialog')!;
+    expect(dialogo.textContent).toContain('Ao criar uma conta');
+    expect(dialogo.textContent).not.toContain('Carregando o documento');
+  });
+
+  /**
+   * Um `<dialog>` fechado é `display: none` por padrão do navegador. Um
+   * `display` solto no seletor base sobrescreve esse padrão e desenha o diálogo
+   * no meio da página como se fosse um cartão — foi o segundo defeito da mesma
+   * tela, e ele não aparece em nenhum teste que só olhe o DOM.
+   */
+  it('teste-trava: o diálogo fechado não aparece na página', async () => {
+    await montar([TERMOS, PRIVACIDADE]);
+
+    const dialogo = (fixture.nativeElement as HTMLElement).querySelector('app-legal-accept-dialog dialog')!;
+    expect(dialogo.hasAttribute('open')).toBeFalse();
+    expect(getComputedStyle(dialogo).display).toBe('none');
+  });
 });
