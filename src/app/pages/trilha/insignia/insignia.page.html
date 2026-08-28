@@ -107,11 +107,15 @@
                   seguidas, sem ele o leitor conta de cima para saber a quem cada
                   balão pertence.
 
+                  Na TRILHA o rabicho sai (spec 021, decisão 7): abaixo do balão
+                  não há vídeo, há um botão, e apontar para ele é dizer uma frase
+                  que ninguém quis dizer.
+
                   O texto é uma foto do momento da publicação: pode divergir do
                   que está hoje no Mural, e isso é o certo — o vídeo respondeu o
                   que foi perguntado.
                 -->
-                <blockquote class="balao">
+                <blockquote class="balao" [class.balao--sem-rabicho]="naTrilha()">
                   <p class="balao__pergunta">{{ pergunta.title }}</p>
                   <p class="balao__meta u-mono">
                     <cite class="balao__autor">{{ pergunta.authorName }}</cite>
@@ -120,25 +124,60 @@
                 </blockquote>
               }
 
-              <!--
-                A proporção vem de `orientation`, que o servidor derivou — a
-                tela NÃO olha `kind`. Derivar aqui poria a mesma regra de produto
-                em três arquivos, e cada um envelheceria por conta própria.
-              -->
-              <div
-                class="video__frame"
-                [class.video__frame--retrato]="video.orientation === 'retrato'"
-                [class.video__frame--paisagem]="video.orientation === 'paisagem'"
-              >
-                <iframe
-                  [src]="embedUrl(video)"
-                  [title]="video.title"
-                  loading="lazy"
-                  referrerpolicy="strict-origin-when-cross-origin"
-                  allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
-                  allowfullscreen
-                ></iframe>
-              </div>
+              @if (naTrilha() && video.question) {
+                <!--
+                  O cartão de pergunta (spec 021, decisão 1).
+
+                  Nenhum iframe até o clique, e o título continua vindo primeiro
+                  (decisão 2): a pergunta é longa e específica e não diz do que a
+                  etapa trata — uma coluna só de perguntas some para quem está
+                  varrendo a sequência atrás de onde parou.
+
+                  A condição é a aba corrente somada à existência de `question`,
+                  e não uma leitura de `kind` aqui: a página já sabe qual lista
+                  está mostrando, e essa é a informação mais barata e mais
+                  difícil de errar que ela tem.
+                -->
+                @if (video.watched) {
+                  <!--
+                    A marca de assistido (decisão 6). É LEITURA, e não controle:
+                    não é checkbox, não é clicável, e desmarcar continua sendo
+                    coisa de dentro do modal. Sem ela, a pessoa abre o modal só
+                    para descobrir se já viu — exatamente o gesto que o cartão
+                    existe para evitar.
+                  -->
+                  <p class="assistido u-mono">Já assistido</p>
+                }
+
+                <button
+                  type="button"
+                  class="ver-resposta"
+                  #botao
+                  (click)="abrirResposta(video, botao)"
+                >
+                  Ver a resposta
+                </button>
+              } @else {
+                <!--
+                  A proporção vem de `orientation`, que o servidor derivou — a
+                  tela NÃO olha `kind` nem `tab`. Derivar aqui poria a mesma
+                  regra de produto em três arquivos, e cada um envelheceria por
+                  conta própria.
+                -->
+                <div
+                  class="video__frame"
+                  [class.video__frame--retrato]="video.orientation === 'retrato'"
+                  [class.video__frame--paisagem]="video.orientation === 'paisagem'"
+                >
+                  <iframe
+                    [src]="embedUrl(video)"
+                    [title]="video.title"
+                    loading="lazy"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+                    allowfullscreen
+                  ></iframe>
+                </div>
 
               <!--
                 O check fica FORA do `video__frame` (spec 019, decisão 4).
@@ -154,42 +193,43 @@
                 O rótulo é do MEMBRO sobre si mesmo ("Já assisti"), e não uma
                 instrução do sistema ("Marcar como assistido").
               -->
-              <div class="visto">
-                <label class="visto__linha">
-                  <input
-                    type="checkbox"
-                    class="visto__input"
-                    [checked]="video.watched"
-                    [disabled]="marcando().has(video.id)"
-                    (change)="alternarVisto(video)"
-                  />
-                  <span class="visto__texto">
-                    <span class="visto__label">
-                      {{ video.watched ? 'Assistido' : 'Já assisti' }}
+                <div class="visto">
+                  <label class="visto__linha">
+                    <input
+                      type="checkbox"
+                      class="visto__input"
+                      [checked]="video.watched"
+                      [disabled]="marcando().has(video.id)"
+                      (change)="alternarVisto(video)"
+                    />
+                    <span class="visto__texto">
+                      <span class="visto__label">
+                        {{ video.watched ? 'Assistido' : 'Já assisti' }}
+                      </span>
+                      <!--
+                        A frase existe porque, sem ela, o comportamento parece
+                        bug: alguém desmarca esperando o número cair, ele não
+                        cai, e a conclusão razoável é que a tela está quebrada. A
+                        regra é deliberada, e dizê-la antes do clique é mais
+                        barato que a dúvida depois.
+                      -->
+                      <span class="visto__hint">
+                        Os 10 XP são seus para sempre — desmarcar só tira o check.
+                      </span>
                     </span>
-                    <!--
-                      A frase existe porque, sem ela, o comportamento parece bug:
-                      alguém desmarca esperando o número cair, ele não cai, e a
-                      conclusão razoável é que a tela está quebrada. A regra é
-                      deliberada, e dizê-la antes do clique é mais barato que a
-                      dúvida depois.
-                    -->
-                    <span class="visto__hint">
-                      Os 10 XP são seus para sempre — desmarcar só tira o check.
-                    </span>
-                  </span>
-                </label>
+                  </label>
 
-                @if (erroDoVisto() === video.id) {
-                  <!--
-                    Uma linha, e não um modal: falhar em marcar um vídeo não é
-                    evento que mereça interromper a leitura.
-                  -->
-                  <p class="visto__erro" role="alert">
-                    Não consegui salvar agora. Tente de novo.
-                  </p>
-                }
-              </div>
+                  @if (erroDoVisto() === video.id) {
+                    <!--
+                      Uma linha, e não um modal: falhar em marcar um vídeo não é
+                      evento que mereça interromper a leitura.
+                    -->
+                    <p class="visto__erro" role="alert">
+                      Não consegui salvar agora. Tente de novo.
+                    </p>
+                  }
+                </div>
+              }
             </li>
           }
         </ul>
@@ -197,3 +237,107 @@
     }
   }
 </section>
+
+
+<!--
+  O modal da resposta (spec 021, decisão 3).
+
+  **Um só na página, e não um por cartão.** Um `<dialog>` por item numa lista de
+  doze são doze diálogos no DOM para uma coisa que é singular por natureza: só um
+  está aberto por vez, sempre.
+
+  O elemento fica sempre no DOM e **o conteúdo dele não** (decisão 4): um player
+  do YouTube escondido continua tocando, e fechar o modal deixando o iframe vivo
+  é áudio saindo de uma página sem vídeo nenhum à vista, com a pessoa procurando
+  qual aba do navegador está falando com ela. Destruir o elemento é o único jeito
+  confiável de parar um player de terceiros sem falar a API dele.
+
+  Não é rota: uma URL para a resposta aberta seria um estado a restaurar no F5 e
+  um botão Voltar que fecha o vídeo em vez de sair da página.
+-->
+<dialog
+  #respostaDialog
+  class="resposta"
+  aria-label="A resposta em vídeo"
+  (close)="onRespostaClose()"
+>
+  @if (respostaAberta(); as aberta) {
+    <div class="resposta__corpo">
+      <header class="resposta__head">
+        <h2 class="resposta__titulo">{{ aberta.title }}</h2>
+        <button
+          type="button"
+          class="resposta__fechar"
+          aria-label="Fechar a resposta"
+          (click)="fecharResposta()"
+        >
+          <app-icon-close class="resposta__icone" />
+        </button>
+      </header>
+
+      @if (aberta.question; as pergunta) {
+        <blockquote class="balao balao--sem-rabicho">
+          <p class="balao__pergunta">{{ pergunta.title }}</p>
+          <p class="balao__meta u-mono">
+            <cite class="balao__autor">{{ pergunta.authorName }}</cite>
+            · {{ dataDaPergunta(pergunta) }}
+          </p>
+        </blockquote>
+      }
+
+      <!--
+        A mesma classe e a mesma folha de estilo da spec 017 — não há uma segunda
+        proporção escrita aqui. O retrato ganhou um segundo lugar onde é pintado,
+        e não uma segunda definição.
+      -->
+      <div
+        class="video__frame"
+        [class.video__frame--retrato]="aberta.orientation === 'retrato'"
+        [class.video__frame--paisagem]="aberta.orientation === 'paisagem'"
+      >
+        <iframe
+          [src]="embedUrl(aberta)"
+          [title]="aberta.title"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+
+      <!--
+        O check acompanha o vídeo (decisão 5): ele é o gesto de quem assistiu, e
+        no cartão fechado ainda não houve o que assistir. Um check no cartão
+        fechado deixaria marcar sem abrir, que é XP a um clique de distância de
+        quem só estava rolando a página.
+
+        Continua FORA do `video__frame` — a decisão 4 da spec 019 vale dentro do
+        modal também, e é o que impede o check de herdar a caixa de proporção.
+      -->
+      <div class="visto">
+        <label class="visto__linha">
+          <input
+            type="checkbox"
+            class="visto__input"
+            [checked]="aberta.watched"
+            [disabled]="marcando().has(aberta.id)"
+            (change)="alternarVisto(aberta)"
+          />
+          <span class="visto__texto">
+            <span class="visto__label">
+              {{ aberta.watched ? 'Assistido' : 'Já assisti' }}
+            </span>
+            <span class="visto__hint">
+              Os 10 XP são seus para sempre — desmarcar só tira o check.
+            </span>
+          </span>
+        </label>
+
+        @if (erroDoVisto() === aberta.id) {
+          <p class="visto__erro" role="alert">
+            Não consegui salvar agora. Tente de novo.
+          </p>
+        }
+      </div>
+    </div>
+  }
+</dialog>

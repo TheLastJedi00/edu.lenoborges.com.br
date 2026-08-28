@@ -1,5 +1,13 @@
 # Spec 021: Respostas na Trilha
 
+> **Alteração de escopo durante a execução (2026-08-28).** O fechamento do modal **não depende do
+> evento `close` do `<dialog>`**. A decisão 4 dizia que o conteúdo mora num `@if`, e isso não muda;
+> o que mudou é quem apaga o estado: o botão limpa direto, e o `(close)` continua tratando o `Esc`,
+> com a limpeza idempotente. O motivo apareceu no teste — **o `<dialog>` nativo não abre nem dispara
+> `close` no Chrome headless** —, e a lição vale além dele: o estado da tela não pode depender de um
+> evento de terceiro para deixar de existir, que é exatamente a dependência que deixaria um iframe
+> tocando atrás de um modal fechado.
+
 ## Objetivo
 Uma resposta hoje só existe na aba **Perguntas Frequentes** da insígnia, e quem está seguindo a trilha nunca
 a encontra — a aba fica ao lado, e ninguém troca de aba no meio de uma sequência para conferir se apareceu

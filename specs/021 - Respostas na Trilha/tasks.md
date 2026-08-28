@@ -35,39 +35,39 @@ a publicação de uma resposta que vai para a trilha.
   > `insignia-admin.page.spec.ts`), e foram esses que falharam antes da troca, como previsto. Os testes
   > que faltavam nos serviços foram escritos aqui.
 
-# Fase 02: O cartão de pergunta e o modal
+# Fase 02: O cartão de pergunta e o modal [x]
 Branch: `feat/021-cartao-e-modal`
 
 A fase que o aluno vê. Ao fim dela, uma resposta posicionada na trilha aparece como pergunta com botão, e o
 vídeo abre por cima.
 
-- [ ] Task 01: O cartão de pergunta. Arquivos: `pages/trilha/insignia/insignia.page.html`, `.scss`.
+- [x] Task 01: O cartão de pergunta. Arquivos: `pages/trilha/insignia/insignia.page.html`, `.scss`.
   Objetivo: na aba Aulas, um vídeo com `question` desenha **título, balão e o botão "Ver a resposta"**, e
   **nenhum iframe**. Na aba Perguntas Frequentes, tudo continua como está — balão com rabicho e player
   abaixo. A condição é a aba corrente somada à existência de `question`, e não uma leitura de `kind` no
   template: a página já sabe qual lista está mostrando, e essa é a informação mais barata e mais difícil de
   errar que ela tem. Comentário registrando a decisão 2 — **o título continua vindo primeiro**, porque uma
   coluna só de perguntas some para quem está procurando onde parou.
-- [ ] Task 02: O balão sem rabicho. Arquivo: `insignia.page.scss`. Objetivo: uma classe modificadora que
+- [x] Task 02: O balão sem rabicho. Arquivo: `insignia.page.scss`. Objetivo: uma classe modificadora que
   desliga o `::after` da spec 017. O comentário diz por quê: o rabicho aponta para o vídeo, e no cartão da
   trilha o que está abaixo é um botão — apontar para ele é dizer uma frase que ninguém quis dizer.
-- [ ] Task 03: O modal. Arquivos: `insignia.page.html`, `.ts`, `.scss`. Objetivo: um `<dialog>` **único na
+- [x] Task 03: O modal. Arquivos: `insignia.page.html`, `.ts`, `.scss`. Objetivo: um `<dialog>` **único na
   página**, alimentado por `respostaAberta: BadgeVideo | null`, com o player em `video__frame--retrato` — a
   mesma classe e a mesma folha da spec 017, sem uma segunda proporção escrita aqui. Fecha por Esc, por clique
   no botão de fechar, e **devolve o foco ao botão "Ver a resposta" que o abriu**. O conteúdo fica dentro de um
   `@if (respostaAberta())` — comentário registrando a decisão 4: um iframe do YouTube escondido **continua
   tocando**, e destruir o elemento é o único jeito confiável de parar um player de terceiros sem falar a API
   dele.
-- [ ] Task 04: O check dentro do modal. Arquivos: `insignia.page.html`, `.scss`. Objetivo: o mesmo bloco
+- [x] Task 04: O check dentro do modal. Arquivos: `insignia.page.html`, `.scss`. Objetivo: o mesmo bloco
   `visto` de hoje — `input[type="checkbox"]` dentro de `label`, a frase dos 10 XP definitivos, a linha de erro
   — abaixo do player e **fora do `video__frame`**, que é a decisão 4 da spec 019 e continua valendo dentro do
   modal. Nada da lógica de `alternarVisto` muda.
-- [ ] Task 05: A marca de assistido no cartão fechado. Arquivos: `insignia.page.html`, `.scss`. Objetivo: no
+- [x] Task 05: A marca de assistido no cartão fechado. Arquivos: `insignia.page.html`, `.scss`. Objetivo: no
   cartão de pergunta, quando `video.watched`, uma marca discreta na tipografia mono. **É leitura, não
   controle**: não é um checkbox, não é clicável, e desmarcar continua sendo coisa de dentro do modal.
   Comentário registrando a decisão 6 — sem ela, a pessoa abre o modal só para descobrir se já viu, que é
   exatamente o gesto que o cartão existe para evitar.
-- [ ] Task 06 (TDD + implementação): Os testes da tela. Arquivo: `insignia.page.spec.ts`. Objetivo:
+- [x] Task 06 (TDD + implementação): Os testes da tela. Arquivo: `insignia.page.spec.ts`. Objetivo:
   testes-trava de que (a) na aba Aulas, um vídeo com `question` **não renderiza iframe** e renderiza o botão;
   (b) na aba Perguntas Frequentes, o mesmo vídeo renderiza o iframe embutido — as duas abas desenham formas
   diferentes de propósito, e um teste só de uma delas deixa a outra ser "unificada" na próxima refatoração;
