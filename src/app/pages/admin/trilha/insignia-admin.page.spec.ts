@@ -9,7 +9,12 @@ import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/route
 import { AdminInsigniaPage } from './insignia-admin.page';
 import { BadgeVideo } from '../../../models/track.model';
 
-function video(id: string, title: string, order: number): BadgeVideo {
+function video(
+  id: string,
+  title: string,
+  order: number,
+  extra: Partial<BadgeVideo> = {}
+): BadgeVideo {
   return {
     id,
     badgeId: 'logica',
@@ -17,12 +22,17 @@ function video(id: string, title: string, order: number): BadgeVideo {
     description: null,
     youtubeId: id,
     kind: 'aula',
+    // `tab` cai em `kind` quando o teste não diz outra coisa, que é o padrão
+    // do produto: aula vive na trilha, resposta vive na aba. Os dois só
+    // divergem quando a spec 021 os faz divergir.
+    tab: 'aula',
     questionId: null,
     question: null,
     orientation: 'paisagem',
     devTierFree: false,
     watched: false,
-    order
+    order,
+    ...extra
   };
 }
 
@@ -291,7 +301,7 @@ describe('AdminInsigniaPage', () => {
     it('abre na aba de Aulas e pede a aba ao servidor', () => {
       const { lista, el } = setup([video('a', 'Primeiro', 0)]);
 
-      expect(lista.request.params.get('kind')).toBe('aula');
+      expect(lista.request.params.get('tab')).toBe('aula');
       expect(el.querySelector('.tab--on')?.textContent?.trim()).toBe('Aulas');
     });
 
@@ -312,7 +322,7 @@ describe('AdminInsigniaPage', () => {
       const recarga = http.expectOne((req) =>
         req.url.endsWith('/admin/badges/logica/videos')
       );
-      expect(recarga.request.params.get('kind')).toBe('resposta');
+      expect(recarga.request.params.get('tab')).toBe('resposta');
       recarga.flush({
         badgeId: 'logica',
         videos: [
@@ -333,7 +343,7 @@ describe('AdminInsigniaPage', () => {
       const ordem = http.expectOne((req) =>
         req.url.endsWith('/admin/badges/logica/videos/order')
       );
-      expect(ordem.request.params.get('kind')).toBe('resposta');
+      expect(ordem.request.params.get('tab')).toBe('resposta');
       expect(ordem.request.body).toEqual({ videoIds: ['r2', 'r1'] });
       ordem.flush(null);
     });

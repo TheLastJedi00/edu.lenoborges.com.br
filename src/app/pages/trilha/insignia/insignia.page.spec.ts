@@ -222,7 +222,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
     const { el } = setup('logica');
     const request = flushWith([video()]);
 
-    expect(request.request.params.get('kind')).toBe('aula');
+    expect(request.request.params.get('tab')).toBe('aula');
     expect(el.querySelector('.tab--on')?.textContent?.trim()).toBe('Aulas');
   });
 
@@ -242,7 +242,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
     fixture.detectChanges();
 
     const request = http.expectOne((req) => req.url.includes('/videos'));
-    expect(request.request.params.get('kind')).toBe('resposta');
+    expect(request.request.params.get('tab')).toBe('resposta');
     request.flush({ badgeId: 'logica', videos: [] });
   });
 
