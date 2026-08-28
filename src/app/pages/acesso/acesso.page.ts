@@ -75,7 +75,6 @@ function senhasIguais(grupo: AbstractControl): ValidationErrors | null {
  */
 @Component({
   selector: 'app-acesso-page',
-  standalone: true,
   imports: [ReactiveFormsModule, Logo, PixelPanel, PixelButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './acesso.page.html',
