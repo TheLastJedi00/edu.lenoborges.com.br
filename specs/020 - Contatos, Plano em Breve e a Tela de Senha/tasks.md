@@ -63,23 +63,23 @@ Branch: `feat/020-plano-em-breve`
   `onUpgrade` continua verde chamando o método direto (decisão 5) — é ele que impede o código desligado de
   apodrecer.
 
-# Fase 03: O serviço e a rota [ ]
+# Fase 03: O serviço e a rota [x]
 Branch: `feat/020-acesso-camada-de-dados`
 
 Nenhuma tela ainda. **Depende da 020 do backend** — sem os três endpoints, esta fase compila e não
 funciona.
 
-- [ ] Task 10: Os modelos. Arquivo: `src/app/models/auth.model.ts`. Objetivo: `OobMode` (união literal com
+- [x] Task 10: Os modelos. Arquivo: `src/app/models/auth.model.ts`. Objetivo: `OobMode` (união literal com
   os quatro modos da decisão 7), `OobCheck { email }` e `ConfirmPasswordRequest { oobCode, newPassword }`.
   O comentário registra que o `mode` chega da URL e **serve só para escolher a tela** — quem decide qual
   operação o Firebase executa é o próprio código, no servidor (decisão 10 da 020 do backend).
-- [ ] Task 11 (TDD + implementação): O serviço. Arquivos: `src/app/services/access.service.ts`,
+- [x] Task 11 (TDD + implementação): O serviço. Arquivos: `src/app/services/access.service.ts`,
   `.spec.ts`. Objetivo: `checkOobCode(oobCode)` → `POST /auth/password/check`;
   `confirmPassword(oobCode, newPassword)` → `POST /auth/password`; `applyEmailAction(oobCode)` →
   `POST /auth/email-action`. **Sem `AuthStore`, sem `withCredentials`, sem token**: são três chamadas
   públicas, e a única credencial em jogo é o `oobCode` do corpo. Teste-trava: **o serviço não guarda o
   `oobCode` em campo nenhum** (decisão 9) — ele recebe, envia e esquece.
-- [ ] Task 12: A rota. Arquivo: `src/app/app.routes.ts`. Objetivo: `/acesso`, `loadComponent`, sem guard,
+- [x] Task 12: A rota. Arquivo: `src/app/app.routes.ts`. Objetivo: `/acesso`, `loadComponent`, sem guard,
   **fora do `dashboard-shell`**, título "Acesso · Liga Dev". **O comentário de 8 linhas que hoje diz "Não
   existe rota `definir-senha`, e a ausência é proposital" é substituído** pelo que explica a decisão 6:
   ela voltou, com outro nome, e o `oobCode` agora passa pela nossa API — nunca pelo SDK do Firebase.
