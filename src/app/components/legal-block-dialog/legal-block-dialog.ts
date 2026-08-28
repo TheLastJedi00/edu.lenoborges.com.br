@@ -53,8 +53,8 @@ import { LegalStore } from '../../core/legal/legal.store';
         }
       </ul>
 
-      <p class="block__note u-mono">
-        Você também pode ler em uma aba separada, sem sair daqui:
+      <p class="block__note">
+        Prefere ler em outra aba?
         <a href="/termos-de-uso" target="_blank" rel="noopener">Termos de Uso</a>
         ·
         <a href="/politica-de-privacidade" target="_blank" rel="noopener">
@@ -110,12 +110,19 @@ import { LegalStore } from '../../core/legal/legal.store';
       list-style: none;
     }
 
+    /**
+     * Empilhado por padrão, lado a lado só a partir do tablet.
+     *
+     * Em 390px o justify-content: space-between espremia as duas colunas:
+     * "Política de Privacidade" quebrava em duas linhas e o botão também, cada
+     * um brigando pela metade da largura. Mobile primeiro resolve os dois.
+     */
     .block__item {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      padding: 0.6rem 0.75rem;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.6rem;
+      padding: 0.7rem 0.8rem;
       border: var(--border-w) solid var(--border-soft);
       border-radius: var(--radius-sm);
       background: var(--screen);
@@ -127,7 +134,7 @@ import { LegalStore } from '../../core/legal/legal.store';
     }
 
     .block__btn {
-      padding: 0.45rem 0.9rem;
+      padding: 0.5rem 0.9rem;
       border: none;
       border-radius: var(--radius-sm);
       background: var(--gradient-accent-strong);
@@ -135,12 +142,29 @@ import { LegalStore } from '../../core/legal/legal.store';
       font-family: var(--font-display);
       font-size: var(--step--2);
       font-weight: 700;
+      /* O rótulo é curto e não deve quebrar: "Ler e" numa linha e "aceitar" na
+         outra dobra a altura do botão sem ganhar nada. */
+      white-space: nowrap;
       cursor: pointer;
     }
 
+    @media (min-width: 30rem) {
+      .block__item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+    }
+
+    /**
+     * Sem u-mono e sem caixa alta: em 390px aquele parágrafo virava quatro
+     * linhas e dominava o cartão, competindo com os botões que são a ação.
+     */
     .block__note {
       margin-top: 1.25rem;
       font-size: var(--step--2);
+      line-height: 1.5;
       color: var(--ink-soft);
     }
 
