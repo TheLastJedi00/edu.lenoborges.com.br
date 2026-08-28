@@ -86,6 +86,37 @@ describe('TrackService', () => {
     expect(status).toBe(404);
   });
 
+  /**
+   * **O parâmetro da aba é olhado, e não só a URL.** Até a spec 021 nenhum
+   * teste daqui inspecionava a query, e um teste que não notasse a troca de
+   * `?kind=` para `?tab=` seria um teste que não olha a requisição — o
+   * parâmetro passou a nomear a **lista**, e não a natureza do vídeo.
+   */
+  it('pede a aba pelo parâmetro tab, e não por kind', () => {
+    service.getVideos('logica', 'aula').subscribe();
+
+    const request = http.expectOne((req) =>
+      req.url.endsWith('/badges/logica/videos')
+    );
+
+    expect(request.request.params.get('tab')).toBe('aula');
+    expect(request.request.params.has('kind')).toBeFalse();
+    request.flush({ badgeId: 'logica', videos: [] });
+  });
+
+  // Sem aba, as duas juntas: o parâmetro simplesmente não vai.
+  it('não manda parâmetro de aba nenhum quando não pedem uma', () => {
+    service.getVideos('logica').subscribe();
+
+    const request = http.expectOne((req) =>
+      req.url.endsWith('/badges/logica/videos')
+    );
+
+    expect(request.request.params.has('tab')).toBeFalse();
+    expect(request.request.params.has('kind')).toBeFalse();
+    request.flush({ badgeId: 'logica', videos: [] });
+  });
+
   describe('setWatched (spec 019)', () => {
     it('manda um PUT com o estado desejado no corpo', () => {
       service.setWatched('logica__dQw4w9WgXcQ', true).subscribe();

@@ -3,8 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
-  BadgeVideoKind,
   BadgeVideoList,
+  BadgeVideoTab,
   WatchedVideoResult
 } from '../models/track.model';
 
@@ -26,11 +26,17 @@ export class TrackService {
    */
   getVideos(
     badgeId: string,
-    kind?: BadgeVideoKind
+    tab?: BadgeVideoTab
   ): Observable<BadgeVideoList> {
-    // Sem `kind`, as duas abas juntas. Com ele, só a pedida — que é como a
+    // Sem `tab`, as duas abas juntas. Com ele, só a pedida — que é como a
     // trilha do aluno separa Aulas de Perguntas Frequentes (spec 010).
-    const params = kind ? new HttpParams().set('kind', kind) : undefined;
+    //
+    // **O parâmetro chamava-se `kind` até a spec 021, e a troca não é
+    // cosmética:** ele passou a nomear a lista, e não a natureza do vídeo.
+    // Depois dela `?kind=aula` devolveria vídeos cujo `kind` é `resposta` —
+    // as respostas que o admin posicionou na trilha. Não há alias do nome
+    // antigo, e as duas specs entram juntas.
+    const params = tab ? new HttpParams().set('tab', tab) : undefined;
 
     return this.http.get<BadgeVideoList>(
       `${environment.apiUrl}/badges/${badgeId}/videos`,

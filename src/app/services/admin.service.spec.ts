@@ -267,6 +267,40 @@ describe('AdminService', () => {
       request.flush(null);
     });
 
+    /**
+     * O painel pede **uma aba por vez**, e a aba é `tab` desde a spec 021. A
+     * aba Aulas inclui as respostas que o admin posicionou na trilha, e elas
+     * têm `kind: 'resposta'` — pedir por `kind` devolveria a trilha sem elas.
+     */
+    it('lista uma aba pelo parâmetro tab, e não por kind', () => {
+      service.listVideos('logica', 'aula').subscribe();
+
+      const request = http.expectOne((req) =>
+        req.url.endsWith('/admin/badges/logica/videos')
+      );
+
+      expect(request.request.params.get('tab')).toBe('aula');
+      expect(request.request.params.has('kind')).toBeFalse();
+      request.flush({ badgeId: 'logica', videos: [] });
+    });
+
+    /**
+     * Mandada como `kind`, a lista da trilha com uma resposta dentro seria
+     * validada contra a outra sequência: **400 em toda seta clicada**, a partir
+     * da primeira resposta posicionada.
+     */
+    it('reordena a aba pelo parâmetro tab, e não por kind', () => {
+      service.reorderVideos('logica', ['c', 'a', 'b'], 'aula').subscribe();
+
+      const request = http.expectOne((req) =>
+        req.url.endsWith('/admin/badges/logica/videos/order')
+      );
+
+      expect(request.request.params.get('tab')).toBe('aula');
+      expect(request.request.params.has('kind')).toBeFalse();
+      request.flush(null);
+    });
+
     it('propaga o 403 de quem não é admin', () => {
       // A claim só vale no próximo token, então um 403 aqui pode significar
       // "acabou de ser promovido e ainda não saiu e entrou". Quem monta essa
