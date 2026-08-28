@@ -241,6 +241,114 @@ pior — um flag "aceito" gravado por engano esconderia um pendente real e o blo
 aceite é do servidor, e só.
 
 
+## Vídeos assistidos, XP e o cartão do membro (spec 019)
+
+Três coisas novas na tela: um check **"Já assisti"** abaixo de cada player, o **XP** empilhado sobre o
+contador de insígnias no painel, e o **cartão do membro**, que abre ao clicar no nome de quem perguntou
+no Mural. E, em Meu Perfil, o interruptor que decide se as redes sociais ficam visíveis para os outros.
+
+### O front não sabe quanto vale um vídeo
+
+O `xp` chega pronto em três lugares — no `GET /me`, na resposta do `PUT` que marca o vídeo, e no cartão de
+cada membro. **O número 10 não existe neste repositório**, e o `XpCount` é burro como o `BadgeCount`.
+
+A tentação aparece no segundo em que o check é clicado: somar 10 no signal e não esperar a resposta. Ela
+está errada por um motivo específico e não por purismo — **remarcar um vídeo não paga XP nenhum**. A soma
+local acertaria no primeiro clique de cada vídeo e erraria em todos os seguintes, e o erro é invisível: o
+número fica alto, ninguém confere, e a primeira pessoa a notar é a que recarrega a página e vê o XP cair.
+É a mesma regra da `orientation` da spec 017 e da `phase` do Mural — o servidor afirma, a tela obedece.
+
+### O check é otimista, mas o XP não
+
+| O que muda | De onde vem | Quando |
+|---|---|---|
+| O estado do check | do próprio clique | **na hora**, com reversão se o `PUT` falhar |
+| O XP do painel | do corpo da resposta | **quando a resposta chega** |
+
+O check é otimista porque é a reação direta a um toque, e um check que espera 400 ms de rede parece
+travado no celular — quem duvida clica de novo. O XP não é, porque não é reação a nada: é um número que o
+servidor calculou. Falha não abre modal: o check volta ao que era e uma linha discreta aparece, porque
+falhar em marcar um vídeo não é evento que mereça interromper a leitura.
+
+### O XP mora no `AuthStore`, e a tela da insígnia escreve nele
+
+O check é clicado em `/dashboard/trilha/:badgeId` e o selo vive em `/dashboard`; as duas telas não se
+conhecem. A tela da insígnia **não guarda XP nenhum** — chama o serviço, recebe o número novo e escreve
+via `AuthStore.setXp`. Um segundo signal de XP em qualquer componente é o que fica velho na navegação de
+volta, e o sintoma seria o painel mostrando o XP de antes de a pessoa assistir a três vídeos.
+
+`setXp` **não faz nada sem perfil carregado**, e isso é decisão: criar um perfil pela metade deixaria
+`profileCompleted` falso, e o guard de onboarding sequestraria quem só marcou um vídeo.
+
+### O check fica fora da moldura do player, e é um checkbox de verdade
+
+Ele vai **fora** do `.video__frame`. Dentro, herdaria a caixa de proporção da spec 017 e mudaria de
+tamanho conforme o vídeo fosse retrato ou paisagem. E é um `input[type="checkbox"]` dentro de um `label`,
+não um `div` com `click`: foco por teclado, espaço para alternar, "marcado" anunciado pelo leitor de tela
+e alvo de toque estendido ao texto inteiro — quatro coisas que uma reimplementação faz pela metade.
+
+O rótulo é **"Já assisti"**, virando **"Assistido"** quando marcado: é a frase do membro sobre si mesmo,
+não uma instrução do sistema. E o hint diz a regra antes do clique — *"Os 10 XP são seus para sempre —
+desmarcar só tira o check."* Sem ela o comportamento parece bug: alguém desmarca esperando o número cair,
+ele não cai, e a conclusão razoável é que a tela está quebrada.
+
+### O cartão é modal, e o nome só é clicável quando há para onde clicar
+
+Clicar no nome abre um modal por cima do Mural: não navega, não troca de URL, não perde a rolagem nem a
+aba. É o mesmo julgamento do `LegalAcceptDialog` — quem abre está no meio de outra coisa. O preço é que o
+cartão não é compartilhável por link, e está aceito.
+
+O backend manda `authorUid: string | null`, e **`null` é a pergunta anonimizada** de quem excluiu a conta.
+Nesse caso o nome é texto e mais nada: sem cursor de link, sem foco por teclado, sem `role`. Não existe um
+"clicou e deu erro" — o alvo não existe. **O front não conhece o valor sentinela do backend** e não compara
+com string nenhuma: ele testa se o campo é nulo. Uma comparação de sentinela aqui sobrevive a uma
+renomeação do outro lado e vira um cartão `404` sobre a pergunta de quem pediu para ser esquecido.
+
+O `QuestionCard` continua **burro**: ele emite `authorClick`, e quem abre o modal é a página do Mural. Um
+cartão que injetasse serviço para buscar membro faria o Mural inteiro precisar de HTTP para ser testado —
+e o teste que monta o componente sem `provideHttpClient` é a prova disso.
+
+### O cartão pede seus dados sempre, e o 404 tem frase própria
+
+Nenhum cache: abrir o cartão da mesma pessoa duas vezes faz duas requisições. O que está lá dentro muda —
+XP sobe, bio é editada, o interruptor é ligado — e um cache mostraria o estado de dez minutos atrás sem
+nada que denunciasse, para economizar uma requisição num gesto que acontece três vezes por sessão.
+
+`404` tem estado próprio e frase própria: *"Esse membro não faz mais parte da comunidade."* É o que
+acontece quando alguém exclui a conta com o Mural aberto na outra aba — uma saída normal do produto, não
+uma falha nossa.
+
+### O interruptor das redes fica encostado nas redes, e o rótulo diz a verdade
+
+Ele entra **dentro do bloco "Suas redes"**, logo abaixo dos campos de LinkedIn e Instagram. Não numa aba
+de Privacidade: o padrão do backend é **desligado**, e um interruptor desligado numa seção que ninguém
+abre é um recurso que não existe. Encostado nos campos, ele é encontrado por quem já foi até ali mexer nos
+links — que é exatamente quem quer que eles sejam vistos.
+
+O rótulo é **"Mostrar minhas redes para os outros membros"**, e o hint diz o que ele *não* faz: *"A
+administração da Liga Dev continua vendo seus links, como vê seu e-mail e telefone."* Chamar isso de
+"privado" seria vender uma garantia que não existe, e teatro de privacidade é pior que ausência dela,
+porque alguém confia nele.
+
+Ele grava **no clique**, como o interruptor de e-mails ao lado, e não faz parte do formulário de redes:
+são duas gravações diferentes no mesmo bloco, de propósito. Um interruptor que precisa de submit é um
+interruptor que fica meio ligado.
+
+### Zero `localStorage`, de novo
+
+O check vem do servidor em toda listagem e vai para o servidor em todo clique. Guardar localmente falharia
+nas duas direções, como na spec 018: navegador limpo faria quem já assistiu ver tudo desmarcado, e um
+estado gravado por engano esconderia para sempre um vídeo que a pessoa quis marcar. **XP é dado do membro,
+e dado do membro não mora no navegador dele.**
+
+### Uma pegadinha de teste que a spec deixou
+
+Existem **dois** `.switch__input` na tela de Meu Perfil agora, e o das redes vem antes do de e-mails no
+DOM. Um seletor global passou a pegar o switch errado, e o teste do interruptor de e-mails começou a falar
+sobre privacidade sem que nada no nome dele mudasse. Os dois seletores são escopados por
+`[aria-labelledby="titulo-emails"]` e `[aria-labelledby="titulo-redes"]`.
+
+
 ## Variáveis de Ambiente
 
 As configurações ficam em `src/environments/`:

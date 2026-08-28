@@ -21,6 +21,7 @@ function video(id: string, title: string, order: number): BadgeVideo {
     question: null,
     orientation: 'paisagem',
     devTierFree: false,
+    watched: false,
     order
   };
 }

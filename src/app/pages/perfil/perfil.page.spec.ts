@@ -23,6 +23,8 @@ export const PERFIL: MemberProfile = {
   role: null,
   tier: 'ultra-dev-tier',
   pendingLegal: [],
+  xp: 0,
+  socialLinksPublic: false,
   legalAcceptances: {}
 };
 
@@ -49,7 +51,8 @@ describe('PerfilPage', () => {
       'changeEmail',
       'changePassword',
       'deleteAccount',
-      'setEmailPreference'
+      'setEmailPreference',
+      'setSocialLinksPublic'
     ]);
 
     await TestBed.configureTestingModule({
@@ -567,8 +570,18 @@ describe('PerfilPage', () => {
   });
 
   describe('E-mails', () => {
+    /**
+     * O seletor é **escopado à seção**, e não um `.switch__input` solto.
+     *
+     * A spec 019 pôs um segundo interruptor na tela — o das redes sociais, no
+     * bloco "Suas redes" —, e ele vem antes deste no DOM. Um seletor global
+     * pegaria o switch errado e este teste passaria a falar sobre outra coisa,
+     * dizendo "recebendo e-mails" a respeito de um campo de privacidade.
+     */
     function interruptor(): HTMLInputElement {
-      return fixture.nativeElement.querySelector('.switch__input') as HTMLInputElement;
+      return fixture.nativeElement.querySelector(
+        '[aria-labelledby="titulo-emails"] .switch__input'
+      ) as HTMLInputElement;
     }
 
     /**
@@ -735,5 +748,92 @@ describe('PerfilPage', () => {
     const alerta = fixture.nativeElement.querySelector('[role="alert"]') as HTMLElement;
     expect(alerta.textContent).toContain('Não consegui carregar seu perfil');
     expect(fixture.nativeElement.querySelector('.btn--solid')).not.toBeNull();
+  });
+
+  describe('Redes visíveis (spec 019)', () => {
+    function interruptor(): HTMLInputElement {
+      return fixture.nativeElement.querySelector(
+        '[aria-labelledby="titulo-redes"] .switch__input'
+      ) as HTMLInputElement;
+    }
+
+    /**
+     * **A trava desta fase.** O padrão do backend é `false`, e a tela precisa
+     * abrir nessa posição — sem chute local, porque o único chute possível é
+     * "ligado", e ele publica o vínculo de alguém que nunca foi perguntado.
+     */
+    it('teste-trava: perfil com socialLinksPublic FALSE abre DESLIGADO', async () => {
+      await montar({ ...PERFIL, socialLinksPublic: false });
+
+      expect(interruptor().checked).toBeFalse();
+    });
+
+    it('perfil com o interruptor ligado abre ligado', async () => {
+      await montar({ ...PERFIL, socialLinksPublic: true });
+
+      expect(interruptor().checked).toBeTrue();
+    });
+
+    it('o interruptor mora dentro do bloco "Suas redes"', async () => {
+      // Decisão 6: encostado nos campos, e não numa aba de Privacidade que
+      // ninguém abre — um interruptor desligado ali seria um recurso que não
+      // existe.
+      await montar();
+
+      const bloco = fixture.nativeElement.querySelector(
+        '[aria-labelledby="titulo-redes"]'
+      ) as HTMLElement;
+
+      expect(bloco.querySelector('.switch__input')).not.toBeNull();
+      expect(bloco.textContent).toContain(
+        'Mostrar minhas redes para os outros membros'
+      );
+    });
+
+    /**
+     * O rótulo diz o que o interruptor **não** faz. Chamar isto de "privado"
+     * seria vender uma garantia que não existe.
+     */
+    it('a tela diz que a administração continua vendo os links', async () => {
+      await montar();
+
+      const bloco = fixture.nativeElement.querySelector(
+        '[aria-labelledby="titulo-redes"]'
+      ) as HTMLElement;
+
+      expect(bloco.textContent).toContain('A administração da Liga Dev continua vendo');
+      expect(bloco.textContent).not.toContain('privado');
+    });
+
+    it('o gesto salva sozinho, sem passar pelo botão de salvar redes', async () => {
+      await montar({ ...PERFIL, socialLinksPublic: false });
+      authService.setSocialLinksPublic.and.returnValue(of(undefined));
+
+      await component['alternarRedesPublicas']();
+      fixture.detectChanges();
+
+      expect(authService.setSocialLinksPublic).toHaveBeenCalledWith(true);
+      // E não é o formulário de redes: aquele continua sendo salvo por submit.
+      expect(authService.updateProfile).not.toHaveBeenCalled();
+    });
+
+    it('falha reverte o interruptor e mostra o erro', async () => {
+      await montar({ ...PERFIL, socialLinksPublic: false });
+      authService.setSocialLinksPublic.and.returnValue(
+        throwError(() => new Error('offline'))
+      );
+
+      await component['alternarRedesPublicas']();
+      fixture.detectChanges();
+
+      expect(interruptor().checked).toBeFalse();
+
+      const bloco = fixture.nativeElement.querySelector(
+        '[aria-labelledby="titulo-redes"]'
+      ) as HTMLElement;
+      expect(bloco.querySelector('.form__error')?.getAttribute('role')).toBe(
+        'alert'
+      );
+    });
   });
 });

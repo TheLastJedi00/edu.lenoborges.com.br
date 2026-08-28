@@ -5,7 +5,20 @@
         <app-logo />
         <h1 class="dashboard__title">Olá, {{ firstName() }}</h1>
       </div>
-      <app-badge-count [grade]="grade()" />
+      <!--
+        Os dois selos ficam EMPILHADOS, e não lado a lado (spec 019, decisão 10).
+        Lado a lado eles viram uma fileira de números competindo, e não têm o
+        mesmo peso: o contador de insígnias conta a história do produto — a Liga
+        Dev, a Elite Four —, e o XP mede o esforço da semana. Por isso o XP é o
+        menor e vem em cima; a insígnia é a maior e vem embaixo.
+
+        O selo de XP só aparece depois do `GET /me`. Enquanto ele não chega, o
+        lugar fica vazio de propósito: um `0` que pisca e vira `340` é pior.
+      -->
+      <div class="dashboard__marks">
+        <app-xp-count [xp]="xp()" />
+        <app-badge-count [grade]="grade()" />
+      </div>
     </div>
     <p class="dashboard__lead">
       Bem-vindo ao seu painel de membro da Liga Dev. Escolha um dos módulos abaixo para continuar seus estudos.

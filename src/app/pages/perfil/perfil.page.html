@@ -181,6 +181,47 @@
             }
           </button>
         </form>
+
+        <!--
+          O interruptor fica AQUI, encostado nos campos, e não numa aba de
+          Privacidade (spec 019, decisão 6). O padrão é desligado: numa seção que
+          ninguém abre, um interruptor desligado é um recurso que não existe.
+          Encostado nos links, ele é encontrado por quem já veio até aqui mexer
+          neles — que é exatamente quem quer que eles sejam vistos.
+
+          Ele grava sozinho, no clique, e NÃO faz parte do formulário acima: são
+          duas gravações no mesmo bloco, de propósito.
+        -->
+        <div class="switch">
+          <label class="switch__linha">
+            <input
+              type="checkbox"
+              class="switch__input"
+              [checked]="redesPublicas()"
+              (change)="alternarRedesPublicas()"
+            />
+            <span class="switch__texto">
+              <span class="switch__label">
+                Mostrar minhas redes para os outros membros
+              </span>
+              <!--
+                O hint diz o que o interruptor NÃO faz. Chamar isto de "privado"
+                seria vender uma garantia que não existe: a administração lê seus
+                links como lê seu e-mail e telefone, e teatro de privacidade é
+                pior que ausência dela, porque alguém confia nele.
+              -->
+              <span class="switch__hint">
+                Quando ligado, quem clicar no seu nome no Mural vê seus links. A
+                administração da Liga Dev continua vendo seus links, como vê seu
+                e-mail e telefone.
+              </span>
+            </span>
+          </label>
+
+          @if (redesPublicasError()) {
+            <p class="form__error" role="alert">{{ redesPublicasError() }}</p>
+          }
+        </div>
       </section>
 
       <section class="block" aria-labelledby="titulo-acesso">

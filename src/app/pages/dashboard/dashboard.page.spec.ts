@@ -56,6 +56,8 @@ describe('DashboardPage', () => {
       role: null,
       tier: 'dev-tier',
       pendingLegal: [],
+      xp: 0,
+      socialLinksPublic: false,
       legalAcceptances: {}
     });
 
@@ -139,6 +141,8 @@ describe('DashboardPage', () => {
       role: 'admin',
       tier: 'dev-tier',
       pendingLegal: [],
+      xp: 0,
+      socialLinksPublic: false,
       legalAcceptances: {}
     });
     fixture.detectChanges();
@@ -176,6 +180,8 @@ describe('DashboardPage', () => {
         role,
         tier: 'dev-tier',
         pendingLegal: [],
+        xp: 0,
+        socialLinksPublic: false,
         legalAcceptances: {}
       });
       fixture.detectChanges();

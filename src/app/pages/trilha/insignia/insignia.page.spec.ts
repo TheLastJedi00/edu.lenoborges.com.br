@@ -7,6 +7,28 @@ import {
 } from '@angular/common/http/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { InsigniaPage } from './insignia.page';
+import { AuthStore } from '../../../core/auth/auth.store';
+import { MemberProfile } from '../../../models/auth.model';
+
+/** Perfil mínimo para o AuthStore ter onde guardar o XP (spec 019). */
+const PERFIL_XP: MemberProfile = {
+  id: 'uid-1',
+  email: 'membro@exemplo.com',
+  name: 'Membro',
+  phone: null,
+  bio: null,
+  grade: 1,
+  linkedin: null,
+  instagram: null,
+  emailOptOut: false,
+  profileCompleted: true,
+  role: null,
+  tier: 'dev-tier',
+  pendingLegal: [],
+  legalAcceptances: {},
+  xp: 0,
+  socialLinksPublic: false
+};
 
 describe('InsigniaPage', () => {
   let http: HttpTestingController;
@@ -190,6 +212,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       question: null,
       orientation: 'paisagem',
       devTierFree: false,
+      watched: false,
       order: 0,
       ...overrides
     };
@@ -366,6 +389,220 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       fixture.detectChanges();
 
       expect(el.textContent).not.toContain('Resposta a uma pergunta do Mural');
+    });
+  });
+
+  /**
+   * O check "Já assisti" e o XP (spec 019).
+   *
+   * O bloco tem duas travas que valem por ele inteiro: **o check muda antes da
+   * resposta** e **o XP só muda depois dela**.
+   */
+  describe('marcar como assistido', () => {
+    function aula(overrides: Record<string, unknown> = {}) {
+      return {
+        id: 'logica__aaa11111111',
+        badgeId: 'logica',
+        title: 'Variáveis na prática',
+        description: null,
+        youtubeId: 'aaa11111111',
+        kind: 'aula',
+        questionId: null,
+        question: null,
+        orientation: 'paisagem',
+        devTierFree: false,
+        order: 0,
+        watched: false,
+        ...overrides
+      };
+    }
+
+    function check(el: HTMLElement): HTMLInputElement {
+      return el.querySelector('.visto__input') as HTMLInputElement;
+    }
+
+    function responderMarcacao(watched: boolean, xp: number) {
+      http
+        .expectOne((req) =>
+          req.url.endsWith('/me/watched-videos/logica__aaa11111111')
+        )
+        .flush({ videoId: 'logica__aaa11111111', watched, xp });
+    }
+
+    it('o check nasce com o estado que o servidor mandou', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([aula({ watched: true })]);
+      fixture.detectChanges();
+
+      expect(check(el).checked).toBeTrue();
+      expect(el.textContent).toContain('Assistido');
+    });
+
+    it('vídeo não assistido diz "Já assisti"', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([aula()]);
+      fixture.detectChanges();
+
+      expect(check(el).checked).toBeFalse();
+      expect(el.textContent).toContain('Já assisti');
+    });
+
+    /**
+     * A frase existe porque, sem ela, o comportamento parece bug: alguém
+     * desmarca esperando o número cair, ele não cai, e a conclusão razoável é
+     * que a tela está quebrada.
+     */
+    it('a regra do XP definitivo está escrita antes do clique', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([aula()]);
+      fixture.detectChanges();
+
+      expect(el.textContent).toContain(
+        'Os 10 XP são seus para sempre — desmarcar só tira o check.'
+      );
+    });
+
+    /**
+     * **O check é otimista; o XP não** (decisão 2). Um check que espera 400ms de
+     * rede parece travado no celular, e quem duvida clica de novo. O XP não é
+     * reação a nada: é um número que o servidor calculou.
+     */
+    it('teste-trava: o check muda ANTES da resposta, e o XP só DEPOIS', async () => {
+      const { fixture, el } = setup('logica');
+      flushWith([aula()]);
+      fixture.detectChanges();
+
+      const store = TestBed.inject(AuthStore);
+      store.setProfile(PERFIL_XP);
+
+      check(el).click();
+      fixture.detectChanges();
+
+      // Antes de a resposta chegar: check ligado, XP intocado.
+      expect(check(el).checked).toBeTrue();
+      expect(store.xp()).toBe(0);
+
+      responderMarcacao(true, 10);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(store.xp()).toBe(10);
+    });
+
+    /**
+     * **O teste que documenta a decisão 1**, e o que fica vermelho no dia em que
+     * alguém somar 10 localmente "para a tela responder mais rápido": remarcar
+     * um vídeo devolve o mesmo XP, e o selo tem de ficar igual.
+     */
+    it('teste-trava: remarcar devolve o mesmo XP, e o selo não sobe', async () => {
+      const { fixture, el } = setup('logica');
+      flushWith([aula({ watched: false })]);
+      fixture.detectChanges();
+
+      const store = TestBed.inject(AuthStore);
+      store.setProfile({ ...PERFIL_XP, xp: 340 });
+
+      check(el).click();
+      fixture.detectChanges();
+      // O servidor devolve o MESMO número: este vídeo já tinha sido pago.
+      responderMarcacao(true, 340);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(store.xp()).toBe(340);
+    });
+
+    it('desmarcar manda watched false e não derruba o XP', async () => {
+      const { fixture, el } = setup('logica');
+      flushWith([aula({ watched: true })]);
+      fixture.detectChanges();
+
+      const store = TestBed.inject(AuthStore);
+      store.setProfile({ ...PERFIL_XP, xp: 340 });
+
+      check(el).click();
+      fixture.detectChanges();
+
+      const req = http.expectOne((r) =>
+        r.url.endsWith('/me/watched-videos/logica__aaa11111111')
+      );
+      expect(req.request.body).toEqual({ watched: false });
+      req.flush({
+        videoId: 'logica__aaa11111111',
+        watched: false,
+        xp: 340
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(check(el).checked).toBeFalse();
+      expect(store.xp()).toBe(340);
+    });
+
+    /**
+     * Falhar em marcar um vídeo **não é evento que mereça interromper a
+     * leitura**: o check volta ao que era e uma linha discreta aparece.
+     */
+    it('teste-trava: erro reverte o check, não mexe no XP e não abre modal', async () => {
+      const { fixture, el } = setup('logica');
+      flushWith([aula()]);
+      fixture.detectChanges();
+
+      const store = TestBed.inject(AuthStore);
+      store.setProfile({ ...PERFIL_XP, xp: 340 });
+
+      check(el).click();
+      fixture.detectChanges();
+      expect(check(el).checked).toBeTrue();
+
+      http
+        .expectOne((r) => r.url.endsWith('/me/watched-videos/logica__aaa11111111'))
+        .flush(null, { status: 500, statusText: 'Server Error' });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(check(el).checked).toBeFalse();
+      expect(store.xp()).toBe(340);
+      expect(el.querySelector('dialog')).toBeNull();
+      expect(el.querySelector('.visto__erro')?.textContent).toContain(
+        'Não consegui salvar agora.'
+      );
+    });
+
+    /**
+     * O check fica **fora** do `video__frame` (decisão 4): dentro, herdaria a
+     * caixa de proporção da spec 017 e mudaria de tamanho conforme o vídeo fosse
+     * retrato ou paisagem.
+     */
+    it('teste-trava: o check não está dentro da moldura do player', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([aula()]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.video__frame .visto__input')).toBeNull();
+      expect(el.querySelector('.visto__input')).not.toBeNull();
+    });
+
+    /**
+     * Nada disso mora no navegador (decisão 11): o `watched` vem do servidor em
+     * toda carga. Um `localStorage` falharia nas duas direções.
+     */
+    it('teste-trava: trocar de aba relê o estado do servidor', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([aula({ watched: true })]);
+      fixture.detectChanges();
+
+      (el.querySelectorAll('.tab')[1] as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      // A segunda aba responde com o mesmo vídeo desmarcado, e é isso que a tela
+      // desenha: o estado anterior não sobrevive à recarga.
+      http
+        .expectOne((req) => req.url.includes('/badges/logica/videos'))
+        .flush({ badgeId: 'logica', videos: [aula({ watched: false })] });
+      fixture.detectChanges();
+
+      expect(check(el).checked).toBeFalse();
     });
   });
 });

@@ -16,6 +16,7 @@ function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
     phase: 'votacao',
     badgeId: 'poo',
     authorName: 'Leno',
+    authorUid: 'uid-autor',
     title: 'Como saber quando usar herança?',
     body: null,
     voteCount: 7,

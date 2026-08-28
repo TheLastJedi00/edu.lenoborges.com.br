@@ -276,6 +276,32 @@ export class AuthService {
   }
 
   /**
+   * Mostra ou esconde as redes sociais dos outros membros (spec 019).
+   *
+   * Mora aqui pela mesma razão do `setEmailPreference` acima: é uma escrita em
+   * `/me`. E é uma rota própria no backend — **não um campo de
+   * `PATCH /me/profile`** —, porque aquele exige nome, telefone e bio: um
+   * interruptor que obriga a reenviar o cadastro inteiro é um interruptor que
+   * ninguém liga.
+   *
+   * Atualiza o `AuthStore` no sucesso, para o switch não depender de um
+   * `GET /me` novo para refletir o que a pessoa acabou de fazer.
+   */
+  setSocialLinksPublic(socialLinksPublic: boolean): Observable<void> {
+    return this.http
+      .patch<void>(`${environment.apiUrl}/me/privacy`, { socialLinksPublic })
+      .pipe(
+        tap(() => {
+          const profile = this.authStore.profile();
+          if (profile) {
+            this.authStore.setProfile({ ...profile, socialLinksPublic });
+          }
+        }),
+        map(() => undefined)
+      );
+  }
+
+  /**
    * Carrega o perfil completo do membro autenticado.
    *
    * A resposta é achatada, sem `user` nem `profile` aninhados. Quem chama são as

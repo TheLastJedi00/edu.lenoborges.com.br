@@ -33,6 +33,18 @@ export interface MuralQuestion {
   readonly badgeId: string;
   /** Primeiro nome de quem perguntou, de quando perguntou. */
   readonly authorName: string;
+  /**
+   * O uid do autor, para abrir o cartão dele (spec 019).
+   *
+   * **`null` é a pergunta anônima**, de quem excluiu a conta — e o nome só é
+   * clicável quando este campo existe.
+   *
+   * O front **não conhece o valor sentinela do backend**, não compara com string
+   * nenhuma e não tem constante de uid anônimo: ele testa se o campo é nulo. Uma
+   * comparação de sentinela aqui sobrevive a uma renomeação do outro lado e vira
+   * um cartão 404 em cima da pergunta de quem pediu para ser esquecido.
+   */
+  readonly authorUid: string | null;
   readonly title: string;
   readonly body: string | null;
   readonly voteCount: number;

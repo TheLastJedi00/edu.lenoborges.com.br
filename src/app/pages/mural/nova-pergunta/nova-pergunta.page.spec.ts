@@ -29,6 +29,7 @@ const EDITANDO: MuralState = {
     phase: 'coleta',
     badgeId: 'poo',
     authorName: 'Leno',
+    authorUid: 'uid-autor',
     title: 'O texto que já estava lá, inteiro',
     body: 'E o contexto que veio junto.',
     voteCount: 0,

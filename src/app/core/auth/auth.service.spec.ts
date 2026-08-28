@@ -22,6 +22,8 @@ const MOCK_PROFILE: MemberProfile = {
   role: null,
   tier: 'dev-tier',
   pendingLegal: [],
+  xp: 0,
+  socialLinksPublic: false,
   legalAcceptances: {}
 };
 
@@ -391,6 +393,8 @@ describe('AuthService (TDD)', () => {
         role: null,
         tier: 'dev-tier',
         pendingLegal: [],
+        xp: 0,
+        socialLinksPublic: false,
         legalAcceptances: {}
       });
 
@@ -417,6 +421,8 @@ describe('AuthService (TDD)', () => {
         role: null,
         tier: 'dev-tier',
         pendingLegal: [],
+        xp: 0,
+        socialLinksPublic: false,
         legalAcceptances: {}
       });
 
@@ -439,6 +445,8 @@ describe('AuthService (TDD)', () => {
         role: null,
         tier: 'dev-tier',
         pendingLegal: [],
+        xp: 0,
+        socialLinksPublic: false,
         legalAcceptances: {}
       });
 

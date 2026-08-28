@@ -64,6 +64,43 @@ export interface MemberProfile {
   readonly pendingLegal: readonly LegalDocumentSummary[];
   /** O aceite vigente de cada documento, por id. É o que Contratos mostra. */
   readonly legalAcceptances: Readonly<Record<string, LegalAcceptance>>;
+  /**
+   * Pontos de experiência: 10 por vídeo assistido, uma vez cada (spec 019).
+   *
+   * **Chega calculado, e a tela nunca multiplica nada.** Remarcar um vídeo não
+   * paga XP, então uma soma local acertaria no primeiro clique de cada vídeo e
+   * erraria em todos os seguintes — e o erro só apareceria quando alguém
+   * recarregasse a página e visse o número cair.
+   */
+  readonly xp: number;
+  /**
+   * Se as redes deste membro aparecem no cartão que os outros membros abrem.
+   *
+   * **Nasce desligado.** É o que deixa o interruptor de Meu Perfil abrir já na
+   * posição certa — sem este campo a tela chuta, e chuta ligado.
+   */
+  readonly socialLinksPublic: boolean;
+}
+
+/**
+ * O cartão de outro membro, aberto pelo nome no Mural (spec 019).
+ *
+ * **É o que a API devolve, e nada além disso**: sem e-mail, sem telefone, sem
+ * tier e sem papel. Quem decide o que é público é o servidor — um front que
+ * recebesse o campo e escolhesse não desenhá-lo já o teria recebido.
+ *
+ * `linkedin` e `instagram` vêm `null` quando o membro não ligou o interruptor
+ * **e** quando ele simplesmente não os preencheu. Os dois casos são o mesmo para
+ * quem lê: não há link a mostrar.
+ */
+export interface PublicMember {
+  readonly id: string;
+  readonly name: string | null;
+  readonly bio: string | null;
+  readonly grade: number;
+  readonly xp: number;
+  readonly linkedin: string | null;
+  readonly instagram: string | null;
 }
 
 export interface UpdateProfileRequest {
