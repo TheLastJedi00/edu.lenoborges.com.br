@@ -5,11 +5,13 @@ import {
   OnInit,
   computed,
   inject,
-  signal
+  signal,
+  viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { QuestionCard } from '../../components/question-card/question-card';
+import { MemberCardDialog } from '../../components/member-card-dialog/member-card-dialog';
 import { Logo } from '../../shared/logo/logo';
 import { MuralService } from '../../services/mural.service';
 import {
@@ -25,7 +27,7 @@ type LoadState = 'loading' | 'ready' | 'error';
 @Component({
   selector: 'app-mural-page',
   standalone: true,
-  imports: [RouterLink, QuestionCard, Logo],
+  imports: [RouterLink, QuestionCard, Logo, MemberCardDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './mural.page.html',
   styleUrl: './mural.page.scss'
@@ -34,6 +36,9 @@ export class MuralPage implements OnInit {
   private readonly mural = inject(MuralService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
+
+  /** O cartao do membro, sempre renderizado e aberto por `open(uid)`. */
+  private readonly cartao = viewChild.required(MemberCardDialog);
 
   /**
    * **"Em votação" é a aba inicial**, e é decisão.
@@ -176,5 +181,20 @@ export class MuralPage implements OnInit {
     requisicao.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       error: () => this.questions.set(anterior)
     });
+  }
+
+  /**
+   * Abre o cartão de quem escreveu a pergunta (spec 019).
+   *
+   * Quem decide **se** há cartão é o `QuestionCard`, que só emite quando
+   * `authorUid` existe. O `if` daqui é a segunda guarda, e é barata: o `uid` do
+   * argumento entra numa URL.
+   */
+  protected abrirCartao(question: MuralQuestion): void {
+    if (!question.authorUid) {
+      return;
+    }
+
+    this.cartao().open(question.authorUid);
   }
 }

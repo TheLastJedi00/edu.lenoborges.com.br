@@ -123,6 +123,7 @@
                 [question]="question"
                 [votable]="votable()"
                 (toggle)="toggleVote($event)"
+                (authorClick)="abrirCartao($event)"
               />
             </li>
           }
@@ -145,4 +146,12 @@
       </a>
     }
   }
+
+  <!--
+    O cartão do membro (spec 019). Fica sempre renderizado e é aberto por
+    `open(uid)`, e não dentro de um `@if`: em zoneless, chamar `open()` numa
+    microtask depois de mostrar o `@if` chama antes de o componente existir — é
+    a mesma armadilha registrada no `LegalAcceptDialog`.
+  -->
+  <app-member-card-dialog #cartao />
 </section>

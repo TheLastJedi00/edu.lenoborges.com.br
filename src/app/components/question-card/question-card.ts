@@ -27,7 +27,29 @@ import { CommunityService } from '../../services/community.service';
           <p class="card__text">{{ question().body }}</p>
         }
         <p class="card__author u-mono">
-          {{ question().authorName }}
+          <!--
+            O nome vira botão SÓ quando há para onde clicar (spec 019, decisão
+            8). Sem authorUid — a pergunta anônima de quem excluiu a conta — ele
+            é texto e mais nada: sem cursor de link, sem foco por teclado, sem
+            role. Não existe um "clicou e deu erro"; o alvo não existe.
+
+            E a comparação é com nulo, nunca com o valor sentinela do backend:
+            uma comparação de string aqui sobrevive a uma renomeação do outro
+            lado e vira um cartão 404 sobre a pergunta de quem pediu para ser
+            esquecido.
+          -->
+          @if (question().authorUid) {
+            <button
+              type="button"
+              class="card__autor-botao"
+              [attr.aria-label]="'Ver o perfil de ' + question().authorName"
+              (click)="authorClick.emit(question())"
+            >
+              {{ question().authorName }}
+            </button>
+          } @else {
+            {{ question().authorName }}
+          }
           @if (question().isMine) {
             <span class="card__flag">a sua</span>
           }
@@ -106,6 +128,24 @@ import { CommunityService } from '../../services/community.service';
       margin: 0.5rem 0 0;
       font-size: var(--step--1);
       color: var(--ink-soft);
+    }
+
+    /* O nome clicável continua parecendo o nome: sublinhado pontilhado, e não um
+       link azul — ele abre um cartão, não navega para lugar nenhum. */
+    .card__autor-botao {
+      padding: 0;
+      border: none;
+      background: none;
+      color: inherit;
+      font: inherit;
+      text-decoration: underline dotted;
+      text-underline-offset: 0.2em;
+      cursor: pointer;
+    }
+
+    .card__autor-botao:hover,
+    .card__autor-botao:focus-visible {
+      color: var(--accent-deep);
     }
 
     .card__flag {
@@ -218,6 +258,15 @@ export class QuestionCard {
   readonly votable = input<boolean>(false);
 
   readonly toggle = output<MuralQuestion>();
+
+  /**
+   * Pediram para ver quem escreveu (spec 019).
+   *
+   * **Ele emite; quem abre o modal é a página do Mural.** Um cartão que
+   * injetasse serviço para buscar membro deixaria de ser burro e faria o Mural
+   * inteiro precisar de HTTP para ser testado.
+   */
+  readonly authorClick = output<MuralQuestion>();
 
   /**
    * O título da insígnia, e não o id.
