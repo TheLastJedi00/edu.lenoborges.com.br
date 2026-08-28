@@ -84,45 +84,45 @@ funciona.
   existe rota `definir-senha`, e a ausência é proposital" é substituído** pelo que explica a decisão 6:
   ela voltou, com outro nome, e o `oobCode` agora passa pela nossa API — nunca pelo SDK do Firebase.
 
-# Fase 04: A tela [ ]
+# Fase 04: A tela [x]
 Branch: `feat/020-tela-de-acesso`
 
-- [ ] Task 13: O esqueleto e o roteamento por modo. Arquivos: `src/app/pages/acesso/acesso.page.ts`,
+- [x] Task 13: O esqueleto e o roteamento por modo. Arquivos: `src/app/pages/acesso/acesso.page.ts`,
   `.html`, `.scss`. Objetivo: lê `mode` e `oobCode` de `ActivatedRoute.snapshot.queryParamMap`, **chama
   `history.replaceState` na sequência** (decisão 9) e guarda o código num signal do componente — em nenhum
   outro lugar. `@switch` no modo, com o ramo `@default` sendo a tela de link inválido (decisão 7). Sem
   `dashboard-shell`, com `app-logo` e `pixel-panel` (decisão 14).
-- [ ] Task 14: `noindex`. Arquivos: `acesso.page.ts` (ou onde o `/descadastro` já faz isso). Objetivo:
+- [x] Task 14: `noindex`. Arquivos: `acesso.page.ts` (ou onde o `/descadastro` já faz isso). Objetivo:
   a mesma marcação de "fora dos buscadores" que a spec 014 pôs no descadastro — **copiar o mecanismo que
   existe, não inventar um segundo**. A URL carrega credencial na query, e um rastreador que a visitasse
   queimaria o link de alguém.
-- [ ] Task 15: A conferência antes do formulário. Arquivo: `acesso.page.ts`. Objetivo: em
+- [x] Task 15: A conferência antes do formulário. Arquivo: `acesso.page.ts`. Objetivo: em
   `mode=resetPassword`, `checkOobCode` na inicialização; **os campos de senha só existem depois do
   sucesso** (decisão 8), com o e-mail dono do link escrito acima deles: *"Criando a senha de
   fulano@exemplo.com"*. Enquanto confere, o estado é de carregamento — não é formulário desabilitado.
-- [ ] Task 16: O formulário. Arquivos: `acesso.page.html`, `.ts`. Objetivo: dois campos
+- [x] Task 16: O formulário. Arquivos: `acesso.page.html`, `.ts`. Objetivo: dois campos
   `type="password"` com `autocomplete="new-password"`, mínimo de 8 e igualdade entre eles, na marcação
   `.field` do `auth-dialog`. **As regras ficam acima dos campos, não como erro depois do submit**
   (decisão 12), e o comentário registra que este mínimo é cortesia: quem garante é a política do projeto
   no console, e a API é que traduz a recusa dela.
-- [ ] Task 17: O sucesso. Arquivo: `acesso.page.ts`. Objetivo: `204` leva a `/?entrar=1`. **Não loga
+- [x] Task 17: O sucesso. Arquivo: `acesso.page.ts`. Objetivo: `204` leva a `/?entrar=1`. **Não loga
   ninguém** (decisão 11) — não há sessão a criar aqui, e o comentário diz por que a resposta não devolve
   token: sessão nasce no login, e um segundo caminho de emissão do cookie de refresh só seria exercitado
   no fluxo que menos gente percorre duas vezes.
-- [ ] Task 18: O `continueUrl` conferido. Arquivo: `acesso.page.ts`. Objetivo: se o `continueUrl` da query
+- [x] Task 18: O `continueUrl` conferido. Arquivo: `acesso.page.ts`. Objetivo: se o `continueUrl` da query
   for do mesmo `origin`, é o destino; senão, `/?entrar=1` (decisão 10). O comentário nomeia o que a
   ausência disso seria: **um redirecionamento aberto com a marca do produto em cima**, alcançado por um
   link legítimo do nosso e-mail.
-- [ ] Task 19: Os três modos sem formulário. Arquivos: `acesso.page.html`, `.ts`. Objetivo:
+- [x] Task 19: Os três modos sem formulário. Arquivos: `acesso.page.html`, `.ts`. Objetivo:
   `verifyAndChangeEmail`, `verifyEmail` e `recoverEmail` chamam `applyEmailAction` na inicialização e
   mostram a confirmação, com o caminho de volta para `/?entrar=1`. **Dois deles o produto não dispara
   hoje** (decisão 7), e o comentário registra que o endereço de ação é do projeto inteiro — a alternativa
   a tratá-los é uma tela em branco para quem fez tudo certo.
-- [ ] Task 20: O link morto. Arquivos: `acesso.page.html`, `.ts`. Objetivo: a tela da decisão 13, com o
+- [x] Task 20: O link morto. Arquivos: `acesso.page.html`, `.ts`. Objetivo: a tela da decisão 13, com o
   título "Esse link não vale mais", a explicação de que links valem uma vez só, e o botão **"Pedir um link
   novo"** para `/?entrar=1`. **Expirado e inválido caem na mesma tela** — distinguir informaria a quem
   colou um código qualquer se ele existiu algum dia.
-- [ ] Task 21 (TDD): Spec da tela. Arquivo: `acesso.page.spec.ts`. Objetivo: seis travas — sem `oobCode`,
+- [x] Task 21 (TDD): Spec da tela. Arquivo: `acesso.page.spec.ts`. Objetivo: seis travas — sem `oobCode`,
   desenha o link inválido e **não chama serviço nenhum**; `mode` desconhecido cai no mesmo lugar; o
   `oobCode` **some da URL** depois de lido; o formulário só aparece depois do `check` bem-sucedido; um
   `continueUrl` de outro domínio **é ignorado** (o teste-trava do redirecionamento aberto); e o sucesso
