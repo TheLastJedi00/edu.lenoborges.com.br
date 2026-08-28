@@ -137,6 +137,10 @@ Branch: `feat/020-fechamento`
   está desligada por constante, com o nome dela.
 - [x] Task 23: `npm test` e `ng build`. Suíte verde antes de fechar: **562 testes e build limpo.** (Este repositório não tem script de `lint` — o portão é o build mais a suíte.)
 - [ ] Task 24: Conferir no navegador, e é aqui que esta spec falha se falhar.
+  **Parcial, e o que falta não é conferível aqui.** Os itens de contato e de plano valem; os três
+  itens de `/acesso` dependem de um `oobCode` chegando por um link que aponte para cá, e **o Firebase
+  recusa configurar essa action URL** (medição no `context.md` da spec 020 da API). Conferir com um
+  `oobCode` colado à mão prova a tela e não prova o fluxo — que é o que esta task existia para provar.
   - Os quatro links de contato a 360 px e a 1440 px — a grade da decisão 3 é o que se está olhando.
   - O CTA da hero abrindo o WhatsApp **no celular de verdade**, com o texto preenchido: `wa.me` se
     comporta diferente de desktop, e é onde a maior parte das pessoas clica.

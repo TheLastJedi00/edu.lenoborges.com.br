@@ -1,5 +1,12 @@
 # Spec 020: Contatos Reais, Plano em Breve e a Tela de Senha
 
+> **ENCERRADA em 2026-08-28.** As cinco fases estão entregues — contatos, plano em breve, serviço,
+> rota e a tela, com 562 testes e build limpo. A Task 24 fica parcial: **a tela de senha está pronta e
+> desligada por fora**, porque o Firebase recusa apontar a action URL para `/acesso`
+> (`EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED`, cinco causas testadas e derrubadas — a medição está no
+> `context.md` da spec 020 da API). Nada aqui precisa mudar quando isso for resolvido: a rota recebe
+> `?mode=…&oobCode=…` de quem quer que monte o link.
+
 ## Objetivo
 Três coisas do produto hoje **prometem um destino e entregam outro**, e as três são visíveis para quem
 ainda não é membro:

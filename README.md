@@ -158,6 +158,12 @@ token na query, e um rastreador que a visitasse descadastraria a pessoa dona daq
 
 ### `/acesso`, a tela de senha (spec 020)
 
+> **A tela está pronta e o link do e-mail ainda não chega nela.** Apontar o e-mail para cá depende da
+> *action URL* do console do Firebase, e **o Firebase recusa alterá-la** — `EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED`,
+> nos dois projetos, com cinco causas testadas e derrubadas em 2026-08-28 (a medição está no `context.md`
+> da spec 020 da API). Até que a API passe a gerar o link pelo Admin SDK, o e-mail continua abrindo a tela
+> do Google. A rota funciona com um `oobCode` colado à mão; ninguém cai nela pelo fluxo real.
+
 Ela existiu como `/definir-senha`, morreu quando o link do e-mail passou a levar para a tela hospedada
 pelo Google, e voltou. **O que não voltou é o front falando com o Firebase**: o `oobCode` vai para a
 nossa API, que fala com o Identity Toolkit — o SDK web do Firebase aqui seria menos código e um segundo
