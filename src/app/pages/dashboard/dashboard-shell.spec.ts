@@ -15,7 +15,10 @@ describe('DashboardShell', () => {
   let router: Router;
 
   beforeEach(async () => {
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['logout']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['logout', 'getMe']);
+    // O shell pede o perfil na abertura: e por ele que `pendingLegal` vira
+    // bloqueio (spec 018).
+    authServiceSpy.getMe.and.returnValue(of());
 
     await TestBed.configureTestingModule({
       imports: [DashboardShell],

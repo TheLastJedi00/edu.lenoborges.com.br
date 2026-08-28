@@ -1,0 +1,225 @@
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  viewChild
+} from '@angular/core';
+import { LegalAcceptDialog } from '../legal-accept-dialog/legal-accept-dialog';
+import { LegalStore } from '../../core/legal/legal.store';
+
+/**
+ * O bloqueio do painel (spec 018, decisão 7).
+ *
+ * Sobe por cima de tudo enquanto houver documento pendente, e **não é
+ * dispensável**: não fecha no Esc, não tem botão de fechar, não tem "agora não"
+ * e não fecha no backdrop. Some sozinho quando o último pendente for aceito.
+ *
+ * **Não reusa o `ConfirmDialog`**, e a recusa é o ponto: aquele componente
+ * existe para ser cancelável — tem `cancelLabel`, emite `cancelled`, fecha no
+ * Esc — e a coisa mais fácil do mundo é alguém "melhorar" a experiência
+ * devolvendo o botão de fechar. Um componente chamado `LegalBlockDialog` cujo
+ * `cancel` é `preventDefault` diz o que é ao ser lido.
+ *
+ * **Tom de alerta, não de erro.** Quem está vendo isto não fez nada errado: os
+ * termos foram publicados, e o acesso volta assim que forem aceitos.
+ */
+@Component({
+  selector: 'app-legal-block-dialog',
+  imports: [LegalAcceptDialog],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <dialog
+      #dialog
+      class="block"
+      aria-labelledby="titulo-bloqueio"
+      (cancel)="$event.preventDefault()"
+      (close)="reabrirSePendente()"
+    >
+      <h2 class="block__title" id="titulo-bloqueio">Precisamos do seu aceite</h2>
+      <p class="block__lead">
+        Publicamos os documentos que regem a Liga Dev. Leia cada um e confirme o aceite para
+        voltar ao painel. Leva um minuto, e você só faz isso quando algo mudar.
+      </p>
+
+      <ul class="block__list">
+        @for (doc of legalStore.pending(); track doc.id) {
+          <li class="block__item">
+            <span class="block__name">{{ doc.title }}</span>
+            <button type="button" class="block__btn" (click)="open(doc.id)">Ler e aceitar</button>
+          </li>
+        }
+      </ul>
+
+      <p class="block__note">
+        Prefere ler em outra aba?
+        <a href="/termos-de-uso" target="_blank" rel="noopener">Termos de Uso</a>
+        ·
+        <a href="/politica-de-privacidade" target="_blank" rel="noopener">
+          Política de Privacidade
+        </a>
+      </p>
+    </dialog>
+
+    <!-- Sempre renderizado; o documento vem no argumento de open(). -->
+    <app-legal-accept-dialog #acceptDialog (accepted)="onAccepted($event)" />
+  `,
+  styles: `
+    .block {
+      width: min(30rem, calc(100vw - 2rem));
+      inset: 0;
+      margin: auto;
+      padding: 1.75rem 1.5rem;
+      border: var(--border-w) solid var(--warn-border, #e9c46a);
+      border-radius: var(--radius-lg);
+      background: var(--paper);
+      box-shadow: var(--shadow-hard);
+      color: var(--ink);
+    }
+
+    .block::backdrop {
+      background: rgba(38, 28, 8, 0.72);
+      backdrop-filter: blur(4px);
+    }
+
+    .block[open] {
+      animation: anim-rise 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .block__title {
+      font-family: var(--font-display);
+      font-size: var(--step-1);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .block__lead {
+      margin-top: 0.6rem;
+      font-size: var(--step--1);
+      line-height: 1.55;
+      color: var(--ink-soft);
+    }
+
+    .block__list {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      list-style: none;
+    }
+
+    /**
+     * Empilhado por padrão, lado a lado só a partir do tablet.
+     *
+     * Em 390px o justify-content: space-between espremia as duas colunas:
+     * "Política de Privacidade" quebrava em duas linhas e o botão também, cada
+     * um brigando pela metade da largura. Mobile primeiro resolve os dois.
+     */
+    .block__item {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.6rem;
+      padding: 0.7rem 0.8rem;
+      border: var(--border-w) solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      background: var(--screen);
+    }
+
+    .block__name {
+      font-size: var(--step--1);
+      font-weight: 600;
+    }
+
+    .block__btn {
+      padding: 0.5rem 0.9rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--gradient-accent-strong);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: var(--step--2);
+      font-weight: 700;
+      /* O rótulo é curto e não deve quebrar: "Ler e" numa linha e "aceitar" na
+         outra dobra a altura do botão sem ganhar nada. */
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    @media (min-width: 30rem) {
+      .block__item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+    }
+
+    /**
+     * Sem u-mono e sem caixa alta: em 390px aquele parágrafo virava quatro
+     * linhas e dominava o cartão, competindo com os botões que são a ação.
+     */
+    .block__note {
+      margin-top: 1.25rem;
+      font-size: var(--step--2);
+      line-height: 1.5;
+      color: var(--ink-soft);
+    }
+
+    .block__note a {
+      color: inherit;
+    }
+  `
+})
+export class LegalBlockDialog implements AfterViewInit {
+  protected readonly legalStore = inject(LegalStore);
+
+  private readonly dialogRef = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+  private readonly acceptDialog = viewChild<LegalAcceptDialog>('acceptDialog');
+
+
+  ngAfterViewInit(): void {
+    // O componente só é renderizado quando há pendência (o `@if` do shell),
+    // então abrir aqui é abrir exatamente quando o bloqueio precisa existir.
+    this.dialogRef().nativeElement.showModal();
+  }
+
+  /**
+   * **O que de fato mantém o bloqueio de pé.**
+   *
+   * O `preventDefault()` no `cancel` sozinho não basta, e isto só apareceu no
+   * navegador: por especificação, o Chrome só torna o `cancel` cancelável
+   * quando há *user activation* recente. Sem ela — primeira coisa que a pessoa
+   * faz ao abrir o painel é apertar Esc — o evento não é cancelável, o diálogo
+   * fecha, e o painel fica acessível sem ninguém ter aceitado nada.
+   *
+   * Reabrir no `close` cobre qualquer caminho de fechamento, conhecido ou não,
+   * sem depender de a plataforma cooperar. O `cancel` continua ali porque evita
+   * o piscar quando ele *é* cancelável.
+   *
+   * Quando o último documento é aceito, `onAccepted` limpa o store **antes** de
+   * fechar, então `hasPending()` já é falso aqui e o diálogo fica fechado. Essa
+   * ordem é o que separa "fechei porque acabou" de "tentaram escapar".
+   */
+  protected reabrirSePendente(): void {
+    if (this.legalStore.hasPending()) {
+      this.dialogRef().nativeElement.showModal();
+    }
+  }
+
+  protected open(documentId: string): void {
+    this.acceptDialog()?.open(documentId);
+  }
+
+  protected onAccepted(documentId: string): void {
+    this.legalStore.clearOne(documentId);
+
+    if (!this.legalStore.hasPending()) {
+      // O último saiu: o painel volta, sem recarregar a página e sem uma segunda
+      // ida ao servidor para confirmar o que o 204 já confirmou.
+      this.dialogRef().nativeElement.close();
+    }
+  }
+}

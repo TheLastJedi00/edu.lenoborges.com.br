@@ -4,8 +4,10 @@ import { Router } from '@angular/router';
 import { Observable, catchError, shareReplay, switchMap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Session } from '../../models/auth.model';
+import { LegalDocumentSummary } from '../../models/legal.model';
 import { AuthService } from './auth.service';
 import { AuthStore } from './auth.store';
+import { LegalStore } from '../legal/legal.store';
 
 let refreshInProgress$: Observable<Session> | null = null;
 
@@ -32,6 +34,7 @@ const NO_REFRESH_ROUTES = ['/auth/login', '/auth/signup', '/auth/refresh', '/aut
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authStore = inject(AuthStore);
   const authService = inject(AuthService);
+  const legalStore = inject(LegalStore);
   const router = inject(Router);
 
   const isApiUrl = req.url.startsWith(environment.apiUrl);
@@ -52,6 +55,20 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(clonedReq).pipe(
     catchError((error: unknown) => {
+      // O 428 vem ANTES do 401, e a ordem é o ponto (spec 018, decisão 8).
+      //
+      // Ele não é sessão expirada: não chama `refresh()`, não limpa a sessão e
+      // não navega. Cair no caminho do 401 deslogaria a base inteira no deploy
+      // desta spec — a pior estreia possível para uma feature cujo assunto é
+      // confiança.
+      //
+      // O erro segue adiante depois de preencher o store: quem chamou precisa
+      // saber que a requisição falhou, e quem desenha o bloqueio é o shell.
+      if (error instanceof HttpErrorResponse && error.status === 428) {
+        legalStore.setPending(pendingFrom(error));
+        return throwError(() => error);
+      }
+
       if (
         !(error instanceof HttpErrorResponse) ||
         error.status !== 401 ||
@@ -97,6 +114,19 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     })
   );
 };
+
+/**
+ * Lê a lista de pendentes do corpo do 428.
+ *
+ * Defensivo de propósito: se o corpo vier vazio ou com outro formato, o
+ * resultado é lista vazia e o bloqueio simplesmente não sobe — melhor que um
+ * `TypeError` dentro do interceptor, que quebraria **todas** as requisições do
+ * app, e não só a que falhou.
+ */
+function pendingFrom(error: HttpErrorResponse): LegalDocumentSummary[] {
+  const pending = (error.error as { pending?: unknown } | null)?.pending;
+  return Array.isArray(pending) ? (pending as LegalDocumentSummary[]) : [];
+}
 
 /**
  * `finalize` do RxJS aplicado à fonte, e não ao observable compartilhado: dispara

@@ -15,11 +15,13 @@ import {
 import { EMAIL_PATTERN, normalizeEmail, normalizeName, normalizePhone } from '../normalize';
 import { toInstagramUrl, toLinkedinUrl } from '../social-url';
 import { AuthStore } from './auth.store';
+import { LegalStore } from '../legal/legal.store';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly authStore = inject(AuthStore);
+  private readonly legalStore = inject(LegalStore);
 
   /**
    * Envia o pedido de cadastro.
@@ -170,6 +172,10 @@ export class AuthService {
       .pipe(
         tap((profile) => {
           this.authStore.setProfile(profile);
+          // Mesma tradução do `getMe`, pelo mesmo motivo: esta resposta também
+          // carrega `pendingLegal`, e deixá-la de fora manteria um bloqueio de
+          // pé depois de a pendência ter sido resolvida.
+          this.legalStore.setPending(profile.pendingLegal ?? []);
         })
       );
   }
@@ -280,6 +286,15 @@ export class AuthService {
     return this.http.get<MemberProfile>(`${environment.apiUrl}/me`).pipe(
       tap((profile) => {
         this.authStore.setProfile(profile);
+        // **O primeiro dos dois canais do bloqueio legal** (spec 018, decisão
+        // 8): o painel já nasce bloqueado, sem esperar uma requisição qualquer
+        // falhar por acaso e desenhar meia tela antes. O outro canal é o 428 no
+        // interceptor, que pega a versão publicada enquanto a aba estava aberta.
+        //
+        // Mora aqui, e não em cada page, para que exista um lugar só que traduz
+        // `pendingLegal` em bloqueio — duas traduções divergem, e a que fica
+        // velha libera o painel de quem não aceitou.
+        this.legalStore.setPending(profile.pendingLegal ?? []);
       })
     );
   }

@@ -219,6 +219,22 @@
   color: var(--ink-soft);
 }
 
+.footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.footer__legal a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.footer__legal a:hover {
+  color: var(--ink);
+}
+
 @media (min-width: 48rem) {
   .hero {
     padding-block: 5rem 2rem;

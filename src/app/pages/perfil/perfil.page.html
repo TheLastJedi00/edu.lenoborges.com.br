@@ -370,6 +370,52 @@
       </section>
 
       <!--
+        Contratos (spec 018, decisão 11). Quinta seção, **antes** de Excluir
+        conta, que continua sendo a última, sozinha, no fim.
+
+        É a tela para onde a Política aponta quando diz que a data do aceite
+        fica registrada — e uma promessa dessas sem a tela correspondente seria
+        a decisão 10 do backend violada de dentro do front.
+      -->
+      <section class="block" aria-labelledby="titulo-contratos">
+        <h2 class="block__title" id="titulo-contratos">Contratos</h2>
+        <p class="block__lead">
+          Os documentos que você aceitou, e quando. Consulte sempre que precisar.
+        </p>
+
+        @if (contratos().length) {
+          <ul class="contratos">
+            @for (contrato of contratos(); track contrato.id) {
+              <li class="acesso acesso__row">
+                <div>
+                  <p class="acesso__label">{{ contrato.title }}</p>
+                  <!--
+                    Duas linhas em vez de uma com "·" no meio: em 390px a linha
+                    única quebrava logo depois do separador, deixando o ponto
+                    pendurado no fim. Dois parágrafos empilham sozinhos, sem CSS
+                    novo, e leem igual de bem no desktop.
+                  -->
+                  <p class="acesso__value u-mono">Versão de {{ contrato.versionLabel }}</p>
+                  <p class="acesso__value u-mono">
+                    @if (contrato.acceptedLabel) {
+                      Aceita em {{ contrato.acceptedLabel }}
+                    } @else {
+                      Não aceita
+                    }
+                  </p>
+                </div>
+                <button type="button" class="btn btn--ghost" (click)="abrirContrato(contrato.id)">
+                  Ler
+                </button>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="block__lead u-mono">Carregando os documentos...</p>
+        }
+      </section>
+
+      <!--
         A saída fica no fim, separada por um respiro grande e com borda de
         atenção — e não em vermelho gritante. É a seção mais séria da tela, não
         a mais barulhenta; o vermelho é do botão final, dentro do diálogo.
@@ -433,3 +479,9 @@
   (confirmed)="confirmarSaida()"
   (cancelled)="cancelarSaida()"
 />
+
+<!--
+  Modo leitura: sem check e sem botão de aceitar. Abrir sem `readonly` daria um
+  aceite numa tela de consulta (spec 018, decisão 11).
+-->
+<app-legal-accept-dialog #contratoDialog [readonly]="true" />

@@ -61,3 +61,27 @@ export function dataCurta(iso: string | null | undefined): string {
     year: 'numeric'
   });
 }
+
+/**
+ * "27/08/2026" a partir de uma data **sem hora**, como `2026-08-27`.
+ *
+ * Existe separada de `dataCurta` por um motivo que não é estilo: `new Date()`
+ * sobre uma string só-data lê o valor como UTC e exibe no fuso local, o que
+ * mostra **o dia anterior** a oeste de Greenwich. Em São Paulo, a versão de
+ * 27/08 apareceria como 26/08 — e num documento legal a data *é* a identidade
+ * da versão, então errar por um dia é mostrar outra versão.
+ *
+ * Por isso aqui não há `Date` nenhum: os três pedaços são reordenados como
+ * texto. Ver a spec 018.
+ */
+export function dataDeVersao(version: string | null | undefined): string {
+  const partes = (version ?? '').split('-');
+
+  if (partes.length !== 3) {
+    return '';
+  }
+
+  const [ano, mes, dia] = partes;
+
+  return `${dia}/${mes}/${ano}`;
+}

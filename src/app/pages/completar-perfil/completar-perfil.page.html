@@ -73,11 +73,41 @@
         }
       </label>
 
+      <!--
+        Os documentos legais (spec 018, decisão 6). A lista vem da API — nunca
+        escrita aqui —, então um terceiro documento não muda esta tela.
+
+        O `disabled` do submit é conveniência: quem barra de verdade é o 428 do
+        PATCH /me/profile. Mesma divisão do adminGuard.
+      -->
+      @if (legalDocuments().length) {
+        <fieldset class="legal">
+          <legend class="legal__legend">Antes de continuar, leia e aceite:</legend>
+
+          @for (doc of legalDocuments(); track doc.id) {
+            <div class="legal__row">
+              <button type="button" class="legal__btn" (click)="openLegal(doc.id)">
+                {{ doc.title }}
+              </button>
+              @if (isAccepted(doc.id)) {
+                <span class="legal__state legal__state--ok u-mono">aceito</span>
+              } @else {
+                <span class="legal__state u-mono">pendente</span>
+              }
+            </div>
+          }
+        </fieldset>
+      }
+
       @if (errorMessage()) {
         <p class="form__error" role="alert">{{ errorMessage() }}</p>
       }
 
-      <button class="submit" type="submit" [disabled]="form.invalid || sending()">
+      <button
+        class="submit"
+        type="submit"
+        [disabled]="form.invalid || sending() || !legalAccepted()"
+      >
         @if (sending()) {
           <span class="submit__spinner" aria-hidden="true"></span>
           Salvando dados...
@@ -98,3 +128,10 @@
   [danger]="true"
   (confirmed)="confirmLogout()"
 />
+
+<!--
+  Sempre renderizado, e o documento vem no `open(id)`. Dentro de um `@if` o
+  diálogo só existiria depois do próximo ciclo de detecção, e a chamada de
+  abertura cairia no vazio.
+-->
+<app-legal-accept-dialog #legalDialog (accepted)="onLegalAccepted($event)" />

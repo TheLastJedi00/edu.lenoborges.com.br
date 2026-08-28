@@ -16,6 +16,8 @@ import { AuthStore } from '../../core/auth/auth.store';
 import { Logo } from '../../shared/logo/logo';
 import { NotificationCenter } from '../../components/notification-center/notification-center';
 import { NotificationsStore } from '../../core/notifications/notifications.store';
+import { LegalBlockDialog } from '../../components/legal-block-dialog/legal-block-dialog';
+import { LegalStore } from '../../core/legal/legal.store';
 
 const ASIDE_EXPANDED_STORAGE_KEY = 'eduleno.aside.expanded';
 
@@ -28,7 +30,8 @@ const ASIDE_EXPANDED_STORAGE_KEY = 'eduleno.aside.expanded';
     ConfirmDialog,
     IconMenu,
     Logo,
-    NotificationCenter
+    NotificationCenter,
+    LegalBlockDialog
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -66,6 +69,15 @@ const ASIDE_EXPANDED_STORAGE_KEY = 'eduleno.aside.expanded';
         </main>
       </div>
     </div>
+
+    <!--
+      O bloqueio por falta de aceite (spec 018). Fica por cima de tudo —
+      inclusive do sino e do menu — enquanto houver documento pendente, e some
+      sozinho quando o último for aceito.
+    -->
+    @if (legalStore.hasPending()) {
+      <app-legal-block-dialog />
+    }
 
     <app-confirm-dialog
       #logoutDialog
@@ -158,6 +170,7 @@ export class DashboardShell implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly notifications = inject(NotificationsStore);
+  protected readonly legalStore = inject(LegalStore);
   readonly authStore = inject(AuthStore);
 
   private readonly logoutDialog = viewChild<ConfirmDialog>('logoutDialog');
@@ -174,6 +187,13 @@ export class DashboardShell implements OnInit {
     } catch {
       // Ignora erro de acesso a storage se cookies/storage estiverem bloqueados
     }
+
+    // **O primeiro dos dois canais do bloqueio legal** (spec 018, decisão 8): o
+    // `GET /me` traz `pendingLegal`, e o `AuthService` o traduz em bloqueio. É o
+    // shell que pede, e não cada page, porque o bloqueio cobre o painel inteiro
+    // — sem isto ele só apareceria quando alguma requisição por acaso tomasse
+    // 428, depois de a tela já ter desenhado.
+    this.authService.getMe().subscribe({ error: () => undefined });
 
     // Uma busca na abertura do painel, e outra a cada vez que o sino abre.
     // **Nenhum intervalo** (spec 012): polling de contador é uma requisição por

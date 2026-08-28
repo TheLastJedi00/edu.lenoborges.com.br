@@ -9,6 +9,7 @@ import { MemberProfile, Session } from '../../models/auth.model';
 import { authInterceptor, resetRefreshInProgress } from './auth.interceptor';
 import { AuthService } from './auth.service';
 import { AuthStore } from './auth.store';
+import { LegalStore } from '../legal/legal.store';
 
 const MOCK_PROFILE: MemberProfile = {
   id: 'prof-1',
@@ -22,7 +23,9 @@ const MOCK_PROFILE: MemberProfile = {
   emailOptOut: false,
   profileCompleted: true,
   role: null,
-  tier: 'dev-tier'
+  tier: 'dev-tier',
+  pendingLegal: [],
+  legalAcceptances: {}
 };
 
 const MOCK_SESSION: Session = {
@@ -268,5 +271,69 @@ describe('authInterceptor (TDD)', () => {
 
     await expectAsync(pending).toBeRejected();
     expect(navigate).toHaveBeenCalledWith('/comunidade');
+  });
+describe('12. o 428 de aceite legal (spec 018)', () => {
+    /**
+     * **A trava mais importante desta spec no front.**
+     *
+     * O 428 nao e sessao expirada. Cair no caminho do 401 dispararia um refresh,
+     * e um refresh que falha limpa a sessao e navega para /comunidade -- ou
+     * seja, o deploy desta spec deslogaria a base inteira, que e a pior estreia
+     * possivel para uma feature cujo assunto e confianca.
+     */
+    it('teste-trava: 428 NAO dispara refresh, NAO limpa a sessao e NAO navega', async () => {
+      const navigate = spyOn(TestBed.inject(Router), 'navigateByUrl').and.resolveTo(true);
+      const refresh = spyOn(TestBed.inject(AuthService), 'refresh');
+      store.accessToken.set('token-valido');
+
+      const pending = firstValueFrom(http.get(`${environment.apiUrl}/mural`));
+
+      httpMock.expectOne(`${environment.apiUrl}/mural`).flush(
+        { error: 'legal_acceptance_required', pending: [] },
+        { status: 428, statusText: 'Precondition Required' }
+      );
+
+      await expectAsync(pending).toBeRejected();
+      expect(refresh).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
+      expect(store.accessToken()).toBe('token-valido');
+      httpMock.verify();
+    });
+
+    it('preenche o LegalStore com a lista que veio no corpo', async () => {
+      store.accessToken.set('token-valido');
+      const legalStore = TestBed.inject(LegalStore);
+
+      const pending = firstValueFrom(http.get(`${environment.apiUrl}/mural`));
+
+      httpMock.expectOne(`${environment.apiUrl}/mural`).flush(
+        {
+          error: 'legal_acceptance_required',
+          pending: [{ id: 'termos-de-uso', title: 'Termos de Uso', version: '2026-08-27' }]
+        },
+        { status: 428, statusText: 'Precondition Required' }
+      );
+
+      await expectAsync(pending).toBeRejected();
+      expect(legalStore.hasPending()).toBeTrue();
+      expect(legalStore.pending()[0].id).toBe('termos-de-uso');
+    });
+
+    /**
+     * Corpo em outro formato nao pode virar TypeError dentro do interceptor:
+     * ali um erro quebraria TODAS as requisicoes do app, e nao so a que falhou.
+     */
+    it('corpo sem pending nao quebra o interceptor', async () => {
+      store.accessToken.set('token-valido');
+
+      const pending = firstValueFrom(http.get(`${environment.apiUrl}/mural`));
+
+      httpMock
+        .expectOne(`${environment.apiUrl}/mural`)
+        .flush('erro em texto', { status: 428, statusText: 'Precondition Required' });
+
+      await expectAsync(pending).toBeRejected();
+      expect(TestBed.inject(LegalStore).hasPending()).toBeFalse();
+    });
   });
 });
