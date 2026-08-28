@@ -389,12 +389,18 @@
               <li class="acesso acesso__row">
                 <div>
                   <p class="acesso__label">{{ contrato.title }}</p>
+                  <!--
+                    Duas linhas em vez de uma com "·" no meio: em 390px a linha
+                    única quebrava logo depois do separador, deixando o ponto
+                    pendurado no fim. Dois parágrafos empilham sozinhos, sem CSS
+                    novo, e leem igual de bem no desktop.
+                  -->
+                  <p class="acesso__value u-mono">Versão de {{ contrato.versionLabel }}</p>
                   <p class="acesso__value u-mono">
-                    Versão de {{ contrato.versionLabel }} ·
                     @if (contrato.acceptedLabel) {
-                      aceita em {{ contrato.acceptedLabel }}
+                      Aceita em {{ contrato.acceptedLabel }}
                     } @else {
-                      não aceita
+                      Não aceita
                     }
                   </p>
                 </div>

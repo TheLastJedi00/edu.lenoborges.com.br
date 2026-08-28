@@ -170,3 +170,31 @@ cancelar, não que o navegador aceitou; e nenhum teste de DOM enxerga um `displa
 
 A regra que fica, e que vale para a próxima spec com `<dialog>`: **teste pelo host, sem esperas
 artificiais no meio, e verifique o efeito na plataforma — não a intenção do código.**
+
+# Fase 09: Mobile first, que era a regra e ficou por último [x]
+Branch: `fix/018-mobile`
+
+O clauderc do front põe **Mobile First** como regra 2, e as fases 01 a 08 desenharam tudo no desktop. O
+overview em 390px mostrou três problemas, todos no bloqueio do painel — a tela mais crítica da spec.
+
+- [x] Task 36: No cartão de cada documento, o `justify-content: space-between` espremia as duas colunas
+  em 390px: "Política de Privacidade" quebrava em duas linhas e o botão "Ler e aceitar" também, cada um
+  brigando pela metade da largura. Agora o item é **empilhado por padrão** e vira linha a partir de
+  `30rem` — mobile primeiro de verdade, e não uma media query corrigindo o desktop.
+- [x] Task 37: `white-space: nowrap` no botão. "Ler e" numa linha e "aceitar" na outra dobrava a altura
+  sem ganhar nada.
+- [x] Task 38: A nota do rodapé do bloqueio saiu do `u-mono`. Em caixa alta e mono ela virava **quatro
+  linhas** e dominava o cartão, competindo com os botões, que são a ação. O texto também encurtou.
+- [x] Task 39: Em Contratos, a meta virou duas linhas em vez de uma com `·` no meio — em 390px a linha
+  única quebrava logo depois do separador e deixava o ponto pendurado. Dois parágrafos empilham
+  sozinhos, **sem CSS novo**, o que também respeita o budget de estilo da página.
+
+## O que foi conferido em 390px
+
+Documentos públicos, rodapé da landing, onboarding com o bloco de aceite, modal de aceite (corpo
+rolável e rodapé fixo com check e botões visíveis), bloqueio do painel, e Contratos. **Nenhuma tela tem
+overflow horizontal**, e o desktop foi reconferido depois para garantir que nada regrediu.
+
+Nota de método: a extensão do Chrome renderiza numa viewport fixa e `resize_window` não a altera. O
+percurso mobile foi feito **dentro de um iframe de 390px**, onde as media queries valem de verdade —
+`matchMedia('(max-width: 47.99rem)')` responde `true` lá dentro.

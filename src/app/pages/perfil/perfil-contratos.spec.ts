@@ -109,7 +109,7 @@ describe('PerfilPage · Contratos', () => {
 
     expect(linhas()[0]).toContain('Termos de Uso');
     expect(linhas()[0]).toContain('Versão de 27/08/2026');
-    expect(linhas()[0]).toContain('aceita em 12/03/2026');
+    expect(linhas()[0]).toContain('Aceita em 12/03/2026');
   });
 
   /**
@@ -120,7 +120,7 @@ describe('PerfilPage · Contratos', () => {
   it('documento sem aceite registrado mostra "não aceita", e não célula vazia', async () => {
     await montar({});
 
-    expect(linhas()[0]).toContain('não aceita');
+    expect(linhas()[0]).toContain('Não aceita');
   });
 
   /**
@@ -133,7 +133,7 @@ describe('PerfilPage · Contratos', () => {
       'termos-de-uso': { version: '2026-01-01', acceptedAt: '2026-01-02T10:00:00.000Z' }
     });
 
-    expect(linhas()[0]).toContain('não aceita');
+    expect(linhas()[0]).toContain('Não aceita');
     expect(linhas()[0]).not.toContain('02/01/2026');
   });
 
