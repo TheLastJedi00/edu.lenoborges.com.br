@@ -16,6 +16,22 @@ import { ProfileService } from '../../services/profile.service';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
+/**
+ * Desliga a troca de plano até existir cobrança. **Uma linha para religar.**
+ *
+ * Ver a decisão 4 da spec 020. O botão fica, desabilitado e com o rótulo "Em
+ * breve": apagá-lo tiraria o rodapé do cartão e deixaria a grade com quatro
+ * colunas de alturas diferentes, e o dia de religar viraria reescrever o
+ * `TierCard`. Deixá-lo vivo mostrando um aviso no clique seria pior ainda — é
+ * a interface prometendo e retirando depois do gesto, quando a pessoa já
+ * decidiu.
+ *
+ * **Vale para todo mundo, admin incluído.** Um caminho vivo que só uma conta
+ * percorre é um caminho que ninguém testa, e o admin não tem checkout nenhum a
+ * mais que os outros.
+ */
+const TROCA_DE_PLANO_DISPONIVEL = false;
+
 @Component({
   selector: 'app-financeiro-page',
   standalone: true,
@@ -33,6 +49,9 @@ export class FinanceiroPage implements OnInit {
   protected readonly catalog = signal<TierCatalog | null>(null);
 
   protected readonly tiers = computed(() => this.catalog()?.tiers ?? []);
+
+  /** Exposto ao template porque a constante é de módulo, não de instância. */
+  protected readonly trocaDePlanoDisponivel = TROCA_DE_PLANO_DISPONIVEL;
 
   protected readonly currentTier = computed(() =>
     this.tiers().find((tier) => tier.id === this.catalog()?.currentTierId)
@@ -88,9 +107,11 @@ export class FinanceiroPage implements OnInit {
   /**
    * O upgrade leva a uma conversa, não a um checkout.
    *
-   * Não existe cobrança no produto (decisão 4 da spec 009 do backend), e um botão
-   * "Assinar" que não assina é pior que a ausência dele: promete um fluxo que
-   * não existe, e a pessoa descobre no clique.
+   * **Não há caminho até aqui enquanto `TROCA_DE_PLANO_DISPONIVEL` for falsa**, e
+   * o método fica assim mesmo (decisão 5 da spec 020): apagá-lo transformaria
+   * "religar a troca de plano" de uma linha em uma tarefa. O teste que o exercita
+   * chamando-o direto também fica — é ele que impede o código desligado de
+   * apodrecer em silêncio até o dia em que volta a ser vivo.
    */
   protected onUpgrade(tier: BillingTier): void {
     const contato = this.contactHref();
@@ -99,16 +120,20 @@ export class FinanceiroPage implements OnInit {
     }
 
     // O rótulo do botão já diz o nome do tier ("Quero o Master Dev Tier"), então
-    // a pessoa chega à conversa sabendo o que pedir. Uma mensagem pré-preenchida
-    // exigiria um canal que aceite texto na URL, e o contato de hoje é o
-    // LinkedIn — inventar um `?text=` ali produziria um link quebrado.
-    // Ver o ponto em aberto 3 da spec 009.
+    // a pessoa chega à conversa sabendo o que pedir. O `?text=` que a landing
+    // passou a usar na spec 020 caberia aqui também, agora que o canal é o
+    // WhatsApp — e fica de fora enquanto não houver caminho até esta linha.
     globalThis.open?.(contato, '_blank', 'noopener');
   }
 
-  /** O mesmo canal de contato que a landing usa. Um lugar só para o link mudar. */
+  /**
+   * O mesmo canal de contato que a landing usa. Um lugar só para o link mudar.
+   *
+   * Passou a ser o WhatsApp junto com a landing (decisão 2 da spec 020): quem
+   * quer trocar de plano fala com o Leno pelo canal em que a conversa acontece.
+   */
   protected readonly contactHref = computed(() => {
     const links = this.profileService.profile().identity.links;
-    return links.find((link) => link.icon === 'linkedin')?.url ?? links[0]?.url ?? '';
+    return links.find((link) => link.icon === 'whatsapp')?.url ?? links[0]?.url ?? '';
   });
 }

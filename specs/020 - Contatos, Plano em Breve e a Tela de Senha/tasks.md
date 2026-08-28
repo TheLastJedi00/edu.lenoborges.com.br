@@ -42,23 +42,23 @@ Independente das outras fases. Ao fim dela, todo link de contato do site leva a 
   `href` de contato contém `igsi`** (é o teste que fica vermelho quando alguém colar de novo o link do
   app); e o CTA da hero aponta para o WhatsApp, com `target="_blank"` e `rel="noopener noreferrer"`.
 
-# Fase 02: A troca de plano em breve [ ]
+# Fase 02: A troca de plano em breve [x]
 Branch: `feat/020-plano-em-breve`
 
-- [ ] Task 06: O `input` do cartão. Arquivo: `src/app/components/tier-card/tier-card.ts`. Objetivo:
+- [x] Task 06: O `input` do cartão. Arquivo: `src/app/components/tier-card/tier-card.ts`. Objetivo:
   `upgradeDisponivel = input(true)`; falso deixa o botão `disabled` com o rótulo **"Em breve"** no lugar de
   "Quero o \<tier\>". O cartão **continua burro**: não conhece a constante, não sabe de sessão e não sabe
   por que está desabilitado.
-- [ ] Task 07: A constante e o aviso. Arquivos: `src/app/pages/financeiro/financeiro.page.ts`, `.html`,
+- [x] Task 07: A constante e o aviso. Arquivos: `src/app/pages/financeiro/financeiro.page.ts`, `.html`,
   `.scss`. Objetivo: `const TROCA_DE_PLANO_DISPONIVEL = false` no topo do arquivo, com o comentário da
   decisão 4 e a frase "uma linha para religar"; o `[upgradeDisponivel]` em todo `app-tier-card`; o CTA do
   bloco "O que o \<tier\> abre para você" desabilitado do mesmo jeito; e a frase **"A troca de plano estará
   disponível em breve."** uma vez só, acima da lista — nunca uma por cartão (decisão 4: `disabled` não é
   anunciado, e repetir a frase quatro vezes é um leitor de tela lendo a mesma promessa quatro vezes).
-- [ ] Task 08: O código que fica. Arquivo: `financeiro.page.ts`. Objetivo: `onUpgrade` e `contactHref`
+- [x] Task 08: O código que fica. Arquivo: `financeiro.page.ts`. Objetivo: `onUpgrade` e `contactHref`
   **permanecem**, com o comentário da decisão 5 dizendo que não há caminho até eles enquanto a constante
   for falsa, e por que apagá-los transformaria uma linha numa tarefa.
-- [ ] Task 09 (TDD): Spec do Financeiro. Arquivo: `financeiro.page.spec.ts`. Objetivo: todo botão de
+- [x] Task 09 (TDD): Spec do Financeiro. Arquivo: `financeiro.page.spec.ts`. Objetivo: todo botão de
   upgrade da tela está `disabled`; a frase de "em breve" aparece **uma vez**; o teste existente que exercita
   `onUpgrade` continua verde chamando o método direto (decisão 5) — é ele que impede o código desligado de
   apodrecer.

@@ -49,6 +49,19 @@
   color: var(--accent-deep);
 }
 
+/* O aviso de que a troca de plano vem depois. Aparece uma vez, acima da lista:
+   disabled nao e anunciado por leitor de tela, e a frase por cartao seria a
+   mesma promessa lida quatro vezes. */
+.soon {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: var(--border-w) dashed var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
 .tiers {
   display: grid;
   gap: 1rem;
@@ -121,6 +134,13 @@
   font-family: var(--font-body);
   font-weight: 700;
   cursor: pointer;
+}
+
+.next__cta:disabled {
+  border-color: var(--border-soft);
+  background: var(--border-soft);
+  color: var(--ink-soft);
+  cursor: not-allowed;
 }
 
 .next {
