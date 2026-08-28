@@ -73,6 +73,28 @@ export interface BadgeVideo {
   /** Livre para todos, mesmo numa insígnia adiantada. */
   readonly devTierFree: boolean;
   readonly order: number;
+  /**
+   * Se **quem pediu esta lista** já marcou o vídeo como assistido (spec 019).
+   *
+   * É o único campo desta lista que muda de membro para membro: a resposta
+   * deixou de ser igual para todo mundo. Vídeo sem registro chega `false` — não
+   * existe "não sei" aqui, e a tela não precisa de um terceiro estado.
+   */
+  readonly watched: boolean;
+}
+
+/**
+ * A resposta de `PUT /me/watched-videos/:videoId` (spec 019).
+ *
+ * **O `xp` vem daqui, calculado.** É a razão de a rota devolver corpo em vez de
+ * 204: quem marca está na tela da insígnia e o número mora no painel, e sem ele
+ * a tela teria de escolher entre um `GET /me` por clique ou somar 10 sozinha —
+ * que erra em todo vídeo remarcado, porque remarcar não paga XP.
+ */
+export interface WatchedVideoResult {
+  readonly videoId: string;
+  readonly watched: boolean;
+  readonly xp: number;
 }
 
 export interface BadgeVideoList {

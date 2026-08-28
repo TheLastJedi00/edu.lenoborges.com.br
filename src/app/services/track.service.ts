@@ -2,7 +2,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { BadgeVideoKind, BadgeVideoList } from '../models/track.model';
+import {
+  BadgeVideoKind,
+  BadgeVideoList,
+  WatchedVideoResult
+} from '../models/track.model';
 
 @Injectable({ providedIn: 'root' })
 export class TrackService {
@@ -31,6 +35,29 @@ export class TrackService {
     return this.http.get<BadgeVideoList>(
       `${environment.apiUrl}/badges/${badgeId}/videos`,
       { params }
+    );
+  }
+
+  /**
+   * Marca ou desmarca um vídeo como assistido (spec 019).
+   *
+   * **O `xp` da resposta é o número novo, e este método não o calcula.** O 10
+   * não existe neste repositório, e a tentação de somá-lo localmente para a tela
+   * responder mais rápido está errada por um motivo específico: **remarcar um
+   * vídeo não paga XP nenhum**. A soma local acertaria no primeiro clique de
+   * cada vídeo e erraria em todos os seguintes, e o erro é invisível até alguém
+   * recarregar a página e ver o número cair.
+   *
+   * A rota é idempotente: marcar o que já está marcado responde 200 sem pagar de
+   * novo, e desmarcar não devolve o XP já pago.
+   */
+  setWatched(
+    videoId: string,
+    watched: boolean
+  ): Observable<WatchedVideoResult> {
+    return this.http.put<WatchedVideoResult>(
+      `${environment.apiUrl}/me/watched-videos/${videoId}`,
+      { watched }
     );
   }
 }

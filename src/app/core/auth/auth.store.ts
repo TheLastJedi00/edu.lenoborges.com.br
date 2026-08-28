@@ -47,6 +47,22 @@ export class AuthStore {
   readonly grade = computed(() => this.profile()?.grade ?? this.sessionGrade());
 
   /**
+   * Pontos de experiência (spec 019).
+   *
+   * **Uma fonte, e é a que já existia.** O check é clicado na tela da insígnia e
+   * o selo vive no painel; as duas telas não se conhecem, e um segundo signal de
+   * XP em qualquer componente seria o que fica velho na navegação de volta — o
+   * painel mostrando o número de antes de a pessoa assistir a três vídeos.
+   *
+   * Diferente de `grade` e `role`, **não há fallback de sessão**: o campo chega
+   * no `GET /me`, que o painel já faz ao montar. Uma segunda fonte para o mesmo
+   * valor divergiria no primeiro check dado antes do refresh. Até o perfil
+   * chegar, o valor é zero — e o selo simplesmente não é desenhado, porque um
+   * `0` que pisca e vira `340` é pior que um espaço vazio.
+   */
+  readonly xp = computed(() => this.profile()?.xp ?? 0);
+
+  /**
    * Papel do usuário, com a mesma precedência de `grade`: o perfil carregado
    * manda quando existe, porque é o dado mais recente.
    */
@@ -102,6 +118,23 @@ export class AuthStore {
 
   setProfile(profile: MemberProfile): void {
     this.profile.set(profile);
+  }
+
+  /**
+   * Escreve o XP novo, vindo da resposta de quem marcou um vídeo (spec 019).
+   *
+   * **Sem perfil carregado, não faz nada** — e isso é a decisão, não um
+   * descuido. Criar um perfil pela metade aqui deixaria `profileCompleted`
+   * falso, e o guard de onboarding sequestraria quem só marcou um vídeo. O
+   * número certo chega no `GET /me` seguinte de qualquer forma.
+   */
+  setXp(xp: number): void {
+    const current = this.profile();
+    if (!current) {
+      return;
+    }
+
+    this.profile.set({ ...current, xp });
   }
 
   clearSession(): void {
