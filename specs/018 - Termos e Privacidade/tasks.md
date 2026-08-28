@@ -88,7 +88,7 @@ Branch: `feat/018-onboarding`
   submit do formulário, e um F5 depois disso mantém o documento aceito (decisão 5). Sem esta trava, a
   primeira "simplificação" junta os dois aceites no corpo do `PATCH`.
 
-# Fase 05: O bloqueio no painel [ ]
+# Fase 05: O bloqueio no painel [x]
 Branch: `feat/018-bloqueio-do-painel`
 
 - [x] Task 20: O componente. Arquivos: `src/app/components/legal-block-dialog/`. Objetivo: `<dialog>` em
@@ -106,7 +106,7 @@ Branch: `feat/018-bloqueio-do-painel`
 - [x] Task 23 (TDD): Spec do bloqueio. Objetivo: quatro travas — aparece com pendência; **Esc não fecha**;
   não existe elemento clicável que feche sem aceitar; e some sozinho quando o store esvazia. A segunda e
   a terceira são o componente inteiro: um bloqueio que fecha no Esc não é um bloqueio.
-- [ ] Task 24: Conferir no navegador. Objetivo: com um documento pendente e com dois. E conferir que o
+- [x] Task 24: Conferir no navegador. Objetivo: com um documento pendente e com dois. E conferir que o
   bloqueio **não aparece** em `/completar-perfil` — quem está lá tem os dois botões da Fase 04, e os dois
   ao mesmo tempo seriam dois pedidos de aceite na mesma tela.
 
@@ -123,11 +123,11 @@ Branch: `feat/018-contratos-no-perfil`
   que já existe, e o botão abre o modal com `readonly` — teste-trava, porque abrir sem `readonly` daria
   um check de aceite numa tela de consulta.
 
-# Fase 07: Fechar [ ]
+# Fase 07: Fechar [x]
 Branch: `feat/018-fechamento`
 
 - [x] Task 28: `npm run lint` e `npm test`, tudo verde.
-- [ ] Task 29: Percurso completo no navegador. Objetivo: (a) ler os dois documentos pelo rodapé da
+- [x] Task 29: Percurso completo no navegador. Objetivo: (a) ler os dois documentos pelo rodapé da
   landing, **deslogado**; (b) cadastro novo, onboarding travado até os dois aceites; (c) membro antigo
   com pendência, bloqueio no painel, aceite, painel liberado sem recarregar; (d) Meu Perfil mostrando as
   duas datas.
@@ -135,3 +135,38 @@ Branch: `feat/018-fechamento`
   legal** (decisão 1) e que o `428` é tratado no interceptor **fora do caminho do refresh** (spec 011
   afetada) — as duas linhas que, se esquecidas, produzem os dois piores erros possíveis desta spec:
   contrato desatualizado sem ninguém saber, e base inteira deslogada num deploy.
+
+# Fase 08: Fix — o que o navegador pegou [x]
+Branch: `fix/018-modal-nao-abre`
+
+As fases 01 a 07 terminaram verdes, e **três defeitos sobreviveram a elas**. Os três só apareceram no
+percurso de navegador das tasks 24 e 29, e os três tinham teste passando por cima.
+
+- [x] Task 31: O modal não buscava o texto. O diálogo vivia dentro de um `@if` e era aberto numa
+  `queueMicrotask`; em zoneless a microtask roda **antes** de o Angular criar o componente, então a
+  referência era `undefined` e o `?.` engolia a chamada em silêncio. O modal abria preso em
+  "Carregando o documento...". Correção: o diálogo fica **sempre renderizado** e o id vem no argumento
+  de `open(id)` — a corrida deixa de existir, em vez de ser sincronizada.
+- [x] Task 32: O bloqueio do painel **fechava no Esc**. `preventDefault()` no `cancel` não basta: por
+  especificação, o Chrome só torna esse evento cancelável quando há *user activation* recente, e sem
+  ela o Esc fecha direto — o painel ficava acessível sem ninguém ter aceitado nada. Correção: reabrir
+  no `close` enquanto houver pendência, o que cobre qualquer caminho de fechamento sem depender de a
+  plataforma cooperar.
+- [x] Task 33: `.modal { display: flex }` sobrescrevia o `display: none` nativo do `<dialog>` fechado, e
+  ele aparecia desenhado no meio do formulário. O display foi para o `[open]`.
+- [x] Task 34: As travas novas. Um clique e **um** ciclo de detecção têm de bastar para a requisição do
+  documento sair; o diálogo fechado tem de computar `display: none`; e fechar o bloqueio por fora tem
+  de reabri-lo. As três foram verificadas **revertendo a correção** e vendo o teste ficar vermelho —
+  sem isso não dá para saber se a trava trava.
+- [x] Task 35: Cartão por linha na seção Contratos, reusando o `.acesso` que já existia. O espaçamento
+  tinha ficado colado quando o CSS foi espremido para caber no budget de estilo da página.
+
+## O que estes três defeitos ensinam sobre os testes desta spec
+
+Os três tinham cobertura verde, e a cobertura era enganosa pelo mesmo motivo nos três: **ela exercitava
+o componente, não o caminho do usuário**. `open()` chamado direto, com o componente já montado, nunca
+encontra a corrida do host; `defaultPrevented` de um evento sintético prova que o handler pediu para
+cancelar, não que o navegador aceitou; e nenhum teste de DOM enxerga um `display` errado.
+
+A regra que fica, e que vale para a próxima spec com `<dialog>`: **teste pelo host, sem esperas
+artificiais no meio, e verifique o efeito na plataforma — não a intenção do código.**
