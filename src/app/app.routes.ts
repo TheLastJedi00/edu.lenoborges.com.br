@@ -48,12 +48,27 @@ export const routes: Routes = [
       import('./pages/legal/legal-document.page').then((m) => m.LegalDocumentPage),
     title: 'Política de Privacidade · Liga Dev'
   },
-  // Não existe rota `definir-senha`, e a ausência é proposital.
+  // A tela de senha voltou a ser nossa (spec 020).
   //
-  // O Firebase hospeda a própria tela de definição de senha, e o link do e-mail
-  // leva direto para lá. O usuário volta para cá pelo `?entrar=1` da landing,
-  // que abre o diálogo de login. Ver a decisão 3 da spec 007 no repositório do
-  // backend.
+  // Ela morreu como `/definir-senha` na decisão 3 da spec 007, quando o link do
+  // e-mail passou a levar para a tela hospedada pelo Google. Volta como
+  // `/acesso`, e **o que não volta é o front falando com o Firebase**: o
+  // `oobCode` vai para a nossa API, que fala com o Identity Toolkit. O SDK web
+  // do Firebase aqui seria menos código e um segundo caminho de login instalado
+  // ao lado do primeiro, para sempre.
+  //
+  // **Uma rota para todos os modos**, porque o console do Firebase tem um campo
+  // só: ele manda todo link de ação para um endereço, com o `mode` na query.
+  // Quatro rotas exigiriam que o console soubesse rotear, e ele não sabe.
+  //
+  // Pública, sem guard e fora do `dashboard-shell`, como o `/descadastro` e as
+  // páginas legais: quem está nela ainda não tem sessão — é a tela onde a
+  // sessão passa a ser possível.
+  {
+    path: 'acesso',
+    loadComponent: () => import('./pages/acesso/acesso.page').then((m) => m.AcessoPage),
+    title: 'Acesso · Liga Dev'
+  },
   {
     path: 'completar-perfil',
     canActivate: [authGuard, onboardingPendingGuard],

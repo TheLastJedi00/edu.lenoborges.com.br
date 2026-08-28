@@ -1,4 +1,4 @@
-export type IconName = 'linkedin' | 'instagram' | 'portfolio';
+export type IconName = 'linkedin' | 'instagram' | 'whatsapp' | 'portfolio';
 
 export interface SocialLink {
   readonly icon: IconName;

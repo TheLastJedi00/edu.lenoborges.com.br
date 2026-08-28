@@ -29,3 +29,31 @@
 3. Ao fim da spec abrir uma branch release/ unindo todas as feat/ da spec
 4. Merge em dev a release
 5. PR contra a main (se houver origin, se não, merge de dev contra main local)
+
+# Ambientes e URLs
+
+| Ambiente | Front | API |
+|---|---|---|
+| Produção | `https://liga.lenoborges.com.br` | `https://api.lenoborges.com.br` |
+| Preview (branch `dev`) | `https://ligapreview.lenoborges.com.br` | `https://apipreview.lenoborges.com.br` |
+
+Front e API são **subdomínios do mesmo domínio registrável** (`lenoborges.com.br`), e isso não é
+cosmético: é o que faz o cookie `HttpOnly; SameSite=Lax` do refresh token ser first-party e o F5 dentro
+do painel não deslogar (spec 011). Nunca apontar `apiUrl` para um `*.vercel.app` — `vercel.app` está na
+Public Suffix List, e o sintoma é login funcionando e F5 deslogando.
+
+**Cada ambiente tem seu próprio projeto do Firebase**, e três configurações de console são por projeto e
+por URL de front:
+
+| Projeto | Front que ele atende | Action URL (spec 020) |
+|---|---|---|
+| produção | `liga.lenoborges.com.br` | `https://liga.lenoborges.com.br/acesso` |
+| `dev-liga-dev` | `ligapreview.lenoborges.com.br` | `https://ligapreview.lenoborges.com.br/acesso` |
+
+Ao mexer em `action URL`, `continueUrl` ou `Authorized domains`, **são sempre dois lugares**. Configurar
+só um produz o defeito que não aparece em teste nenhum: o fluxo funciona em preview e manda o membro de
+produção para a tela do Google (ou para um domínio não autorizado, com `UNAUTHORIZED_DOMAIN` no log e
+ninguém recebendo e-mail).
+
+> O comentário do topo de `src/environments/environment.production.ts` diz `edu.lenoborges.com.br`, e
+> está desatualizado — o domínio é `liga.`. Mesma coisa em exemplos do repositório do backend.
