@@ -127,7 +127,66 @@ describe('FinanceiroPage', () => {
     const { el } = setup();
 
     expect(el.textContent).not.toContain('Assinar');
-    expect(el.textContent).toContain('Quero o Great Dev Tier');
+  });
+
+  /**
+   * A troca de plano desligada (decisão 4 da spec 020).
+   *
+   * O que se testa aqui é a interface não prometendo: o botão fica, sem rótulo
+   * que convide, e o aviso é texto na página porque `disabled` é silencioso para
+   * quem navega por teclado.
+   */
+  it('deixa todo botão de upgrade desabilitado, com o rótulo Em breve', () => {
+    const { el } = setup();
+
+    const botoes = Array.from(
+      el.querySelectorAll('.card__cta, .next__cta')
+    ) as HTMLButtonElement[];
+
+    expect(botoes.length).toBeGreaterThan(0);
+    botoes.forEach((botao) => {
+      expect(botao.disabled).toBeTrue();
+      expect(botao.textContent?.trim()).toBe('Em breve');
+    });
+
+    expect(el.textContent).not.toContain('Quero o');
+  });
+
+  it('anuncia o em breve uma vez só, e não uma por cartão', () => {
+    // Repetir a frase em quatro cartões é um leitor de tela lendo a mesma
+    // promessa quatro vezes.
+    const { el } = setup();
+
+    const avisos = el.querySelectorAll('.soon');
+
+    expect(avisos.length).toBe(1);
+    expect(avisos[0].textContent).toContain('A troca de plano estará disponível em breve.');
+  });
+
+  /**
+   * O código desligado exercitado direto (decisão 5 da spec 020).
+   *
+   * Não há caminho de interface até o `onUpgrade` enquanto a constante for
+   * falsa, e é justamente por isso que este teste existe: sem ele, o handler e o
+   * `contactHref` apodrecem em silêncio até o dia em que voltam a ser vivos.
+   */
+  it('o onUpgrade continua funcionando quando chamado direto', () => {
+    const { fixture } = setup();
+    const abrir = spyOn(globalThis, 'open').and.returnValue(null);
+
+    const page = fixture.componentInstance as unknown as {
+      onUpgrade: (tier: unknown) => void;
+      contactHref: () => string;
+    };
+
+    page.onUpgrade(CATALOG.tiers[1]);
+
+    expect(page.contactHref()).toBe('https://wa.me/5547992478232');
+    expect(abrir).toHaveBeenCalledWith(
+      page.contactHref(),
+      '_blank',
+      'noopener'
+    );
   });
 
   it('mostra esqueleto enquanto carrega, e não spinner', () => {
