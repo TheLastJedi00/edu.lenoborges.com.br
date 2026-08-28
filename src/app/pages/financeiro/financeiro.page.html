@@ -37,12 +37,22 @@
         </p>
       }
 
+      <!--
+        Uma vez na página, e não uma por cartão: `disabled` não é anunciado por
+        leitor de tela, e repetir a mesma promessa em quatro cartões é a mesma
+        frase lida quatro vezes (decisão 4 da spec 020).
+      -->
+      @if (!trocaDePlanoDisponivel) {
+        <p class="soon">A troca de plano estará disponível em breve.</p>
+      }
+
       <ul class="tiers">
         @for (tier of tiers(); track tier.id) {
           <li>
             <app-tier-card
               [tier]="tier"
               [current]="tier.id === catalog()?.currentTierId"
+              [upgradeDisponivel]="trocaDePlanoDisponivel"
               (upgrade)="onUpgrade($event)"
             />
           </li>
@@ -59,8 +69,17 @@
               <li>{{ gain }}</li>
             }
           </ul>
-          <button type="button" class="next__cta" (click)="onUpgrade(proximo)">
-            Quero o {{ proximo.name }}
+          <button
+            type="button"
+            class="next__cta"
+            [disabled]="!trocaDePlanoDisponivel"
+            (click)="onUpgrade(proximo)"
+          >
+            @if (trocaDePlanoDisponivel) {
+              Quero o {{ proximo.name }}
+            } @else {
+              Em breve
+            }
           </button>
         </section>
       }
