@@ -36,6 +36,15 @@
   color: #a5281b;
 }
 
+/* O aviso da spec 021 usa a mesma caixa, com a cor do tema: ele conta onde o
+   video ficou, e nao que algo deu errado. Um aviso de sucesso pintado de erro
+   faz a pessoa procurar o problema. */
+.alert--ok {
+  background: var(--screen);
+  color: var(--accent-deep);
+  border: var(--border-w) solid var(--accent-deep);
+}
+
 .videos {
   display: grid;
   gap: 0.6rem;
@@ -72,6 +81,22 @@
   margin: 0;
   font-weight: 700;
   line-height: 1.25;
+}
+
+/* A etiqueta de resposta na lista da trilha (spec 021, decisão 11).
+
+   Discreta e nada mais: sem coluna nova, sem filtro e sem contagem. Ela existe
+   para o admin saber o que está movendo. */
+.video__etiqueta {
+  display: inline-block;
+  margin: 0.3rem 0 0;
+  padding: 0.1rem 0.45rem;
+  border: var(--border-w) solid var(--accent-deep);
+  border-radius: 999px;
+  color: var(--accent-deep);
+  font-size: var(--step--2);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .video__id {
