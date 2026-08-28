@@ -36,6 +36,7 @@ import { LegalStore } from '../../core/legal/legal.store';
       class="block"
       aria-labelledby="titulo-bloqueio"
       (cancel)="$event.preventDefault()"
+      (close)="reabrirSePendente()"
     >
       <h2 class="block__title" id="titulo-bloqueio">Precisamos do seu aceite</h2>
       <p class="block__lead">
@@ -62,13 +63,8 @@ import { LegalStore } from '../../core/legal/legal.store';
       </p>
     </dialog>
 
-    @if (openDocumentId(); as docId) {
-      <app-legal-accept-dialog
-        #acceptDialog
-        [documentId]="docId"
-        (accepted)="onAccepted($event)"
-      />
-    }
+    <!-- Sempre renderizado; o documento vem no argumento de open(). -->
+    <app-legal-accept-dialog #acceptDialog (accepted)="onAccepted($event)" />
   `,
   styles: `
     .block {
@@ -159,7 +155,6 @@ export class LegalBlockDialog implements AfterViewInit {
   private readonly dialogRef = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly acceptDialog = viewChild<LegalAcceptDialog>('acceptDialog');
 
-  protected readonly openDocumentId = signal<string | null>(null);
 
   ngAfterViewInit(): void {
     // O componente só é renderizado quando há pendência (o `@if` do shell),
@@ -167,9 +162,31 @@ export class LegalBlockDialog implements AfterViewInit {
     this.dialogRef().nativeElement.showModal();
   }
 
+  /**
+   * **O que de fato mantém o bloqueio de pé.**
+   *
+   * O `preventDefault()` no `cancel` sozinho não basta, e isto só apareceu no
+   * navegador: por especificação, o Chrome só torna o `cancel` cancelável
+   * quando há *user activation* recente. Sem ela — primeira coisa que a pessoa
+   * faz ao abrir o painel é apertar Esc — o evento não é cancelável, o diálogo
+   * fecha, e o painel fica acessível sem ninguém ter aceitado nada.
+   *
+   * Reabrir no `close` cobre qualquer caminho de fechamento, conhecido ou não,
+   * sem depender de a plataforma cooperar. O `cancel` continua ali porque evita
+   * o piscar quando ele *é* cancelável.
+   *
+   * Quando o último documento é aceito, `onAccepted` limpa o store **antes** de
+   * fechar, então `hasPending()` já é falso aqui e o diálogo fica fechado. Essa
+   * ordem é o que separa "fechei porque acabou" de "tentaram escapar".
+   */
+  protected reabrirSePendente(): void {
+    if (this.legalStore.hasPending()) {
+      this.dialogRef().nativeElement.showModal();
+    }
+  }
+
   protected open(documentId: string): void {
-    this.openDocumentId.set(documentId);
-    queueMicrotask(() => this.acceptDialog()?.open());
+    this.acceptDialog()?.open(documentId);
   }
 
   protected onAccepted(documentId: string): void {

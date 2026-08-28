@@ -129,10 +129,9 @@
   (confirmed)="confirmLogout()"
 />
 
-@if (openDocumentId(); as docId) {
-  <app-legal-accept-dialog
-    #legalDialog
-    [documentId]="docId"
-    (accepted)="onLegalAccepted($event)"
-  />
-}
+<!--
+  Sempre renderizado, e o documento vem no `open(id)`. Dentro de um `@if` o
+  diálogo só existiria depois do próximo ciclo de detecção, e a chamada de
+  abertura cairia no vazio.
+-->
+<app-legal-accept-dialog #legalDialog (accepted)="onLegalAccepted($event)" />

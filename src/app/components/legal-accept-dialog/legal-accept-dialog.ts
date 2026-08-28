@@ -102,7 +102,6 @@ type LoadState = 'loading' | 'ready' | 'error';
       inset: 0;
       margin: auto;
       padding: 0;
-      display: flex;
       flex-direction: column;
       overflow: hidden;
       border: var(--border-w) solid var(--border-soft);
@@ -112,7 +111,14 @@ type LoadState = 'loading' | 'ready' | 'error';
       color: var(--ink);
     }
 
+    /**
+     * O display fica no [open], e não no .modal, porque um <dialog> fechado é
+     * display:none por padrão do navegador — e um display:flex solto sobrescreve
+     * esse padrão, deixando o diálogo desenhado no meio da página como se fosse
+     * um cartão qualquer. Foi o que aconteceu.
+     */
     .modal[open] {
+      display: flex;
       animation: anim-rise 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
@@ -205,7 +211,21 @@ type LoadState = 'loading' | 'ready' | 'error';
 export class LegalAcceptDialog {
   private readonly legalService = inject(LegalService);
 
-  readonly documentId = input.required<string>();
+  /**
+   * Qual documento abrir. **Vem no `open(id)`, e não por input.**
+   *
+   * Já foi `input.required`, com o host renderizando o diálogo dentro de um
+   * `@if` e chamando `open()` numa microtask. Não funciona: em zoneless a
+   * microtask roda **antes** do Angular criar o componente, então a referência
+   * era `undefined`, o `?.` engolia a chamada em silêncio, e o modal aparecia
+   * sem nunca ter buscado o texto. Nenhum teste pegou porque todos chamavam
+   * `open()` com o componente já montado.
+   *
+   * Com o id no argumento, o diálogo fica sempre renderizado e não há ordem a
+   * acertar.
+   */
+  private readonly openDocumentId = signal<string>('');
+
   /** Em modo leitura o check e o botão de aceitar não existem (decisão 3). */
   readonly readonly = input(false);
 
@@ -221,7 +241,8 @@ export class LegalAcceptDialog {
   protected readonly sending = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
 
-  open(): void {
+  open(documentId: string): void {
+    this.openDocumentId.set(documentId);
     this.checked.set(false);
     this.errorMessage.set(null);
     this.state.set('loading');
@@ -231,7 +252,7 @@ export class LegalAcceptDialog {
     // é pedir a concordância antes de apresentar o que está sendo concordado.
     this.bodyRef().nativeElement.focus();
 
-    this.legalService.getById(this.documentId()).subscribe({
+    this.legalService.getById(this.openDocumentId()).subscribe({
       next: (document) => {
         this.document.set(document);
         this.state.set('ready');
@@ -286,7 +307,7 @@ export class LegalAcceptDialog {
         if (httpStatus(error) === 409) {
           this.checked.set(false);
           this.state.set('loading');
-          this.legalService.getById(this.documentId()).subscribe({
+          this.legalService.getById(this.openDocumentId()).subscribe({
             next: (fresh) => {
               this.document.set(fresh);
               this.state.set('ready');
