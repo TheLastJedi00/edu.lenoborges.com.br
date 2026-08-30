@@ -1,0 +1,40 @@
+.dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dots__dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  border: 2px solid var(--screen-deep);
+  background: transparent;
+  transition:
+    background-color 320ms ease,
+    border-color 320ms ease,
+    box-shadow 320ms ease;
+}
+
+/*
+  Aprovada: verde sólido com um halo suave. 320ms é o tempo de "estado" da
+  régua da spec 009 — a bolinha muda porque algo mudou, e o olho precisa
+  registrar a mudança sem que ela vire um efeito.
+*/
+.dots__dot--passed {
+  border-color: var(--ok, #2f9e44);
+  background: var(--ok, #2f9e44);
+  box-shadow: 0 0 0 3px rgba(47, 158, 68, 0.16);
+}
+
+/* A rodada em que a pessoa está: contorno azul, sem preenchimento. */
+.dots__dot--current {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(57, 134, 255, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dots__dot {
+    transition: none;
+  }
+}

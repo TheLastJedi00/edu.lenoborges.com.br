@@ -1,0 +1,87 @@
+.page {
+  display: grid;
+  gap: 2rem;
+  padding: 1.25rem 1rem 4rem;
+}
+
+.page__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.page__brand app-logo {
+  width: 2rem;
+}
+
+.page__brand .page__eyebrow {
+  margin: 0;
+}
+
+.page__eyebrow {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.05;
+  margin: 0.2rem 0 0;
+}
+
+.page__lead {
+  margin: 0.5rem 0 0;
+  max-width: 52ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+/* Mobile first: uma coluna, e duas só quando os cards não ficam estreitos. */
+.grid {
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 44rem) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 72rem) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.state {
+  margin: 0;
+  padding: 1.25rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--screen-lit);
+  color: var(--ink-soft);
+}
+
+.state--error {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+}
+
+.state__retry {
+  min-height: 2.75rem;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-accent-strong);
+  color: var(--paper);
+  font-weight: 600;
+  cursor: pointer;
+}
