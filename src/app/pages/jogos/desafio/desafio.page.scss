@@ -1,0 +1,402 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.25rem 1rem 4rem;
+  /* O botão âncora do rodapé nunca cobre o conteúdo no celular. */
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+}
+
+.page__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.page__brand app-logo {
+  width: 2rem;
+}
+
+.page__brand .page__eyebrow {
+  margin: 0;
+}
+
+.page__eyebrow,
+.warning__eyebrow,
+.result__eyebrow {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.1;
+  margin: 0.2rem 0 0;
+}
+
+/* ------------------------------------------------------------- o aviso */
+
+.warning {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-panel);
+  box-shadow: var(--shadow-hard-sm);
+}
+
+.warning__eyebrow,
+.result__eyebrow {
+  margin: 0;
+}
+
+.warning__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.15;
+}
+
+.warning__text {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.warning__check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  /* Alvo de toque: o rótulo inteiro é clicável, e tem altura de dedo. */
+  min-height: 3rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.warning__check input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--accent);
+}
+
+.warning__cta,
+.ready__cta,
+.result__cta {
+  min-height: 3rem;
+  padding: 0.7rem 1.4rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-accent-strong);
+  color: var(--paper);
+  font-size: var(--step-0);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.warning__cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------- antes de jogar */
+
+.ready {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  padding: 1.5rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-panel);
+}
+
+.ready__round {
+  margin: 0;
+  font-size: var(--step-1);
+  font-weight: 600;
+}
+
+.ready__text {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.ready__link {
+  color: var(--link-blue);
+}
+
+.ready__training,
+.quiz__training {
+  margin: 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--screen-deep);
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ready__ghost,
+.result__ghost {
+  min-height: 3rem;
+  padding: 0.6rem 1.1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: var(--step-0);
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------- o jogo */
+
+.quiz {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 46rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.quiz__top {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+}
+
+.quiz__progress {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.quiz__question {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.25;
+}
+
+/*
+  **Uma coluna no celular, 2x2 no desktop** (decisão 14). Uma alternativa por
+  linha é o que deixa o texto quebrar em vez de virar uma tira de duas palavras,
+  e é o único jeito de o alvo de toque ter a largura da tela.
+*/
+.quiz__options {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 48rem) {
+  .quiz__options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.option {
+  width: 100%;
+  /* 48px de altura mínima: o alvo de toque da decisão 14. */
+  min-height: 3.25rem;
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--step-0);
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease,
+    transform 200ms ease;
+}
+
+.option:hover:not(:disabled),
+.option:focus-visible {
+  border-color: var(--accent);
+}
+
+.option:disabled {
+  cursor: default;
+}
+
+.option--chosen {
+  border-color: var(--accent);
+}
+
+/*
+  O feedback (decisão 15): a escolhida certa pulsa verde, a errada pulsa
+  vermelho, e a correta é destacada em verde de qualquer forma — inclusive
+  quando o membro errou, porque ver a resposta certa é o que ensina.
+*/
+@keyframes option-pop {
+  0% {
+    transform: scale(1);
+  }
+  55% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.option--correct {
+  border-color: var(--ok, #2f9e44);
+  background: rgba(47, 158, 68, 0.1);
+  animation: option-pop 200ms ease-out;
+}
+
+.option--wrong {
+  border-color: var(--danger, #d64545);
+  background: rgba(214, 69, 69, 0.1);
+  animation: option-pop 200ms ease-out;
+}
+
+.quiz__feedback {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  /* Reserva a linha: sem altura fixa, o bloco inteiro pula quando o texto
+     aparece, e a alternativa clicada foge de baixo do dedo. */
+  min-height: 2rem;
+  font-weight: 600;
+}
+
+.quiz__ok {
+  color: var(--ok, #2f9e44);
+}
+
+.quiz__no {
+  color: var(--danger, #d64545);
+}
+
+.quiz__xp {
+  color: var(--accent-deep);
+  font-family: var(--font-mono);
+}
+
+/* ----------------------------------------------------------- o resultado */
+
+.result {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-panel);
+  box-shadow: var(--shadow-hard-sm);
+}
+
+.result__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.15;
+}
+
+.result__text {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+/*
+  A conquista da insígnia é a única celebração da spec — **sem confete**, um
+  pulso dourado de 500ms e acabou (decisão 15). Ele acontece uma vez: um brilho
+  em laço transformaria a conquista em papel de parede.
+*/
+@keyframes badge-shine {
+  0% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(214, 168, 61, 0);
+  }
+  60% {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 10px rgba(214, 168, 61, 0.22);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(214, 168, 61, 0);
+  }
+}
+
+.result__badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  color: var(--ok, #2f9e44);
+}
+
+.result__badge-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: rgba(214, 168, 61, 0.18);
+  color: #b8860b;
+  animation: badge-shine 500ms ease-out 1;
+}
+
+.result__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+  margin-top: 0.4rem;
+}
+
+@media (min-width: 30rem) {
+  .result__actions {
+    flex-direction: row;
+  }
+}
+
+/* --------------------------------------------------------------- estados */
+
+.state {
+  margin: 0;
+  padding: 1.25rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--screen-lit);
+  color: var(--ink-soft);
+}
+
+.state--error {
+  border-color: rgba(214, 69, 69, 0.4);
+  color: var(--danger, #d64545);
+}
+
+/* ------------------------------------------------------------ movimento */
+
+@media (prefers-reduced-motion: reduce) {
+  .option,
+  .option--correct,
+  .option--wrong,
+  .result__badge-icon {
+    transition: none;
+    animation: none;
+  }
+}
