@@ -1,6 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { Router, UrlTree, provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import {
+  HttpTestingController,
+  provideHttpClientTesting
+} from '@angular/common/http/testing';
 import { AuthStore } from '../auth/auth.store';
 import { NicknameGate } from './nickname.gate';
 import { nicknameGuard } from './nickname.guard';
@@ -8,6 +13,7 @@ import { nicknameGuard } from './nickname.guard';
 describe('nicknameGuard', () => {
   let gate: { ask: jasmine.Spy };
   let authStore: AuthStore;
+  let http: HttpTestingController;
 
   function perfil(nickname: string | null) {
     return {
@@ -48,11 +54,14 @@ describe('nicknameGuard', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: NicknameGate, useValue: gate }
       ]
     });
 
     authStore = TestBed.inject(AuthStore);
+    http = TestBed.inject(HttpTestingController);
   });
 
   it('quem já tem gamertag entra sem ver o modal', async () => {
@@ -60,6 +69,37 @@ describe('nicknameGuard', () => {
 
     await expectAsync(run()).toBeResolvedTo(true);
     expect(gate.ask).not.toHaveBeenCalled();
+    http.verify();
+  });
+
+  it('teste-trava: com o perfil ainda não carregado, carrega antes de decidir', async () => {
+    // **O defeito que este teste impede, encontrado na passada de navegador.**
+    // O `session-init` só chama `/auth/refresh`, e a sessão não traz o
+    // `nickname`. Num F5 dentro de Jogos, `profile()` é nulo e `nickname()`
+    // responde `null` — o modal abria para quem JÁ TINHA gamertag, e a pessoa
+    // levava 409 sobre uma escolha que já tinha feito.
+    const pendente = run();
+
+    http.expectOne((r) => r.url.endsWith('/me')).flush(perfil('LenoDev'));
+
+    await expectAsync(pendente).toBeResolvedTo(true);
+    expect(gate.ask).not.toHaveBeenCalled();
+  });
+
+  it('teste-trava: se o GET /me falhar, NÃO abre o modal', async () => {
+    // Abrir seria o erro: quem já tem gamertag veria o pedido de novo por causa
+    // de uma falha de rede. O painel é o lugar seguro.
+    const pendente = run();
+
+    http
+      .expectOne((r) => r.url.endsWith('/me'))
+      .flush({}, { status: 500, statusText: 'erro' });
+
+    const resultado = await pendente;
+    const router = TestBed.inject(Router);
+
+    expect(gate.ask).not.toHaveBeenCalled();
+    expect(router.serializeUrl(resultado as UrlTree)).toBe('/dashboard');
   });
 
   it('quem não tem vê o modal, e entra ao escolher', async () => {
