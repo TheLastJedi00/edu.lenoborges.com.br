@@ -27,7 +27,8 @@ const PERFIL_XP: MemberProfile = {
   pendingLegal: [],
   legalAcceptances: {},
   xp: 0,
-  socialLinksPublic: false
+  socialLinksPublic: false,
+  nickname: null
 };
 
 describe('InsigniaPage', () => {

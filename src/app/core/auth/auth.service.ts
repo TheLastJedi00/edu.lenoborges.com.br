@@ -302,6 +302,36 @@ export class AuthService {
   }
 
   /**
+   * Escolhe a gamertag, uma vez e para sempre (spec 022, decisão 16).
+   *
+   * Mora aqui pela mesma razão do `setSocialLinksPublic` acima: é uma escrita em
+   * `/me`, e o nickname é **campo de perfil que jogos consome, não o
+   * contrário**.
+   *
+   * **O `409` tem dois motivos e um status**: "você já tem uma" e "esse nome é
+   * de outra pessoa". Quem decide a mensagem é o corpo, nunca o número — e o
+   * primeiro caso não deveria acontecer, porque a tela desabilita o campo quando
+   * `nickname` não é nulo.
+   *
+   * Atualiza o `AuthStore` no sucesso: é isso que faz o `nicknameGuard` liberar
+   * a navegação e o campo de Meu Perfil travar, sem depender de um `GET /me`
+   * novo. O `204` não devolve corpo, então o valor gravado é o que foi enviado.
+   */
+  setNickname(nickname: string): Observable<void> {
+    return this.http
+      .put<void>(`${environment.apiUrl}/me/nickname`, { nickname })
+      .pipe(
+        tap(() => {
+          const profile = this.authStore.profile();
+          if (profile) {
+            this.authStore.setProfile({ ...profile, nickname });
+          }
+        }),
+        map(() => undefined)
+      );
+  }
+
+  /**
    * Carrega o perfil completo do membro autenticado.
    *
    * A resposta é achatada, sem `user` nem `profile` aninhados. Quem chama são as

@@ -19,7 +19,8 @@ const PERFIL: MemberProfile = {
   pendingLegal: [],
   legalAcceptances: {},
   xp: 340,
-  socialLinksPublic: false
+  socialLinksPublic: false,
+  nickname: null
 };
 
 describe('AuthStore · XP (spec 019)', () => {

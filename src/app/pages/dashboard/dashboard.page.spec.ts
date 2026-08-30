@@ -58,6 +58,7 @@ describe('DashboardPage', () => {
       pendingLegal: [],
       xp: 0,
       socialLinksPublic: false,
+      nickname: null,
       legalAcceptances: {}
     });
 
@@ -143,6 +144,7 @@ describe('DashboardPage', () => {
       pendingLegal: [],
       xp: 0,
       socialLinksPublic: false,
+      nickname: null,
       legalAcceptances: {}
     });
     fixture.detectChanges();
@@ -182,6 +184,7 @@ describe('DashboardPage', () => {
         pendingLegal: [],
         xp: 0,
         socialLinksPublic: false,
+        nickname: null,
         legalAcceptances: {}
       });
       fixture.detectChanges();
