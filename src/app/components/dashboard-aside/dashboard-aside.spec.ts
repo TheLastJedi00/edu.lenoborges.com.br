@@ -38,17 +38,31 @@ describe('DashboardAside', () => {
     expect(toggleBtn.getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('itens inertes estão desabilitados com aria-disabled e selo Em breve', () => {
-    // Sobrou um. A Trilha destravou na spec 009 e Meu Perfil na 013, os dois
-    // virando link junto com o cartão do painel. Inerte agora é só o que ainda
-    // não existe — Jogos.
-    const disabledButtons = fixture.nativeElement.querySelectorAll('.aside__item--disabled');
-    expect(disabledButtons.length).toBe(1);
+  it('não sobrou nenhum item inerte no menu', () => {
+    // A Trilha destravou na spec 009, Meu Perfil na 013, e **Jogos na 022** —
+    // que era o último. O selo "Em breve" saiu do menu e foi para dentro da tela
+    // de Jogos, onde ele agora pertence a um card só: o de Duels.
+    const disabledButtons = fixture.nativeElement.querySelectorAll(
+      '.aside__item--disabled'
+    );
 
-    disabledButtons.forEach((btn: HTMLButtonElement) => {
-      expect(btn.disabled).toBeTrue();
-      expect(btn.getAttribute('aria-disabled')).toBe('true');
-    });
+    expect(disabledButtons.length).toBe(0);
+  });
+
+  it('Jogos é um link, e fica entre a Trilha e o Mural', () => {
+    // A posição conta a história do ciclo de aprendizado: Trilha é conteúdo,
+    // Jogos é prática, Mural é discussão (decisão 8).
+    const links: HTMLAnchorElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('.aside__nav a.aside__item')
+    );
+    const rotas = links.map((a) => a.getAttribute('href'));
+
+    const trilha = rotas.indexOf('/dashboard/trilha');
+    const jogos = rotas.indexOf('/dashboard/jogos');
+    const mural = rotas.indexOf('/dashboard/mural');
+
+    expect(jogos).toBeGreaterThan(trilha);
+    expect(jogos).toBeLessThan(mural);
   });
 
   /**

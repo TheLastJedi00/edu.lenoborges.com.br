@@ -3,6 +3,7 @@ import { authGuard } from './core/auth/auth.guard';
 import { onboardingPendingGuard, profileCompleteGuard } from './core/auth/profile.guard';
 import { adminGuard } from './core/auth/admin.guard';
 import { unsavedChangesGuard } from './core/unsaved-changes.guard';
+import { nicknameGuard } from './core/games/nickname.guard';
 
 export const routes: Routes = [
   {
@@ -133,6 +134,51 @@ export const routes: Routes = [
           ),
         title: 'Escrever no Mural · Liga Dev'
       },
+      // Jogos (spec 022).
+      //
+      // **Um nó com filhas, e o `nicknameGuard` no nó** — não repetido em cada
+      // uma. Quem não tem gamertag não entra em lugar nenhum de Jogos, e a regra
+      // mora num arquivo só: quatro `if` dentro de quatro páginas seriam quatro
+      // cópias, e a quinta página nasceria sem ela.
+      //
+      // O `authGuard` e o `profileCompleteGuard` vêm do pai `dashboard`, e a
+      // ordem importa: o guard da gamertag lê o perfil que aquele já garantiu.
+      {
+        path: 'jogos',
+        canActivate: [nicknameGuard],
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./pages/jogos/jogos.page').then((m) => m.JogosPage),
+            title: 'Jogos · Liga Dev'
+          },
+          {
+            path: 'desafios',
+            loadComponent: () =>
+              import('./pages/jogos/desafios/desafios.page').then(
+                (m) => m.DesafiosPage
+              ),
+            title: 'GYM Challenge · Liga Dev'
+          },
+          {
+            path: 'desafio/:badgeId',
+            loadComponent: () =>
+              import('./pages/jogos/desafio/desafio.page').then(
+                (m) => m.DesafioPage
+              ),
+            title: 'GYM Challenge · Liga Dev'
+          },
+          {
+            path: 'ranking',
+            loadComponent: () =>
+              import('./pages/jogos/ranking/ranking.page').then(
+                (m) => m.RankingPage
+              ),
+            title: 'Ranking da Liga · Liga Dev'
+          }
+        ]
+      },
       // Administração. O `adminGuard` aqui é conveniência — evita o membro comum
       // bater num 403 sem entender por quê. Quem impede de verdade é o
       // AdminGuard do backend, em toda requisição.
@@ -176,6 +222,26 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/admin/trilha/insignia-admin.page').then((m) => m.AdminInsigniaPage),
         title: 'Vídeos da insígnia · Administração'
+      },
+      // Banco de questões do GYM Challenge (spec 022, decisão 9). Mesmo par de
+      // rotas de `admin/trilha`: escolher a insígnia, depois administrá-la.
+      {
+        path: 'admin/questoes',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/admin/questoes/questoes-admin.page').then(
+            (m) => m.AdminQuestoesPage
+          ),
+        title: 'Banco de questões · Administração'
+      },
+      {
+        path: 'admin/questoes/:badgeId',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/admin/questoes/insignia-questoes.page').then(
+            (m) => m.AdminInsigniaQuestoesPage
+          ),
+        title: 'Questões da insígnia · Administração'
       }
     ]
   },
