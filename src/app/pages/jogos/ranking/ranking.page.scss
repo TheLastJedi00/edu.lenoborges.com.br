@@ -1,0 +1,243 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.25rem 1rem 4rem;
+}
+
+.page__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.page__brand app-logo {
+  width: 2rem;
+}
+
+.page__brand .page__eyebrow {
+  margin: 0;
+}
+
+.page__eyebrow {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.05;
+  margin: 0.2rem 0 0;
+}
+
+.page__lead {
+  margin: 0.5rem 0 0;
+  max-width: 52ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+/* --------------------------------------------------- a linha fixa do topo */
+
+.mine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: var(--border-w) solid rgba(57, 134, 255, 0.35);
+  border-radius: var(--radius);
+  background: rgba(57, 134, 255, 0.08);
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------- o pódio */
+
+/*
+  Empilhado no celular, lado a lado a partir do tablet (decisão 6). Três cards
+  em 360px seriam três tiras onde o gamertag não cabe.
+*/
+.podium {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: none;
+}
+
+@media (min-width: 48rem) {
+  .podium {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: stretch;
+  }
+}
+
+.podium__item {
+  display: grid;
+  gap: 0.3rem;
+  justify-items: start;
+  padding: 1.1rem 1.25rem;
+  border: 2px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+/* Cores sólidas, sem laço e sem brilho: o pódio não pisca. */
+.podium__item--gold {
+  border-color: rgba(214, 168, 61, 0.85);
+  background: linear-gradient(160deg, rgba(214, 168, 61, 0.16) 0%, var(--paper) 70%);
+}
+
+.podium__item--silver {
+  border-color: rgba(150, 160, 175, 0.85);
+  background: linear-gradient(160deg, rgba(150, 160, 175, 0.16) 0%, var(--paper) 70%);
+}
+
+.podium__item--bronze {
+  border-color: rgba(176, 118, 72, 0.8);
+  background: linear-gradient(160deg, rgba(176, 118, 72, 0.14) 0%, var(--paper) 70%);
+}
+
+/* O membro logado é destacado onde quer que esteja — inclusive no pódio. */
+.podium__item--mine {
+  box-shadow: 0 0 0 3px rgba(57, 134, 255, 0.25);
+}
+
+.podium__position {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+/* O primeiro lugar tem o texto maior, e é a única diferença de tamanho. */
+.podium__item--gold .podium__nick {
+  font-size: var(--step-2);
+}
+
+.podium__nick {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.2;
+  /* Gamertag longo não estoura o card: ele quebra. */
+  overflow-wrap: anywhere;
+}
+
+.podium__xp,
+.podium__badges {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+/* -------------------------------------------------------------- a tabela */
+
+/*
+  **A tabela rola dentro do próprio contêiner.** O corpo da página nunca rola na
+  horizontal — regra que vale para toda tabela e todo bloco largo do produto.
+*/
+.table-wrap {
+  overflow-x: auto;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--step-0);
+}
+
+.table th,
+.table td {
+  padding: 0.7rem 0.85rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.table thead th {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: var(--border-w) solid var(--border-soft);
+}
+
+/* Linhas alternadas com fundo sutil: o olho não perde a linha ao atravessar. */
+.table tbody tr:nth-child(even) {
+  background: var(--screen-lit);
+}
+
+.table__num {
+  white-space: nowrap;
+}
+
+.table__nick {
+  overflow-wrap: anywhere;
+}
+
+.table__num app-position-delta {
+  margin-left: 0.35rem;
+}
+
+/*
+  O membro logado, destacado em azul sutil (decisão 6). Vem depois da regra das
+  linhas alternadas de propósito: ela venceria o destaque nas linhas pares.
+*/
+.table tbody tr.table__row--mine {
+  background: rgba(57, 134, 255, 0.12);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------- carregar mais */
+
+.more {
+  justify-self: start;
+  min-height: 3rem;
+  padding: 0.7rem 1.4rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font-size: var(--step-0);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.more:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ------------------------------------------------------------- estados */
+
+.state {
+  margin: 0;
+  padding: 1.25rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--screen-lit);
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.state--error {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  border-color: rgba(214, 69, 69, 0.4);
+}
+
+.state__retry {
+  min-height: 2.75rem;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-accent-strong);
+  color: var(--paper);
+  font-weight: 600;
+  cursor: pointer;
+}
