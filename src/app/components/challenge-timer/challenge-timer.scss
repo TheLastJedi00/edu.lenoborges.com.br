@@ -1,4 +1,20 @@
 /*
+  **O host precisa de largura, e a falta dela fez a barra sumir da tela.**
+
+  Um componente Angular nasce `display: inline` e com largura de conteúdo. O
+  `.timer` lá dentro pede `width: 100%` — de um pai que não tem largura nenhuma —
+  e, dentro do grid da tela do desafio, que usa `justify-items: start`, o host
+  encolhia para zero: a barra existia no DOM e media zero pixel.
+
+  Nenhum teste pegou, e nenhum pegaria: o componente monta, o `setInterval` roda
+  e os signals mudam. Só a tela mostra que não há nada para ver.
+*/
+:host {
+  display: block;
+  width: 100%;
+}
+
+/*
   Discreto no topo, e **não um elemento que compete com a pergunta**
   (decisão 14): uma faixa fina, sem número, sem círculo e sem contagem escrita.
 */
