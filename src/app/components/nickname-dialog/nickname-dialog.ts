@@ -8,14 +8,33 @@ import {
   viewChild
 } from '@angular/core';
 import {
+  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
   Validators
 } from '@angular/forms';
 
 /** O mesmo formato que o servidor valida. Duplicado para o erro sair na hora. */
 export const NICKNAME_PATTERN = /^[A-Za-z0-9_-]{3,20}$/;
+
+/**
+ * O validador do formato, **sobre o valor aparado**.
+ *
+ * `Validators.pattern` roda sobre o texto cru, e o padrão não aceita espaço —
+ * então um espaço no fim, que o teclado do celular põe sozinho ao completar uma
+ * palavra, travaria o botão com a mensagem "use letras, números, hífen e
+ * underscore" na frente de um nome que só tem isso. O membro leria uma regra que
+ * está seguindo e não teria o que corrigir.
+ *
+ * O que é enviado também é o valor aparado, então validar e enviar concordam.
+ */
+function nicknameFormat(control: AbstractControl): ValidationErrors | null {
+  const value = String(control.value ?? '').trim();
+
+  return NICKNAME_PATTERN.test(value) ? null : { nicknameFormat: true };
+}
 
 /**
  * O modal da gamertag (spec 022, decisão 16).
@@ -134,7 +153,7 @@ export class NicknameDialog implements AfterViewInit {
   protected readonly form = new FormGroup({
     nickname: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.pattern(NICKNAME_PATTERN)]
+      validators: [Validators.required, nicknameFormat]
     })
   });
 
