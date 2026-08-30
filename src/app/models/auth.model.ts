@@ -114,6 +114,20 @@ export interface MemberProfile {
    * posição certa — sem este campo a tela chuta, e chuta ligado.
    */
   readonly socialLinksPublic: boolean;
+  /**
+   * A gamertag do membro no Ranking e nos Jogos (spec 022).
+   *
+   * `null` enquanto ele não escolher — e é o que trava o campo em Meu Perfil:
+   * escolhida uma vez, ela **não muda mais**, e a tela precisa saber disso para
+   * desabilitar o input em vez de deixar o membro digitar e tomar `409`.
+   *
+   * **É também o que o `nicknameGuard` lê** para decidir se abre o modal
+   * bloqueante antes de deixar entrar em Jogos.
+   *
+   * Não confunda com `name`: o nome real não vai ao placar. São duas coisas,
+   * e o servidor as mantém separadas de propósito.
+   */
+  readonly nickname: string | null;
 }
 
 /**

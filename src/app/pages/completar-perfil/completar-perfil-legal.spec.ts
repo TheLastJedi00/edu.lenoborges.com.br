@@ -41,6 +41,7 @@ function perfil(pendentes: typeof TERMOS[]): MemberProfile {
     pendingLegal: pendentes,
     xp: 0,
     socialLinksPublic: false,
+    nickname: null,
     legalAcceptances: {}
   };
 }

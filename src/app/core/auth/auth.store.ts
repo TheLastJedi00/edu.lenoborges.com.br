@@ -63,6 +63,16 @@ export class AuthStore {
   readonly xp = computed(() => this.profile()?.xp ?? 0);
 
   /**
+   * A gamertag, ou `null` enquanto ela não for escolhida (spec 022).
+   *
+   * **`null` também enquanto o perfil não carregou**, e essa ambiguidade é
+   * deliberada aqui: quem lê este signal é o `nicknameGuard`, que roda depois do
+   * `profileCompleteGuard` — e aquele já garantiu que há perfil. Um terceiro
+   * estado ("ainda não sei") só existiria para ser confundido com "não tem".
+   */
+  readonly nickname = computed(() => this.profile()?.nickname ?? null);
+
+  /**
    * Papel do usuário, com a mesma precedência de `grade`: o perfil carregado
    * manda quando existe, porque é o dado mais recente.
    */

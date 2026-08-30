@@ -42,6 +42,7 @@ function perfil(
     pendingLegal: [],
     xp: 0,
     socialLinksPublic: false,
+    nickname: null,
     legalAcceptances
   };
 }

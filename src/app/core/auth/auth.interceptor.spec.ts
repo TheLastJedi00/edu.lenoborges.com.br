@@ -27,6 +27,7 @@ const MOCK_PROFILE: MemberProfile = {
   pendingLegal: [],
   xp: 0,
   socialLinksPublic: false,
+  nickname: null,
   legalAcceptances: {}
 };
 
