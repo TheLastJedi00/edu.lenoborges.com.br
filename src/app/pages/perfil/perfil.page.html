@@ -222,6 +222,31 @@
             <p class="form__error" role="alert">{{ redesPublicasError() }}</p>
           }
         </div>
+
+        <!--
+          A gamertag (spec 022, decisão 16).
+
+          **O campo é somente leitura, e desabilitado quando já existe.** Ele é
+          único e imutável, e deixar o membro digitar aqui para tomar 409 depois
+          seria oferecer uma edição que não existe. Quem ainda não escolheu vê o
+          convite e o caminho: o modal abre ao entrar em Jogos.
+        -->
+        <div class="gamertag">
+          <p class="gamertag__label">Gamertag</p>
+
+          @if (gamertag(); as nick) {
+            <p class="gamertag__value u-mono">{{ nick }}</p>
+            <p class="gamertag__hint">
+              Escolhido, e para sempre — é o seu nome no Ranking e nos Jogos. Um nome que
+              muda faria o histórico de posições deixar de se referir a você.
+            </p>
+          } @else {
+            <p class="gamertag__hint">
+              Você ainda não tem um. Ele é escolhido ao entrar em
+              <a routerLink="/dashboard/jogos">Jogos</a>, e é único e definitivo.
+            </p>
+          }
+        </div>
       </section>
 
       <section class="block" aria-labelledby="titulo-acesso">

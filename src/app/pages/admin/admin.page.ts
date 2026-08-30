@@ -58,6 +58,15 @@ import { RouterLink } from '@angular/router';
             </span>
           </a>
         </li>
+        <li>
+          <a routerLink="/dashboard/admin/questoes" class="card">
+            <span class="card__title">Banco de questões</span>
+            <span class="card__text">
+              Cadastrar e gerar as questões do GYM Challenge, e definir o XP mínimo de cada
+              insígnia. São 30 por nível para o desafio sair de "Em breve".
+            </span>
+          </a>
+        </li>
       </ul>
     </section>
   `,

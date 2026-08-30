@@ -241,3 +241,13 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+/*
+  **Não há bloco `prefers-reduced-motion` aqui, e a ausência é deliberada.**
+
+  Esta tela não tem transição nem animação própria: o pódio é cor sólida sem
+  laço (decisão 15), a tabela não se move, e a entrada em cascata das linhas é
+  do `appReveal` — que consulta a preferência por conta própria, com teto de 6
+  passos. Um bloco vazio aqui seria ruído; esta nota existe para que a próxima
+  pessoa a auditar a spec saiba que a falta foi verificada, e não esquecida.
+*/

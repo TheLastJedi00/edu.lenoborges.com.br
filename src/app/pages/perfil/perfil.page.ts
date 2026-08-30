@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmDialog } from '../../components/confirm-dialog/confirm-dialog';
 import { DeleteAccountDialog } from '../../components/delete-account-dialog/delete-account-dialog';
@@ -47,6 +47,7 @@ type LoadState = 'loading' | 'ready' | 'error';
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     ConfirmDialog,
     DeleteAccountDialog,
     IconLinkedin,
@@ -405,6 +406,17 @@ export class PerfilPage implements OnInit {
    */
   protected readonly redesPublicas = signal(false);
   protected readonly redesPublicasError = signal('');
+
+  /**
+   * A gamertag (spec 022, decisão 16).
+   *
+   * `null` enquanto ela não for escolhida. **Não há edição aqui**: ela é única e
+   * imutável, e um campo editável ofereceria uma alteração que o servidor recusa
+   * com `409`. Quem ainda não tem escolhe no modal que abre ao entrar em Jogos.
+   */
+  protected readonly gamertag = computed(
+    () => this.authStore.profile()?.nickname ?? null
+  );
 
   /**
    * Grava **no clique**, e fora do formulário de redes.
