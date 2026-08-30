@@ -219,11 +219,18 @@
 - [x] Task 02: Acessibilidade do questionário: as alternativas são `<button>` com `aria-pressed`, o
   resultado é anunciado em `aria-live="polite"`, o timer é `aria-hidden` (é decoração, e um contador lido
   em voz alta a cada segundo torna a tela inutilizável no leitor de tela).
-- [ ] Task 03 (**pendente**): passada mobile no Chrome, largura de 360px: alvo de toque de 48px nas alternativas, o botão
+- [ ] Task 03 (**pendente, e a tentativa falhou por limitação da ferramenta**): a passada mobile não foi
+  feita. O `resize_window` da automação de navegador **retorna sucesso e não muda a viewport** nesta
+  configuração — a tela continuou renderizando em 1568px em duas tentativas, com 360 e com 390. Falta
+  conferir a olho, em 360px: alvo de toque de 48px nas alternativas, o botão
   inferior com `env(safe-area-inset-bottom)`, o pódio empilhado e a tabela do ranking sem estouro horizontal.
 - [x] Task 04: Conferir que nenhuma tela desta spec grava em `localStorage` (decisão 12) e que nenhuma
   calcula XP ou conhece `correctIndex` fora do que o servidor mandou (decisão 13).
-- [~] Task 05: `npm test` **limpo (648 testes)** e `ng build` passando. **A passada no Chrome não foi feita: a extensão do navegador não está conectada nesta máquina.** O fluxo:
+- [x] Task 05: `npm test` **limpo (664 testes)** e `ng build` passando. **A passada no Chrome foi feita**,
+  no fluxo inteiro e contra a API real do `dev-liga-dev`, e encontrou **três defeitos que nenhum teste
+  pegava** — o guard pedindo a gamertag de quem já tinha depois de um F5, o índice de `gym_questions` com
+  dois campos onde precisava de três, e o timer com largura zero. Os três estão corrigidos, com
+  teste-trava onde cabia teste. O fluxo:
   aside → hub → gamertag → desafios → uma rodada completa → ranking → trilha com o card → admin de questões.
 - [x] Task 06: Marcar as emendas nas specs afetadas: **008** (Jogos sai do "Em breve"), **009** (trilha e
   administração estendidas), **019** (XP com duas fontes) e **021** (o card é o último item da aba Aulas).
