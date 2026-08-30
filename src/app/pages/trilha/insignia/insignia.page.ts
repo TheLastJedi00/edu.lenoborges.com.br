@@ -10,7 +10,7 @@ import {
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import {
   AnsweredQuestion,
@@ -24,13 +24,16 @@ import { Logo } from '../../../shared/logo/logo';
 import { IconClose } from '../../../components/icons/icon-close';
 import { CommunityService } from '../../../services/community.service';
 import { AuthStore } from '../../../core/auth/auth.store';
+import { GamesService } from '../../../services/games.service';
+import { GymChallengeCard } from '../../../components/gym-challenge-card/gym-challenge-card';
+import type { ChallengeState } from '../../../models/games.model';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
 @Component({
   selector: 'app-insignia-page',
   standalone: true,
-  imports: [RouterLink, Logo, IconClose],
+  imports: [RouterLink, Logo, IconClose, GymChallengeCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './insignia.page.html',
   styleUrl: './insignia.page.scss'
@@ -38,6 +41,8 @@ type LoadState = 'loading' | 'ready' | 'error';
 export class InsigniaPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly track = inject(TrackService);
+  private readonly games = inject(GamesService);
+  private readonly router = inject(Router);
   private readonly community = inject(CommunityService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly destroyRef = inject(DestroyRef);
@@ -49,6 +54,16 @@ export class InsigniaPage implements OnInit {
   private readonly authStore = inject(AuthStore);
 
   protected readonly aba = signal<BadgeVideoTab>('aula');
+
+  /**
+   * O desafio desta insígnia (spec 022, decisão 7).
+   *
+   * `null` enquanto não carrega **e quando a chamada falha** — e a segunda parte
+   * é a decisão: uma falha aqui esconde o card e deixa a trilha inteira de pé.
+   * Derrubar a lista de vídeos porque o placar não respondeu seria trocar o
+   * conteúdo, que é o motivo da tela, por um acessório.
+   */
+  protected readonly challenge = signal<ChallengeState | null>(null);
   protected readonly state = signal<LoadState>('loading');
   protected readonly videos = signal<readonly BadgeVideo[]>([]);
   protected readonly badgeId = signal('');
@@ -132,6 +147,22 @@ export class InsigniaPage implements OnInit {
     this.load();
   }
 
+  /**
+   * Abre a tela do desafio.
+   *
+   * Só quando ele existe: um card em "Em breve" não navega, e a rota daquela
+   * insígnia mostraria a mesma frase num lugar diferente.
+   */
+  protected abrirDesafio(): void {
+    const desafio = this.challenge();
+
+    if (!desafio || desafio.status === 'em-breve') {
+      return;
+    }
+
+    void this.router.navigate(['/dashboard/jogos/desafio', desafio.badgeId]);
+  }
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('badgeId') ?? '';
     this.badgeId.set(id);
@@ -147,6 +178,21 @@ export class InsigniaPage implements OnInit {
     // `localStorage` falharia nas duas direções — navegador limpo faria quem já
     // assistiu ver tudo desmarcado, e um estado gravado por engano esconderia
     // para sempre um vídeo que a pessoa quis marcar.
+    // **As duas requisições vão juntas** (regra 8 do repositório): elas são
+    // independentes, e serializá-las custaria uma viagem a mais em toda abertura
+    // da insígnia. O card do desafio só é lido uma vez, e não a cada troca de
+    // aba — ele não depende dela.
+    if (this.challenge() === null) {
+      this.games
+        .getChallenge(this.badgeId())
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (state) => this.challenge.set(state),
+          // Silencioso de propósito: ver o comentário do signal.
+          error: () => this.challenge.set(null)
+        });
+    }
+
     this.track
       .getVideos(this.badgeId(), this.aba())
       .pipe(takeUntilDestroyed(this.destroyRef))
