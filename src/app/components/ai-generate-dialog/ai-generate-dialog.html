@@ -1,0 +1,148 @@
+<dialog #dialog class="ai" aria-labelledby="titulo-ia" (cancel)="$event.preventDefault(); tentarFechar()">
+  <header class="ai__head">
+    <h2 class="ai__title" id="titulo-ia">Gerar questões com IA</h2>
+    <button type="button" class="ai__close" (click)="tentarFechar()" aria-label="Fechar">
+      Fechar
+    </button>
+  </header>
+
+  @if (passo() === 'gerar') {
+    <form class="ai__form" [formGroup]="form" (ngSubmit)="gerar()">
+      <label class="ai__label" for="prompt">Tema</label>
+      <textarea
+        id="prompt"
+        class="ai__area"
+        formControlName="prompt"
+        rows="4"
+        placeholder="Gere questões sobre herança e polimorfismo em Java, com foco em quando usar cada um e exemplos práticos."
+      ></textarea>
+      <p class="ai__help">
+        Quanto mais específico, melhor. O nome da insígnia vai junto no prompt.
+      </p>
+
+      <div class="ai__row">
+        <div class="ai__field">
+          <label class="ai__label" for="difficulty">Dificuldade</label>
+          <select id="difficulty" class="ai__select" formControlName="difficulty">
+            @for (item of difficulties; track item[0]) {
+              <option [value]="item[0]">{{ item[1] }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="ai__field">
+          <label class="ai__label" for="count">Quantidade</label>
+          <select id="count" class="ai__select" formControlName="count">
+            <option [value]="10">10 questões</option>
+            <option [value]="20">20 questões</option>
+            <option [value]="30">30 questões</option>
+          </select>
+        </div>
+      </div>
+
+      @if (erro()) {
+        <p class="ai__error" role="alert">{{ erro() }}</p>
+      }
+
+      <button type="submit" class="ai__submit" [disabled]="form.invalid || gerando()">
+        {{ gerando() ? 'Gerando…' : 'Gerar questões' }}
+      </button>
+
+      <!--
+        Esqueleto, e não spinner: a espera é longa e o esqueleto diz o que está
+        vindo — três questões com quatro alternativas cada.
+      -->
+      @if (gerando()) {
+        <ul class="skeleton" aria-hidden="true">
+          @for (row of [0, 1, 2]; track row) {
+            <li class="skeleton__item">
+              <span class="skeleton__line skeleton__line--title"></span>
+              <span class="skeleton__line"></span>
+              <span class="skeleton__line"></span>
+              <span class="skeleton__line"></span>
+              <span class="skeleton__line"></span>
+            </li>
+          }
+        </ul>
+      }
+    </form>
+  }
+
+  @if (passo() === 'revisar') {
+    <div class="ai__review">
+      <!--
+        O número de descartadas precisa aparecer: sem ele, um rascunho de 7
+        quando se pediu 10 parece um limite do produto em vez de um modelo que
+        errou o formato.
+      -->
+      @if (descartadas() > 0) {
+        <p class="ai__discarded" role="status">
+          {{ descartadas() }}
+          {{ descartadas() === 1 ? 'questão veio' : 'questões vieram' }}
+          fora do formato e {{ descartadas() === 1 ? 'foi descartada' : 'foram descartadas' }}.
+        </p>
+      }
+
+      @if (rascunho().length === 0) {
+        <p class="ai__empty">
+          Nenhuma questão utilizável veio dessa vez. Reescreva o tema e tente de novo.
+        </p>
+      }
+
+      <ul class="ai__list">
+        @for (item of rascunho(); track item.key) {
+          <li class="ai__item">
+            <div class="ai__item-head">
+              <label class="ai__pick">
+                <input
+                  type="checkbox"
+                  [checked]="item.selected"
+                  (change)="alternarSelecao(item.key)"
+                />
+                <span>Incluir</span>
+              </label>
+              <button type="button" class="ai__drop" (click)="remover(item.key)">
+                Excluir
+              </button>
+            </div>
+
+            <app-question-editor
+              [value]="item.value"
+              [lockedDifficulty]="form.controls.difficulty.value"
+              (changed)="atualizar(item.key, $event)"
+              (cancelled)="remover(item.key)"
+            />
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!--
+      A barra fixa do rodapé: a contagem e o botão ficam à vista enquanto o
+      admin rola trinta questões.
+    -->
+    <footer class="ai__foot">
+      <p class="u-mono ai__count">
+        Selecionadas: {{ selecionadas() }}/{{ rascunho().length }}
+      </p>
+      <button
+        type="button"
+        class="ai__submit"
+        [disabled]="selecionadas() === 0"
+        (click)="salvar()"
+      >
+        Salvar selecionadas
+      </button>
+    </footer>
+  }
+</dialog>
+
+<app-confirm-dialog
+  #confirmar
+  title="Descartar o rascunho?"
+  message="As questões geradas não foram salvas, e o rascunho não fica guardado em lugar nenhum. Fechar agora perde tudo o que você revisou."
+  confirmLabel="Descartar"
+  cancelLabel="Continuar revisando"
+  [danger]="true"
+  (confirmed)="fecharDeVerdade()"
+/>

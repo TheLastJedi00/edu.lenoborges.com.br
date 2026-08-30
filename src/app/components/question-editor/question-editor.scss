@@ -1,0 +1,116 @@
+.editor {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.editor__label {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.editor__select,
+.editor__area,
+.editor__input {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--screen-lit);
+  color: var(--ink);
+  /* 16px: abaixo disso o Safari do iOS dá zoom ao focar e desalinha a tela. */
+  font-size: 1rem;
+  font-family: inherit;
+  min-height: 2.75rem;
+}
+
+.editor__area {
+  min-height: 5rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.editor__select:focus-visible,
+.editor__area:focus-visible,
+.editor__input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.editor__alts {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  border: none;
+}
+
+.editor__alt-list {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.editor__alt {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.editor__radio {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: 0 0 auto;
+  accent-color: var(--ok, #2f9e44);
+  cursor: pointer;
+}
+
+/* A alternativa marcada como correta ganha a borda verde: o radio sozinho é
+   pequeno demais para ser lido de relance numa lista de trinta questões. */
+.editor__radio:checked + .editor__input {
+  border-color: var(--ok, #2f9e44);
+  background: rgba(47, 158, 68, 0.08);
+}
+
+.editor__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+@media (min-width: 30rem) {
+  .editor__actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+.editor__submit,
+.editor__ghost {
+  min-height: 2.75rem;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--step-0);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.editor__submit {
+  border: none;
+  background: var(--gradient-accent-strong);
+  color: var(--paper);
+}
+
+.editor__submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.editor__ghost {
+  border: var(--border-w) solid var(--border-soft);
+  background: transparent;
+  color: var(--ink-soft);
+}

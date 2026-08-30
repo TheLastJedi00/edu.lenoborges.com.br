@@ -17,6 +17,15 @@ import {
   BadgeVideoTab
 } from '../models/track.model';
 import type { TierId } from '../models/auth.model';
+import type {
+  ChallengeConfig,
+  GenerateQuestionsRequest,
+  GeneratedQuestions,
+  GymQuestion,
+  QuestionDifficulty,
+  QuestionInput,
+  QuestionList
+} from '../models/games.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -194,6 +203,110 @@ export class AdminService {
     return this.http.get<BadgeVideoList>(
       `${this.base}/badges/${badgeId}/videos`,
       { params: new HttpParams().set('tab', tab) }
+    );
+  }
+
+  // ------------------------------------------------------------------------
+  // Banco de questões do GYM Challenge (spec 022).
+  //
+  // **Estendido, e não um `AdminGamesService` novo.** As rotas são de admin, o
+  // prefixo é o mesmo `/admin/badges/:badgeId`, e o `base` já está aqui. Um
+  // segundo serviço duplicaria a URL base e o dia em que ela mudasse mudaria
+  // num lugar só dos dois.
+  // ------------------------------------------------------------------------
+
+  /**
+   * As questões da insígnia, com a contagem por nível no mesmo corpo.
+   *
+   * A contagem vem junto por decisão do servidor: ela é o cabeçalho da tela, e
+   * uma segunda requisição para obtê-la seria a mesma leitura duas vezes a cada
+   * abertura.
+   */
+  listQuestions(
+    badgeId: string,
+    difficulty?: QuestionDifficulty
+  ): Observable<QuestionList> {
+    const params = difficulty
+      ? new HttpParams().set('difficulty', difficulty)
+      : undefined;
+
+    return this.http.get<QuestionList>(
+      `${this.base}/badges/${badgeId}/questions`,
+      { params }
+    );
+  }
+
+  createQuestion(
+    badgeId: string,
+    body: QuestionInput
+  ): Observable<GymQuestion> {
+    return this.http.post<GymQuestion>(
+      `${this.base}/badges/${badgeId}/questions`,
+      body
+    );
+  }
+
+  updateQuestion(
+    badgeId: string,
+    questionId: string,
+    body: Partial<QuestionInput>
+  ): Observable<GymQuestion> {
+    return this.http.patch<GymQuestion>(
+      `${this.base}/badges/${badgeId}/questions/${questionId}`,
+      body
+    );
+  }
+
+  deleteQuestion(badgeId: string, questionId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.base}/badges/${badgeId}/questions/${questionId}`
+    );
+  }
+
+  /**
+   * Gera um rascunho com IA. **Não grava nada.**
+   *
+   * O que grava é o `bulkCreateQuestions`, depois que o admin editou e escolheu
+   * — e essa separação é o que impede uma questão errada de entrar no banco por
+   * descuido de um modelo.
+   *
+   * `503` aqui significa "a IA não está configurada ou não respondeu", e a tela
+   * precisa dizer isso: é o único erro desta rota que não é culpa do prompt.
+   */
+  generateQuestions(
+    badgeId: string,
+    body: GenerateQuestionsRequest
+  ): Observable<GeneratedQuestions> {
+    return this.http.post<GeneratedQuestions>(
+      `${this.base}/badges/${badgeId}/questions/generate`,
+      body
+    );
+  }
+
+  /** Grava o lote aprovado. **Tudo ou nada**: `409` recusa o lote inteiro. */
+  bulkCreateQuestions(
+    badgeId: string,
+    questions: readonly QuestionInput[]
+  ): Observable<{ questions: readonly GymQuestion[] }> {
+    return this.http.post<{ questions: readonly GymQuestion[] }>(
+      `${this.base}/badges/${badgeId}/questions/bulk`,
+      { questions }
+    );
+  }
+
+  getChallengeConfig(badgeId: string): Observable<ChallengeConfig> {
+    return this.http.get<ChallengeConfig>(
+      `${this.base}/badges/${badgeId}/challenge-config`
+    );
+  }
+
+  setChallengeConfig(
+    badgeId: string,
+    requiredXp: number
+  ): Observable<ChallengeConfig> {
+    return this.http.put<ChallengeConfig>(
+      `${this.base}/badges/${badgeId}/challenge-config`,
+      { requiredXp }
     );
   }
 }

@@ -1,0 +1,196 @@
+<section class="page">
+  <header>
+    <p class="u-mono page__eyebrow">
+      <a routerLink="/dashboard/admin/questoes">Banco de questões</a>
+    </p>
+    <h1 class="page__title">{{ badgeId }}</h1>
+  </header>
+
+  @if (loading()) {
+    <p class="state" role="status">Carregando…</p>
+  } @else {
+    @if (erro()) {
+      <p class="state state--error" role="alert">{{ erro() }}</p>
+    }
+    @if (aviso()) {
+      <p class="state state--ok" role="status">{{ aviso() }}</p>
+    }
+
+    <!--
+      Os contadores. **Nenhum deles é calculado aqui** — `counts` e `ready` vêm
+      da API, e o `ready` olha os três níveis separadamente: 90 fáceis e nenhuma
+      difícil somam 90 e não montam uma rodada 3.
+    -->
+    @if (counts(); as c) {
+      <section class="counters" aria-labelledby="contagem-titulo">
+        <h2 id="contagem-titulo" class="section-title">Progresso do banco</h2>
+
+        <ul class="counters__list">
+          @for (nivel of niveis; track nivel) {
+            <li class="counters__item" [class.counters__item--done]="completo(nivel)">
+              <span class="counters__label">{{ labels[nivel] }}s</span>
+              <span class="u-mono counters__value">
+                {{ contagemDe(nivel) }}/{{ minimo }}
+              </span>
+            </li>
+          }
+        </ul>
+
+        <div
+          class="counters__bar"
+          role="progressbar"
+          [attr.aria-valuenow]="c.total"
+          [attr.aria-valuemin]="0"
+          [attr.aria-valuemax]="totalAlvo"
+          aria-label="Questões cadastradas"
+        >
+          <span class="counters__fill" [style.width.%]="progresso()"></span>
+        </div>
+
+        <p class="u-mono counters__total">{{ c.total }}/{{ totalAlvo }}</p>
+
+        @if (c.ready) {
+          <p class="counters__ready">Desafio pronto para publicação!</p>
+        } @else {
+          <p class="counters__pending">
+            Faltam questões para o desafio sair de "Em breve".
+          </p>
+        }
+      </section>
+    }
+
+    <!--
+      A configuração é uma SEÇÃO desta página, e não uma rota separada
+      (decisão 11): o XP mínimo sem o banco de questões embaixo não tem contexto.
+    -->
+    <section class="config" aria-labelledby="config-titulo">
+      <h2 id="config-titulo" class="section-title">Configuração do desafio</h2>
+
+      <label class="config__label" for="requiredXp">XP mínimo para participar</label>
+      <div class="config__row">
+        <input
+          id="requiredXp"
+          class="config__input"
+          type="number"
+          min="0"
+          [formControl]="requiredXp"
+        />
+        <button type="button" class="config__save" (click)="salvarConfig()">
+          Salvar configuração
+        </button>
+      </div>
+      <p class="config__help">
+        Zero é sem exigência, e é o padrão. Serve para as últimas insígnias, que só fazem
+        sentido depois de a pessoa ter treinado nas primeiras.
+      </p>
+    </section>
+
+    <section class="questions" aria-labelledby="questoes-titulo">
+      <h2 id="questoes-titulo" class="section-title">Questões</h2>
+
+      <!-- O filtro é um grupo de abas: uma dificuldade por vez. -->
+      <div class="tabs" role="tablist" aria-label="Filtrar por dificuldade">
+        @for (nivel of niveis; track nivel) {
+          <button
+            type="button"
+            role="tab"
+            class="tabs__tab"
+            [class.tabs__tab--active]="filtro() === nivel"
+            [attr.aria-selected]="filtro() === nivel"
+            (click)="trocarFiltro(nivel)"
+          >
+            {{ labels[nivel] }}
+            <span class="u-mono tabs__count">{{ contagemDe(nivel) }}</span>
+          </button>
+        }
+      </div>
+
+      <div class="questions__actions">
+        <button type="button" class="questions__add" (click)="criando.set(true)">
+          Adicionar questão
+        </button>
+        <button type="button" class="questions__ai" (click)="gerando.set(true)">
+          Gerar com IA
+        </button>
+      </div>
+
+      @if (criando()) {
+        <app-question-editor
+          [lockedDifficulty]="filtro()"
+          [pending]="salvando()"
+          (submitted)="criar($event)"
+          (cancelled)="criando.set(false)"
+        />
+      }
+
+      @if (questions().length === 0) {
+        <p class="state">
+          Nenhuma questão de nível {{ labels[filtro()] }} cadastrada ainda.
+        </p>
+      } @else {
+        <ul class="list">
+          @for (question of questions(); track question.id) {
+            <li class="list__item">
+              @if (editando() === question.id) {
+                <app-question-editor
+                  [value]="paraInput(question)"
+                  [pending]="salvando()"
+                  (submitted)="salvarEdicao(question.id, $event)"
+                  (cancelled)="editando.set(null)"
+                />
+              } @else {
+                <p class="list__question">{{ question.question }}</p>
+
+                <ul class="list__alts">
+                  @for (alternative of question.alternatives; track $index) {
+                    <li
+                      class="list__alt"
+                      [class.list__alt--correct]="question.correctIndex === $index"
+                    >
+                      {{ alternative }}
+                    </li>
+                  }
+                </ul>
+
+                <div class="list__actions">
+                  <button
+                    type="button"
+                    class="list__edit"
+                    (click)="editando.set(question.id)"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    class="list__delete"
+                    (click)="pedirExclusao(question)"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</section>
+
+@if (gerando()) {
+  <app-ai-generate-dialog
+    [badgeId]="badgeId"
+    (saved)="salvarLote($event)"
+    (closed)="gerando.set(false)"
+  />
+}
+
+<app-confirm-dialog
+  #dialogoExclusao
+  title="Excluir a questão?"
+  message="Ela sai do banco e não cai mais em nenhuma rodada. Rodadas já em andamento não são afetadas — elas guardam a foto do enunciado."
+  confirmLabel="Excluir"
+  [danger]="true"
+  (confirmed)="excluirConfirmado()"
+  (cancelled)="excluindo.set(null)"
+/>

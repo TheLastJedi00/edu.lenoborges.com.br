@@ -64,7 +64,35 @@
       </div>
     </a>
 
-    <!-- 2. Financeiro -->
+    <!--
+      2. Jogos
+      Ativado pela spec 022, e logo depois da Trilha pela mesma razão do aside:
+      conteúdo, prática, discussão. O cartão leva ao hub, e não direto ao GYM
+      Challenge -- quem entra em Jogos vê o mapa inteiro, inclusive o Ranking.
+    -->
+    <a class="card card--link" routerLink="/dashboard/jogos">
+      <div class="card__top">
+        <span class="card__icon-badge" aria-hidden="true">
+          <app-icon-games />
+        </span>
+        <span class="card__badge card__badge--active u-mono">Disponível</span>
+      </div>
+      <div class="card__body">
+        <h2 class="card__title">Jogos</h2>
+        <p class="card__desc">
+          O GYM Challenge conquista a insígnia respondendo, e o Ranking mostra onde você
+          está na Liga.
+        </p>
+        <span class="card__action-text">
+          Entrar nos Jogos
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!-- 3. Financeiro -->
     <a class="card card--link" routerLink="/dashboard/financeiro">
       <div class="card__top">
         <span class="card__icon-badge" aria-hidden="true">
@@ -87,7 +115,7 @@
     </a>
 
     <!--
-      3. Mural
+      4. Mural
       Ativo para todo mundo, inclusive Dev Tier — quem não escreve ainda vota,
       e votar é o ato que dá valor ao mural. A restrição de tier aparece dentro
       da tela, no lugar do formulário, nunca como um cartão cinza aqui fora.
@@ -113,7 +141,7 @@
       </div>
     </a>
 
-    <!-- 4. Grupo do WhatsApp (Ativo se houver URL, senão inerte) -->
+    <!-- 5. Grupo do WhatsApp (Ativo se houver URL, senão inerte) -->
     @if (hasWhatsappUrl()) {
       <a
         class="card card--link"
@@ -182,24 +210,8 @@
       </div>
     </a>
 
-    <!-- 6. Jogos (Inerte) -->
-    <article class="card card--disabled" aria-disabled="true">
-      <div class="card__top">
-        <span class="card__icon-badge" aria-hidden="true">
-          <app-icon-games />
-        </span>
-        <span class="card__badge u-mono">Em breve</span>
-      </div>
-      <div class="card__body">
-        <h2 class="card__title">Jogos</h2>
-        <p class="card__desc">
-          Desafios de conhecimento para testar seu raciocínio e subir no ranking da comunidade.
-        </p>
-      </div>
-    </article>
-
     <!--
-      7. Administração, só para quem tem a claim.
+      6. Administração, só para quem tem a claim.
       Último, como no rodapé do aside, porque é ferramenta e não navegação de
       aluno. Esconder é conveniência: quem impede o acesso é o AdminGuard do
       backend, e nenhuma tela pode depender de o cartão estar escondido.

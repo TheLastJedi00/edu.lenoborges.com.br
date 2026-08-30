@@ -1,0 +1,173 @@
+.page {
+  display: grid;
+  gap: 2rem;
+  padding: 1.25rem 1rem 4rem;
+}
+
+.page__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.page__brand app-logo {
+  width: 2rem;
+}
+
+.page__brand .page__eyebrow {
+  margin: 0;
+}
+
+.page__eyebrow {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.05;
+  margin: 0.2rem 0 0;
+}
+
+.page__lead {
+  margin: 0.5rem 0 0;
+  max-width: 52ch;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+/*
+  Mobile first: uma coluna. Os três cards só ficam lado a lado quando há largura
+  para os textos não virarem uma tira de duas palavras por linha.
+*/
+.hub {
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 56rem) {
+  .hub {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: stretch;
+  }
+
+  .hub > li {
+    display: flex;
+  }
+}
+
+.card {
+  display: grid;
+  gap: 0.9rem;
+  align-content: start;
+  width: 100%;
+  padding: 1.4rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-panel);
+  box-shadow: var(--shadow-hard-sm);
+  color: inherit;
+  text-decoration: none;
+  /* Alvo de toque confortável no celular, e o card inteiro é a área. */
+  min-height: 11rem;
+}
+
+.card--active {
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.card--active:hover,
+.card--active:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hard);
+}
+
+/*
+  A porta fechada. Cinza e sem sombra: ela precisa ser legível — está ali para
+  ser lida — e visivelmente inerte. Sem `cursor: not-allowed`, que promete um
+  clique recusado onde não há clique nenhum.
+*/
+.card--soon {
+  background: var(--screen-lit);
+  box-shadow: none;
+  opacity: 0.72;
+}
+
+.card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-accent);
+  color: var(--paper);
+}
+
+.card--soon .card__icon {
+  background: var(--screen-deep);
+  color: var(--ink-soft);
+}
+
+.card__body {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.card__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+.card__badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--screen-deep);
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.card__text {
+  color: var(--ink-soft);
+  font-size: var(--step-0);
+  line-height: 1.55;
+}
+
+.card__cta {
+  align-self: end;
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/*
+  Movimento com causa (regra 5 da spec 009), e a saída para quem pediu menos
+  movimento. O `appReveal` da entrada já respeita a preferência por conta
+  própria; aqui é o hover que precisa parar.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .card--active {
+    transition: none;
+  }
+
+  .card--active:hover,
+  .card--active:focus-visible {
+    transform: none;
+  }
+}

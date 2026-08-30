@@ -433,3 +433,35 @@
   line-height: 1.5;
 }
 
+
+/*
+  A gamertag (spec 022, decisão 16).
+
+  Só leitura, e o valor em mono: ele é um identificador, não um nome próprio, e
+  a fonte diz isso antes de o texto explicar.
+*/
+.gamertag {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: var(--border-w) solid var(--border-soft);
+}
+
+.gamertag__label {
+  margin: 0 0 0.3rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.gamertag__value {
+  margin: 0 0 0.4rem;
+  font-size: var(--step-1);
+  font-weight: 700;
+}
+
+.gamertag__hint {
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  line-height: 1.5;
+}

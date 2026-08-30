@@ -25,6 +25,7 @@ export const PERFIL: MemberProfile = {
   pendingLegal: [],
   xp: 0,
   socialLinksPublic: false,
+  nickname: null,
   legalAcceptances: {}
 };
 

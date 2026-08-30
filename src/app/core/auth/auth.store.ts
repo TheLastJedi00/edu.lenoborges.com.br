@@ -63,6 +63,25 @@ export class AuthStore {
   readonly xp = computed(() => this.profile()?.xp ?? 0);
 
   /**
+   * A gamertag, ou `null` enquanto ela não for escolhida (spec 022).
+   *
+   * **Atenção: `null` aqui significa duas coisas, e confundi-las custou um
+   * defeito real.** Ele é `null` para quem não escolheu gamertag **e** para
+   * quem tem uma mas ainda não carregou o perfil — o `session-init` só chama
+   * `/auth/refresh`, e a sessão não traz este campo.
+   *
+   * O `profileCompleteGuard` **não** resolve isso: ele tem fallback para o sinal
+   * de sessão (`profileCompleted`), e o `nickname` não tem de onde cair. Num F5
+   * dentro de Jogos, o `nicknameGuard` abria o modal para quem já tinha
+   * gamertag, e a pessoa levava `409` sobre uma escolha já feita.
+   *
+   * Por isso **o guard carrega o perfil antes de ler este signal**. Não há um
+   * terceiro estado aqui de propósito: quem precisa distinguir "não tem" de
+   * "ainda não sei" pergunta ao `profile()`, que é nulo só no segundo caso.
+   */
+  readonly nickname = computed(() => this.profile()?.nickname ?? null);
+
+  /**
    * Papel do usuário, com a mesma precedência de `grade`: o perfil carregado
    * manda quando existe, porque é o dado mais recente.
    */
