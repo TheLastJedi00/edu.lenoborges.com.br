@@ -169,7 +169,36 @@ export interface AsideNavItem {
             </a>
           </li>
 
-          <!-- 3. Financeiro -->
+          <!--
+            3. Jogos
+            Ativado pela spec 022, e **na posicao que conta a historia do ciclo**:
+            Trilha e conteudo, Jogos e pratica, Mural e discussao. Ele era um
+            botao inerte com o selo "Em breve" desde a spec 008, no fim da lista.
+
+            Uma rota so, e nao tres: quem entra ve o mapa inteiro -- GYM
+            Challenge, Duels e Ranking -- em vez de tres itens soltos no menu.
+            O modal de gamertag abre no guard, e nao aqui: o aside nao sabe se a
+            pessoa pode jogar, e nao deveria.
+          -->
+          <li>
+            <a
+              routerLink="/dashboard/jogos"
+              routerLinkActive="is-active"
+              #jogosLink="routerLinkActive"
+              [attr.aria-current]="jogosLink.isActive ? 'page' : null"
+              class="aside__item"
+              [title]="!expanded() ? 'Jogos' : ''"
+              [attr.aria-label]="!expanded() ? 'Jogos' : null"
+              (click)="onNavClick('/dashboard/jogos')"
+            >
+              <app-icon-games class="aside__icon" />
+              @if (expanded()) {
+                <span class="aside__label">Jogos</span>
+              }
+            </a>
+          </li>
+
+          <!-- 4. Financeiro -->
           <li>
             <a
               routerLink="/dashboard/financeiro"
@@ -189,7 +218,7 @@ export interface AsideNavItem {
           </li>
 
           <!--
-            4. Mural
+            5. Mural
             Ativo para todo mundo, inclusive Dev Tier: quem nao escreve ainda
             vota, e votar e o ato que da valor ao mural.
           -->
@@ -211,7 +240,7 @@ export interface AsideNavItem {
             </a>
           </li>
 
-          <!-- 5. Meu Perfil -->
+          <!-- 6. Meu Perfil -->
           <li>
             <a
               routerLink="/dashboard/perfil"
@@ -230,23 +259,6 @@ export interface AsideNavItem {
             </a>
           </li>
 
-          <!-- 5. Jogos (Inerte) -->
-          <li>
-            <button
-              type="button"
-              disabled
-              aria-disabled="true"
-              class="aside__item aside__item--disabled"
-              [title]="!expanded() ? 'Jogos (Em breve)' : ''"
-              [attr.aria-label]="!expanded() ? 'Jogos (Em breve)' : null"
-            >
-              <app-icon-games class="aside__icon" />
-              @if (expanded()) {
-                <span class="aside__label">Jogos</span>
-                <span class="aside__badge u-mono">Em breve</span>
-              }
-            </button>
-          </li>
         </ul>
       </nav>
 

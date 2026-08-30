@@ -1,0 +1,229 @@
+@let fase_ = fase();
+
+<section class="page">
+  @if (fase_ === 'carregando') {
+    <p class="state" role="status">Carregando o desafio…</p>
+  }
+
+  <!--
+    O aviso obrigatório (decisão 4). Aparece antes de TODA rodada, e o checkbox
+    nasce desmarcado toda vez: é ritual, e não um aceite que se marca uma vez e
+    some. Ele não é gravado em lugar nenhum — nem no servidor, nem no
+    localStorage.
+  -->
+  @if (fase_ === 'aviso') {
+    <div class="warning animate-enter">
+      <p class="u-mono warning__eyebrow">Antes de começar</p>
+      <h1 class="warning__title">Não se sabote, se permita errar primeiro.</h1>
+      <p class="warning__text">
+        Esse desafio é seu — é sobre o que <strong>você</strong> sabe, não sobre o que uma IA
+        sabe. Conhecimento se constrói errando o suficiente para aprender, e não acertando
+        tudo de primeira. Se permita errar, se permita duvidar, e resista à tentação de pedir
+        a resposta para o ChatGPT. O XP que você ganha aqui só tem valor se for honesto — e o
+        único a se enganar seria você mesmo.
+      </p>
+
+      <label class="warning__check">
+        <input
+          type="checkbox"
+          [checked]="aceitouAviso()"
+          (change)="aceitouAviso.set($any($event.target).checked)"
+        />
+        <span>Eu li e entendi</span>
+      </label>
+
+      <button
+        type="button"
+        class="warning__cta"
+        [disabled]="!aceitouAviso()"
+        (click)="confirmarAviso()"
+      >
+        Continuar
+      </button>
+    </div>
+  }
+
+  @if (fase_ === 'pronto') {
+    <header class="page__head">
+      <div class="page__brand">
+        <app-logo />
+        <p class="u-mono page__eyebrow">GYM Challenge</p>
+      </div>
+      <h1 class="page__title">{{ challenge()?.badgeTitle }}</h1>
+    </header>
+
+    @if (erro()) {
+      <p class="state state--error" role="alert">{{ erro() }}</p>
+    }
+
+    @if (challenge(); as s) {
+      <div class="ready">
+        <p class="u-mono ready__round">{{ rotuloDaRodada() }}</p>
+        <app-round-dots [rounds]="s.rounds" [currentRound]="s.currentRound" />
+
+        @switch (s.status) {
+          @case ('em-breve') {
+            <p class="ready__text">
+              O GYM Battle dessa insígnia ainda está sendo preparado. Volte em breve.
+            </p>
+          }
+          @case ('xp-insuficiente') {
+            <p class="ready__text">
+              Você precisa treinar mais para conquistar essa insígnia. Faltam
+              <strong>{{ s.requiredXp - s.currentXp }} XP</strong> — assista aos vídeos da
+              trilha e volte aqui.
+            </p>
+            <a class="ready__link" [routerLink]="['/dashboard/trilha', s.badgeId]">
+              Ir para a trilha dessa insígnia
+            </a>
+          }
+          @default {
+            @if (treino()) {
+              <p class="u-mono ready__training">Modo Treino: sem XP</p>
+            }
+            <button
+              type="button"
+              class="ready__cta"
+              [disabled]="enviando()"
+              (click)="iniciar()"
+            >
+              {{ enviando() ? 'Preparando…' : 'Iniciar Rodada' }}
+            </button>
+          }
+        }
+
+        <button type="button" class="ready__ghost" (click)="voltar()">
+          Voltar para os desafios
+        </button>
+      </div>
+    }
+  }
+
+  <!--
+    O jogo. `jogando` e `feedback` desenham o mesmo bloco — a diferença entre os
+    dois é o que está pintado, e não o que está na tela. Separá-los em dois
+    blocos duplicaria o enunciado e as quatro alternativas.
+  -->
+  @if (fase_ === 'jogando' || fase_ === 'feedback') {
+    @if (question(); as q) {
+      <div class="quiz">
+        <div class="quiz__top">
+          <app-challenge-timer
+            [questionIndex]="questionIndex()"
+            [frozen]="fase_ === 'feedback'"
+          />
+          <p class="u-mono quiz__progress">
+            Questão {{ questionIndex() + 1 }} de {{ totalQuestoes() }}
+          </p>
+          @if (treino()) {
+            <p class="u-mono quiz__training">Modo Treino: sem XP</p>
+          }
+        </div>
+
+        <h1 class="quiz__question">{{ q.question }}</h1>
+
+        <!--
+          As alternativas são `<button>` com `aria-pressed`, e não `<div>` com
+          clique: teclado, foco e leitor de tela vêm de graça, e a semântica de
+          "eu escolhi esta" é o que o `aria-pressed` diz.
+        -->
+        <ul class="quiz__options">
+          @for (alternative of q.alternatives; track $index) {
+            <li>
+              <button
+                type="button"
+                class="option"
+                [class.option--chosen]="chosenIndex() === $index"
+                [class.option--correct]="
+                  fase_ === 'feedback' && lastAnswer()?.correctAlternativeIndex === $index
+                "
+                [class.option--wrong]="
+                  fase_ === 'feedback' &&
+                  chosenIndex() === $index &&
+                  lastAnswer()?.correct === false
+                "
+                [attr.aria-pressed]="chosenIndex() === $index"
+                [disabled]="fase_ === 'feedback' || enviando()"
+                (click)="responder($index)"
+              >
+                {{ alternative }}
+              </button>
+            </li>
+          }
+        </ul>
+
+        <!--
+          O resultado é anunciado em `aria-live="polite"`: quem não vê a cor
+          precisa ouvir se acertou. O XP ganho vai junto, porque ele é a
+          consequência — e é o único número de XP que esta tela mostra, vindo
+          pronto do servidor.
+        -->
+        <p class="quiz__feedback" role="status" aria-live="polite">
+          @if (fase_ === 'feedback' && lastAnswer(); as result) {
+            @if (result.correct) {
+              <span class="quiz__ok">Correto!</span>
+              @if (result.xpAwarded > 0) {
+                <span class="quiz__xp animate-enter--fade">+{{ result.xpAwarded }} XP</span>
+              }
+            } @else {
+              <span class="quiz__no">Não foi dessa vez.</span>
+            }
+          }
+        </p>
+
+        @if (erro()) {
+          <p class="state state--error" role="alert">{{ erro() }}</p>
+        }
+      </div>
+    }
+  }
+
+  @if (fase_ === 'resultado') {
+    <div class="result animate-enter">
+      <p class="u-mono result__eyebrow">Fim da rodada</p>
+
+      <h1 class="result__title">
+        Você acertou {{ acertosDaRodada() }} de {{ totalQuestoes() }}!
+      </h1>
+
+      @if (lastAnswer()?.badgeUnlocked) {
+        <p class="result__badge">
+          <span class="result__badge-icon"><app-icon-check /></span>
+          Insígnia Conquistada!
+        </p>
+        <p class="result__text">
+          As três rodadas fechadas. Essa insígnia é sua, e você a conquistou respondendo.
+        </p>
+      } @else if (aprovado()) {
+        <p class="result__text">
+          Rodada aprovada. A próxima é mais difícil — e você já provou que dá conta desta.
+        </p>
+      } @else if (treino()) {
+        <p class="result__text">
+          Era treino, então nada mudou no seu progresso. O que você errou aqui é exatamente o
+          que vale a pena revisar.
+        </p>
+      } @else {
+        <p class="result__text">
+          Ainda não foi dessa vez. São sete acertos para aprovar, e as questões da próxima
+          tentativa são outras — não é decorar, é entender.
+        </p>
+      }
+
+      @if (challenge(); as s) {
+        <app-round-dots [rounds]="s.rounds" [currentRound]="s.currentRound" />
+      }
+
+      <div class="result__actions">
+        @if (!lastAnswer()?.badgeUnlocked) {
+          <button type="button" class="result__cta" (click)="proximaRodada()">
+            {{ aprovado() ? 'Próxima rodada' : 'Tentar novamente' }}
+          </button>
+        }
+        <button type="button" class="result__ghost" (click)="voltar()">
+          Voltar para os desafios
+        </button>
+      </div>
+    </div>
+  }
+</section>

@@ -1,0 +1,141 @@
+.gamertag {
+  width: min(28rem, calc(100vw - 2rem));
+  inset: 0;
+  margin: auto;
+  padding: 1.75rem 1.5rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: var(--shadow-hard);
+  color: var(--ink);
+}
+
+.gamertag::backdrop {
+  background: rgba(16, 24, 40, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.gamertag[open] {
+  animation: anim-rise 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.gamertag__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.gamertag__lead {
+  margin-top: 0.6rem;
+  font-size: var(--step--1);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.gamertag__form {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+}
+
+.gamertag__label {
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
+.gamertag__input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--screen-lit);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--step-0);
+  /* Alvo de toque de 48px, e nada de zoom no iOS: fonte abaixo de 16px faz o
+     Safari dar zoom no campo ao focar, e a tela inteira desalinha. */
+  min-height: 3rem;
+}
+
+.gamertag__input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.gamertag__input[aria-invalid='true'] {
+  border-color: var(--danger, #d64545);
+}
+
+.gamertag__help {
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.gamertag__error {
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--danger, #d64545);
+  line-height: 1.45;
+}
+
+/*
+  Empilhado no celular, lado a lado a partir do tablet. Em 360px dois botões
+  na mesma linha espremem "Confirmar gamertag" em três linhas.
+*/
+.gamertag__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+@media (min-width: 30rem) {
+  .gamertag__actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+.gamertag__submit,
+.gamertag__ghost {
+  min-height: 3rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--step-0);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 180ms ease;
+}
+
+.gamertag__submit {
+  border: none;
+  background: var(--gradient-accent-strong);
+  color: var(--paper);
+}
+
+.gamertag__ghost {
+  border: var(--border-w) solid var(--border-soft);
+  background: transparent;
+  color: var(--ink-soft);
+}
+
+.gamertag__submit:disabled,
+.gamertag__ghost:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gamertag[open] {
+    animation: none;
+  }
+
+  .gamertag__submit,
+  .gamertag__ghost {
+    transition: none;
+  }
+}

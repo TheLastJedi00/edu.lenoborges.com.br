@@ -1,0 +1,65 @@
+<form class="editor" [formGroup]="form" (ngSubmit)="submit()">
+  @if (!lockedDifficulty()) {
+    <label class="editor__label" for="difficulty">Dificuldade</label>
+    <select id="difficulty" class="editor__select" formControlName="difficulty">
+      @for (item of difficulties; track item[0]) {
+        <option [value]="item[0]">{{ item[1] }}</option>
+      }
+    </select>
+  }
+
+  <label class="editor__label" for="question">Enunciado</label>
+  <textarea
+    id="question"
+    class="editor__area"
+    formControlName="question"
+    rows="3"
+    placeholder="O que um laço `for` controla?"
+  ></textarea>
+
+  <fieldset class="editor__alts">
+    <!--
+      A legenda diz a regra inteira: o radio ao lado de cada campo é o que marca
+      a correta, e não um número digitado. Um `correctIndex` como texto convida
+      o "2" que aponta para a terceira alternativa.
+    -->
+    <legend class="editor__label">
+      Alternativas — marque a correta
+    </legend>
+
+    <div formArrayName="alternatives" class="editor__alt-list">
+      @for (index of alternatives(); track index) {
+        <div class="editor__alt">
+          <input
+            type="radio"
+            class="editor__radio"
+            formControlName="correctIndex"
+            [value]="index"
+            [id]="'correct-' + index"
+            [attr.aria-label]="'Marcar a alternativa ' + (index + 1) + ' como correta'"
+          />
+          <input
+            type="text"
+            class="editor__input"
+            [formControlName]="index"
+            [attr.aria-label]="'Alternativa ' + (index + 1)"
+            [placeholder]="'Alternativa ' + (index + 1)"
+          />
+        </div>
+      }
+    </div>
+  </fieldset>
+
+  <div class="editor__actions">
+    <button type="button" class="editor__ghost" (click)="cancelled.emit()">
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="editor__submit"
+      [disabled]="form.invalid || pending()"
+    >
+      {{ pending() ? 'Salvando…' : 'Salvar questão' }}
+    </button>
+  </div>
+</form>

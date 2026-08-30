@@ -234,6 +234,30 @@
           }
         </ul>
       }
+
+      <!--
+        O card do GYM Challenge (spec 022, decisão 7).
+
+        **Depois de tudo, e só na aba Aulas.** "Tudo" inclui as respostas que o
+        admin posicionou na trilha (spec 021): ele é o último item da lista, e é
+        isso que faz dele o convite natural — o membro acabou de consumir o
+        conteúdo, e agora é hora de provar.
+
+        Ele não aparece na aba Perguntas Frequentes: ali a pessoa está tirando
+        uma dúvida, não terminando uma etapa.
+
+        `emphasis` ligado: aqui o brilho é mais forte que na lista de desafios,
+        onde três cards pulsando ao mesmo tempo virariam ruído.
+      -->
+      @if (aba() === 'aula' && challenge(); as desafio) {
+        <div class="gym-slot">
+          <app-gym-challenge-card
+            [state]="desafio"
+            [emphasis]="true"
+            (click)="abrirDesafio()"
+          />
+        </div>
+      }
     }
   }
 </section>

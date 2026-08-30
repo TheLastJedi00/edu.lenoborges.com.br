@@ -1,0 +1,73 @@
+<section class="page">
+  <header class="page__head">
+    <div class="page__brand">
+      <app-logo />
+      <p class="u-mono page__eyebrow">Jogos</p>
+    </div>
+    <h1 class="page__title">Hora de provar o que você aprendeu</h1>
+    <p class="page__lead">
+      A trilha é onde o conhecimento entra. Aqui é onde ele se prova — contra as questões,
+      contra o relógio e contra o resto da Liga.
+    </p>
+  </header>
+
+  <ul class="hub">
+    <li [appReveal]="0">
+      <a routerLink="/dashboard/jogos/desafios" class="card card--active">
+        <span class="card__icon">
+          <app-icon-games />
+        </span>
+        <span class="card__body">
+          <span class="card__title">GYM Challenge</span>
+          <span class="card__text">
+            Três rodadas de dez questões por insígnia. Acerte sete em cada uma e a insígnia
+            é sua, conquistada e não concedida.
+          </span>
+        </span>
+        <span class="u-mono card__cta">Escolher insígnia</span>
+      </a>
+    </li>
+
+    <!--
+      Duels: a porta fechada, e ela está aqui de propósito (decisão 1).
+
+      É um `div` com `aria-disabled` e não um `<button disabled>`: não há ação
+      nenhuma a executar, e um botão desabilitado promete um clique que nem
+      existe. O leitor de tela lê o texto "Em breve" junto do título, que é
+      exatamente a informação.
+    -->
+    <li [appReveal]="1">
+      <div class="card card--soon" aria-disabled="true">
+        <span class="card__icon">
+          <app-icon-duels />
+        </span>
+        <span class="card__body">
+          <span class="card__title">
+            Duels
+            <span class="u-mono card__badge">Em breve</span>
+          </span>
+          <span class="card__text">
+            Duelo direto entre dois membros, nas mesmas questões e no mesmo relógio. Ainda
+            não tem data.
+          </span>
+        </span>
+      </div>
+    </li>
+
+    <li [appReveal]="2">
+      <a routerLink="/dashboard/jogos/ranking" class="card card--active">
+        <span class="card__icon">
+          <app-icon-ranking />
+        </span>
+        <span class="card__body">
+          <span class="card__title">Ranking da Liga</span>
+          <span class="card__text">
+            Todo mundo, ordenado por XP. Vídeo assistido conta, questão acertada conta mais,
+            e o pódio é de quem estiver lá hoje.
+          </span>
+        </span>
+        <span class="u-mono card__cta">Ver o placar</span>
+      </a>
+    </li>
+  </ul>
+</section>

@@ -1,0 +1,79 @@
+@let s = state();
+
+<article
+  class="gym"
+  [class.gym--soon]="s.status === 'em-breve'"
+  [class.gym--locked]="s.status === 'xp-insuficiente'"
+  [class.gym--ready]="s.status === 'disponivel'"
+  [class.gym--won]="s.status === 'conquistada'"
+  [class.gym--emphasis]="emphasis()"
+>
+  <header class="gym__head">
+    <p class="u-mono gym__eyebrow">GYM Challenge</p>
+    <h3 class="gym__title">{{ s.badgeTitle }}</h3>
+  </header>
+
+  @switch (s.status) {
+    @case ('em-breve') {
+      <!--
+        A insígnia existe, o desafio dela ainda não. O texto diz isso sem culpar
+        ninguém e sem prometer data — e o card não é clicável, porque não há
+        para onde ir.
+      -->
+      <p class="gym__text">GYM Battle dessa Insígnia em breve.</p>
+    }
+
+    @case ('xp-insuficiente') {
+      <p class="gym__text">
+        Você precisa treinar mais para conquistar essa Insígnia! Faltam
+        <strong>{{ xpFaltante() }} XP</strong>.
+      </p>
+
+      <!--
+        A barra é `role="progressbar"` com os três valores: quem usa leitor de
+        tela ouve "340 de 500", que é a informação. Uma div colorida sem papel
+        seria invisível para essa pessoa.
+      -->
+      <div
+        class="gym__bar"
+        role="progressbar"
+        [attr.aria-valuenow]="s.currentXp"
+        [attr.aria-valuemin]="0"
+        [attr.aria-valuemax]="s.requiredXp"
+        [attr.aria-label]="'XP para liberar o desafio'"
+      >
+        <span class="gym__bar-fill" [style.width.%]="progressoXp()"></span>
+      </div>
+
+      <p class="u-mono gym__meter">{{ s.currentXp }} / {{ s.requiredXp }} XP</p>
+    }
+
+    @case ('disponivel') {
+      <p class="gym__text">
+        Três rodadas de dez questões. Acerte sete em cada uma e a insígnia é sua.
+      </p>
+
+      @if (s.replay) {
+        <p class="u-mono gym__training">Modo Treino: sem XP</p>
+      }
+
+      <button type="button" class="gym__cta">{{ rotuloDoBotao() }}</button>
+    }
+
+    @case ('conquistada') {
+      <p class="gym__won-mark">
+        <span class="gym__won-icon"><app-icon-check /></span>
+        Insígnia Conquistada
+      </p>
+
+      <p class="gym__text">
+        Você pode jogar de novo para treinar — <strong>sem XP</strong>, e sem
+        perder o que já conquistou.
+      </p>
+    }
+  }
+
+  <footer class="gym__foot">
+    <app-round-dots [rounds]="s.rounds" [currentRound]="s.currentRound" />
+  </footer>
+</article>

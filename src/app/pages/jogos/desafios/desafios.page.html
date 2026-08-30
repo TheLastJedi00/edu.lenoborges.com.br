@@ -1,0 +1,30 @@
+<section class="page">
+  <header class="page__head">
+    <div class="page__brand">
+      <app-logo />
+      <p class="u-mono page__eyebrow">GYM Challenge</p>
+    </div>
+    <h1 class="page__title">Escolha a insígnia que você vai provar</h1>
+    <p class="page__lead">
+      Cada insígnia tem três rodadas de dez questões, da fácil para a difícil. Sete acertos
+      aprovam a rodada, e as três aprovadas conquistam a insígnia.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p class="state" role="status">Carregando os desafios…</p>
+  } @else if (error()) {
+    <div class="state state--error" role="alert">
+      <p>Não consegui carregar os desafios agora.</p>
+      <button type="button" class="state__retry" (click)="carregar()">Tentar de novo</button>
+    </div>
+  } @else {
+    <ul class="grid">
+      @for (challenge of challenges(); track challenge.badgeId; let i = $index) {
+        <li [appReveal]="i">
+          <app-gym-challenge-card [state]="challenge" (click)="abrir(challenge)" />
+        </li>
+      }
+    </ul>
+  }
+</section>

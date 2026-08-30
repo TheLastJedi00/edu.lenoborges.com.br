@@ -1,0 +1,43 @@
+/*
+  Discreto no topo, e **não um elemento que compete com a pergunta**
+  (decisão 14): uma faixa fina, sem número, sem círculo e sem contagem escrita.
+*/
+.timer {
+  width: 100%;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: var(--screen-deep);
+  overflow: hidden;
+}
+
+.timer__fill {
+  display: block;
+  height: 100%;
+  max-width: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  /* 120ms para acompanhar o passo de 100ms do contador sem ficar tremido. */
+  transition:
+    width 120ms linear,
+    background-color 320ms ease;
+}
+
+.timer__fill--warn {
+  background: var(--warn, #e0a800);
+}
+
+.timer__fill--danger {
+  background: var(--danger, #d64545);
+}
+
+/*
+  Movimento é o ponto deste componente, então `prefers-reduced-motion` não o
+  desliga: ele **para de animar a transição** e a barra passa a saltar de valor
+  em valor. Esconder a barra tiraria a informação de urgência de quem pediu
+  menos movimento, e urgência não é enfeite aqui.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .timer__fill {
+    transition: none;
+  }
+}

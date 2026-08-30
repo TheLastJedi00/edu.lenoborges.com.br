@@ -1,0 +1,117 @@
+<section class="page">
+  <header class="page__head">
+    <div class="page__brand">
+      <app-logo />
+      <p class="u-mono page__eyebrow">Ranking</p>
+    </div>
+    <h1 class="page__title">O placar da Liga</h1>
+    <p class="page__lead">
+      Ordenado por XP. Vídeo assistido conta, questão acertada conta mais, e o pódio é de
+      quem estiver lá hoje.
+    </p>
+  </header>
+
+  <!--
+    A linha fixa do topo (decisão 6): a posição do membro aparece mesmo que ele
+    esteja na página 3. Sem ela, quem está no meio da lista teria que rolar até
+    se encontrar para saber onde está.
+  -->
+  @if (myEntry(); as mine) {
+    <p class="mine" role="status">
+      Sua posição: <strong class="u-mono">#{{ myPosition() }}</strong>
+      <app-position-delta [change]="mine.positionChange" />
+      · <strong class="u-mono">{{ mine.xp }} XP</strong> ·
+      <strong class="u-mono">{{ mine.badgeCount }}</strong>
+      {{ mine.badgeCount === 1 ? 'insígnia' : 'insígnias' }}
+    </p>
+  }
+
+  @if (loading()) {
+    <p class="state" role="status">Carregando o placar…</p>
+  } @else if (error() && entries().length === 0) {
+    <div class="state state--error" role="alert">
+      <p>Não consegui carregar o placar agora.</p>
+      <button type="button" class="state__retry" (click)="carregar()">Tentar de novo</button>
+    </div>
+  } @else if (entries().length === 0) {
+    <p class="state">
+      Ninguém no placar ainda. Assista a um vídeo da trilha ou vença uma rodada do GYM
+      Challenge, e o primeiro nome aqui pode ser o seu.
+    </p>
+  } @else {
+    <!--
+      O pódio. **Nada pisca aqui** (decisão 15): as cores são sólidas, sem laço.
+      Ouro, prata e bronze já são o destaque, e uma animação em cima disso
+      viraria enfeite competindo com a informação.
+    -->
+    <ol class="podium" aria-label="Pódio">
+      @for (entry of podio(); track entry.uid) {
+        <li
+          class="podium__item"
+          [class.podium__item--gold]="entry.position === 1"
+          [class.podium__item--silver]="entry.position === 2"
+          [class.podium__item--bronze]="entry.position === 3"
+          [class.podium__item--mine]="entry.uid === meuUid()"
+        >
+          <span class="u-mono podium__position">#{{ entry.position }}</span>
+          <span class="podium__nick">{{ entry.nickname }}</span>
+          <app-position-delta [change]="entry.positionChange" />
+          <span class="u-mono podium__xp">{{ entry.xp }} XP</span>
+          <span class="u-mono podium__badges">
+            {{ entry.badgeCount }}
+            {{ entry.badgeCount === 1 ? 'insígnia' : 'insígnias' }}
+          </span>
+        </li>
+      }
+    </ol>
+
+    @if (lista().length > 0) {
+      <!--
+        A tabela rola dentro do próprio contêiner — o corpo da página nunca
+        rola na horizontal, nem em 360px.
+      -->
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="u-sr-only">
+            Membros da Liga a partir da quarta posição, ordenados por XP
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col" class="table__num">#</th>
+              <th scope="col">Gamertag</th>
+              <th scope="col" class="table__num">XP</th>
+              <th scope="col" class="table__num">Insígnias</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of lista(); track entry.uid; let i = $index) {
+              <tr
+                [appReveal]="i"
+                [class.table__row--mine]="entry.uid === meuUid()"
+              >
+                <td class="table__num">
+                  <span class="u-mono">{{ entry.position }}</span>
+                  <app-position-delta [change]="entry.positionChange" />
+                </td>
+                <td class="table__nick">{{ entry.nickname }}</td>
+                <td class="table__num u-mono">{{ entry.xp }}</td>
+                <td class="table__num u-mono">{{ entry.badgeCount }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (temMais()) {
+      <button
+        type="button"
+        class="more"
+        [disabled]="loadingMore()"
+        (click)="carregarMais()"
+      >
+        {{ loadingMore() ? 'Carregando…' : 'Carregar mais' }}
+      </button>
+    }
+  }
+</section>
