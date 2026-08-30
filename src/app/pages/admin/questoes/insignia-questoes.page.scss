@@ -1,0 +1,347 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.25rem 1rem 4rem;
+}
+
+.page__eyebrow {
+  margin: 0;
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__eyebrow a {
+  color: inherit;
+}
+
+.page__title {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.05;
+}
+
+.section-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+}
+
+/* ----------------------------------------------------------- contadores */
+
+.counters,
+.config,
+.questions {
+  padding: 1.25rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+
+.counters__list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 34rem) {
+  .counters__list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.counters__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--screen-lit);
+}
+
+/* Nível completo: verde. É a informação que o admin procura de relance. */
+.counters__item--done {
+  border-color: rgba(47, 158, 68, 0.5);
+  background: rgba(47, 158, 68, 0.08);
+}
+
+.counters__label {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.counters__value {
+  font-weight: 700;
+}
+
+.counters__bar {
+  width: 100%;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--screen-deep);
+  overflow: hidden;
+}
+
+.counters__fill {
+  display: block;
+  height: 100%;
+  max-width: 100%;
+  border-radius: 999px;
+  background: var(--gradient-accent);
+  transition: width 320ms ease;
+}
+
+.counters__total {
+  margin: 0.4rem 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+.counters__ready {
+  margin: 0.6rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: rgba(47, 158, 68, 0.12);
+  color: var(--ok, #2f9e44);
+  font-weight: 600;
+}
+
+.counters__pending {
+  margin: 0.6rem 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+/* --------------------------------------------------------- configuração */
+
+.config__label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.config__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (min-width: 34rem) {
+  .config__row {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.config__input {
+  width: 100%;
+  max-width: 12rem;
+  min-height: 2.75rem;
+  padding: 0.6rem 0.7rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--screen-lit);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+}
+
+.config__save,
+.questions__add,
+.questions__ai {
+  min-height: 2.75rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--step-0);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.config__save,
+.questions__add {
+  border: none;
+  background: var(--gradient-accent-strong);
+  color: var(--paper);
+}
+
+.questions__ai {
+  border: var(--border-w) solid var(--border-soft);
+  background: transparent;
+  color: var(--ink);
+}
+
+.config__help {
+  margin: 0.6rem 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------- abas */
+
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.9rem;
+  /* Três abas cabem em 360px; o scroll é o cinto de segurança de rótulos
+     maiores num futuro nível novo. */
+  overflow-x: auto;
+}
+
+.tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.9rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: var(--step-0);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tabs__tab--active {
+  border-color: var(--accent-deep);
+  background: rgba(57, 134, 255, 0.1);
+  color: var(--accent-deep);
+  font-weight: 600;
+}
+
+.tabs__count {
+  font-size: var(--step--1);
+  opacity: 0.8;
+}
+
+.questions__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 34rem) {
+  .questions__actions {
+    flex-direction: row;
+  }
+}
+
+/* ---------------------------------------------------------- a lista */
+
+.list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list__item {
+  padding: 0.9rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--screen-lit);
+}
+
+/*
+  Enunciado truncado em duas linhas (decisão 9): a lista tem trinta itens, e o
+  que se procura nela é reconhecer a questão, não lê-la inteira.
+*/
+.list__question {
+  margin: 0 0 0.6rem;
+  font-weight: 600;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.list__alts {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.list__alt {
+  padding: 0.4rem 0.6rem;
+  border: var(--border-w) solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.4;
+}
+
+/* A correta em verde: é o que o admin confere ao revisar. */
+.list__alt--correct {
+  border-color: rgba(47, 158, 68, 0.45);
+  background: rgba(47, 158, 68, 0.08);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.list__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.list__edit,
+.list__delete {
+  min-height: 2.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: var(--step--1);
+  cursor: pointer;
+}
+
+.list__edit {
+  border: var(--border-w) solid var(--border-soft);
+  color: var(--ink);
+}
+
+.list__delete {
+  border: var(--border-w) solid rgba(214, 69, 69, 0.4);
+  color: var(--danger, #d64545);
+}
+
+/* ------------------------------------------------------------- estados */
+
+.state {
+  margin: 0;
+  padding: 1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--screen-lit);
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.state--error {
+  border-color: rgba(214, 69, 69, 0.4);
+  color: var(--danger, #d64545);
+}
+
+.state--ok {
+  border-color: rgba(47, 158, 68, 0.4);
+  color: var(--ok, #2f9e44);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .counters__fill {
+    transition: none;
+  }
+}

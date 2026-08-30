@@ -1,0 +1,260 @@
+.ai {
+  width: min(48rem, calc(100vw - 1.5rem));
+  max-height: calc(100vh - 3rem);
+  inset: 0;
+  margin: auto;
+  padding: 0;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  color: var(--ink);
+  /* O corpo rola dentro do modal; a página atrás continua parada. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ai::backdrop {
+  background: rgba(16, 24, 40, 0.65);
+  backdrop-filter: blur(3px);
+}
+
+.ai__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: var(--border-w) solid var(--border-soft);
+}
+
+.ai__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+}
+
+.ai__close {
+  min-height: 2.5rem;
+  padding: 0.4rem 0.8rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.ai__form,
+.ai__review {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+.ai__label {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.ai__area,
+.ai__select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--screen-lit);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 1rem;
+  min-height: 2.75rem;
+}
+
+.ai__area {
+  min-height: 6rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.ai__help {
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.ai__row {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 34rem) {
+  .ai__row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.ai__field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.ai__error {
+  margin: 0.4rem 0 0;
+  color: var(--danger, #d64545);
+  font-size: var(--step--1);
+  line-height: 1.45;
+}
+
+.ai__submit {
+  min-height: 3rem;
+  padding: 0.7rem 1.3rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-accent-strong);
+  color: var(--paper);
+  font-size: var(--step-0);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ai__submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------- esqueleto */
+
+.skeleton {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skeleton__item {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.9rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius);
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.skeleton__line {
+  display: block;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: var(--screen-deep);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.skeleton__line--title {
+  height: 1rem;
+  width: 70%;
+}
+
+/* --------------------------------------------------------------- revisão */
+
+.ai__discarded {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: rgba(224, 168, 0, 0.12);
+  color: var(--ink);
+  font-size: var(--step--1);
+  line-height: 1.45;
+}
+
+.ai__empty {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.ai__list {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ai__item {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--screen-lit);
+}
+
+.ai__item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ai__pick {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  font-size: var(--step--1);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ai__pick input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent);
+}
+
+.ai__drop {
+  min-height: 2.5rem;
+  padding: 0.4rem 0.8rem;
+  border: var(--border-w) solid rgba(214, 69, 69, 0.4);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--danger, #d64545);
+  font-size: var(--step--1);
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------ a barra do rodapé */
+
+.ai__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.25rem;
+  padding-bottom: calc(0.9rem + env(safe-area-inset-bottom));
+  border-top: var(--border-w) solid var(--border-soft);
+  background: var(--paper);
+}
+
+.ai__count {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton__line {
+    animation: none;
+  }
+}
