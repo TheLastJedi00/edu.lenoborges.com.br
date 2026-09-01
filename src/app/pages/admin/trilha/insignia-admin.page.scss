@@ -218,12 +218,7 @@
 .skeleton {
   height: 4.5rem;
   border-radius: var(--radius-lg);
-  background: linear-gradient(
-    90deg,
-    var(--screen) 25%,
-    var(--screen-lit) 37%,
-    var(--screen) 63%
-  );
+  background: linear-gradient(90deg, var(--screen) 25%, var(--screen-lit) 37%, var(--screen) 63%);
   background-size: 400% 100%;
   animation: skeleton-slide 1.4s ease-in-out infinite;
 }
@@ -307,4 +302,75 @@
   .tab {
     transition: none;
   }
+}
+
+/* --------------------------------------------- Arena de Treinamento (023) */
+
+.arena-admin {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: var(--border-w) solid var(--border-soft);
+}
+
+.arena-admin__titulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+}
+
+.arena-admin__intro,
+.arena-admin__vazio,
+.arena-admin__meta {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.arena-admin__erro {
+  margin: 0;
+  color: #c0392b;
+  font-size: var(--step--1);
+}
+
+.arena-admin__lista {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+  Mobile first: informação em cima, ações embaixo. Em 360px quatro botões numa
+  linha só ficariam abaixo do alvo de toque.
+*/
+.arena-admin__item {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--screen);
+}
+
+@media (min-width: 40rem) {
+  .arena-admin__item {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}
+
+.arena-admin__nome {
+  margin: 0;
+  font-size: var(--step-0);
+  line-height: 1.3;
+}
+
+.arena-admin__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
