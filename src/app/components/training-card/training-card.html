@@ -1,0 +1,37 @@
+@let t = training();
+
+<button
+  type="button"
+  class="treino"
+  [class.treino--feito]="t.completed"
+  [attr.aria-label]="'Abrir o desafio ' + t.title"
+  (click)="abrir.emit($any($event.currentTarget))"
+>
+  <span class="treino__topo">
+    <span class="u-mono treino__eyebrow">Arena de Treinamento</span>
+
+    <!--
+      O selo de concluído é ícone **e** texto. Um check verde sozinho não diz
+      nada para quem usa leitor de tela, e a cor sozinha não diz nada para quem
+      não a distingue.
+    -->
+    @if (t.completed) {
+      <span class="treino__selo">
+        <span class="treino__selo-icone"><app-icon-check /></span>
+        Concluído
+      </span>
+    }
+  </span>
+
+  <span class="treino__titulo">{{ t.title }}</span>
+
+  <!-- Duas linhas, cortadas no CSS: o card é uma chamada, e não o enunciado. -->
+  <span class="treino__descricao">{{ t.description }}</span>
+
+  <span class="treino__pe">
+    <span class="u-mono treino__xp">{{ t.xpAmount }} XP</span>
+    <span class="treino__passos">
+      {{ t.steps.length }} {{ t.steps.length === 1 ? 'passo' : 'passos' }}
+    </span>
+  </span>
+</button>
