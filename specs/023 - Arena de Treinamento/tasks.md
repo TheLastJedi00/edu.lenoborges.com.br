@@ -152,7 +152,7 @@ de cada insígnia.
 
 ---
 
-# Fase 05: Acessibilidade, movimento e fechamento [parcial]
+# Fase 05: Acessibilidade, movimento e fechamento [x]
 
 - [x] Task 01: Varredura de `prefers-reduced-motion` em todos os `.scss` desta spec — card, modal,
   feedback de conclusão, entrada de comentários. É a regra de todas as specs.
@@ -164,7 +164,7 @@ de cada insígnia.
   estouro horizontal.
 - [x] Task 04: Conferir que nenhuma tela desta spec grava treinamentos, conclusões ou comentários em
   `localStorage`. O estado vem do servidor em toda abertura (decisão análoga à 12 da spec 022).
-- [~] Task 05: `npm test` **limpo** e `ng build` passando. Passada no Chrome no fluxo inteiro contra
+- [x] Task 05: `npm test` **limpo** e `ng build` passando. Passada no Chrome no fluxo inteiro contra
   a API do `dev-liga-dev`: trilha → cards de treinamento → abrir modal → concluir → comentar →
   admin de trilha → criar treinamento → reordenar → painel de comentários → responder.
 - [x] Task 06: Marcar as emendas nas specs afetadas, incluindo a **023 deste repositório**, cujas
@@ -174,15 +174,37 @@ de cada insígnia.
   **022** (card do GYM Challenge permanece como último item da aba Aulas, agora depois dos
   treinamentos).
 
-> **O que ficou em aberto nas tasks 03 e 05, e por quê.** As duas dependem da API da spec 023
-> publicada no `dev-liga-dev`, e ela ainda não está: o backend está em `dev` com PR aberto contra
-> a `main`, e os dois índices compostos novos (`trainings` e `training_comments`) ainda não foram
-> publicados nos dois projetos. Sem eles a listagem responde erro com o link para criá-los.
->
-> **O que já está feito:** os 744 testes da suíte passam no Chrome (headless), `ng build` de
-> produção passa, e a passada de 360px está escrita no CSS e coberta por decisão — alvo de toque
-> de 48px no card e no botão de concluir, uma coluna até 48rem na lista de desafios, ações do
-> admin empilhadas abaixo de 40rem, modal em tela cheia abaixo de 40rem com
-> `env(safe-area-inset-bottom)` no rodapé. **O que falta é a conferência visual com dados reais**,
-> e o fluxo a percorrer é o que a task 05 lista: trilha, card, modal, concluir, comentar, admin da
-> trilha, criar, reordenar, painel de comentários, responder.
+---
+
+## A passada no Chrome, em 2026-09-01
+
+Feita contra a API local ligada ao `dev-liga-dev`, com os dois índices novos já publicados. O
+fluxo inteiro da task 05 foi percorrido e passou: criar desafio no painel da insígnia, reordenar
+com as setas e conferir a ordem depois de recarregar, editar, ver o card na trilha **entre os
+vídeos e o GYM Challenge**, abrir o modal com os passos em `<ol>` e o player 16:9 do YouTube,
+concluir recebendo **+45 XP** — o valor que o admin escreveu, não o padrão —, ver o modal
+continuar aberto, comentar, responder pelo painel centralizado e encontrar a resposta recuada
+dentro do modal do membro.
+
+**Dois defeitos apareceram nessa passada.**
+
+O primeiro era desta spec e está consertado: o `<dialog>` do treinamento abria colado no canto
+superior esquerdo. O reset global da aplicação zera `margin` e leva junto o `margin: auto` que o
+navegador dá ao `<dialog>` aberto por `showModal()` — o `.resposta` da spec 021 já carregava o
+conserto (`inset: 0; margin: auto`) e o novo não. Medido depois: 137px de folga em cima e
+embaixo, centrado.
+
+O segundo **não é desta spec e não foi consertado**: com `preferRest`, todo `create()` sobre
+caminho ocupado pendura no backend em vez de rejeitar. Ele faz a **segunda** conclusão de um
+desafio não responder — e faz o mesmo com o "Já assisti" da spec 019. Está documentado em
+`eduleno-back/specs/023 - Arena de Treinamento/fix.md`, com a medição e o conserto. A tela daqui
+já trata a resposta idempotente corretamente: ela só nunca chega.
+
+### O que ficou de fora
+
+- [~] **Task 03, a conferência visual em 360px.** As regras estão escritas e revisadas — alvo de
+  toque de 48px no card e no botão de concluir, uma coluna até 48rem, ações do admin empilhadas
+  abaixo de 40rem, modal em tela cheia abaixo de 40rem com `env(safe-area-inset-bottom)` —, mas
+  o navegador desta sessão não aceitou reduzir a viewport: `innerWidth` ficou em 2048 depois de
+  três tentativas de redimensionar a janela. **Falta olhar num aparelho ou num DevTools de
+  verdade**; é a única coisa da spec que ninguém viu com os próprios olhos.
