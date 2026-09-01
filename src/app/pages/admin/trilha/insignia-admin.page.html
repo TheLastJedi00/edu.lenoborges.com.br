@@ -217,7 +217,7 @@
           <div class="arena-admin__acoes">
             <button
               type="button"
-              class="arena-admin__seta"
+              class="icon-btn arena-admin__seta"
               [disabled]="i === 0"
               [attr.aria-label]="'Subir ' + treino.title"
               (click)="subirTreino(i)"
@@ -226,19 +226,23 @@
             </button>
             <button
               type="button"
-              class="arena-admin__seta"
+              class="icon-btn arena-admin__seta"
               [disabled]="i === trainings().length - 1"
               [attr.aria-label]="'Descer ' + treino.title"
               (click)="descerTreino(i)"
             >
               Descer
             </button>
-            <button type="button" class="arena-admin__editar" (click)="editarTreino(treino)">
+            <button
+              type="button"
+              class="icon-btn arena-admin__editar"
+              (click)="editarTreino(treino)"
+            >
               Editar
             </button>
             <button
               type="button"
-              class="arena-admin__remover"
+              class="icon-btn icon-btn--danger arena-admin__remover"
               (click)="pedirRemocaoDoTreino(treino)"
             >
               Remover

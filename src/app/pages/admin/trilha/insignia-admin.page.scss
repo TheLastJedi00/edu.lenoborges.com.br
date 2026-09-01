@@ -344,9 +344,8 @@
 }
 
 /*
-  Mobile first: informação em cima, ações embaixo. Em telas maiores as duas
-  colunas cabem lado a lado — e em 360px quatro botões numa linha só ficariam
-  abaixo do alvo de toque.
+  Mobile first: informação em cima, ações embaixo. Em 360px quatro botões numa
+  linha só ficariam abaixo do alvo de toque.
 */
 .arena-admin__item {
   display: grid;
@@ -374,29 +373,4 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-}
-
-.arena-admin__seta,
-.arena-admin__editar,
-.arena-admin__remover {
-  /* 44px de alvo de toque, também no celular. */
-  min-height: 2.75rem;
-  padding: 0.5rem 0.8rem;
-  border: var(--border-w) solid var(--border-soft);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: var(--step--1);
-  cursor: pointer;
-}
-
-.arena-admin__seta:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.arena-admin__remover {
-  border-color: color-mix(in srgb, #c0392b 45%, var(--border-soft));
-  color: #c0392b;
 }

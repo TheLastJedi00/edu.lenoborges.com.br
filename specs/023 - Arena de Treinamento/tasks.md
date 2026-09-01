@@ -152,24 +152,37 @@ de cada insígnia.
 
 ---
 
-# Fase 05: Acessibilidade, movimento e fechamento
+# Fase 05: Acessibilidade, movimento e fechamento [parcial]
 
-- [ ] Task 01: Varredura de `prefers-reduced-motion` em todos os `.scss` desta spec — card, modal,
+- [x] Task 01: Varredura de `prefers-reduced-motion` em todos os `.scss` desta spec — card, modal,
   feedback de conclusão, entrada de comentários. É a regra de todas as specs.
-- [ ] Task 02: Acessibilidade do modal: o `<dialog>` é nativo e já herda o trap de foco; a lista de
+- [x] Task 02: Acessibilidade do modal: o `<dialog>` é nativo e já herda o trap de foco; a lista de
   passos é `<ol>` semântico; os botões são `<button>` com texto descritivo; o resultado de conclusão é
   anunciado em `aria-live="polite"`; o vídeo iframe tem `title` descritivo.
-- [ ] Task 03: Passada mobile em 360px: alvo de toque de 48px nos cards, o modal ocupando a tela
+- [~] Task 03: Passada mobile em 360px: alvo de toque de 48px nos cards, o modal ocupando a tela
   inteira com `env(safe-area-inset-bottom)` no botão de concluir, e a lista de comentários sem
   estouro horizontal.
-- [ ] Task 04: Conferir que nenhuma tela desta spec grava treinamentos, conclusões ou comentários em
+- [x] Task 04: Conferir que nenhuma tela desta spec grava treinamentos, conclusões ou comentários em
   `localStorage`. O estado vem do servidor em toda abertura (decisão análoga à 12 da spec 022).
-- [ ] Task 05: `npm test` **limpo** e `ng build` passando. Passada no Chrome no fluxo inteiro contra
+- [~] Task 05: `npm test` **limpo** e `ng build` passando. Passada no Chrome no fluxo inteiro contra
   a API do `dev-liga-dev`: trilha → cards de treinamento → abrir modal → concluir → comentar →
   admin de trilha → criar treinamento → reordenar → painel de comentários → responder.
-- [ ] Task 06: Marcar as emendas nas specs afetadas, incluindo a **023 deste repositório**, cujas
+- [x] Task 06: Marcar as emendas nas specs afetadas, incluindo a **023 deste repositório**, cujas
   decisões 2, 4 e 5 foram corrigidas antes da execução (resposta do admin como campo do comentário,
   reordenação por setas em vez de drag-and-drop, exclusão em cascata): **009** (trilha estendida com seção de
   treinamentos no membro e no admin), **019** (XP com terceira fonte: vídeos + GYM + treinamentos),
   **022** (card do GYM Challenge permanece como último item da aba Aulas, agora depois dos
   treinamentos).
+
+> **O que ficou em aberto nas tasks 03 e 05, e por quê.** As duas dependem da API da spec 023
+> publicada no `dev-liga-dev`, e ela ainda não está: o backend está em `dev` com PR aberto contra
+> a `main`, e os dois índices compostos novos (`trainings` e `training_comments`) ainda não foram
+> publicados nos dois projetos. Sem eles a listagem responde erro com o link para criá-los.
+>
+> **O que já está feito:** os 744 testes da suíte passam no Chrome (headless), `ng build` de
+> produção passa, e a passada de 360px está escrita no CSS e coberta por decisão — alvo de toque
+> de 48px no card e no botão de concluir, uma coluna até 48rem na lista de desafios, ações do
+> admin empilhadas abaixo de 40rem, modal em tela cheia abaixo de 40rem com
+> `env(safe-area-inset-bottom)` no rodapé. **O que falta é a conferência visual com dados reais**,
+> e o fluxo a percorrer é o que a task 05 lista: trilha, card, modal, concluir, comentar, admin da
+> trilha, criar, reordenar, painel de comentários, responder.

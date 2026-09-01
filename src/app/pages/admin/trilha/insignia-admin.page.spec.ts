@@ -563,7 +563,7 @@ describe('AdminInsigniaPage', () => {
       flushTreinos([treino('t1', 'Primeiro', 0)]);
       fixture.detectChanges();
 
-      el.querySelector<HTMLButtonElement>('.arena-admin__remover')!.click();
+      el.querySelector<HTMLButtonElement>('.icon-btn--danger')!.click();
       fixture.detectChanges();
 
       expect(el.textContent).toContain('Remover este desafio?');
