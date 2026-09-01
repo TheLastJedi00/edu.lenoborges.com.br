@@ -129,9 +129,9 @@ de cada insígnia.
 
 ---
 
-# Fase 04: Admin — painel centralizado de comentários
+# Fase 04: Admin — painel centralizado de comentários [x]
 
-- [ ] Task 01: `src/app/pages/admin/treinamentos-comentarios/treinamentos-comentarios.page.ts` +
+- [x] Task 01: `src/app/pages/admin/treinamentos-comentarios/treinamentos-comentarios.page.ts` +
   `.html` + `.scss` — nova smart page. Chama `GET /admin/trainings/comments/recent` e renderiza a
   lista de comentários mais recentes, agrupados ou ordenados cronologicamente. Cada comentário mostra:
   nome do treinamento (ou badge), nome do autor, conteúdo, data. Abaixo de cada comentário, um campo
@@ -141,13 +141,13 @@ de cada insígnia.
   comentário: **um comentário já respondido mostra a resposta atual no lugar do campo vazio**, com um
   botão "Editar resposta". A tela lista tudo e não só o que falta responder, então sem essa marca o
   admin responde duas vezes a mesma pessoa sem perceber, e a segunda resposta sobrescreve a primeira.
-- [ ] Task 02: `treinamentos-comentarios.page.spec.ts` — listagem, resposta inline, o comentário já
+- [x] Task 02: `treinamentos-comentarios.page.spec.ts` — listagem, resposta inline, o comentário já
   respondido exibindo a resposta em vez do campo vazio, estado de loading e de lista vazia.
-- [ ] Task 03: `src/app/pages/admin/admin.page.ts` — adicionar o sexto cartão na lista `<ul
+- [x] Task 03: `src/app/pages/admin/admin.page.ts` — adicionar o sexto cartão na lista `<ul
   class="cards">`, apontando para `/dashboard/admin/treinamentos-comentarios`, com título
   "Comentários dos Treinamentos" e texto descritivo: "Ver e responder os comentários deixados nos
   desafios da Arena de Treinamento."
-- [ ] Task 04: `src/app/app.routes.ts` — nova rota `admin/treinamentos-comentarios` com `adminGuard`,
+- [x] Task 04: `src/app/app.routes.ts` — nova rota `admin/treinamentos-comentarios` com `adminGuard`,
   `loadComponent` para a nova página, e `title`. No molde de `admin/questoes`.
 
 ---

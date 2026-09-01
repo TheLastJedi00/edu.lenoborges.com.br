@@ -45,8 +45,8 @@ import { RouterLink } from '@angular/router';
           <a routerLink="/dashboard/admin/emails" class="card">
             <span class="card__title">E-mails</span>
             <span class="card__text">
-              Escrever e disparar para a comunidade, com a contagem na frente e o histórico do
-              que já saiu.
+              Escrever e disparar para a comunidade, com a contagem na frente e o histórico do que
+              já saiu.
             </span>
           </a>
         </li>
@@ -64,6 +64,14 @@ import { RouterLink } from '@angular/router';
             <span class="card__text">
               Cadastrar e gerar as questões do GYM Challenge, e definir o XP mínimo de cada
               insígnia. São 30 por nível para o desafio sair de "Em breve".
+            </span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/dashboard/admin/treinamentos-comentarios" class="card">
+            <span class="card__title">Comentários dos Treinamentos</span>
+            <span class="card__text">
+              Ver e responder os comentários deixados nos desafios da Arena de Treinamento.
             </span>
           </a>
         </li>
@@ -134,6 +142,6 @@ import { RouterLink } from '@angular/router';
         border-color: var(--accent-deep);
       }
     }
-  `
+  `,
 })
 export class AdminPage {}
