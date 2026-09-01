@@ -66,8 +66,8 @@
       @if (videos().length === 0) {
         @if (aba() === 'resposta') {
           <p class="empty">
-            Nenhuma resposta publicada nesta insígnia. As respostas saem da pauta do Mural —
-            o botão de lá abre este formulário já com a pergunta.
+            Nenhuma resposta publicada nesta insígnia. As respostas saem da pauta do Mural — o botão
+            de lá abre este formulário já com a pergunta.
           </p>
         } @else {
           <p class="empty">
@@ -173,10 +173,124 @@
       }
     }
   }
+  <!--
+    A Arena de Treinamento (spec 023, decisão 4).
+
+    **Dentro da `.page`, abaixo da gestão de vídeos e fora das abas.** Ela não
+    pertence a Aulas nem a Perguntas Frequentes — é uma terceira lista da mesma
+    insígnia —, mas é a mesma página: fora do container ela ganhava largura e
+    padding próprios, e duas colunas diferentes na mesma tela leem como dois
+    produtos.
+
+    O vocabulário é o que a página já tem: `.page__lead`, `.empty`, `.videos`,
+    `.video`, `.icon-btn`, `.form-panel` e `.btn`. Nenhum deles ganhou uma
+    segunda definição aqui.
+  -->
+  <section class="arena" aria-labelledby="arena-titulo">
+    <h2 class="arena__title" id="arena-titulo">Arena de Treinamento</h2>
+    <p class="page__lead">
+      Desafios práticos desta insígnia. Eles aparecem na trilha depois dos vídeos e antes do GYM
+      Challenge.
+    </p>
+
+    @if (erroDaOrdemDoTreino(); as aviso) {
+      <p class="alert" role="alert">{{ aviso }}</p>
+    }
+
+    @if (trainings().length === 0) {
+      <p class="empty">
+        Nenhum desafio nesta insígnia ainda. Para o aluno, a seção da Arena simplesmente não
+        aparece.
+      </p>
+    } @else {
+      <ol class="videos">
+        @for (
+          treino of trainings();
+          track treino.id;
+          let i = $index, first = $first, last = $last
+        ) {
+          <li class="video">
+            <span class="video__order u-mono">{{ i + 1 }}</span>
+
+            <div class="video__main">
+              <p class="video__title">{{ treino.title }}</p>
+              <p class="video__id u-mono">
+                {{ treino.xpAmount }} XP ·
+                {{ treino.steps.length }}
+                {{ treino.steps.length === 1 ? 'passo' : 'passos' }}
+              </p>
+            </div>
+
+            <!--
+              As mesmas setas da lista de vídeos, pelo mesmo motivo escrito lá:
+              no toque, arrastar disputa com o scroll e essa disputa não tem
+              empate.
+            -->
+            <div class="video__actions">
+              <button
+                type="button"
+                class="icon-btn arena__seta"
+                [disabled]="first"
+                [attr.aria-label]="'Mover ' + treino.title + ' para cima'"
+                (click)="subirTreino(i)"
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                class="icon-btn arena__seta"
+                [disabled]="last"
+                [attr.aria-label]="'Mover ' + treino.title + ' para baixo'"
+                (click)="descerTreino(i)"
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                class="icon-btn arena__editar"
+                [attr.aria-label]="'Editar ' + treino.title"
+                (click)="editarTreino(treino)"
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                class="icon-btn icon-btn--danger arena__remover"
+                [attr.aria-label]="'Remover ' + treino.title"
+                (click)="pedirRemocaoDoTreino(treino)"
+              >
+                ✕
+              </button>
+            </div>
+          </li>
+        }
+      </ol>
+    }
+
+    @if (erroDoTreino(); as aviso) {
+      <p class="alert" role="alert">{{ aviso }}</p>
+    }
+
+    @if (formTreinoAberto()) {
+      <div class="form-panel">
+        <h3 class="form-panel__title">
+          {{ editandoTreino() ? 'Editar o desafio' : 'Novo desafio' }}
+        </h3>
+        <app-training-form
+          [training]="editandoTreino()"
+          [saving]="salvandoTreino()"
+          (submitted)="salvarTreino($event)"
+          (cancel)="fecharFormTreino()"
+        />
+      </div>
+    } @else {
+      <button type="button" class="btn" (click)="abrirFormTreino()">Novo desafio</button>
+    }
+  </section>
 </section>
 
 <app-confirm-dialog
-  title="Remover este vídeo?"
+  [title]="confirmTitle()"
   [message]="confirmMessage()"
   confirmLabel="Remover"
   [danger]="true"

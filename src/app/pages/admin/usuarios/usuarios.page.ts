@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, debounceTime, of, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AdminService } from '../../../services/admin.service';
@@ -55,7 +55,7 @@ export const USUARIOS_BUSCA_DEBOUNCE_MS = new InjectionToken<number>(
 @Component({
   selector: 'app-admin-usuarios-page',
   standalone: true,
-  imports: [FormsModule],
+  imports: [RouterLink, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './usuarios.page.html',
   styleUrl: './usuarios.page.scss'
