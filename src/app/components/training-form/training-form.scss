@@ -5,10 +5,6 @@
 .tf {
   display: grid;
   gap: 0.35rem;
-  padding: 1rem;
-  border: var(--border-w) solid var(--border-soft);
-  border-radius: var(--radius-md);
-  background: var(--screen);
 }
 
 .tf__label {
@@ -106,10 +102,10 @@
 }
 
 .tf__salvar {
-  border-color: var(--accent-deep);
-  background: var(--gradient-accent, var(--accent-deep));
-  color: var(--on-accent, #fff);
-  font-weight: 600;
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
 }
 
 .tf__salvar:disabled {

@@ -173,100 +173,120 @@
       }
     }
   }
-</section>
+  <!--
+    A Arena de Treinamento (spec 023, decisão 4).
 
-<!--
-  A Arena de Treinamento (spec 023, decisão 4).
+    **Dentro da `.page`, abaixo da gestão de vídeos e fora das abas.** Ela não
+    pertence a Aulas nem a Perguntas Frequentes — é uma terceira lista da mesma
+    insígnia —, mas é a mesma página: fora do container ela ganhava largura e
+    padding próprios, e duas colunas diferentes na mesma tela leem como dois
+    produtos.
 
-  **Abaixo da gestão de vídeos, e fora das abas.** Ela não pertence a Aulas nem
-  a Perguntas Frequentes: é uma terceira lista da mesma insígnia, e colocá-la
-  dentro de uma aba faria a outra parecer não ter desafios.
--->
-<section class="arena-admin" aria-labelledby="arena-admin-titulo">
-  <h2 class="arena-admin__titulo" id="arena-admin-titulo">Arena de Treinamento</h2>
-  <p class="arena-admin__intro">
-    Desafios práticos desta insígnia. Eles aparecem na trilha depois dos vídeos e antes do GYM
-    Challenge.
-  </p>
+    O vocabulário é o que a página já tem: `.page__lead`, `.empty`, `.videos`,
+    `.video`, `.icon-btn`, `.form-panel` e `.btn`. Nenhum deles ganhou uma
+    segunda definição aqui.
+  -->
+  <section class="arena" aria-labelledby="arena-titulo">
+    <h2 class="arena__title" id="arena-titulo">Arena de Treinamento</h2>
+    <p class="page__lead">
+      Desafios práticos desta insígnia. Eles aparecem na trilha depois dos vídeos e antes do GYM
+      Challenge.
+    </p>
 
-  @if (erroDaOrdemDoTreino(); as aviso) {
-    <p class="arena-admin__erro" role="alert">{{ aviso }}</p>
-  }
+    @if (erroDaOrdemDoTreino(); as aviso) {
+      <p class="alert" role="alert">{{ aviso }}</p>
+    }
 
-  @if (trainings().length === 0) {
-    <p class="arena-admin__vazio">Nenhum desafio nesta insígnia ainda.</p>
-  } @else {
-    <ul class="arena-admin__lista">
-      @for (treino of trainings(); track treino.id; let i = $index) {
-        <li class="arena-admin__item">
-          <div class="arena-admin__info">
-            <p class="arena-admin__nome">{{ treino.title }}</p>
-            <p class="u-mono arena-admin__meta">
-              {{ treino.xpAmount }} XP ·
-              {{ treino.steps.length }}
-              {{ treino.steps.length === 1 ? 'passo' : 'passos' }}
-            </p>
-          </div>
+    @if (trainings().length === 0) {
+      <p class="empty">
+        Nenhum desafio nesta insígnia ainda. Para o aluno, a seção da Arena simplesmente não
+        aparece.
+      </p>
+    } @else {
+      <ol class="videos">
+        @for (
+          treino of trainings();
+          track treino.id;
+          let i = $index, first = $first, last = $last
+        ) {
+          <li class="video">
+            <span class="video__order u-mono">{{ i + 1 }}</span>
 
-          <!--
-            Setas, e não arrastar: o projeto não usa `@angular/cdk`, e no toque o
-            arrastar disputa com a rolagem da tela em 360px — que é onde o painel
-            mais é aberto. As setas funcionam igual no teclado, no leitor de tela
-            e no dedo.
-          -->
-          <div class="arena-admin__acoes">
-            <button
-              type="button"
-              class="icon-btn arena-admin__seta"
-              [disabled]="i === 0"
-              [attr.aria-label]="'Subir ' + treino.title"
-              (click)="subirTreino(i)"
-            >
-              Subir
-            </button>
-            <button
-              type="button"
-              class="icon-btn arena-admin__seta"
-              [disabled]="i === trainings().length - 1"
-              [attr.aria-label]="'Descer ' + treino.title"
-              (click)="descerTreino(i)"
-            >
-              Descer
-            </button>
-            <button
-              type="button"
-              class="icon-btn arena-admin__editar"
-              (click)="editarTreino(treino)"
-            >
-              Editar
-            </button>
-            <button
-              type="button"
-              class="icon-btn icon-btn--danger arena-admin__remover"
-              (click)="pedirRemocaoDoTreino(treino)"
-            >
-              Remover
-            </button>
-          </div>
-        </li>
-      }
-    </ul>
-  }
+            <div class="video__main">
+              <p class="video__title">{{ treino.title }}</p>
+              <p class="video__id u-mono">
+                {{ treino.xpAmount }} XP ·
+                {{ treino.steps.length }}
+                {{ treino.steps.length === 1 ? 'passo' : 'passos' }}
+              </p>
+            </div>
 
-  @if (erroDoTreino(); as aviso) {
-    <p class="arena-admin__erro" role="alert">{{ aviso }}</p>
-  }
+            <!--
+              As mesmas setas da lista de vídeos, pelo mesmo motivo escrito lá:
+              no toque, arrastar disputa com o scroll e essa disputa não tem
+              empate.
+            -->
+            <div class="video__actions">
+              <button
+                type="button"
+                class="icon-btn arena__seta"
+                [disabled]="first"
+                [attr.aria-label]="'Mover ' + treino.title + ' para cima'"
+                (click)="subirTreino(i)"
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                class="icon-btn arena__seta"
+                [disabled]="last"
+                [attr.aria-label]="'Mover ' + treino.title + ' para baixo'"
+                (click)="descerTreino(i)"
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                class="icon-btn arena__editar"
+                [attr.aria-label]="'Editar ' + treino.title"
+                (click)="editarTreino(treino)"
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                class="icon-btn icon-btn--danger arena__remover"
+                [attr.aria-label]="'Remover ' + treino.title"
+                (click)="pedirRemocaoDoTreino(treino)"
+              >
+                ✕
+              </button>
+            </div>
+          </li>
+        }
+      </ol>
+    }
 
-  @if (formTreinoAberto()) {
-    <app-training-form
-      [training]="editandoTreino()"
-      [saving]="salvandoTreino()"
-      (submitted)="salvarTreino($event)"
-      (cancel)="fecharFormTreino()"
-    />
-  } @else {
-    <button type="button" class="btn" (click)="abrirFormTreino()">Novo desafio</button>
-  }
+    @if (erroDoTreino(); as aviso) {
+      <p class="alert" role="alert">{{ aviso }}</p>
+    }
+
+    @if (formTreinoAberto()) {
+      <div class="form-panel">
+        <h3 class="form-panel__title">
+          {{ editandoTreino() ? 'Editar o desafio' : 'Novo desafio' }}
+        </h3>
+        <app-training-form
+          [training]="editandoTreino()"
+          [saving]="salvandoTreino()"
+          (submitted)="salvarTreino($event)"
+          (cancel)="fecharFormTreino()"
+        />
+      </div>
+    } @else {
+      <button type="button" class="btn" (click)="abrirFormTreino()">Novo desafio</button>
+    }
+  </section>
 </section>
 
 <app-confirm-dialog

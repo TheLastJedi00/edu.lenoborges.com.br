@@ -27,6 +27,7 @@ import {
 } from '../../../models/email.model';
 import type { TierId } from '../../../models/auth.model';
 import type { BillingTier } from '../../../models/billing.model';
+import { RouterLink } from '@angular/router';
 
 /**
  * Quanto esperar antes de recalcular a audiência, para não ir a cada tecla.
@@ -59,7 +60,7 @@ export const AUDIENCE_DEBOUNCE_MS = new InjectionToken<number>(
 @Component({
   selector: 'app-admin-emails-page',
   standalone: true,
-  imports: [ReactiveFormsModule, ConfirmDialog, PixelPanel],
+  imports: [RouterLink, ReactiveFormsModule, ConfirmDialog, PixelPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './emails.page.html',
   styleUrl: './emails.page.scss'

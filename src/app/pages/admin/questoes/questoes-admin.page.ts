@@ -27,8 +27,9 @@ import { STAGE_PHASE_LABEL } from '../../../models/community.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="page">
+      <a routerLink="/dashboard/admin" class="back u-mono">← Administração</a>
+
       <header>
-        <p class="u-mono page__eyebrow">Administração</p>
         <h1 class="page__title">Banco de questões</h1>
         <p class="page__lead">
           Escolha a insígnia para cadastrar, revisar e gerar as questões do GYM Challenge
@@ -54,6 +55,23 @@ import { STAGE_PHASE_LABEL } from '../../../models/community.model';
       display: grid;
       gap: 1.25rem;
       padding: 1.25rem 1rem 4rem;
+    }
+
+    /*
+     * O caminho de volta para a Administração.
+     *
+     * **Toda página filha do painel tem o dela.** Sem ele a única saída é o botão
+     * do navegador, e a barra lateral leva para o painel inteiro em vez de um
+     * passo atrás.
+     */
+    .back {
+      justify-self: start;
+      min-height: 2.75rem;
+      display: inline-flex;
+      align-items: center;
+      color: var(--ink-soft);
+      font-size: var(--step--1);
+      text-decoration: none;
     }
 
     .page__eyebrow {

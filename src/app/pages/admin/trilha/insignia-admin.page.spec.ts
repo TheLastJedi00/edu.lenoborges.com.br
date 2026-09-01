@@ -498,8 +498,12 @@ describe('AdminInsigniaPage', () => {
         .flush({ badgeId: 'logica', trainings: lista });
     }
 
+    /**
+     * Escopado na `.arena`: a lista de desafios usa as mesmas classes da lista
+     * de vídeos, e sem o escopo este helper leria as duas juntas.
+     */
     function nomesDosTreinos(el: HTMLElement): (string | undefined)[] {
-      return Array.from(el.querySelectorAll('.arena-admin__nome')).map((item) =>
+      return Array.from(el.querySelectorAll('.arena .video__title')).map((item) =>
         item.textContent?.trim(),
       );
     }
@@ -511,8 +515,8 @@ describe('AdminInsigniaPage', () => {
 
       const html = el.innerHTML;
 
-      expect(el.querySelector('.arena-admin')).not.toBeNull();
-      expect(html.indexOf('arena-admin')).toBeGreaterThan(html.indexOf('Aula'));
+      expect(el.querySelector('.arena')).not.toBeNull();
+      expect(html.indexOf('arena')).toBeGreaterThan(html.indexOf('Aula'));
     });
 
     it('diz que não há desafio em vez de mostrar uma lista vazia', () => {
@@ -528,7 +532,7 @@ describe('AdminInsigniaPage', () => {
       flushTreinos([treino('t1', 'Primeiro', 0)]);
       fixture.detectChanges();
 
-      el.querySelector<HTMLButtonElement>('.arena-admin .btn')!.click();
+      el.querySelector<HTMLButtonElement>('.arena .btn')!.click();
       fixture.detectChanges();
 
       const form = el.querySelector<HTMLFormElement>('app-training-form form')!;
@@ -576,7 +580,7 @@ describe('AdminInsigniaPage', () => {
       flushTreinos([treino('t1', 'Primeiro', 0), treino('t2', 'Segundo', 1)]);
       fixture.detectChanges();
 
-      el.querySelectorAll<HTMLButtonElement>('.arena-admin__seta')[1].click();
+      el.querySelectorAll<HTMLButtonElement>('.arena__seta')[1].click();
       fixture.detectChanges();
 
       expect(nomesDosTreinos(el)).toEqual(['Segundo', 'Primeiro']);
@@ -598,7 +602,7 @@ describe('AdminInsigniaPage', () => {
       flushTreinos([treino('t1', 'Primeiro', 0), treino('t2', 'Segundo', 1)]);
       fixture.detectChanges();
 
-      el.querySelectorAll<HTMLButtonElement>('.arena-admin__seta')[1].click();
+      el.querySelectorAll<HTMLButtonElement>('.arena__seta')[1].click();
       fixture.detectChanges();
 
       http
@@ -615,7 +619,7 @@ describe('AdminInsigniaPage', () => {
       flushTreinos([treino('t1', 'Título velho', 0)]);
       fixture.detectChanges();
 
-      el.querySelector<HTMLButtonElement>('.arena-admin__editar')!.click();
+      el.querySelector<HTMLButtonElement>('.arena__editar')!.click();
       fixture.detectChanges();
 
       const form = el.querySelector<HTMLFormElement>('app-training-form form')!;
