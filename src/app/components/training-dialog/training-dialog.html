@@ -1,0 +1,158 @@
+@let t = training();
+
+<div class="td">
+  <header class="td__head">
+    <div class="td__head-texto">
+      <p class="u-mono td__eyebrow">Arena de Treinamento</p>
+      <h2 class="td__titulo">{{ t.title }}</h2>
+    </div>
+
+    <button type="button" class="td__fechar" aria-label="Fechar o desafio" (click)="fechar.emit()">
+      <app-icon-close class="td__fechar-icone" />
+    </button>
+  </header>
+
+  <p class="td__descricao">{{ t.description }}</p>
+
+  <!--
+    Lista ORDENADA de verdade. A numeração é informação — "volte ao passo 3" só
+    faz sentido se os passos forem numerados —, e um `<ul>` com contador no CSS
+    diria "lista com 4 itens" para quem ouve, em vez de "lista numerada".
+  -->
+  <section class="td__passos" aria-labelledby="td-passos">
+    <h3 class="td__secao" id="td-passos">Passos</h3>
+    <ol class="td__lista">
+      @for (passo of t.steps; track $index) {
+        <li class="td__passo">{{ passo }}</li>
+      }
+    </ol>
+  </section>
+
+  @if (embedUrl(); as url) {
+    <section class="td__video" aria-label="Vídeo de apoio">
+      <div class="td__frame">
+        <iframe
+          [src]="url"
+          [title]="'Vídeo de apoio: ' + t.title"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </section>
+  } @else if (linkExterno(); as link) {
+    <!--
+      Vídeo que não é do YouTube não vira iframe: a URL é digitada pelo admin, e
+      um `src` a partir de texto livre é o buraco que a extração existe para não
+      abrir. Vira link, e o membro decide abrir.
+    -->
+    <p class="td__link-externo">
+      <a [href]="link" target="_blank" rel="noopener noreferrer"> Abrir o vídeo de apoio </a>
+    </p>
+  }
+
+  <section class="td__comentarios" aria-labelledby="td-comentarios">
+    <h3 class="td__secao" id="td-comentarios">Comentários</h3>
+
+    @if (loadingComments() && comments().length === 0) {
+      <p class="td__vazio">Carregando os comentários...</p>
+    } @else if (comments().length === 0) {
+      <p class="td__vazio">Ninguém comentou ainda. Pode ser você.</p>
+    } @else {
+      <ul class="td__lista-comentarios">
+        @for (comentario of comments(); track comentario.id) {
+          <li class="td__comentario">
+            <p class="u-mono td__comentario-meta">
+              <span class="td__comentario-autor">{{ comentario.authorName }}</span>
+              · {{ quando(comentario.createdAt) }}
+            </p>
+            <p class="td__comentario-texto">{{ comentario.content }}</p>
+
+            <!--
+              A resposta do admin vem DENTRO do comentário, e é recuada para se
+              ler como resposta e não como um comentário novo. Sem esta área, o
+              admin responderia no painel e ninguém veria.
+            -->
+            @if (comentario.adminReply; as resposta) {
+              <div class="td__resposta">
+                <p class="u-mono td__comentario-meta">
+                  <span class="td__resposta-autor">{{ resposta.authorName }}</span>
+                  · {{ quando(resposta.repliedAt) }}
+                </p>
+                <p class="td__comentario-texto">{{ resposta.content }}</p>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+
+      @if (hasMore()) {
+        <button
+          type="button"
+          class="td__mais"
+          [disabled]="loadingComments()"
+          (click)="carregarMais.emit()"
+        >
+          {{ loadingComments() ? 'Carregando...' : 'Mostrar mais' }}
+        </button>
+      }
+    }
+
+    @if (canComment()) {
+      <form class="td__form" (submit)="$event.preventDefault(); enviarComentario(campo)">
+        <label class="td__label" for="td-campo">Escrever um comentário</label>
+        <textarea
+          #campo
+          id="td-campo"
+          class="td__campo"
+          rows="3"
+          maxlength="2000"
+          placeholder="Travei no passo 3, o teste não roda aqui."
+        ></textarea>
+        <button type="submit" class="td__enviar" [disabled]="sending()">
+          {{ sending() ? 'Enviando...' : 'Comentar' }}
+        </button>
+      </form>
+    } @else {
+      <!--
+        Quem não pode escrever continua lendo. O texto diz o que fazer, e não só
+        que não pode.
+      -->
+      <p class="td__aviso">
+        A seção de comentários da Arena de Treinamento é exclusiva para membros do Great Tier.
+      </p>
+    }
+  </section>
+
+  <footer class="td__pe">
+    @if (concluido()) {
+      <p class="td__selo">
+        <span class="td__selo-icone"><app-icon-check /></span>
+        Desafio concluído
+      </p>
+    } @else {
+      <button
+        type="button"
+        class="td__concluir"
+        [disabled]="completing()"
+        (click)="concluir.emit()"
+      >
+        {{ completing() ? 'Concluindo...' : 'Concluir Desafio' }}
+      </button>
+    }
+
+    <!--
+      O ganho de XP é anunciado em `aria-live`: quem não vê a animação precisa
+      ouvir que ela aconteceu.
+    -->
+    <p class="td__xp" role="status" aria-live="polite">
+      @if (xpGanho() !== null) {
+        <span class="td__xp-ganho">+{{ xpGanho() }} XP</span>
+      }
+    </p>
+
+    @if (erro(); as mensagem) {
+      <p class="td__erro" role="alert">{{ mensagem }}</p>
+    }
+  </footer>
+</div>
