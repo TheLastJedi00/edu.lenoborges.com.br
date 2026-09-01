@@ -97,20 +97,20 @@ clicar abre o modal com passos, vídeo e comentários.
 
 ---
 
-# Fase 03: Admin — gestão de treinamentos na trilha
+# Fase 03: Admin — gestão de treinamentos na trilha [x]
 
 A fase que o professor vê. Ao fim dela, o admin cria, edita, exclui e reordena treinamentos dentro
 de cada insígnia.
 
-- [ ] Task 01: `src/app/components/training-form/training-form.ts` + `.scss` — formulário de
+- [x] Task 01: `src/app/components/training-form/training-form.ts` + `.scss` — formulário de
   criação/edição de treinamento. Reactive form com: título (input text, required), descrição
   (textarea, required), passos (lista dinâmica: botão "Adicionar Passo" acrescenta um input, botão
   de remover ao lado de cada passo, pelo menos 1 obrigatório), link do vídeo (input URL, opcional),
   XP do desafio (input numérico, default 30, min 1). Emite `submit` com o `CreateTrainingRequest` ou
   `UpdateTrainingRequest`. Componente burro. No molde do `video-form`.
-- [ ] Task 02: `training-form.spec.ts` — validação: botão travado sem título ou sem ao menos 1 passo,
+- [x] Task 02: `training-form.spec.ts` — validação: botão travado sem título ou sem ao menos 1 passo,
   passos adicionados e removidos corretamente, valor default de XP presente.
-- [ ] Task 03: `src/app/pages/admin/trilha/insignia-admin.page.ts` + `.html` + `.scss` — abaixo da
+- [x] Task 03: `src/app/pages/admin/trilha/insignia-admin.page.ts` + `.html` + `.scss` — abaixo da
   seção de vídeos, nova seção **"Arena de Treinamento"** com:
   - Lista dos treinamentos da insígnia, cada item com título, XP, e as ações: Editar (abre o
     `training-form` inline, no molde da edição de questão), Excluir (com `ConfirmDialog` cujo texto
@@ -122,7 +122,7 @@ de cada insígnia.
   - Botão "Novo Treinamento" que abre o formulário.
   - O formulário de criação chama `POST /admin/badges/:badgeId/trainings` e empurra o item no fim
     da lista em memória.
-- [ ] Task 04: `insignia-admin.page.spec.ts` — estender com testes-trava de que (a) a seção de
+- [x] Task 04: `insignia-admin.page.spec.ts` — estender com testes-trava de que (a) a seção de
   treinamentos aparece abaixo dos vídeos; (b) criar um treinamento o adiciona ao fim da lista; (c)
   excluir passa pelo `ConfirmDialog`; (d) as setas reordenam e chamam a API de reorder; (e) editar
   inline salva e atualiza a lista.
