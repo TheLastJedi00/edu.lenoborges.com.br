@@ -37,19 +37,19 @@ muda de aparência.
 
 ---
 
-# Fase 02: O card de treinamento e o modal na trilha
+# Fase 02: O card de treinamento e o modal na trilha [x]
 
 A fase que o aluno vê. Ao fim dela, os desafios de treinamento aparecem na trilha como cards, e
 clicar abre o modal com passos, vídeo e comentários.
 
-- [ ] Task 01: `src/app/components/training-card/training-card.ts` + `.scss` — componente burro
+- [x] Task 01: `src/app/components/training-card/training-card.ts` + `.scss` — componente burro
   (`ChangeDetectionStrategy.OnPush`, `input()` / `output()`). Recebe um `Training` e emite o clique.
   Exibe: título, descrição truncada em 2 linhas, o XP do desafio (ex: "30 XP") com destaque visual,
   e um ícone de check verde quando `completed === true`. Alvo de toque de **48px** mínimo. O card
   não faz requisição — é o mesmo princípio do `gym-challenge-card`.
-- [ ] Task 02: `training-card.spec.ts` — o título, a descrição truncada, o badge de XP, o check
+- [x] Task 02: `training-card.spec.ts` — o título, a descrição truncada, o badge de XP, o check
   de concluído, e o clique emitindo.
-- [ ] Task 03: `src/app/components/training-dialog/training-dialog.ts` + `.html` + `.scss` — o modal
+- [x] Task 03: `src/app/components/training-dialog/training-dialog.ts` + `.html` + `.scss` — o modal
   expansível da decisão 2. Componente burro que recebe `Training`, `comments: TrainingComment[]`,
   `canComment: boolean`, `completed: boolean`, `loadingMore: boolean` e emite `complete`, `comment`,
   `loadMore`, `close`. Estrutura interna:
@@ -69,15 +69,15 @@ clicar abre o modal com passos, vídeo e comentários.
      selo "Concluído") e botão de fechar.
   Fecha por Esc, por clique no botão de fechar, e **devolve o foco ao card que o abriu** (mesmo
   padrão do modal de resposta da spec 021). `animate-enter` / `animate-leave`.
-- [ ] Task 04: `training-dialog.spec.ts` — os passos renderizados como `<ol>`, o vídeo condicional,
+- [x] Task 04: `training-dialog.spec.ts` — os passos renderizados como `<ol>`, o vídeo condicional,
   os comentários, a resposta do admin aparecendo sob o comentário que a tem e ausente no que não tem,
   o "Mostrar mais", o botão de concluir desabilitado após conclusão, a mensagem de
   tier exibida quando `canComment === false`, e o foco devolvido ao fechar.
-- [ ] Task 05: `src/app/pages/trilha/insignia/insignia.page.ts` — passa a chamar
+- [x] Task 05: `src/app/pages/trilha/insignia/insignia.page.ts` — passa a chamar
   `GET /badges/:badgeId/trainings` junto do `GET /badges/:badgeId/videos` e do
   `GET /games/challenges/:badgeId`, **num `Promise.all`** (regra 8 do `clauderc`). Novos signals:
   `trainings`, `treinamentoAberto: Training | null`, `treinamentoComentarios: TrainingComment[]`.
-- [ ] Task 06: `insignia.page.html` + `.scss` — na aba Aulas, a lista de `training-card` renderizada
+- [x] Task 06: `insignia.page.html` + `.scss` — na aba Aulas, a lista de `training-card` renderizada
   **depois dos vídeos e respostas posicionadas** e **antes do `gym-challenge-card`** da spec 022
   (decisão 1). Um `<dialog>` ou o `training-dialog` instanciado condicionalmente com
   `@if (treinamentoAberto())`. Ao clicar num card: abre o modal, carrega os comentários do
@@ -86,10 +86,10 @@ clicar abre o modal com passos, vídeo e comentários.
   o check verde. **O modal não fecha** — decisão 2, para o membro continuar lendo comentários ou
   revendo o vídeo. A falha do `GET /badges/:badgeId/trainings` **não derruba a lista de vídeos**:
   a seção de treinamentos some, a trilha fica.
-- [ ] Task 07: A avaliação de `canComment` na página: `canComment = computed(() =>
+- [x] Task 07: A avaliação de `canComment` na página: `canComment = computed(() =>
   this.authStore.tier() !== 'dev-tier')` — mesma checagem do Mural, mesma fonte no `AuthStore`
   (decisão 3). O componente recebe pronto.
-- [ ] Task 08: `insignia.page.spec.ts` — testes-trava de que (a) os cards de treinamento aparecem
+- [x] Task 08: `insignia.page.spec.ts` — testes-trava de que (a) os cards de treinamento aparecem
   entre os vídeos e o GYM Challenge; (b) clicar num card abre o modal; (c) concluir atualiza o check
   e chama `authStore.setXp`; (d) concluir de novo não chama a API; (e) membro do `dev-tier` vê a
   mensagem de tier no modal e **não vê** o campo de comentário; (f) membro do `great-dev-tier` vê o
