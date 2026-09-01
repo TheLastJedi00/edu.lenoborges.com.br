@@ -1,10 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { AdminService } from './admin.service';
 import { AdminUserDetail, AdminUserPage } from '../models/admin.model';
 
@@ -17,8 +14,8 @@ describe('AdminService', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+        provideHttpClientTesting(),
+      ],
     });
 
     service = TestBed.inject(AdminService);
@@ -71,15 +68,10 @@ describe('AdminService', () => {
      * recorte voltaria vazio sem erro nenhum.
      */
     it('teste-trava: tiers com dois itens vira dois valores do mesmo parâmetro', () => {
-      service
-        .listUsers({ tiers: ['ultra-dev-tier', 'master-dev-tier'] })
-        .subscribe();
+      service.listUsers({ tiers: ['ultra-dev-tier', 'master-dev-tier'] }).subscribe();
 
       const req = http.expectOne((r) => r.url.endsWith('/admin/users'));
-      expect(req.request.params.getAll('tiers')).toEqual([
-        'ultra-dev-tier',
-        'master-dev-tier'
-      ]);
+      expect(req.request.params.getAll('tiers')).toEqual(['ultra-dev-tier', 'master-dev-tier']);
       req.flush({ users: [], total: 0, offset: 0, limit: 50 });
     });
 
@@ -89,7 +81,7 @@ describe('AdminService', () => {
           q: 'borges',
           onboarding: 'pendente',
           gradeMin: 0,
-          gradeMax: 8
+          gradeMax: 8,
         })
         .subscribe();
 
@@ -119,9 +111,7 @@ describe('AdminService', () => {
         let detalhe: AdminUserDetail | undefined;
         service.getUser('uid-1').subscribe((r) => (detalhe = r));
 
-        const req = http.expectOne((r) =>
-          r.url.endsWith('/admin/users/uid-1')
-        );
+        const req = http.expectOne((r) => r.url.endsWith('/admin/users/uid-1'));
         expect(req.request.method).toBe('GET');
         req.flush({
           id: 'uid-1',
@@ -146,7 +136,7 @@ describe('AdminService', () => {
           profileCreatedAt: '2026-08-18T09:02:00.000Z',
           profileUpdatedAt: '2026-08-24T11:00:00.000Z',
           canReceiveEmail: true,
-          cannotReceiveReason: null
+          cannotReceiveReason: null,
         });
 
         // O telefone so existe aqui: ele nao trafega na listagem.
@@ -158,11 +148,13 @@ describe('AdminService', () => {
         let detalhe: AdminUserDetail | undefined;
         service.getUser('uid-1').subscribe((r) => (detalhe = r));
 
-        http.expectOne((r) => r.url.endsWith('/admin/users/uid-1')).flush({
-          canReceiveEmail: false,
-          cannotReceiveReason: 'descadastrado',
-          emailOptOutReason: 'bounce'
-        });
+        http
+          .expectOne((r) => r.url.endsWith('/admin/users/uid-1'))
+          .flush({
+            canReceiveEmail: false,
+            cannotReceiveReason: 'descadastrado',
+            emailOptOutReason: 'bounce',
+          });
 
         // A tela escolhe o texto por este codigo. Ler a mensagem do backend
         // quebraria na primeira revisao de copy de la.
@@ -175,19 +167,17 @@ describe('AdminService', () => {
         service
           .enviarEmailDireto('uid-1', {
             subject: 'Sobre a sua dúvida',
-            body: 'Oi. Vi sua pergunta no Mural.'
+            body: 'Oi. Vi sua pergunta no Mural.',
           })
           .subscribe();
 
-        const req = http.expectOne((r) =>
-          r.url.endsWith('/admin/users/uid-1/email')
-        );
+        const req = http.expectOne((r) => r.url.endsWith('/admin/users/uid-1/email'));
         expect(req.request.method).toBe('POST');
         // Sem ctaLabel e sem ctaUrl: e o primeiro campo que alguem vai querer
         // "so adicionar", e um recado para uma pessoa nao tem para onde apontar.
         expect(req.request.body).toEqual({
           subject: 'Sobre a sua dúvida',
-          body: 'Oi. Vi sua pergunta no Mural.'
+          body: 'Oi. Vi sua pergunta no Mural.',
         });
         req.flush({ id: 'camp-1', status: 'concluida', sentCount: 1 });
       });
@@ -197,26 +187,28 @@ describe('AdminService', () => {
       let page: AdminUserPage | undefined;
       service.listUsers().subscribe((result) => (page = result));
 
-      http.expectOne((req) => req.url.endsWith('/admin/users')).flush({
-        users: [
-          {
-            id: 'uid-1',
-            email: 'novo@test.com',
-            emailVerified: false,
-            disabled: false,
-            role: null,
-            tier: 'dev-tier',
-            createdAt: '2026-08-18T09:00:00.000Z',
-            lastSignInAt: null,
-            name: null,
-            grade: null,
-            profileCompleted: false
-          }
-        ],
-        total: 1,
-        offset: 0,
-        limit: 50
-      });
+      http
+        .expectOne((req) => req.url.endsWith('/admin/users'))
+        .flush({
+          users: [
+            {
+              id: 'uid-1',
+              email: 'novo@test.com',
+              emailVerified: false,
+              disabled: false,
+              role: null,
+              tier: 'dev-tier',
+              createdAt: '2026-08-18T09:00:00.000Z',
+              lastSignInAt: null,
+              name: null,
+              grade: null,
+              profileCompleted: false,
+            },
+          ],
+          total: 1,
+          offset: 0,
+          limit: 50,
+        });
 
       expect(page?.users[0].grade).toBeNull();
       expect(page?.users[0].profileCompleted).toBeFalse();
@@ -225,9 +217,7 @@ describe('AdminService', () => {
     it('altera só o grade', () => {
       service.updateUserGrade('uid-1', 7).subscribe();
 
-      const request = http.expectOne((req) =>
-        req.url.endsWith('/admin/users/uid-1')
-      );
+      const request = http.expectOne((req) => req.url.endsWith('/admin/users/uid-1'));
       expect(request.request.method).toBe('PATCH');
       expect(request.request.body).toEqual({ grade: 7 });
       request.flush(null);
@@ -241,16 +231,12 @@ describe('AdminService', () => {
       service
         .createVideo('logica', {
           title: 'Variáveis na prática',
-          youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ?si=abc'
+          youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ?si=abc',
         })
         .subscribe();
 
-      const request = http.expectOne((req) =>
-        req.url.endsWith('/admin/badges/logica/videos')
-      );
-      expect(
-        (request.request.body as { youtubeUrl: string }).youtubeUrl
-      ).toContain('youtu.be');
+      const request = http.expectOne((req) => req.url.endsWith('/admin/badges/logica/videos'));
+      expect((request.request.body as { youtubeUrl: string }).youtubeUrl).toContain('youtu.be');
       request.flush({});
     });
 
@@ -260,7 +246,7 @@ describe('AdminService', () => {
       service.reorderVideos('logica', ['c', 'a', 'b']).subscribe();
 
       const request = http.expectOne((req) =>
-        req.url.endsWith('/admin/badges/logica/videos/order')
+        req.url.endsWith('/admin/badges/logica/videos/order'),
       );
       expect(request.request.method).toBe('PATCH');
       expect(request.request.body).toEqual({ videoIds: ['c', 'a', 'b'] });
@@ -275,9 +261,7 @@ describe('AdminService', () => {
     it('lista uma aba pelo parâmetro tab, e não por kind', () => {
       service.listVideos('logica', 'aula').subscribe();
 
-      const request = http.expectOne((req) =>
-        req.url.endsWith('/admin/badges/logica/videos')
-      );
+      const request = http.expectOne((req) => req.url.endsWith('/admin/badges/logica/videos'));
 
       expect(request.request.params.get('tab')).toBe('aula');
       expect(request.request.params.has('kind')).toBeFalse();
@@ -293,7 +277,7 @@ describe('AdminService', () => {
       service.reorderVideos('logica', ['c', 'a', 'b'], 'aula').subscribe();
 
       const request = http.expectOne((req) =>
-        req.url.endsWith('/admin/badges/logica/videos/order')
+        req.url.endsWith('/admin/badges/logica/videos/order'),
       );
 
       expect(request.request.params.get('tab')).toBe('aula');
@@ -307,7 +291,7 @@ describe('AdminService', () => {
       // mensagem é a tela; o service só precisa não engolir o status.
       let status: number | undefined;
       service.listUsers().subscribe({
-        error: (error: { status: number }) => (status = error.status)
+        error: (error: { status: number }) => (status = error.status),
       });
 
       http
@@ -315,6 +299,101 @@ describe('AdminService', () => {
         .flush('', { status: 403, statusText: 'Forbidden' });
 
       expect(status).toBe(403);
+    });
+  });
+
+  describe('Arena de Treinamento (spec 023)', () => {
+    it('lista os desafios da insígnia', () => {
+      service.listTrainings('logica').subscribe();
+
+      const req = http.expectOne((r) => r.url.endsWith('/admin/badges/logica/trainings'));
+
+      expect(req.request.method).toBe('GET');
+      req.flush({ badgeId: 'logica', trainings: [] });
+    });
+
+    /**
+     * **A posição não vai no corpo, e é isso que o teste guarda.**
+     *
+     * Ela é calculada no servidor como a última + 1. Mandada daqui, colidiria
+     * com a de outro item e a lista passaria a ter dois desafios na mesma
+     * posição.
+     */
+    it('cria sem mandar posição', () => {
+      service
+        .createTraining('logica', {
+          title: 'Refatore o laço',
+          description: 'Descrição',
+          steps: ['Passo um'],
+        })
+        .subscribe();
+
+      const req = http.expectOne((r) => r.url.endsWith('/admin/badges/logica/trainings'));
+
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({
+        title: 'Refatore o laço',
+        description: 'Descrição',
+        steps: ['Passo um'],
+      });
+      req.flush({ id: 'trn-1' });
+    });
+
+    it('edita pelo id do desafio, sem a insígnia na URL', () => {
+      service.updateTraining('trn-1', { title: 'Novo' }).subscribe();
+
+      const req = http.expectOne((r) => r.url.endsWith('/admin/trainings/trn-1'));
+
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual({ title: 'Novo' });
+      req.flush({ id: 'trn-1' });
+    });
+
+    it('exclui pelo id do desafio', () => {
+      service.deleteTraining('trn-1').subscribe();
+
+      const req = http.expectOne((r) => r.url.endsWith('/admin/trainings/trn-1'));
+
+      expect(req.request.method).toBe('DELETE');
+      req.flush(null);
+    });
+
+    it('reordena mandando a lista inteira de ids', () => {
+      service.reorderTrainings('logica', ['b', 'a']).subscribe();
+
+      const req = http.expectOne((r) => r.url.endsWith('/admin/badges/logica/trainings/reorder'));
+
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual({ orderedIds: ['b', 'a'] });
+      req.flush(null);
+    });
+
+    it('lista os comentários recentes de toda a Arena', () => {
+      service.listTrainingCommentsRecent().subscribe();
+
+      const req = http.expectOne((r) => r.url.endsWith('/admin/trainings/comments/recent'));
+
+      expect(req.request.method).toBe('GET');
+      req.flush({ comments: [] });
+    });
+
+    it('responde ao comentário e devolve o comentário atualizado', () => {
+      let recebido: { adminReply: { content: string } | null } | undefined;
+
+      service
+        .replyTrainingComment('cmt-1', 'Rode npm ci antes.')
+        .subscribe((comentario) => (recebido = comentario));
+
+      const req = http.expectOne((r) => r.url.endsWith('/admin/trainings/comments/cmt-1/reply'));
+
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ content: 'Rode npm ci antes.' });
+      req.flush({
+        id: 'cmt-1',
+        adminReply: { content: 'Rode npm ci antes.', authorName: 'Leno' },
+      });
+
+      expect(recebido?.adminReply?.content).toBe('Rode npm ci antes.');
     });
   });
 });

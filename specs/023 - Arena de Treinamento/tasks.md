@@ -10,25 +10,25 @@
 
 ---
 
-# Fase 01: Modelos e serviços
+# Fase 01: Modelos e serviços [x]
 
 Ao fim desta fase o front sabe falar com a API de treinamentos e com os comentários. Nenhuma tela
 muda de aparência.
 
-- [ ] Task 01: `src/app/models/training.model.ts` — todos os tipos da spec: `Training` (id, badgeId,
+- [x] Task 01: `src/app/models/training.model.ts` — todos os tipos da spec: `Training` (id, badgeId,
   title, description, steps, videoUrl, xpAmount, position, completed), `TrainingComment` (id,
   trainingId, authorName, content, createdAt, `adminReply: { content, authorName, repliedAt } | null`),
   `CreateTrainingRequest`, `UpdateTrainingRequest`,
   `CreateCommentRequest`, `ReorderTrainingsRequest`, `AdminReplyRequest`. Espelham o contrato do
   `context.md`, campo a campo.
-- [ ] Task 02: `src/app/services/training.service.spec.ts` — **testes antes**, com
+- [x] Task 02: `src/app/services/training.service.spec.ts` — **testes antes**, com
   `HttpTestingController`: `listByBadge(badgeId)` batendo em `GET /badges/:badgeId/trainings`,
   `getTraining(id)` em `GET /trainings/:id`, `complete(id)` em `POST /trainings/:id/complete`,
   `listComments(id, { limit, after })` em `GET /trainings/:id/comments` com `HttpParams`,
   `addComment(id, content)` em `POST /trainings/:id/comments`.
-- [ ] Task 03: `src/app/services/training.service.ts` — `providedIn: 'root'`, `inject(HttpClient)`,
+- [x] Task 03: `src/app/services/training.service.ts` — `providedIn: 'root'`, `inject(HttpClient)`,
   no molde do `track.service.ts`.
-- [ ] Task 04: `src/app/services/admin.service.ts` + `.spec.ts` — **estendido, não duplicado**: as
+- [x] Task 04: `src/app/services/admin.service.ts` + `.spec.ts` — **estendido, não duplicado**: as
   rotas de admin de treinamentos entram no serviço de admin que já existe.
   `listTrainings(badgeId)`, `createTraining(badgeId, data)`, `updateTraining(id, data)`,
   `deleteTraining(id)`, `reorderTrainings(badgeId, orderedIds)`,
