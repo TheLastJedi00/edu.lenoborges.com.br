@@ -1,10 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { InsigniaPage } from './insignia.page';
 import { AuthStore } from '../../../core/auth/auth.store';
@@ -28,7 +25,7 @@ const PERFIL_XP: MemberProfile = {
   legalAcceptances: {},
   xp: 0,
   socialLinksPublic: false,
-  nickname: null
+  nickname: null,
 };
 
 describe('InsigniaPage', () => {
@@ -44,9 +41,9 @@ describe('InsigniaPage', () => {
         provideHttpClientTesting(),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ badgeId }) } }
-        }
-      ]
+          useValue: { snapshot: { paramMap: convertToParamMap({ badgeId }) } },
+        },
+      ],
     });
 
     http = TestBed.inject(HttpTestingController);
@@ -100,8 +97,8 @@ describe('InsigniaPage', () => {
         title: 'Seletores na prática',
         description: null,
         youtubeId: 'aaaaaaaaaaa',
-        order: 0
-      }
+        order: 0,
+      },
     ]);
     fixture.detectChanges();
 
@@ -119,7 +116,7 @@ describe('InsigniaPage', () => {
         title: 'Segundo na tela',
         description: null,
         youtubeId: 'bbbbbbbbbbb',
-        order: 0
+        order: 0,
       },
       {
         id: 'a',
@@ -127,13 +124,13 @@ describe('InsigniaPage', () => {
         title: 'Primeiro na tela',
         description: null,
         youtubeId: 'aaaaaaaaaaa',
-        order: 1
-      }
+        order: 1,
+      },
     ]);
     fixture.detectChanges();
 
-    const titulos = Array.from(el.querySelectorAll('.video__title')).map(
-      (node) => node.textContent?.trim()
+    const titulos = Array.from(el.querySelectorAll('.video__title')).map((node) =>
+      node.textContent?.trim(),
     );
     expect(titulos).toEqual(['Segundo na tela', 'Primeiro na tela']);
   });
@@ -147,14 +144,12 @@ describe('InsigniaPage', () => {
         title: 'Variáveis, sem decorar',
         description: null,
         youtubeId: 'aaaaaaaaaaa',
-        order: 0
-      }
+        order: 0,
+      },
     ]);
     fixture.detectChanges();
 
-    expect(el.querySelector('iframe')?.getAttribute('title')).toBe(
-      'Variáveis, sem decorar'
-    );
+    expect(el.querySelector('iframe')?.getAttribute('title')).toBe('Variáveis, sem decorar');
   });
 
   it('mostra estado de erro quando a requisição falha', () => {
@@ -183,9 +178,9 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
         provideHttpClientTesting(),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ badgeId }) } }
-        }
-      ]
+          useValue: { snapshot: { paramMap: convertToParamMap({ badgeId }) } },
+        },
+      ],
     });
 
     http = TestBed.inject(HttpTestingController);
@@ -215,7 +210,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       devTierFree: false,
       watched: false,
       order: 0,
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -237,7 +232,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
     fixture.detectChanges();
 
     const abaFaq = Array.from(el.querySelectorAll('.tab')).find((node) =>
-      node.textContent?.includes('Perguntas Frequentes')
+      node.textContent?.includes('Perguntas Frequentes'),
     ) as HTMLButtonElement;
     abaFaq.click();
     fixture.detectChanges();
@@ -256,9 +251,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
     flushWith([video({ devTierFree: true })]);
     fixture.detectChanges();
 
-    expect(el.querySelector('.free')?.textContent?.trim()).toBe(
-      'Livre para todos'
-    );
+    expect(el.querySelector('.free')?.textContent?.trim()).toBe('Livre para todos');
   });
 
   it('não mostra o selo em vídeo comum', () => {
@@ -276,14 +269,12 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
 
     (
       Array.from(el.querySelectorAll('.tab')).find((node) =>
-        node.textContent?.includes('Perguntas Frequentes')
+        node.textContent?.includes('Perguntas Frequentes'),
       ) as HTMLButtonElement
     ).click();
     fixture.detectChanges();
 
-    http
-      .expectOne((req) => req.url.includes('/videos'))
-      .flush({ badgeId: 'logica', videos: [] });
+    http.expectOne((req) => req.url.includes('/videos')).flush({ badgeId: 'logica', videos: [] });
     fixture.detectChanges();
 
     expect(el.textContent).toContain('Nenhuma pergunta desta insígnia');
@@ -301,9 +292,9 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
           id: '2026-08-09__uid-1',
           title: 'Quando usar herança em vez de composição?',
           authorName: 'Ana Prado',
-          askedAt: `${new Date().getFullYear()}-08-09T18:00:00.000Z`
+          askedAt: `${new Date().getFullYear()}-08-09T18:00:00.000Z`,
         },
-        ...overrides
+        ...overrides,
       });
 
     /**
@@ -317,7 +308,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       flushWith([
         // Uma aula marcada como retrato: combinação que o produto não gera
         // hoje, e que é exatamente o que separa "leu o campo" de "olhou o kind".
-        video({ orientation: 'retrato' })
+        video({ orientation: 'retrato' }),
       ]);
       fixture.detectChanges();
 
@@ -340,9 +331,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       fixture.detectChanges();
 
       const balao = el.querySelector('.balao');
-      expect(balao?.textContent).toContain(
-        'Quando usar herança em vez de composição?'
-      );
+      expect(balao?.textContent).toContain('Quando usar herança em vez de composição?');
       expect(balao?.textContent).toContain('Ana Prado');
       expect(balao?.textContent).toContain('9 de agosto');
     });
@@ -359,8 +348,8 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
           kind: 'resposta',
           questionId: '2026-08-09__uid-1',
           question: null,
-          orientation: 'retrato'
-        })
+          orientation: 'retrato',
+        }),
       ]);
       fixture.detectChanges();
 
@@ -380,7 +369,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       fixture.detectChanges();
 
       expect(el.querySelector('.video__title')?.textContent?.trim()).toBe(
-        'Herança e composição, na prática'
+        'Herança e composição, na prática',
       );
     });
 
@@ -414,7 +403,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
         devTierFree: false,
         order: 0,
         watched: false,
-        ...overrides
+        ...overrides,
       };
     }
 
@@ -424,9 +413,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
 
     function responderMarcacao(watched: boolean, xp: number) {
       http
-        .expectOne((req) =>
-          req.url.endsWith('/me/watched-videos/logica__aaa11111111')
-        )
+        .expectOne((req) => req.url.endsWith('/me/watched-videos/logica__aaa11111111'))
         .flush({ videoId: 'logica__aaa11111111', watched, xp });
     }
 
@@ -459,7 +446,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       fixture.detectChanges();
 
       expect(el.textContent).toContain(
-        'Os 10 XP são seus para sempre — desmarcar só tira o check.'
+        'Os 10 XP são seus para sempre — desmarcar só tira o check.',
       );
     });
 
@@ -524,14 +511,12 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       check(el).click();
       fixture.detectChanges();
 
-      const req = http.expectOne((r) =>
-        r.url.endsWith('/me/watched-videos/logica__aaa11111111')
-      );
+      const req = http.expectOne((r) => r.url.endsWith('/me/watched-videos/logica__aaa11111111'));
       expect(req.request.body).toEqual({ watched: false });
       req.flush({
         videoId: 'logica__aaa11111111',
         watched: false,
-        xp: 340
+        xp: 340,
       });
       await fixture.whenStable();
       fixture.detectChanges();
@@ -568,9 +553,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       // uma falha de marcação não pode fazer é ABRIR um: erro de check é uma
       // linha, nunca um modal.
       expect(el.querySelector('dialog[open]')).toBeNull();
-      expect(el.querySelector('.visto__erro')?.textContent).toContain(
-        'Não consegui salvar agora.'
-      );
+      expect(el.querySelector('.visto__erro')?.textContent).toContain('Não consegui salvar agora.');
     });
 
     /**
@@ -633,13 +616,13 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
           id: '2026-08-09__uid-1',
           title: 'Como saber quando usar herança em vez de composição?',
           authorName: 'Ana Prado',
-          askedAt: '2026-08-09T18:00:00.000Z'
+          askedAt: '2026-08-09T18:00:00.000Z',
         },
         orientation: 'retrato',
         devTierFree: false,
         watched: false,
         order: 0,
-        ...overrides
+        ...overrides,
       };
     }
 
@@ -652,7 +635,7 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
         .expectOne((req) => req.url.includes('/badges/logica/videos'))
         .flush({
           badgeId: 'logica',
-          videos: [resposta({ tab: 'resposta' })]
+          videos: [resposta({ tab: 'resposta' })],
         });
       fixture.detectChanges();
     }
@@ -668,18 +651,14 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       fixture.detectChanges();
 
       expect(el.querySelector('iframe')).toBeNull();
-      expect(el.querySelector('.ver-resposta')?.textContent?.trim()).toBe(
-        'Ver a resposta'
-      );
+      expect(el.querySelector('.ver-resposta')?.textContent?.trim()).toBe('Ver a resposta');
 
       // O título continua vindo primeiro (decisão 2): uma coluna só de
       // perguntas some para quem está procurando onde parou.
       expect(el.querySelector('.video__title')?.textContent?.trim()).toBe(
-        'Herança e composição, na prática'
+        'Herança e composição, na prática',
       );
-      expect(el.textContent).toContain(
-        'Como saber quando usar herança em vez de composição?'
-      );
+      expect(el.textContent).toContain('Como saber quando usar herança em vez de composição?');
     });
 
     // O rabicho aponta para o vídeo, e no cartão da trilha o que está abaixo é
@@ -815,6 +794,269 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       expect(el.querySelector('.ver-resposta')).toBeNull();
       expect(el.querySelector('.video__frame iframe')).not.toBeNull();
       expect(el.querySelector('.visto__input')).not.toBeNull();
+    });
+  });
+
+  /**
+   * A Arena de Treinamento na trilha (spec 023).
+   *
+   * Os testes-trava desta seção são três: **a ordem** — ela vive entre os
+   * vídeos e o GYM Challenge, e a jornada é assistir, praticar, provar —, **a
+   * independência da falha** — a Arena cair não pode derrubar a trilha — e **o
+   * XP do servidor**, que é a única regra desta tela que erra em silêncio.
+   */
+  describe('Arena de Treinamento (spec 023)', () => {
+    function desafio(extra: Record<string, unknown> = {}) {
+      return {
+        id: 'trn-1',
+        badgeId: 'logica',
+        title: 'Refatore o laço',
+        description: 'Um exercício de leitura antes de escrever.',
+        steps: ['Clone o repositório', 'Rode os testes'],
+        videoUrl: null,
+        xpAmount: 30,
+        position: 0,
+        completed: false,
+        ...extra,
+      };
+    }
+
+    function video() {
+      return {
+        id: 'logica__aaa11111111',
+        badgeId: 'logica',
+        title: 'Aula de sempre',
+        description: null,
+        youtubeId: 'aaa11111111',
+        kind: 'aula',
+        tab: 'aula',
+        questionId: null,
+        question: null,
+        orientation: 'paisagem',
+        devTierFree: false,
+        order: 0,
+        watched: false,
+      };
+    }
+
+    /** Responde as duas listas da trilha: vídeos e desafios. */
+    function flushTrilha(desafios: unknown[], videos: unknown[] = [video()]) {
+      http
+        .expectOne((req) => req.url.endsWith('/badges/logica/trainings'))
+        .flush({ badgeId: 'logica', trainings: desafios });
+      http
+        .expectOne((req) => req.url.endsWith('/badges/logica/videos'))
+        .flush({ badgeId: 'logica', videos });
+    }
+
+    function abrirPrimeiro(el: HTMLElement): void {
+      el.querySelector<HTMLButtonElement>('.arena__item button.treino')!.click();
+    }
+
+    it('não desenha a seção quando a insígnia não tem desafio', () => {
+      const { fixture, el } = setup('logica');
+      flushTrilha([]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.arena')).toBeNull();
+    });
+
+    it('mostra os cards dos desafios da insígnia', () => {
+      const { fixture, el } = setup('logica');
+      flushTrilha([desafio()]);
+      fixture.detectChanges();
+
+      expect(el.querySelector('.arena')).not.toBeNull();
+      expect(el.textContent).toContain('Refatore o laço');
+      expect(el.textContent).toContain('30 XP');
+    });
+
+    /**
+     * **A ordem é a da jornada**: assistir, praticar, provar.
+     *
+     * A Arena entra depois dos vídeos e antes do GYM Challenge. O teste compara
+     * a posição no DOM porque é a única coisa que o membro percebe — e é o que
+     * uma reordenação distraída quebraria sem quebrar nenhum outro teste.
+     */
+    it('fica entre a lista de vídeos e o card do GYM Challenge', () => {
+      const { fixture, el } = setup('logica');
+      flushTrilha([desafio()]);
+      http
+        .expectOne((req) => req.url.includes('/games/challenges/logica'))
+        .flush({
+          badgeId: 'logica',
+          badgeTitle: 'Insígnia da Lógica',
+          status: 'disponivel',
+          currentRound: 1,
+          rounds: [],
+          requiredXp: 0,
+          currentXp: 0,
+          badgeUnlocked: false,
+          hasActiveRound: false,
+          replay: false,
+        });
+      fixture.detectChanges();
+
+      const html = el.innerHTML;
+      const posVideo = html.indexOf('video__frame');
+      const posArena = html.indexOf('arena__lista');
+      const posGym = html.indexOf('gym-slot');
+
+      expect(posVideo).toBeGreaterThan(-1);
+      expect(posArena).toBeGreaterThan(posVideo);
+      expect(posGym).toBeGreaterThan(posArena);
+    });
+
+    /**
+     * **A Arena cair não derruba a trilha.**
+     *
+     * São requisições independentes de propósito: sem vídeo não há trilha, sem
+     * Arena há trilha com uma seção a menos. Um `forkJoin` teria acoplado o
+     * destino das duas, e este teste é o que denuncia a troca.
+     */
+
+    describe('o modal', () => {
+      /** Abre o primeiro card e responde a listagem de comentários. */
+      function abrir(
+        fixture: { detectChanges: () => void },
+        el: HTMLElement,
+        comentarios: unknown[] = [],
+        nextCursor: string | null = null,
+      ) {
+        abrirPrimeiro(el);
+        http
+          .expectOne((req) => req.url.endsWith('/trainings/trn-1/comments'))
+          .flush({ comments: comentarios, nextCursor });
+        fixture.detectChanges();
+      }
+
+      it('abre ao clicar no card, com os passos do desafio', () => {
+        const { fixture, el } = setup('logica');
+        flushTrilha([desafio()]);
+        fixture.detectChanges();
+
+        abrir(fixture, el);
+
+        expect(el.querySelector('app-training-dialog')).not.toBeNull();
+        expect(el.textContent).toContain('Clone o repositório');
+      });
+
+      /**
+       * **O XP vem do servidor, e o modal não fecha** (decisão 2).
+       *
+       * Quem acabou de concluir costuma querer ler os comentários ou rever o
+       * vídeo, e fechar a tela por baixo dessa pessoa é tirá-la de onde ela quis
+       * ficar.
+       */
+      it('concluir grava o XP do servidor, marca o card e mantém o modal aberto', () => {
+        const { fixture, el } = setup('logica');
+        TestBed.inject(AuthStore).setProfile(PERFIL_XP);
+        flushTrilha([desafio()]);
+        fixture.detectChanges();
+        abrir(fixture, el);
+
+        el.querySelector<HTMLButtonElement>('.td__concluir')!.click();
+        http
+          .expectOne((req) => req.url.endsWith('/trainings/trn-1/complete'))
+          .flush({
+            trainingId: 'trn-1',
+            completed: true,
+            xpAwarded: 30,
+            xp: 130,
+          });
+        fixture.detectChanges();
+
+        expect(TestBed.inject(AuthStore).xp()).toBe(130);
+        expect(el.querySelector('app-training-dialog')).not.toBeNull();
+        expect(el.textContent).toContain('Desafio concluído');
+        expect(el.querySelector('.treino--feito')).not.toBeNull();
+      });
+
+      /**
+       * Concluído não chama a API de novo.
+       *
+       * O botão vira selo, e o `http.verify()` do teste reprova qualquer
+       * requisição que sobre — que é o jeito de provar que **nada** foi
+       * enviado, e não só que o botão sumiu.
+       */
+      it('não chama a API uma segunda vez depois de concluído', () => {
+        const { fixture, el } = setup('logica');
+        flushTrilha([desafio({ completed: true })]);
+        fixture.detectChanges();
+        abrir(fixture, el);
+
+        expect(el.querySelector('.td__concluir')).toBeNull();
+        http.expectNone((req) => req.url.includes('/complete'));
+      });
+
+      /**
+       * **O portão do tier é de escrita, e não de leitura.**
+       *
+       * O perfil do `setup` nasce `dev-tier`: ele vê a conversa e não vê o
+       * campo.
+       */
+      it('o Dev Tier vê a mensagem de tier e não vê o campo de comentário', () => {
+        const { fixture, el } = setup('logica');
+        flushTrilha([desafio()]);
+        fixture.detectChanges();
+        abrir(fixture, el, [
+          {
+            id: 'cmt-1',
+            trainingId: 'trn-1',
+            authorName: 'Ana',
+            content: 'Travei no passo 2',
+            adminReply: null,
+            createdAt: '2026-09-01T12:00:00.000Z',
+          },
+        ]);
+
+        expect(el.textContent).toContain('exclusiva para membros do Great Tier');
+        expect(el.querySelector('app-training-dialog textarea')).toBeNull();
+        expect(el.textContent).toContain('Travei no passo 2');
+      });
+
+      it('o Great Tier vê o campo e consegue comentar', () => {
+        const { fixture, el } = setup('logica');
+        TestBed.inject(AuthStore).setProfile({
+          ...PERFIL_XP,
+          tier: 'great-dev-tier',
+        });
+        flushTrilha([desafio()]);
+        fixture.detectChanges();
+        abrir(fixture, el);
+
+        const campo = el.querySelector<HTMLTextAreaElement>('app-training-dialog textarea')!;
+        campo.value = 'Travei no passo 3';
+        el.querySelector<HTMLFormElement>('form.td__form')!.dispatchEvent(new Event('submit'));
+
+        const req = http.expectOne((r) => r.url.endsWith('/trainings/trn-1/comments'));
+        expect(req.request.method).toBe('POST');
+        req.flush({
+          id: 'cmt-9',
+          trainingId: 'trn-1',
+          authorName: 'Membro',
+          content: 'Travei no passo 3',
+          adminReply: null,
+          createdAt: '2026-09-01T13:00:00.000Z',
+        });
+        fixture.detectChanges();
+
+        expect(el.textContent).toContain('Travei no passo 3');
+      });
+    });
+
+    it('a falha dos desafios não derruba a lista de vídeos', () => {
+      const { fixture, el } = setup('logica');
+      http
+        .expectOne((req) => req.url.endsWith('/badges/logica/trainings'))
+        .flush('', { status: 500, statusText: 'Server Error' });
+      http
+        .expectOne((req) => req.url.endsWith('/badges/logica/videos'))
+        .flush({ badgeId: 'logica', videos: [video()] });
+      fixture.detectChanges();
+
+      expect(el.querySelector('.arena')).toBeNull();
+      expect(el.textContent).toContain('Aula de sempre');
     });
   });
 });

@@ -58,12 +58,10 @@
           @if (aba() === 'resposta') {
             <!-- Vazio é a chance de convidar: o Mural existe justamente para
                  encher esta aba, e o caminho até ele é um toque. -->
-            <p class="empty__title">
-              Nenhuma pergunta desta insígnia foi respondida ainda.
-            </p>
+            <p class="empty__title">Nenhuma pergunta desta insígnia foi respondida ainda.</p>
             <p class="empty__text">
-              As respostas vêm do Mural: a pergunta mais votada da semana vira um vídeo curto.
-              Que tal fazer a primeira?
+              As respostas vêm do Mural: a pergunta mais votada da semana vira um vídeo curto. Que
+              tal fazer a primeira?
             </p>
             <a routerLink="/dashboard/mural" class="empty__cta">Ir para o Mural</a>
           } @else {
@@ -179,7 +177,7 @@
                   ></iframe>
                 </div>
 
-              <!--
+                <!--
                 O check fica FORA do `video__frame` (spec 019, decisão 4).
                 Dentro, ele herdaria a caixa de proporção da spec 017 e mudaria
                 de tamanho conforme o vídeo fosse retrato ou paisagem.
@@ -236,6 +234,34 @@
       }
 
       <!--
+        A Arena de Treinamento (spec 023, decisão 1).
+
+        **Depois dos vídeos e das respostas posicionadas, e antes do GYM
+        Challenge.** A ordem é a da jornada: assistir, praticar, provar. Ela só
+        aparece na aba Aulas — na de Perguntas Frequentes a pessoa está tirando
+        uma dúvida, e não seguindo a etapa.
+
+        Lista vazia não desenha nada: insígnia sem desafio é o estado normal do
+        produto, e um cabeçalho sozinho anunciaria uma seção que não existe.
+      -->
+      @if (aba() === 'aula' && trainingList().length > 0) {
+        <section class="arena" aria-labelledby="arena-titulo">
+          <h2 class="arena__titulo" id="arena-titulo">Arena de Treinamento</h2>
+          <p class="arena__intro">
+            Desafios práticos para fixar o que você acabou de assistir. Cada um vale XP, uma vez só.
+          </p>
+
+          <ul class="arena__lista">
+            @for (treino of trainingList(); track treino.id) {
+              <li class="arena__item">
+                <app-training-card [training]="treino" (abrir)="abrirTreinamento(treino, $event)" />
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      <!--
         O card do GYM Challenge (spec 022, decisão 7).
 
         **Depois de tudo, e só na aba Aulas.** "Tudo" inclui as respostas que o
@@ -251,17 +277,12 @@
       -->
       @if (aba() === 'aula' && challenge(); as desafio) {
         <div class="gym-slot">
-          <app-gym-challenge-card
-            [state]="desafio"
-            [emphasis]="true"
-            (click)="abrirDesafio()"
-          />
+          <app-gym-challenge-card [state]="desafio" [emphasis]="true" (click)="abrirDesafio()" />
         </div>
       }
     }
   }
 </section>
-
 
 <!--
   O modal da resposta (spec 021, decisão 3).
@@ -357,11 +378,45 @@
         </label>
 
         @if (erroDoVisto() === aberta.id) {
-          <p class="visto__erro" role="alert">
-            Não consegui salvar agora. Tente de novo.
-          </p>
+          <p class="visto__erro" role="alert">Não consegui salvar agora. Tente de novo.</p>
         }
       </div>
     </div>
+  }
+</dialog>
+
+<!--
+  O modal do desafio (spec 023, decisão 2).
+
+  **Um só na página**, e o conteúdo dentro de um `@if` que o destrói ao fechar:
+  o desafio pode ter vídeo de apoio, e um player escondido continua tocando.
+  Destruir o elemento é o único jeito confiável de parar um player de terceiros
+  sem falar a API dele — a mesma decisão do modal de resposta logo acima.
+
+  Não é rota: uma URL para o desafio aberto seria um estado a restaurar no F5 e
+  um botão Voltar que fecha o modal em vez de sair da página.
+-->
+<dialog
+  #treinamentoDialog
+  class="treino-modal"
+  aria-label="O desafio da Arena de Treinamento"
+  (close)="onTreinamentoClose()"
+>
+  @if (treinamentoAberto(); as treino) {
+    <app-training-dialog
+      [training]="treino"
+      [comments]="treinamentoComentarios()"
+      [canComment]="podeComentar()"
+      [completing]="concluindoTreino()"
+      [sending]="enviandoComentario()"
+      [loadingComments]="carregandoComentarios()"
+      [hasMore]="cursorComentarios() !== null"
+      [xpGanho]="xpGanhoNoTreino()"
+      [erro]="erroDoTreino()"
+      (concluir)="concluirTreinamento()"
+      (comentar)="comentarTreinamento($event)"
+      (carregarMais)="carregarComentarios()"
+      (fechar)="fecharTreinamento()"
+    />
   }
 </dialog>

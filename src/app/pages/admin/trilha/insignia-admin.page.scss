@@ -218,12 +218,7 @@
 .skeleton {
   height: 4.5rem;
   border-radius: var(--radius-lg);
-  background: linear-gradient(
-    90deg,
-    var(--screen) 25%,
-    var(--screen-lit) 37%,
-    var(--screen) 63%
-  );
+  background: linear-gradient(90deg, var(--screen) 25%, var(--screen-lit) 37%, var(--screen) 63%);
   background-size: 400% 100%;
   animation: skeleton-slide 1.4s ease-in-out infinite;
 }
@@ -307,4 +302,38 @@
   .tab {
     transition: none;
   }
+}
+
+/* --------------------------------------------- Arena de Treinamento (023) */
+
+/*
+  A Arena mora **dentro** da `.page`, e por isso não tem largura, padding nem
+  fundo próprios: ela herda a coluna da página como qualquer outro bloco. Fora
+  do container ela ganhava geometria própria, e duas colunas diferentes na mesma
+  tela leem como dois produtos.
+
+  A lista, o estado vazio, os botões e o formulário usam `.videos`, `.empty`,
+  `.icon-btn`, `.form-panel` e `.btn`, que já existem acima. O que sobra de
+  próprio é a linha que separa a Arena da gestão de vídeos, e o título dela.
+*/
+.arena {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: var(--border-w) solid var(--border-soft);
+}
+
+.arena__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+/* O botão de editar é o único `.icon-btn` com palavra em vez de glifo. */
+.arena__editar {
+  width: auto;
+  padding: 0 0.7rem;
+  font-size: var(--step--1);
 }

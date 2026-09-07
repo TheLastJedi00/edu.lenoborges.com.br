@@ -1,0 +1,181 @@
+.page {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem 1rem 4rem;
+}
+
+/*
+ * O caminho de volta para a Administração.
+ *
+ * **Toda página filha de `/dashboard/admin` tem o dela**, apontando para a mãe
+ * imediata. Sem ele a única saída é o botão do navegador, e a barra lateral leva
+ * para o painel inteiro em vez de um passo atrás.
+ */
+.back {
+  justify-self: start;
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  text-decoration: none;
+}
+
+.page__eyebrow {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.15;
+}
+
+.page__intro,
+.page__aviso {
+  margin: 0.6rem 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.6;
+}
+
+.page__erro {
+  margin: 0;
+  color: #c0392b;
+  font-size: var(--step--1);
+}
+
+.lista {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linha {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--screen);
+}
+
+.linha__origem {
+  margin: 0;
+  color: var(--accent-deep);
+  font-size: var(--step--2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.linha__meta {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--2);
+}
+
+.linha__autor {
+  color: var(--ink);
+}
+
+.linha__texto {
+  margin: 0;
+  font-size: var(--step-0);
+  line-height: 1.55;
+}
+
+/* A resposta é recuada e com barra: ela se lê como resposta, e não como um
+   comentário novo da fila. Mesma forma do modal do membro. */
+.linha__resposta {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.5rem 0 0 0.9rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 3px solid var(--accent-deep);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--paper);
+  animation: comentario-entrar 220ms ease both;
+}
+
+.linha__form {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.linha__label {
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.linha__campo {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+
+.linha__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.linha__responder {
+  justify-self: start;
+  margin-top: 0.6rem;
+}
+
+/* 44px de alvo de toque nos dois botões, também em 360px. */
+.btn {
+  min-height: 2.75rem;
+  padding: 0.55rem 1.1rem;
+  border: var(--border-w) solid var(--accent-deep);
+  border-radius: var(--radius-sm);
+  background: var(--gradient-accent, var(--accent-deep));
+  color: var(--on-accent, #fff);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.btn--ghost {
+  border-color: var(--border-soft);
+  background: transparent;
+  color: inherit;
+  font-weight: 400;
+}
+
+@keyframes comentario-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .linha__resposta {
+    animation: none;
+  }
+}

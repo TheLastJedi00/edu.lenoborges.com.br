@@ -1,5 +1,12 @@
 # Spec 019: Vídeos Assistidos, XP e o Cartão do Membro
 
+> **Emendada pela spec 023 (Arena de Treinamento).** O XP deixou de ter uma fonte só. A
+> propriedade auditável desta spec — `xp` igual a `XP_PER_VIDEO` vezes a contagem de
+> `watched_videos` — passa a valer como soma de três parcelas: vídeos, GYM Challenge e
+> treinamentos. Cada parcela continua pagando no máximo uma vez, pelo mesmo mecanismo (caminho
+> composto mais `create()` dentro de um `WriteBatch`), mas quem for conferir o total precisa
+> saber que são três antes de concluir que o contador divergiu.
+
 ## Objetivo
 A tela da insígnia lista vídeos e não guarda nada. Quem volta na terça não sabe onde parou na
 quinta-feira anterior, e a única resposta que o produto dá para "estou avançando?" é o contador de

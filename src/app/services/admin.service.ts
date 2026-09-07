@@ -8,15 +8,19 @@ import {
   AdminUserPage,
   CreateVideoRequest,
   SendDirectEmailRequest,
-  UpdateVideoRequest
+  UpdateVideoRequest,
 } from '../models/admin.model';
 import type { CampaignResult } from '../models/email.model';
-import {
-  BadgeVideo,
-  BadgeVideoList,
-  BadgeVideoTab
-} from '../models/track.model';
+import { BadgeVideo, BadgeVideoList, BadgeVideoTab } from '../models/track.model';
 import type { TierId } from '../models/auth.model';
+import type {
+  AdminTrainingCommentList,
+  CreateTrainingRequest,
+  Training,
+  TrainingComment,
+  TrainingList,
+  UpdateTrainingRequest,
+} from '../models/training.model';
 import type {
   ChallengeConfig,
   GenerateQuestionsRequest,
@@ -24,7 +28,7 @@ import type {
   GymQuestion,
   QuestionDifficulty,
   QuestionInput,
-  QuestionList
+  QuestionList,
 } from '../models/games.model';
 
 @Injectable({ providedIn: 'root' })
@@ -40,11 +44,7 @@ export class AdminService {
    * validação do backend — e o sintoma seria uma lista vazia sem nada na tela
    * explicando por quê.
    */
-  listUsers(
-    filters: AdminUserFilters = {},
-    offset = 0,
-    limit = 50
-  ): Observable<AdminUserPage> {
+  listUsers(filters: AdminUserFilters = {}, offset = 0, limit = 50): Observable<AdminUserPage> {
     let params = new HttpParams().set('limit', limit).set('offset', offset);
 
     if (filters.q) {
@@ -93,14 +93,8 @@ export class AdminService {
    * O que é compartilhado está no backend, e é o que importa: o mesmo caminho de
    * envio, o mesmo template e o **mesmo rodapé de descadastro**.
    */
-  enviarEmailDireto(
-    userId: string,
-    body: SendDirectEmailRequest
-  ): Observable<CampaignResult> {
-    return this.http.post<CampaignResult>(
-      `${this.base}/users/${userId}/email`,
-      body
-    );
+  enviarEmailDireto(userId: string, body: SendDirectEmailRequest): Observable<CampaignResult> {
+    return this.http.post<CampaignResult>(`${this.base}/users/${userId}/email`, body);
   }
 
   updateUserGrade(userId: string, grade: number): Observable<void> {
@@ -127,47 +121,26 @@ export class AdminService {
    * quebrava porque não existia resposta nenhuma; a partir da primeira, seria
    * 400 em toda seta clicada.
    */
-  listVideos(
-    badgeId: string,
-    tab?: BadgeVideoTab
-  ): Observable<BadgeVideoList> {
+  listVideos(badgeId: string, tab?: BadgeVideoTab): Observable<BadgeVideoList> {
     // A aba é `tab` desde a spec 021, e o nome do argumento importa tanto
     // quanto o do parâmetro: é ele que faz a próxima pessoa mandar a lista, e
     // não a natureza do vídeo. A aba Aulas inclui as respostas posicionadas na
     // trilha, e elas têm `kind: 'resposta'`.
     const params = tab ? new HttpParams().set('tab', tab) : undefined;
 
-    return this.http.get<BadgeVideoList>(
-      `${this.base}/badges/${badgeId}/videos`,
-      { params }
-    );
+    return this.http.get<BadgeVideoList>(`${this.base}/badges/${badgeId}/videos`, { params });
   }
 
-  createVideo(
-    badgeId: string,
-    body: CreateVideoRequest
-  ): Observable<BadgeVideo> {
-    return this.http.post<BadgeVideo>(
-      `${this.base}/badges/${badgeId}/videos`,
-      body
-    );
+  createVideo(badgeId: string, body: CreateVideoRequest): Observable<BadgeVideo> {
+    return this.http.post<BadgeVideo>(`${this.base}/badges/${badgeId}/videos`, body);
   }
 
-  updateVideo(
-    badgeId: string,
-    videoId: string,
-    body: UpdateVideoRequest
-  ): Observable<BadgeVideo> {
-    return this.http.patch<BadgeVideo>(
-      `${this.base}/badges/${badgeId}/videos/${videoId}`,
-      body
-    );
+  updateVideo(badgeId: string, videoId: string, body: UpdateVideoRequest): Observable<BadgeVideo> {
+    return this.http.patch<BadgeVideo>(`${this.base}/badges/${badgeId}/videos/${videoId}`, body);
   }
 
   deleteVideo(badgeId: string, videoId: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.base}/badges/${badgeId}/videos/${videoId}`
-    );
+    return this.http.delete<void>(`${this.base}/badges/${badgeId}/videos/${videoId}`);
   }
 
   /**
@@ -180,7 +153,7 @@ export class AdminService {
   reorderVideos(
     badgeId: string,
     videoIds: readonly string[],
-    tab: BadgeVideoTab = 'aula'
+    tab: BadgeVideoTab = 'aula',
   ): Observable<void> {
     // A ordem é por aba (spec 010): reordenar Aulas não pode mexer nas
     // Perguntas Frequentes, e o `tab` é o que separa as duas sequências.
@@ -192,18 +165,14 @@ export class AdminService {
     return this.http.patch<void>(
       `${this.base}/badges/${badgeId}/videos/order`,
       { videoIds },
-      { params: new HttpParams().set('tab', tab) }
+      { params: new HttpParams().set('tab', tab) },
     );
   }
 
-  listVideosByTab(
-    badgeId: string,
-    tab: BadgeVideoTab
-  ): Observable<BadgeVideoList> {
-    return this.http.get<BadgeVideoList>(
-      `${this.base}/badges/${badgeId}/videos`,
-      { params: new HttpParams().set('tab', tab) }
-    );
+  listVideosByTab(badgeId: string, tab: BadgeVideoTab): Observable<BadgeVideoList> {
+    return this.http.get<BadgeVideoList>(`${this.base}/badges/${badgeId}/videos`, {
+      params: new HttpParams().set('tab', tab),
+    });
   }
 
   // ------------------------------------------------------------------------
@@ -222,45 +191,29 @@ export class AdminService {
    * uma segunda requisição para obtê-la seria a mesma leitura duas vezes a cada
    * abertura.
    */
-  listQuestions(
-    badgeId: string,
-    difficulty?: QuestionDifficulty
-  ): Observable<QuestionList> {
-    const params = difficulty
-      ? new HttpParams().set('difficulty', difficulty)
-      : undefined;
+  listQuestions(badgeId: string, difficulty?: QuestionDifficulty): Observable<QuestionList> {
+    const params = difficulty ? new HttpParams().set('difficulty', difficulty) : undefined;
 
-    return this.http.get<QuestionList>(
-      `${this.base}/badges/${badgeId}/questions`,
-      { params }
-    );
+    return this.http.get<QuestionList>(`${this.base}/badges/${badgeId}/questions`, { params });
   }
 
-  createQuestion(
-    badgeId: string,
-    body: QuestionInput
-  ): Observable<GymQuestion> {
-    return this.http.post<GymQuestion>(
-      `${this.base}/badges/${badgeId}/questions`,
-      body
-    );
+  createQuestion(badgeId: string, body: QuestionInput): Observable<GymQuestion> {
+    return this.http.post<GymQuestion>(`${this.base}/badges/${badgeId}/questions`, body);
   }
 
   updateQuestion(
     badgeId: string,
     questionId: string,
-    body: Partial<QuestionInput>
+    body: Partial<QuestionInput>,
   ): Observable<GymQuestion> {
     return this.http.patch<GymQuestion>(
       `${this.base}/badges/${badgeId}/questions/${questionId}`,
-      body
+      body,
     );
   }
 
   deleteQuestion(badgeId: string, questionId: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.base}/badges/${badgeId}/questions/${questionId}`
-    );
+    return this.http.delete<void>(`${this.base}/badges/${badgeId}/questions/${questionId}`);
   }
 
   /**
@@ -275,38 +228,100 @@ export class AdminService {
    */
   generateQuestions(
     badgeId: string,
-    body: GenerateQuestionsRequest
+    body: GenerateQuestionsRequest,
   ): Observable<GeneratedQuestions> {
     return this.http.post<GeneratedQuestions>(
       `${this.base}/badges/${badgeId}/questions/generate`,
-      body
+      body,
     );
   }
 
   /** Grava o lote aprovado. **Tudo ou nada**: `409` recusa o lote inteiro. */
   bulkCreateQuestions(
     badgeId: string,
-    questions: readonly QuestionInput[]
+    questions: readonly QuestionInput[],
   ): Observable<{ questions: readonly GymQuestion[] }> {
     return this.http.post<{ questions: readonly GymQuestion[] }>(
       `${this.base}/badges/${badgeId}/questions/bulk`,
-      { questions }
+      { questions },
     );
   }
 
   getChallengeConfig(badgeId: string): Observable<ChallengeConfig> {
-    return this.http.get<ChallengeConfig>(
-      `${this.base}/badges/${badgeId}/challenge-config`
-    );
+    return this.http.get<ChallengeConfig>(`${this.base}/badges/${badgeId}/challenge-config`);
   }
 
-  setChallengeConfig(
-    badgeId: string,
-    requiredXp: number
-  ): Observable<ChallengeConfig> {
-    return this.http.put<ChallengeConfig>(
-      `${this.base}/badges/${badgeId}/challenge-config`,
-      { requiredXp }
-    );
+  setChallengeConfig(badgeId: string, requiredXp: number): Observable<ChallengeConfig> {
+    return this.http.put<ChallengeConfig>(`${this.base}/badges/${badgeId}/challenge-config`, {
+      requiredXp,
+    });
+  }
+
+  /**
+   * Os desafios da Arena numa insígnia, para administrar (spec 023).
+   *
+   * **Entra no serviço de admin que já existe, e não num serviço novo.** Toda
+   * rota sob `/admin` mora aqui, e um segundo serviço com a mesma `base` seria
+   * dois lugares capazes de discordar sobre onde fica o painel.
+   */
+  listTrainings(badgeId: string): Observable<TrainingList> {
+    return this.http.get<TrainingList>(`${this.base}/badges/${badgeId}/trainings`);
+  }
+
+  /**
+   * Cria o desafio. **A posição é calculada no servidor**, como a última + 1.
+   *
+   * Mandar posição daqui colidiria com a de outro item, e a lista passaria a
+   * ter dois desafios na mesma posição.
+   */
+  createTraining(badgeId: string, body: CreateTrainingRequest): Observable<Training> {
+    return this.http.post<Training>(`${this.base}/badges/${badgeId}/trainings`, body);
+  }
+
+  updateTraining(trainingId: string, body: UpdateTrainingRequest): Observable<Training> {
+    return this.http.patch<Training>(`${this.base}/trainings/${trainingId}`, body);
+  }
+
+  /**
+   * Exclui o desafio.
+   *
+   * **A exclusão é em cascata no servidor**: os comentários e as conclusões
+   * daquele desafio vão junto, e as posições dos que sobraram são
+   * renormalizadas. A tela precisa avisar isso antes de confirmar.
+   */
+  deleteTraining(trainingId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/trainings/${trainingId}`);
+  }
+
+  /**
+   * Grava a ordem inteira de uma vez.
+   *
+   * O backend escreve num lote atômico: ou entram todas as posições ou nenhuma.
+   * Por isso a tela pode ser otimista sem risco de estado pela metade — o
+   * rollback é sempre para uma lista íntegra. É o mesmo desenho do
+   * `reorderVideos`, e pela mesma razão.
+   */
+  reorderTrainings(badgeId: string, orderedIds: readonly string[]): Observable<void> {
+    return this.http.patch<void>(`${this.base}/badges/${badgeId}/trainings/reorder`, {
+      orderedIds,
+    });
+  }
+
+  /** Os comentários mais recentes de toda a Arena, para o painel centralizado. */
+  listTrainingCommentsRecent(): Observable<AdminTrainingCommentList> {
+    return this.http.get<AdminTrainingCommentList>(`${this.base}/trainings/comments/recent`);
+  }
+
+  /**
+   * Responde a um comentário, direto no painel.
+   *
+   * A resposta é gravada **no próprio comentário**: uma por comentário, e
+   * responder de novo sobrescreve a anterior. A resposta da rota traz o
+   * comentário atualizado, e é dela que a lista em memória se atualiza.
+   */
+  replyTrainingComment(commentId: string, content: string): Observable<TrainingComment> {
+    return this.http.post<TrainingComment>(`${this.base}/trainings/comments/${commentId}/reply`, {
+      content,
+    });
   }
 }

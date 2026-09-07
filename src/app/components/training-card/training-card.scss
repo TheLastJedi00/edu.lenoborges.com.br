@@ -1,0 +1,139 @@
+:host {
+  display: block;
+}
+
+/*
+  O card inteiro é o alvo, e ele é um `<button>` de verdade.
+
+  Uma `<div>` com `(click)` não recebe foco, não responde ao Enter e não é
+  anunciada como acionável — e aqui o card é a única porta para o desafio.
+*/
+.treino {
+  display: grid;
+  gap: 0.5rem;
+  width: 100%;
+  /* 48px é o alvo de toque mínimo; o conteúdo passa disso com folga. */
+  min-height: 48px;
+  padding: 1.1rem 1.15rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-panel);
+  box-shadow: var(--shadow-hard-sm);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.treino:hover,
+.treino:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--accent-deep);
+  box-shadow: var(--shadow-hard-md);
+}
+
+.treino:focus-visible {
+  outline: var(--border-w) solid var(--accent-deep);
+  outline-offset: 3px;
+}
+
+.treino:active {
+  transform: translateY(0);
+}
+
+.treino__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.treino__eyebrow {
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.treino__selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--ok, #2e7d32);
+  font-size: var(--step--1);
+  white-space: nowrap;
+}
+
+.treino__selo-icone {
+  display: inline-flex;
+}
+
+.treino__selo-icone :global(svg),
+.treino__selo-icone svg {
+  width: 18px;
+  height: 18px;
+}
+
+.treino__titulo {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+/*
+  Duas linhas e reticências. O card é uma chamada; o enunciado inteiro está no
+  modal, e um card que cresce com o texto quebra o ritmo da coluna.
+*/
+.treino__descricao {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: var(--step-0);
+  line-height: 1.5;
+}
+
+.treino__pe {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.15rem;
+}
+
+.treino__xp {
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--screen-lit);
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+}
+
+.treino__passos {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+/* O card concluído continua legível e continua clicável: rever é o caso comum. */
+.treino--feito {
+  border-color: color-mix(in srgb, var(--ok, #2e7d32) 45%, var(--border-soft));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .treino {
+    transition: none;
+  }
+
+  .treino:hover,
+  .treino:focus-visible,
+  .treino:active {
+    transform: none;
+  }
+}

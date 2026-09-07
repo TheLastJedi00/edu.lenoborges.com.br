@@ -9,12 +9,12 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./pages/landing/landing.page').then((m) => m.LandingPage),
-    title: 'Leno Borges · Professor de Programação Particular'
+    title: 'Leno Borges · Professor de Programação Particular',
   },
   {
     path: 'comunidade',
     loadComponent: () => import('./pages/comunidade/comunidade.page').then((m) => m.ComunidadePage),
-    title: 'Liga Dev · Comunidade de programação do Leno Borges'
+    title: 'Liga Dev · Comunidade de programação do Leno Borges',
   },
   {
     // **Pública, sem guard nenhum e fora do `dashboard-shell`.** É aonde o
@@ -23,7 +23,7 @@ export const routes: Routes = [
     path: 'descadastro',
     loadComponent: () =>
       import('./pages/descadastro/descadastro.page').then((m) => m.DescadastroPage),
-    title: 'Cancelar inscrição · Liga Dev'
+    title: 'Cancelar inscrição · Liga Dev',
   },
   // Os documentos legais (spec 018, decisão 10).
   //
@@ -40,14 +40,14 @@ export const routes: Routes = [
     data: { documentId: 'termos-de-uso' },
     loadComponent: () =>
       import('./pages/legal/legal-document.page').then((m) => m.LegalDocumentPage),
-    title: 'Termos de Uso · Liga Dev'
+    title: 'Termos de Uso · Liga Dev',
   },
   {
     path: 'politica-de-privacidade',
     data: { documentId: 'politica-de-privacidade' },
     loadComponent: () =>
       import('./pages/legal/legal-document.page').then((m) => m.LegalDocumentPage),
-    title: 'Política de Privacidade · Liga Dev'
+    title: 'Política de Privacidade · Liga Dev',
   },
   // A tela de senha voltou a ser nossa (spec 020).
   //
@@ -68,13 +68,14 @@ export const routes: Routes = [
   {
     path: 'acesso',
     loadComponent: () => import('./pages/acesso/acesso.page').then((m) => m.AcessoPage),
-    title: 'Acesso · Liga Dev'
+    title: 'Acesso · Liga Dev',
   },
   {
     path: 'completar-perfil',
     canActivate: [authGuard, onboardingPendingGuard],
-    loadComponent: () => import('./pages/completar-perfil/completar-perfil.page').then((m) => m.CompletarPerfilPage),
-    title: 'Completar Perfil · Liga Dev'
+    loadComponent: () =>
+      import('./pages/completar-perfil/completar-perfil.page').then((m) => m.CompletarPerfilPage),
+    title: 'Completar Perfil · Liga Dev',
   },
   {
     path: 'dashboard',
@@ -83,19 +84,20 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
-        title: 'Painel do Membro · Liga Dev'
+        loadComponent: () =>
+          import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+        title: 'Painel do Membro · Liga Dev',
       },
       {
         path: 'financeiro',
         loadComponent: () =>
           import('./pages/financeiro/financeiro.page').then((m) => m.FinanceiroPage),
-        title: 'Financeiro · Liga Dev'
+        title: 'Financeiro · Liga Dev',
       },
       {
         path: 'trilha',
         loadComponent: () => import('./pages/trilha/trilha.page').then((m) => m.TrilhaPage),
-        title: 'Trilha · Liga Dev'
+        title: 'Trilha · Liga Dev',
       },
       {
         // Sem guard de progresso: a trilha não é presa, e entrar direto na
@@ -103,7 +105,7 @@ export const routes: Routes = [
         path: 'trilha/:badgeId',
         loadComponent: () =>
           import('./pages/trilha/insignia/insignia.page').then((m) => m.InsigniaPage),
-        title: 'Insígnia · Liga Dev'
+        title: 'Insígnia · Liga Dev',
       },
       {
         // Do próprio membro, e só. Sem `:id`, sem lista de membros e sem
@@ -115,12 +117,12 @@ export const routes: Routes = [
         path: 'perfil',
         canDeactivate: [unsavedChangesGuard],
         loadComponent: () => import('./pages/perfil/perfil.page').then((m) => m.PerfilPage),
-        title: 'Meu Perfil · Liga Dev'
+        title: 'Meu Perfil · Liga Dev',
       },
       {
         path: 'mural',
         loadComponent: () => import('./pages/mural/mural.page').then((m) => m.MuralPage),
-        title: 'Mural de Perguntas · Liga Dev'
+        title: 'Mural de Perguntas · Liga Dev',
       },
       {
         // Sem guard de tier: quem nao pode escrever ve o bloqueio explicado na
@@ -129,10 +131,8 @@ export const routes: Routes = [
         // momento em que o valor esta visivel.
         path: 'mural/nova',
         loadComponent: () =>
-          import('./pages/mural/nova-pergunta/nova-pergunta.page').then(
-            (m) => m.NovaPerguntaPage
-          ),
-        title: 'Escrever no Mural · Liga Dev'
+          import('./pages/mural/nova-pergunta/nova-pergunta.page').then((m) => m.NovaPerguntaPage),
+        title: 'Escrever no Mural · Liga Dev',
       },
       // Jogos (spec 022).
       //
@@ -149,35 +149,28 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            loadComponent: () =>
-              import('./pages/jogos/jogos.page').then((m) => m.JogosPage),
-            title: 'Jogos · Liga Dev'
+            loadComponent: () => import('./pages/jogos/jogos.page').then((m) => m.JogosPage),
+            title: 'Jogos · Liga Dev',
           },
           {
             path: 'desafios',
             loadComponent: () =>
-              import('./pages/jogos/desafios/desafios.page').then(
-                (m) => m.DesafiosPage
-              ),
-            title: 'GYM Challenge · Liga Dev'
+              import('./pages/jogos/desafios/desafios.page').then((m) => m.DesafiosPage),
+            title: 'GYM Challenge · Liga Dev',
           },
           {
             path: 'desafio/:badgeId',
             loadComponent: () =>
-              import('./pages/jogos/desafio/desafio.page').then(
-                (m) => m.DesafioPage
-              ),
-            title: 'GYM Challenge · Liga Dev'
+              import('./pages/jogos/desafio/desafio.page').then((m) => m.DesafioPage),
+            title: 'GYM Challenge · Liga Dev',
           },
           {
             path: 'ranking',
             loadComponent: () =>
-              import('./pages/jogos/ranking/ranking.page').then(
-                (m) => m.RankingPage
-              ),
-            title: 'Ranking da Liga · Liga Dev'
-          }
-        ]
+              import('./pages/jogos/ranking/ranking.page').then((m) => m.RankingPage),
+            title: 'Ranking da Liga · Liga Dev',
+          },
+        ],
       },
       // Administração. O `adminGuard` aqui é conveniência — evita o membro comum
       // bater num 403 sem entender por quê. Quem impede de verdade é o
@@ -186,64 +179,71 @@ export const routes: Routes = [
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () => import('./pages/admin/admin.page').then((m) => m.AdminPage),
-        title: 'Administração · Liga Dev'
+        title: 'Administração · Liga Dev',
       },
       {
         path: 'admin/mural',
         canActivate: [adminGuard],
         loadComponent: () =>
           import('./pages/admin/mural/mural-admin.page').then((m) => m.AdminMuralPage),
-        title: 'Mural · Administração'
+        title: 'Mural · Administração',
       },
       {
         path: 'admin/usuarios',
         canActivate: [adminGuard],
         loadComponent: () =>
           import('./pages/admin/usuarios/usuarios.page').then((m) => m.AdminUsuariosPage),
-        title: 'Usuários · Administração'
+        title: 'Usuários · Administração',
       },
       {
         path: 'admin/emails',
         canActivate: [adminGuard],
         loadComponent: () =>
           import('./pages/admin/emails/emails.page').then((m) => m.AdminEmailsPage),
-        title: 'E-mails · Administração'
+        title: 'E-mails · Administração',
       },
       {
         path: 'admin/trilha',
         canActivate: [adminGuard],
         loadComponent: () =>
           import('./pages/admin/trilha/trilha-admin.page').then((m) => m.AdminTrilhaPage),
-        title: 'Conteúdo da trilha · Administração'
+        title: 'Conteúdo da trilha · Administração',
       },
       {
         path: 'admin/trilha/:badgeId',
         canActivate: [adminGuard],
         loadComponent: () =>
           import('./pages/admin/trilha/insignia-admin.page').then((m) => m.AdminInsigniaPage),
-        title: 'Vídeos da insígnia · Administração'
+        title: 'Vídeos da insígnia · Administração',
       },
       // Banco de questões do GYM Challenge (spec 022, decisão 9). Mesmo par de
       // rotas de `admin/trilha`: escolher a insígnia, depois administrá-la.
       {
+        path: 'admin/treinamentos-comentarios',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/admin/treinamentos-comentarios/treinamentos-comentarios.page').then(
+            (m) => m.AdminTreinamentosComentariosPage,
+          ),
+        title: 'Comentários dos Treinamentos · Administração',
+      },
+      {
         path: 'admin/questoes',
         canActivate: [adminGuard],
         loadComponent: () =>
-          import('./pages/admin/questoes/questoes-admin.page').then(
-            (m) => m.AdminQuestoesPage
-          ),
-        title: 'Banco de questões · Administração'
+          import('./pages/admin/questoes/questoes-admin.page').then((m) => m.AdminQuestoesPage),
+        title: 'Banco de questões · Administração',
       },
       {
         path: 'admin/questoes/:badgeId',
         canActivate: [adminGuard],
         loadComponent: () =>
           import('./pages/admin/questoes/insignia-questoes.page').then(
-            (m) => m.AdminInsigniaQuestoesPage
+            (m) => m.AdminInsigniaQuestoesPage,
           ),
-        title: 'Questões da insígnia · Administração'
-      }
-    ]
+        title: 'Questões da insígnia · Administração',
+      },
+    ],
   },
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: '' },
 ];

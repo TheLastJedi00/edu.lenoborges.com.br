@@ -193,12 +193,7 @@
 .skeleton {
   height: 12rem;
   border-radius: var(--radius-lg);
-  background: linear-gradient(
-    90deg,
-    var(--screen) 25%,
-    var(--screen-lit) 37%,
-    var(--screen) 63%
-  );
+  background: linear-gradient(90deg, var(--screen) 25%, var(--screen-lit) 37%, var(--screen) 63%);
   background-size: 400% 100%;
   animation: skeleton-slide 1.4s ease-in-out infinite;
 }
@@ -584,4 +579,95 @@
 .gym-slot {
   margin-top: 2rem;
   cursor: pointer;
+}
+
+/* --------------------------------------------- Arena de Treinamento (023) */
+
+/*
+  A Arena mora entre os vídeos e o GYM Challenge, e o espaçamento é o que diz
+  isso: ela é uma seção da mesma coluna, e não um bloco à parte.
+*/
+.arena {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.arena__titulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+}
+
+.arena__intro {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.arena__lista {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+  Mobile first: uma coluna até haver largura para duas. Um `auto-fill` com
+  mínimo de 18rem colocaria dois cards estreitos em 360px, e o título de um
+  desafio não cabe em meia tela.
+*/
+@media (min-width: 48rem) {
+  .arena__lista {
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  }
+}
+
+/*
+  O modal ocupa a tela inteira no celular e vira caixa no desktop — mesma forma
+  do modal de resposta, e é de propósito: dois modais na mesma página com
+  geometrias diferentes pareceriam de produtos diferentes.
+*/
+/* `inset: 0` + `margin: auto` centram o modal, e não são redundância com o
+   navegador: o reset global zera `margin` e leva junto o `margin: auto` que a
+   UA dá ao `<dialog>`. Sem eles ele abre no canto — foi o que aconteceu, e o
+   `.resposta` acima já carregava o conserto. */
+.treino-modal {
+  width: min(46rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 3rem);
+  inset: 0;
+  margin: auto;
+  padding: 0;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-panel);
+  color: inherit;
+  overflow-y: auto;
+}
+
+.treino-modal[open] {
+  animation: anim-rise 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.treino-modal::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+
+/* No celular, tela inteira: 46rem não cabe em 360px. */
+@media (max-width: 40rem) {
+  .treino-modal {
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .treino-modal[open] {
+    animation: none;
+  }
 }

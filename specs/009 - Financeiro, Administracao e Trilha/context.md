@@ -1,5 +1,10 @@
 # Spec 009: Financeiro, Administração e Trilha
 
+> **Emendada pela spec 023 (Arena de Treinamento).** A trilha da insígnia ganhou uma terceira
+> lista, entre os vídeos e o GYM Challenge: os desafios práticos da Arena. No painel do admin,
+> a gestão da insígnia ganhou a seção correspondente, abaixo da de vídeos e fora das abas —
+> a Arena não pertence a Aulas nem a Perguntas Frequentes.
+
 > ## Alteração de escopo durante a execução (2026-08-18)
 >
 > **A seção de acesso antecipado sai das páginas públicas.** O cadastro de conta já funciona, então a

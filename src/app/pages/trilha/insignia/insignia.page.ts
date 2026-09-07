@@ -7,7 +7,7 @@ import {
   computed,
   inject,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -16,7 +16,7 @@ import {
   AnsweredQuestion,
   BadgeVideo,
   BadgeVideoTab,
-  youtubeEmbedUrl
+  youtubeEmbedUrl,
 } from '../../../models/track.model';
 import { dataPorExtenso } from '../../../core/datas';
 import { TrackService } from '../../../services/track.service';
@@ -27,21 +27,26 @@ import { AuthStore } from '../../../core/auth/auth.store';
 import { GamesService } from '../../../services/games.service';
 import { GymChallengeCard } from '../../../components/gym-challenge-card/gym-challenge-card';
 import type { ChallengeState } from '../../../models/games.model';
+import { TrainingService } from '../../../services/training.service';
+import { TrainingCard } from '../../../components/training-card/training-card';
+import { TrainingDialog } from '../../../components/training-dialog/training-dialog';
+import type { Training, TrainingComment } from '../../../models/training.model';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
 @Component({
   selector: 'app-insignia-page',
   standalone: true,
-  imports: [RouterLink, Logo, IconClose, GymChallengeCard],
+  imports: [RouterLink, Logo, IconClose, GymChallengeCard, TrainingCard, TrainingDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './insignia.page.html',
-  styleUrl: './insignia.page.scss'
+  styleUrl: './insignia.page.scss',
 })
 export class InsigniaPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly track = inject(TrackService);
   private readonly games = inject(GamesService);
+  private readonly trainings = inject(TrainingService);
   private readonly router = inject(Router);
   private readonly community = inject(CommunityService);
   private readonly sanitizer = inject(DomSanitizer);
@@ -90,8 +95,58 @@ export class InsigniaPage implements OnInit {
     return id ? (this.videos().find((item) => item.id === id) ?? null) : null;
   });
 
-  private readonly respostaDialog =
-    viewChild<ElementRef<HTMLDialogElement>>('respostaDialog');
+  /**
+   * Os desafios da Arena desta insígnia (spec 023, decisão 1).
+   *
+   * Lista vazia quando não há desafio **e quando a chamada falha** — e a segunda
+   * parte é a decisão, a mesma do card do GYM: a seção some e a trilha fica de
+   * pé. Derrubar a lista de vídeos porque a Arena não respondeu seria trocar o
+   * conteúdo, que é o motivo da tela, por uma seção a mais.
+   */
+  protected readonly trainingList = signal<readonly Training[]>([]);
+
+  /**
+   * O desafio aberto no modal, **guardado por id e não por cópia**.
+   *
+   * Mesma razão do modal de resposta da spec 021: concluir reescreve a lista, e
+   * uma cópia presa aqui continuaria mostrando o estado de antes do clique. Pelo
+   * id, o modal lê sempre o mesmo desafio que a lista.
+   */
+  private readonly treinamentoAbertoId = signal<string | null>(null);
+
+  protected readonly treinamentoAberto = computed(() => {
+    const id = this.treinamentoAbertoId();
+
+    return id ? (this.trainingList().find((item) => item.id === id) ?? null) : null;
+  });
+
+  protected readonly treinamentoComentarios = signal<readonly TrainingComment[]>([]);
+  protected readonly cursorComentarios = signal<string | null>(null);
+  protected readonly carregandoComentarios = signal(false);
+  protected readonly concluindoTreino = signal(false);
+  protected readonly enviandoComentario = signal(false);
+  /** O XP que a última conclusão pagou, para a animação. Nulo fora dela. */
+  protected readonly xpGanhoNoTreino = signal<number | null>(null);
+  protected readonly erroDoTreino = signal<string | null>(null);
+
+  /**
+   * Se quem está na tela pode comentar (decisão 3).
+   *
+   * **Sai do `AuthStore`, e é o mesmo `isPaid` do Mural** — não uma segunda
+   * comparação com `'dev-tier'` escrita aqui. Uma cópia da regra é a que
+   * envelhece primeiro no dia em que existir um tier novo entre os dois.
+   *
+   * É uma conveniência da tela, e não a segurança: quem manda é o `403` do
+   * servidor. Ela existe para não oferecer um campo que vai ser recusado.
+   */
+  protected readonly podeComentar = computed(() => this.authStore.isPaid());
+
+  private botaoQueAbriuTreino: HTMLElement | null = null;
+
+  private readonly respostaDialog = viewChild<ElementRef<HTMLDialogElement>>('respostaDialog');
+
+  private readonly treinamentoDialog =
+    viewChild<ElementRef<HTMLDialogElement>>('treinamentoDialog');
 
   /**
    * O botão que abriu o modal, para o foco voltar para ele ao fechar.
@@ -113,7 +168,7 @@ export class InsigniaPage implements OnInit {
   protected readonly naTrilha = computed(() => this.aba() === 'aula');
 
   protected readonly stage = computed(() =>
-    this.community.trackStages().find((item) => item.id === this.badgeId())
+    this.community.trackStages().find((item) => item.id === this.badgeId()),
   );
 
   /**
@@ -124,9 +179,7 @@ export class InsigniaPage implements OnInit {
    * treze etapas estarão assim. Um estado de erro aqui faria o aluno ler uma
    * pendência nossa como falha dele.
    */
-  protected readonly empty = computed(
-    () => this.state() === 'ready' && this.videos().length === 0
-  );
+  protected readonly empty = computed(() => this.state() === 'ready' && this.videos().length === 0);
 
   /**
    * Troca de aba.
@@ -189,9 +242,27 @@ export class InsigniaPage implements OnInit {
         .subscribe({
           next: (state) => this.challenge.set(state),
           // Silencioso de propósito: ver o comentário do signal.
-          error: () => this.challenge.set(null)
+          error: () => this.challenge.set(null),
         });
     }
+
+    // A Arena vai **na mesma leva** do desafio e dos vídeos: as três são
+    // independentes, e serializá-las custaria duas viagens a mais em toda
+    // abertura da insígnia (regra 8 do repositório).
+    //
+    // **São três `subscribe` e não um `forkJoin`, e isso é a decisão.** Um
+    // `forkJoin` derrubaria a tela inteira quando qualquer uma das três
+    // falhasse — e as três têm importâncias diferentes: sem vídeo não há
+    // trilha, sem Arena há trilha com uma seção a menos. Paralelo é o que se
+    // quer; acoplar o destino delas, não.
+    this.trainings
+      .listByBadge(this.badgeId())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (lista) => this.trainingList.set(lista.trainings),
+        // Silencioso de propósito: a seção some, a trilha fica.
+        error: () => this.trainingList.set([]),
+      });
 
     this.track
       .getVideos(this.badgeId(), this.aba())
@@ -204,7 +275,7 @@ export class InsigniaPage implements OnInit {
           this.videos.set(list.videos);
           this.state.set('ready');
         },
-        error: () => this.state.set('error')
+        error: () => this.state.set('error'),
       });
   }
 
@@ -251,7 +322,7 @@ export class InsigniaPage implements OnInit {
           this.aplicarVisto(video.id, !desejado);
           this.erroDoVisto.set(video.id);
           this.liberar(video.id);
-        }
+        },
       });
   }
 
@@ -310,11 +381,164 @@ export class InsigniaPage implements OnInit {
     this.botaoQueAbriu = null;
   }
 
+  /**
+   * Abre o desafio no modal e carrega os comentários dele (spec 023).
+   *
+   * Os comentários são pedidos **na abertura, e não com a lista**: eles são a
+   * parte mais pesada da Arena e a menos vista, e carregá-los junto da trilha
+   * custaria uma requisição por desafio para pintar uma coluna de cards.
+   */
+  protected abrirTreinamento(training: Training, origem: HTMLElement): void {
+    this.botaoQueAbriuTreino = origem;
+    this.treinamentoAbertoId.set(training.id);
+    this.treinamentoComentarios.set([]);
+    this.cursorComentarios.set(null);
+    this.xpGanhoNoTreino.set(null);
+    this.erroDoTreino.set(null);
+    this.treinamentoDialog()?.nativeElement.showModal();
+    this.carregarComentarios();
+  }
+
+  protected fecharTreinamento(): void {
+    this.treinamentoDialog()?.nativeElement.close();
+    this.limparTreinamento();
+  }
+
+  /** A saída por `Esc`, que fecha o `<dialog>` sem passar pelo botão. */
+  protected onTreinamentoClose(): void {
+    this.limparTreinamento();
+  }
+
+  /**
+   * Conclui o desafio aberto.
+   *
+   * **O modal não fecha** (decisão 2): quem acabou de concluir costuma querer
+   * ler os comentários ou rever o vídeo, e fechar a tela por baixo dessa pessoa
+   * é tirá-la de onde ela quis ficar.
+   *
+   * O XP vem do corpo da resposta e vai para o `AuthStore` — **nunca uma soma
+   * local**. Concluir de novo paga zero, então somar o `xpAmount` aqui acertaria
+   * no primeiro clique de cada desafio e erraria em todos os seguintes, com o
+   * erro aparecendo só quando alguém recarregasse a página.
+   */
+  protected concluirTreinamento(): void {
+    const aberto = this.treinamentoAberto();
+
+    if (!aberto || aberto.completed || this.concluindoTreino()) {
+      return;
+    }
+
+    this.concluindoTreino.set(true);
+    this.erroDoTreino.set(null);
+
+    this.trainings
+      .complete(aberto.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resultado) => {
+          this.authStore.setXp(resultado.xp);
+          this.aplicarConclusao(aberto.id);
+          // Zero não anima: a conclusão repetida é sucesso, mas não é ganho, e
+          // um "+0 XP" na tela seria uma comemoração vazia.
+          this.xpGanhoNoTreino.set(resultado.xpAwarded > 0 ? resultado.xpAwarded : null);
+          this.concluindoTreino.set(false);
+        },
+        error: () => {
+          this.erroDoTreino.set('Não consegui concluir agora. Tente de novo.');
+          this.concluindoTreino.set(false);
+        },
+      });
+  }
+
+  /**
+   * Publica o comentário e o coloca no topo da lista.
+   *
+   * A lista vem do mais recente para o mais antigo, então o novo entra na
+   * frente — e não numa recarga da página inteira, que faria a pessoa perder a
+   * posição de leitura no meio de uma conversa.
+   */
+  protected comentarTreinamento(texto: string): void {
+    const aberto = this.treinamentoAberto();
+
+    if (!aberto || this.enviandoComentario()) {
+      return;
+    }
+
+    this.enviandoComentario.set(true);
+    this.erroDoTreino.set(null);
+
+    this.trainings
+      .addComment(aberto.id, texto)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (comentario) => {
+          this.treinamentoComentarios.update((atual) => [comentario, ...atual]);
+          this.enviandoComentario.set(false);
+        },
+        error: () => {
+          this.erroDoTreino.set('Não consegui publicar agora. Tente de novo.');
+          this.enviandoComentario.set(false);
+        },
+      });
+  }
+
+  /**
+   * Carrega a primeira página de comentários, ou a seguinte.
+   *
+   * O cursor é o `nextCursor` da página anterior, e **nulo apaga o botão**: um
+   * "Mostrar mais" que devolve lista vazia é um botão que mente.
+   */
+  protected carregarComentarios(): void {
+    const aberto = this.treinamentoAberto();
+
+    if (!aberto || this.carregandoComentarios()) {
+      return;
+    }
+
+    const after = this.cursorComentarios() ?? undefined;
+
+    this.carregandoComentarios.set(true);
+
+    this.trainings
+      .listComments(aberto.id, after ? { after } : {})
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (pagina) => {
+          this.treinamentoComentarios.update((atual) => [...atual, ...pagina.comments]);
+          this.cursorComentarios.set(pagina.nextCursor);
+          this.carregandoComentarios.set(false);
+        },
+        error: () => {
+          // A conversa não carregou, e o desafio continua utilizável. Uma tela
+          // de erro aqui esconderia os passos por causa de um acessório.
+          this.carregandoComentarios.set(false);
+        },
+      });
+  }
+
+  private limparTreinamento(): void {
+    if (this.treinamentoAbertoId() === null) {
+      return;
+    }
+
+    this.treinamentoAbertoId.set(null);
+    this.treinamentoComentarios.set([]);
+    this.cursorComentarios.set(null);
+    this.xpGanhoNoTreino.set(null);
+    this.erroDoTreino.set(null);
+    this.botaoQueAbriuTreino?.focus();
+    this.botaoQueAbriuTreino = null;
+  }
+
+  private aplicarConclusao(trainingId: string): void {
+    this.trainingList.update((lista) =>
+      lista.map((item) => (item.id === trainingId ? { ...item, completed: true } : item)),
+    );
+  }
+
   private aplicarVisto(videoId: string, watched: boolean): void {
     this.videos.update((lista) =>
-      lista.map((item) =>
-        item.id === videoId ? { ...item, watched } : item
-      )
+      lista.map((item) => (item.id === videoId ? { ...item, watched } : item)),
     );
   }
 
@@ -333,9 +557,7 @@ export class InsigniaPage implements OnInit {
    * 11 caracteres — não é entrada de usuário chegando crua no `iframe`.
    */
   protected embedUrl(video: BadgeVideo): SafeResourceUrl {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(
-      youtubeEmbedUrl(video.youtubeId)
-    );
+    return this.sanitizer.bypassSecurityTrustResourceUrl(youtubeEmbedUrl(video.youtubeId));
   }
 
   /**

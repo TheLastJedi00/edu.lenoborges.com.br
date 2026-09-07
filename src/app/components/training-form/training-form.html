@@ -1,0 +1,95 @@
+<form class="tf" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <label class="tf__label" for="tf-title">Título do desafio</label>
+  <input
+    id="tf-title"
+    class="tf__input"
+    type="text"
+    formControlName="title"
+    placeholder="Refatore o laço em três funções"
+    autocomplete="off"
+    enterkeyhint="next"
+  />
+  @if (form.controls.title.touched && form.controls.title.invalid) {
+    <p class="tf__erro">O título é obrigatório e tem no mínimo 3 letras.</p>
+  }
+
+  <label class="tf__label" for="tf-desc">Descrição</label>
+  <textarea
+    id="tf-desc"
+    class="tf__input tf__area"
+    rows="3"
+    formControlName="description"
+    placeholder="Um exercício de leitura antes de escrever."
+  ></textarea>
+  @if (form.controls.description.touched && form.controls.description.invalid) {
+    <p class="tf__erro">A descrição é obrigatória.</p>
+  }
+
+  <!--
+    Os passos são um `FormArray`, e não um textarea com quebras de linha: mover
+    o passo três para cima é reordenar dois controles, e não recortar e colar.
+  -->
+  <fieldset class="tf__passos" formArrayName="steps">
+    <legend class="tf__label">Passos</legend>
+
+    @for (passo of passos.controls; track $index) {
+      <div class="tf__passo">
+        <span class="u-mono tf__passo-num" aria-hidden="true">{{ $index + 1 }}</span>
+        <input
+          class="tf__input tf__passo-campo"
+          type="text"
+          [formControlName]="$index"
+          [attr.aria-label]="'Passo ' + ($index + 1)"
+          placeholder="Clone o repositório"
+          autocomplete="off"
+        />
+        <button
+          type="button"
+          class="tf__remover"
+          [disabled]="passos.length <= 1"
+          [attr.aria-label]="'Remover o passo ' + ($index + 1)"
+          (click)="removerPasso($index)"
+        >
+          Remover
+        </button>
+      </div>
+    }
+
+    <button type="button" class="tf__adicionar" (click)="adicionarPasso()">Adicionar passo</button>
+  </fieldset>
+
+  <label class="tf__label" for="tf-video">Link do vídeo (opcional)</label>
+  <input
+    id="tf-video"
+    class="tf__input"
+    type="url"
+    formControlName="videoUrl"
+    placeholder="https://youtu.be/…"
+    autocomplete="off"
+    inputmode="url"
+  />
+  <p class="tf__hint">
+    Um vídeo de apoio para o enunciado. Link do YouTube vira player; qualquer outro vira link.
+  </p>
+
+  <label class="tf__label" for="tf-xp">XP do desafio</label>
+  <input
+    id="tf-xp"
+    class="tf__input tf__input--curto"
+    type="number"
+    min="1"
+    step="1"
+    formControlName="xpAmount"
+    inputmode="numeric"
+  />
+  <p class="tf__hint">
+    Quanto o desafio paga, uma vez só. O padrão é 30; um exercício mais longo pode valer mais.
+  </p>
+
+  <div class="tf__acoes">
+    <button type="submit" class="tf__salvar" [disabled]="saving()">
+      {{ saving() ? 'Salvando...' : training() ? 'Salvar alterações' : 'Criar desafio' }}
+    </button>
+    <button type="button" class="tf__cancelar" (click)="cancel.emit()">Cancelar</button>
+  </div>
+</form>

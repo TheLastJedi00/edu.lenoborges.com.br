@@ -1,0 +1,302 @@
+:host {
+  display: block;
+}
+
+.td {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.td__head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.td__eyebrow {
+  margin: 0;
+  color: var(--accent-deep);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.td__titulo {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.15;
+}
+
+.td__fechar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  /* Alvo de toque, sem depender do tamanho do ícone. */
+  width: 48px;
+  height: 48px;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--screen-lit);
+  color: inherit;
+  cursor: pointer;
+}
+
+.td__fechar:focus-visible {
+  outline: var(--border-w) solid var(--accent-deep);
+  outline-offset: 2px;
+}
+
+.td__descricao,
+.td__passo,
+.td__comentario-texto {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step-0);
+  line-height: 1.6;
+}
+
+.td__secao {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+}
+
+.td__lista {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding-left: 1.4rem;
+}
+
+/* ------------------------------------------------------------------ vídeo */
+
+/*
+  16:9 com `aspect-ratio`, e a moldura nunca estoura a largura do modal.
+  O vídeo aqui é anexo do enunciado, e não o conteúdo — por isso ele não ganha
+  a caixa de retrato da spec 017.
+*/
+.td__frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: #000;
+}
+
+.td__frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.td__link-externo {
+  margin: 0;
+  font-size: var(--step-0);
+}
+
+/* ------------------------------------------------------------ comentários */
+
+.td__vazio,
+.td__aviso {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.td__aviso {
+  margin-top: 0.9rem;
+  padding: 0.8rem 0.9rem;
+  border: var(--border-w) dashed var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--screen-lit);
+}
+
+.td__lista-comentarios {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.td__comentario {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.td__comentario-meta {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--2);
+}
+
+.td__comentario-autor,
+.td__resposta-autor {
+  color: var(--ink);
+}
+
+/*
+  A resposta do admin é recuada e ganha uma barra à esquerda: ela precisa se ler
+  como resposta àquele comentário, e não como um comentário novo da lista.
+*/
+.td__resposta {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.45rem 0 0 0.9rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 3px solid var(--accent-deep);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--screen-lit);
+  animation: td-entrar 220ms ease both;
+}
+
+.td__mais {
+  justify-self: start;
+  margin-top: 0.9rem;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.td__form {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.td__label {
+  font-size: var(--step--1);
+}
+
+.td__campo {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: var(--border-w) solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--screen-lit);
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+}
+
+.td__enviar,
+.td__concluir {
+  justify-self: start;
+  min-height: 48px;
+  padding: 0.65rem 1.4rem;
+  border: var(--border-w) solid var(--accent-deep);
+  border-radius: var(--radius-md);
+  background: var(--gradient-accent, var(--accent-deep));
+  color: var(--on-accent, #fff);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+.td__enviar:disabled,
+.td__concluir:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.td__enviar:hover:not(:disabled),
+.td__concluir:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------- rodapé */
+
+.td__pe {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: var(--border-w) solid var(--border-soft);
+  /* No celular o modal ocupa a tela inteira, e o botão não pode ficar sob a
+     barra do sistema. */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.td__selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--ok, #2e7d32);
+  font-size: var(--step-0);
+}
+
+.td__xp {
+  margin: 0;
+  min-height: 1.4em;
+}
+
+.td__xp-ganho {
+  display: inline-block;
+  color: var(--accent-deep);
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  animation: td-xp 900ms ease both;
+}
+
+.td__erro {
+  margin: 0;
+  color: var(--danger, #c62828);
+  font-size: var(--step--1);
+}
+
+@keyframes td-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes td-xp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .td__resposta,
+  .td__xp-ganho {
+    animation: none;
+  }
+
+  .td__enviar,
+  .td__concluir {
+    transition: none;
+  }
+
+  .td__enviar:hover:not(:disabled),
+  .td__concluir:hover:not(:disabled) {
+    transform: none;
+  }
+}
