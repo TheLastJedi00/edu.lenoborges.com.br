@@ -84,7 +84,22 @@
                 }
               </p>
               @if (semana.question; as pergunta) {
-                <p class="winner__title">{{ pergunta.title }}</p>
+                <!--
+                  A linha respondida também abre (spec 024, decisão 8): é o
+                  único lugar onde a pergunta que virou vídeo aparece por
+                  extenso. Mesmo alvo esticado do cartão, com o link da trilha
+                  por cima dele.
+                -->
+                <p class="winner__title">
+                  <button
+                    type="button"
+                    class="winner__abrir"
+                    [attr.aria-label]="'Abrir a pergunta: ' + pergunta.title"
+                    (click)="abrirPergunta(pergunta)"
+                  >
+                    {{ pergunta.title }}
+                  </button>
+                </p>
                 <p class="winner__author u-mono">
                   {{ pergunta.authorName }} · {{ pergunta.voteCount }} votos
                 </p>
@@ -123,6 +138,7 @@
                 [question]="question"
                 [votable]="votable()"
                 (toggle)="toggleVote($event)"
+                (abrir)="abrirPergunta($event)"
                 (authorClick)="abrirCartao($event)"
               />
             </li>
@@ -154,4 +170,25 @@
     a mesma armadilha registrada no `LegalAcceptDialog`.
   -->
   <app-member-card-dialog #cartao />
+
+  <!--
+    A pergunta por inteiro (spec 024). Fica sempre renderizado, pela mesma razão
+    do cartão do membro logo acima, e **não faz requisição nenhuma**: a pergunta
+    que ele mostra é a que já veio na lista.
+
+    O nome do autor daqui de dentro cai no mesmo `abrirCartao` do cartão do
+    Mural, e não num segundo caminho: quem decide se há cartão continua sendo o
+    `authorUid`, num lugar só.
+  -->
+  <app-question-detail-dialog #detalhe (authorClick)="abrirCartao($event)">
+    @if (perguntaAberta()?.answerVideoId) {
+      <a
+        acoes
+        class="btn btn--ghost"
+        [routerLink]="['/dashboard/trilha', perguntaAberta()!.badgeId]"
+      >
+        Ver a resposta na trilha
+      </a>
+    }
+  </app-question-detail-dialog>
 </section>
