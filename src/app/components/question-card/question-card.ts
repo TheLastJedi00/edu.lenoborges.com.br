@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { MuralQuestion } from '../../models/mural.model';
 import { CommunityService } from '../../services/community.service';
+import { tituloDaInsignia } from '../../core/mural/badge-title';
 
 /**
  * Uma pergunta do Mural.
@@ -271,15 +272,11 @@ export class QuestionCard {
   /**
    * O título da insígnia, e não o id.
    *
-   * `poo` não diz nada para quem está lendo o mural; "Insígnia da POO" diz. Se o
-   * id não estiver na trilha — dado antigo, ou etapa renomeada —, o próprio id
-   * aparece: melhor um rótulo feio que um cartão sem assunto.
+   * A conversão mora em `core/mural/badge-title` desde a spec 024, porque o
+   * diálogo da pergunta precisa do mesmo rótulo — e o fallback (id que não está
+   * na trilha volta como ele mesmo) tem que ser o mesmo nos dois lugares.
    */
-  protected readonly badgeTitle = computed(
-    () =>
-      this.community
-        .trackStages()
-        .find((stage) => stage.id === this.question().badgeId)?.title ??
-      this.question().badgeId
+  protected readonly badgeTitle = computed(() =>
+    tituloDaInsignia(this.community.trackStages(), this.question().badgeId)
   );
 }
