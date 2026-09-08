@@ -90,16 +90,13 @@
                   extenso. Mesmo alvo esticado do cartão, com o link da trilha
                   por cima dele.
                 -->
-                <p class="winner__title">
-                  <button
-                    type="button"
-                    class="winner__abrir"
-                    [attr.aria-label]="'Abrir a pergunta: ' + pergunta.title"
-                    (click)="abrirPergunta(pergunta)"
-                  >
-                    {{ pergunta.title }}
-                  </button>
-                </p>
+                <button
+                  type="button"
+                  class="winner__abrir"
+                  [attr.aria-label]="'Abrir a pergunta: ' + pergunta.title"
+                  (click)="abrirPergunta(pergunta)"
+                ></button>
+                <p class="winner__title">{{ pergunta.title }}</p>
                 <p class="winner__author u-mono">
                   {{ pergunta.authorName }} · {{ pergunta.voteCount }} votos
                 </p>

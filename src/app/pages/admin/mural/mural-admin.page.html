@@ -52,16 +52,13 @@
                     um título de 140 caracteres, sem o contexto que a pessoa
                     escreveu.
                   -->
-                  <p class="pauta__title">
-                    <button
-                      type="button"
-                      class="linha-abrir"
-                      [attr.aria-label]="'Abrir a pergunta: ' + linha.question!.title"
-                      (click)="abrirPergunta(linha.question!)"
-                    >
-                      {{ linha.question!.title }}
-                    </button>
-                  </p>
+                  <button
+                    type="button"
+                    class="linha-abrir"
+                    [attr.aria-label]="'Abrir a pergunta: ' + linha.question!.title"
+                    (click)="abrirPergunta(linha.question!)"
+                  ></button>
+                  <p class="pauta__title">{{ linha.question!.title }}</p>
                   <p class="pauta__meta u-mono">
                     {{ linha.question!.authorName }} · {{ linha.question!.voteCount }} votos
                   </p>
@@ -95,15 +92,14 @@
             @for (question of votacao(); track question.id) {
               <li class="row animate-enter">
                 <div class="row__text">
+                  <button
+                    type="button"
+                    class="linha-abrir"
+                    [attr.aria-label]="'Abrir a pergunta: ' + question.title"
+                    (click)="abrirPergunta(question)"
+                  ></button>
                   <p class="row__title">
-                    <button
-                      type="button"
-                      class="linha-abrir"
-                      [attr.aria-label]="'Abrir a pergunta: ' + question.title"
-                      (click)="abrirPergunta(question)"
-                    >
-                      {{ question.title }}
-                    </button>
+                    {{ question.title }}
                     @if (question.promotedTo) {
                       <span class="tag u-mono">Adiantada</span>
                     }
@@ -147,16 +143,13 @@
             @for (question of coleta(); track question.id) {
               <li class="row animate-enter">
                 <div class="row__text">
-                  <p class="row__title">
-                    <button
-                      type="button"
-                      class="linha-abrir"
-                      [attr.aria-label]="'Abrir a pergunta: ' + question.title"
-                      (click)="abrirPergunta(question)"
-                    >
-                      {{ question.title }}
-                    </button>
-                  </p>
+                  <button
+                    type="button"
+                    class="linha-abrir"
+                    [attr.aria-label]="'Abrir a pergunta: ' + question.title"
+                    (click)="abrirPergunta(question)"
+                  ></button>
+                  <p class="row__title">{{ question.title }}</p>
                   <p class="row__meta u-mono">{{ question.authorName }}</p>
                 </div>
                 <div class="row__actions">

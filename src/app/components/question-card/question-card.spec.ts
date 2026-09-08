@@ -22,6 +22,10 @@ const PERGUNTA: MuralQuestion = {
 
 describe('QuestionCard', () => {
   function montar(question: MuralQuestion) {
+    // Cada montagem começa do zero: sem isso os cartões das montagens
+    // anteriores continuam no documento, empilhados, e a seção que mede
+    // geometria acaba medindo o cartão do teste passado.
+    TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       imports: [QuestionCard],
       providers: [provideZonelessChangeDetection()],
@@ -94,10 +98,10 @@ describe('QuestionCard', () => {
   });
 
   /**
-   * O alvo esticado (spec 024, decisão 3): o título é o botão, e o ::after dele
-   * cobre o cartão inteiro.
+   * O alvo esticado (spec 024, decisão 3): um botão sobreposto do tamanho do
+   * cartão, com o título acessível no rótulo.
    */
-  it('o título abre a pergunta', () => {
+  it('o alvo do cartão abre a pergunta', () => {
     const { fixture, el } = montar(PERGUNTA);
 
     let emitido: MuralQuestion | undefined;
@@ -115,7 +119,7 @@ describe('QuestionCard', () => {
   /**
    * **Os dois testes que o alvo esticado convida a quebrar.**
    *
-   * O ::after do título cobre o cartão inteiro, e sem o z-index do voto e do
+   * O botão sobreposto cobre o cartão inteiro, e sem o z-index do voto e do
    * autor ele engoliria os dois — o cartão passaria a ter um clique só, e o
    * toque mais repetido do app viraria "abrir a pergunta".
    */
@@ -147,5 +151,91 @@ describe('QuestionCard', () => {
 
     expect(pediuOAutor).toBeTrue();
     expect(abriu).toBeFalse();
+  });
+
+  /**
+   * **A prova de que o alvo esticado é do tamanho do cartão** (spec 024,
+   * fase 05).
+   *
+   * Os testes acima clicam nos elementos por seletor, e por isso passariam
+   * mesmo se o botão não cobrisse nada: seria um cartão em que só o texto do
+   * título abre a pergunta, que é quase o defeito de antes. Aqui a medida é
+   * geométrica, com o cartão numa largura de celular, e feita num navegador de
+   * verdade — o layout é o do Chrome, não o de um DOM simulado.
+   *
+   * **Não é `elementFromPoint`**: a página do Karma desenha as próprias caixas
+   * por cima do fixture, e a pergunta "quem está debaixo deste ponto" acaba
+   * respondendo sobre elas. O que se mede aqui é o retângulo do alvo contra o
+   * do cartão, mais a pilha declarada dos dois botões que precisam ficar por
+   * cima — que é exatamente o que decide o comportamento na tela.
+   */
+  describe('o alvo esticado, medido no Chrome em 360px', () => {
+    function montarEstreito(question: MuralQuestion) {
+      const montado = montar(question);
+      const host = montado.el;
+      host.style.display = 'block';
+      host.style.width = '360px';
+      montado.fixture.componentRef.setInput('votable', true);
+      montado.fixture.detectChanges();
+
+      return montado;
+    }
+
+    it('o alvo cobre o cartão inteiro, e não só o título', () => {
+      const { el } = montarEstreito(PERGUNTA);
+      const card = el.querySelector('.card')!.getBoundingClientRect();
+      const alvo = el.querySelector('.card__abrir')!.getBoundingClientRect();
+      const titulo = el.querySelector('.card__title')!.getBoundingClientRect();
+
+      // Cobre o cartão dentro da borda, nos quatro lados.
+      expect(alvo.left - card.left).toBeLessThanOrEqual(2);
+      expect(card.right - alvo.right).toBeLessThanOrEqual(2);
+      expect(alvo.top - card.top).toBeLessThanOrEqual(2);
+      expect(card.bottom - alvo.bottom).toBeLessThanOrEqual(2);
+
+      // E é bem maior que o título: é essa diferença que faz "clicar no cartão"
+      // ser diferente de "clicar no texto".
+      expect(alvo.height).toBeGreaterThan(titulo.height * 2);
+    });
+
+    /**
+     * **Os dois que precisam ficar por cima do alvo.**
+     *
+     * Sem esta pilha o botão sobreposto engole os dois, e o cartão passa a ter
+     * um clique só: o de abrir. O toque mais repetido do app inteiro, que é o
+     * voto, deixaria de existir sem nada quebrar.
+     */
+    it('teste-trava: voto e autor ficam acima do alvo na pilha', () => {
+      const { el } = montarEstreito(PERGUNTA);
+
+      for (const seletor of ['.vote', '.card__autor-botao']) {
+        const estilo = getComputedStyle(el.querySelector(seletor) as HTMLElement);
+
+        expect(estilo.position).toBe('relative');
+        expect(estilo.zIndex).toBe('1');
+      }
+
+      const alvo = getComputedStyle(el.querySelector('.card__abrir') as HTMLElement);
+      expect(alvo.position).toBe('absolute');
+      expect(alvo.zIndex).toBe('auto');
+    });
+
+    /**
+     * A prévia de três linhas (decisão 4). Em 360px, um corpo de 1000
+     * caracteres passaria de vinte linhas e empurraria as outras perguntas para
+     * fora da tela: a lista deixaria de ser lista.
+     */
+    it('o corpo longo é cortado em três linhas', () => {
+      const { el } = montarEstreito({
+        ...PERGUNTA,
+        body: 'palavra '.repeat(140).trim(),
+      });
+
+      const texto = el.querySelector('.card__text') as HTMLElement;
+      const linha = parseFloat(getComputedStyle(texto).lineHeight);
+
+      expect(texto.scrollHeight).toBeGreaterThan(texto.clientHeight);
+      expect(texto.clientHeight).toBeLessThanOrEqual(Math.ceil(linha * 3) + 2);
+    });
   });
 });

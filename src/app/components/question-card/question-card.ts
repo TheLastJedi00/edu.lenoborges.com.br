@@ -21,25 +21,31 @@ import { tituloDaInsignia } from '../../core/mural/badge-title';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <article class="card" [class.card--mine]="question().isMine">
+      <!--
+        O alvo esticado (spec 024, decisão 3): um botão sobreposto do tamanho do
+        cartão, e o título continua sendo título.
+
+        Ele é um elemento de verdade, e não um ::after do próprio título, porque
+        o Chrome recorta o pseudo-elemento de um <button> no box do botão: o
+        alvo parecia cobrir o cartão no CSS e, medido com elementFromPoint, não
+        cobria nada além do texto. O teste de hit-testing da fase 05 é o que
+        pega isso.
+
+        Aninhar o voto e o nome do autor dentro de um botão de abrir seria
+        <button> dentro de <button>, que é HTML inválido; sobrepondo, os dois
+        sobem por cima com z-index e continuam sendo eles mesmos no leitor de
+        tela.
+      -->
+      <button
+        type="button"
+        class="card__abrir"
+        [attr.aria-label]="'Abrir a pergunta: ' + question().title"
+        (click)="abrir.emit(question())"
+      ></button>
+
       <div class="card__body">
         <p class="card__badge u-mono">{{ badgeTitle() }}</p>
-        <!--
-          O alvo esticado (spec 024, decisão 3): o título é o botão, e o
-          o ::after dele cobre o cartão inteiro. É o que faz "clicar no cartão"
-          sem aninhar botão dentro de botão, que é HTML inválido e se comporta
-          diferente em cada navegador. O voto e o nome do autor sobem por cima
-          dele no .scss, e continuam sendo eles mesmos no leitor de tela.
-        -->
-        <h3 class="card__title">
-          <button
-            type="button"
-            class="card__abrir"
-            [attr.aria-label]="'Abrir a pergunta: ' + question().title"
-            (click)="abrir.emit(question())"
-          >
-            {{ question().title }}
-          </button>
-        </h3>
+        <h3 class="card__title">{{ question().title }}</h3>
         <!--
           Prévia de três linhas, e não o texto inteiro. São até 1000 caracteres,
           e em 360px uma pergunta longa empurra as outras cinco para fora da
@@ -158,35 +164,23 @@ import { tituloDaInsignia } from '../../core/mural/badge-title';
     }
 
     /*
-     * O botão que abre: parece o título, e não um botão.
+     * O alvo, invisível e do tamanho do cartão.
      *
-     * O ::after é o alvo de verdade — cobre o cartão inteiro, e por isso o
-     * clique em qualquer lugar abre. O contorno de foco vai no ::after
-     * também, ou ele desenharia uma caixa só em volta do texto do título,
-     * mentindo sobre o tamanho do alvo.
+     * Fica embaixo de tudo na pilha (sem z-index) e por cima do fundo: o texto
+     * continua selecionável nos lugares em que não há outro alvo, e o voto e o
+     * nome do autor sobem com z-index: 1.
      */
     .card__abrir {
+      position: absolute;
+      inset: 0;
       padding: 0;
       border: none;
+      border-radius: var(--radius-lg);
       background: none;
-      color: inherit;
-      font: inherit;
-      text-align: left;
       cursor: pointer;
     }
 
-    .card__abrir::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: var(--radius-lg);
-    }
-
     .card__abrir:focus-visible {
-      outline: none;
-    }
-
-    .card__abrir:focus-visible::after {
       outline: 2px solid var(--accent-deep);
       outline-offset: 2px;
     }
@@ -218,7 +212,7 @@ import { tituloDaInsignia } from '../../core/mural/badge-title';
     /*
      * O nome do autor e o voto ficam ACIMA do alvo esticado.
      *
-     * Sem o z-index, o ::after do título cobriria os dois e o cartão passaria a
+     * Sem o z-index, o botão sobreposto cobriria os dois e o cartão passaria a
      * ter um clique só, o de abrir — engolindo justamente o toque mais repetido
      * do app inteiro, que é o voto.
      */

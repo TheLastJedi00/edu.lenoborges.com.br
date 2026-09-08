@@ -260,27 +260,16 @@
 }
 
 .linha-abrir {
+  position: absolute;
+  inset: 0;
   padding: 0;
   border: none;
+  border-radius: var(--radius-lg);
   background: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
   cursor: pointer;
 }
 
-.linha-abrir::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-lg);
-}
-
 .linha-abrir:focus-visible {
-  outline: none;
-}
-
-.linha-abrir:focus-visible::after {
   outline: 2px solid var(--accent-deep);
   outline-offset: 2px;
 }
