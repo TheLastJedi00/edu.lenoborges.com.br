@@ -65,33 +65,33 @@ não é aberto por ninguém.
 
 ---
 
-# Fase 03: O Mural do membro abre a pergunta []
+# Fase 03: O Mural do membro abre a pergunta [x]
 
 Ao fim desta fase, clicar no cartão do mural abre a pergunta, nas três abas.
 
-- [] Task 01: `src/app/components/question-card/question-card.ts` — o alvo esticado da decisão 3: o
+- [x] Task 01: `src/app/components/question-card/question-card.ts` — o alvo esticado da decisão 3: o
   título vira `<button class="card__abrir">` com `::after { position: absolute; inset: 0 }` sobre o
   `.card` (`position: relative`), `aria-label` "Abrir a pergunta: {título}", e emite um novo
   `output` `abrir`. O botão de voto e o botão do autor recebem `position: relative; z-index: 1`.
   Nada de `<button>` dentro de `<button>`.
-- [] Task 02: `question-card.ts` — a prévia de corpo da decisão 4: `.card__text` com
+- [x] Task 02: `question-card.ts` — a prévia de corpo da decisão 4: `.card__text` com
   `-webkit-line-clamp: 3`, `display: -webkit-box` e `overflow: hidden`. Mais o realce de `:hover` e
   `:focus-within` no cartão e o `cursor: pointer`, sem os quais o alvo é invisível.
-- [] Task 03: `question-card.spec.ts` — o clique no título emitindo `abrir`; o clique no voto
+- [x] Task 03: `question-card.spec.ts` — o clique no título emitindo `abrir`; o clique no voto
   emitindo `toggle` e **não** emitindo `abrir`; o clique no autor emitindo `authorClick` e **não**
   emitindo `abrir`. Estes dois últimos são os testes que protegem o alvo esticado da regressão que
   ele convida.
-- [] Task 04: `src/app/pages/mural/mural.page.html` + `.ts` — o `app-question-detail-dialog` entra
+- [x] Task 04: `src/app/pages/mural/mural.page.html` + `.ts` — o `app-question-detail-dialog` entra
   ao lado do `app-member-card-dialog`, sempre renderizado, com `viewChild.required`. O
   `(abrir)` do cartão chama `abrirPergunta(question)`. O `authorClick` do diálogo cai no mesmo
   `abrirCartao` que já existe, sem segundo caminho.
-- [] Task 05: `mural.page.html` — a aba "Respondidas" (decisão 8): a linha com pergunta vira alvo
+- [x] Task 05: `mural.page.html` — a aba "Respondidas" (decisão 8): a linha com pergunta vira alvo
   esticado do mesmo jeito e abre o diálogo; semana em branco continua sem alvo e sem cursor. O link
   "Ver a resposta na trilha" é projetado em `[acoes]` quando `answerVideoId` existe.
-- [] Task 06: `mural.page.spec.ts` — abrir pelo cartão mostra o corpo inteiro; abrir pela aba
+- [x] Task 06: `mural.page.spec.ts` — abrir pelo cartão mostra o corpo inteiro; abrir pela aba
   "Respondidas" mostra o link da trilha; clicar no autor dentro do diálogo fecha o diálogo e abre o
   cartão do membro; o voto otimista continua funcionando com o diálogo em tela.
-- [] Task 07: `mural.page.scss` — o que a fase acrescentou de estilo de linha na aba
+- [x] Task 07: `mural.page.scss` — o que a fase acrescentou de estilo de linha na aba
   "Respondidas", com o mesmo realce das outras listas.
 
 ---
