@@ -1,5 +1,14 @@
 # Spec 024: Abrir a Pergunta do Mural
 
+> **Alteração de escopo, na fase 05.** A decisão 3 dizia que o alvo esticado seria o `::after` do
+> título. **O Chrome recorta o pseudo-elemento de um `<button>` no box do próprio botão**, então o
+> alvo cobria só o texto do título — no CSS parecia cobrir o cartão, e na tela não cobria. Ele passou
+> a ser um `<button>` sobreposto de verdade, com `position: absolute; inset: 0`, nos três lugares
+> (cartão do Mural, aba "Respondidas" e as linhas do painel). O resto da decisão 3 vale igual: um
+> item na ordem de tabulação, e o voto e o nome do autor por cima com `z-index`.
+
+---
+
 ## Objetivo
 Hoje a pergunta do Mural não abre. No mural do membro, o cartão mostra título, autor e o corpo
 inteiro despejado embaixo; no painel do admin, as linhas de "Em votação", "Esta semana" e da pauta
@@ -47,10 +56,11 @@ O pedido é clicar no cartão. Mas o cartão já tem dois elementos interativos 
 nome do autor, e `<button>` dentro de `<button>` é HTML inválido, com comportamento que muda entre
 navegadores.
 
-O padrão é o alvo esticado: o título vira um `<button class="card__abrir">` cujo `::after` cobre o
-cartão (`position: absolute; inset: 0`), e o voto e o nome do autor sobem com `position: relative;
-z-index: 1`. Resultado: um alvo do tamanho do cartão, **um** item na ordem de tabulação nomeado
-pelo título ("Abrir a pergunta: ..."), e os dois botões de dentro continuam clicáveis e continuam
+O padrão é o alvo esticado. A primeira forma foi o `::after` do título, e ela **não funciona**: o
+Chrome recorta o pseudo-elemento de um `<button>` no box do botão. O que vale é um `<button
+class="card__abrir">` **sobreposto**, com `position: absolute; inset: 0` sobre o cartão, enquanto o
+voto e o nome do autor sobem com `position: relative; z-index: 1`. Resultado: um alvo do tamanho
+do cartão, **um** item na ordem de tabulação nomeado pelo título ("Abrir a pergunta: ..."), e os dois botões de dentro continuam clicáveis e continuam
 sendo eles mesmos no leitor de tela.
 
 O cartão ganha `cursor: pointer` e um realce de `:hover` e de `:focus-within`. Sem o realce, o alvo

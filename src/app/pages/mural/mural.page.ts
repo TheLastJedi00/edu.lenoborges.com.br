@@ -6,19 +6,16 @@ import {
   computed,
   inject,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { QuestionCard } from '../../components/question-card/question-card';
 import { MemberCardDialog } from '../../components/member-card-dialog/member-card-dialog';
+import { QuestionDetailDialog } from '../../components/question-detail-dialog/question-detail-dialog';
 import { Logo } from '../../shared/logo/logo';
 import { MuralService } from '../../services/mural.service';
-import {
-  MuralQuestion,
-  MuralState,
-  MuralWinner
-} from '../../models/mural.model';
+import { MuralQuestion, MuralState, MuralWinner } from '../../models/mural.model';
 import { describeCountdown } from '../../core/mural/countdown';
 
 type Aba = 'votacao' | 'coleta' | 'respondidas';
@@ -27,10 +24,10 @@ type LoadState = 'loading' | 'ready' | 'error';
 @Component({
   selector: 'app-mural-page',
   standalone: true,
-  imports: [RouterLink, QuestionCard, Logo, MemberCardDialog],
+  imports: [RouterLink, QuestionCard, Logo, MemberCardDialog, QuestionDetailDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './mural.page.html',
-  styleUrl: './mural.page.scss'
+  styleUrl: './mural.page.scss',
 })
 export class MuralPage implements OnInit {
   private readonly mural = inject(MuralService);
@@ -39,6 +36,17 @@ export class MuralPage implements OnInit {
 
   /** O cartao do membro, sempre renderizado e aberto por `open(uid)`. */
   private readonly cartao = viewChild.required(MemberCardDialog);
+
+  /** A pergunta por inteiro, sempre renderizada e aberta por `open(pergunta)`. */
+  private readonly detalhe = viewChild.required(QuestionDetailDialog);
+
+  /**
+   * Qual pergunta está aberta no diálogo.
+   *
+   * Existe para o template poder projetar o link da resposta em `[acoes]`: o
+   * diálogo é burro e não conhece a trilha. Nulo quando não há nada aberto.
+   */
+  protected readonly perguntaAberta = signal<MuralQuestion | null>(null);
 
   /**
    * **"Em votação" é a aba inicial**, e é decisão.
@@ -66,7 +74,7 @@ export class MuralPage implements OnInit {
   protected readonly votable = computed(() => this.aba() === 'votacao');
 
   protected readonly empty = computed(
-    () => this.loadState() === 'ready' && this.questions().length === 0
+    () => this.loadState() === 'ready' && this.questions().length === 0,
   );
 
   ngOnInit(): void {
@@ -91,7 +99,7 @@ export class MuralPage implements OnInit {
           this.state.set(state);
           this.loadQuestions();
         },
-        error: () => this.loadState.set('error')
+        error: () => this.loadState.set('error'),
       });
   }
 
@@ -127,7 +135,7 @@ export class MuralPage implements OnInit {
           this.questions.set(list);
           this.loadState.set('ready');
         },
-        error: () => this.loadState.set('error')
+        error: () => this.loadState.set('error'),
       });
   }
 
@@ -142,7 +150,7 @@ export class MuralPage implements OnInit {
           this.winners.set(list);
           this.loadState.set('ready');
         },
-        error: () => this.loadState.set('error')
+        error: () => this.loadState.set('error'),
       });
   }
 
@@ -168,18 +176,16 @@ export class MuralPage implements OnInit {
           ? {
               ...item,
               hasVoted: votando,
-              voteCount: item.voteCount + (votando ? 1 : -1)
+              voteCount: item.voteCount + (votando ? 1 : -1),
             }
-          : item
-      )
+          : item,
+      ),
     );
 
-    const requisicao = votando
-      ? this.mural.vote(question.id)
-      : this.mural.unvote(question.id);
+    const requisicao = votando ? this.mural.vote(question.id) : this.mural.unvote(question.id);
 
     requisicao.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      error: () => this.questions.set(anterior)
+      error: () => this.questions.set(anterior),
     });
   }
 
@@ -190,6 +196,18 @@ export class MuralPage implements OnInit {
    * `authorUid` existe. O `if` daqui é a segunda guarda, e é barata: o `uid` do
    * argumento entra numa URL.
    */
+  /**
+   * Abre a pergunta por inteiro (spec 024).
+   *
+   * A pergunta vai como está na lista, e **não é buscada de novo**: é a mesma
+   * que o cartão acabou de desenhar, com o `body` que a API sempre mandou e que
+   * a tela descartava.
+   */
+  protected abrirPergunta(question: MuralQuestion): void {
+    this.perguntaAberta.set(question);
+    this.detalhe().open(question);
+  }
+
   protected abrirCartao(question: MuralQuestion): void {
     if (!question.authorUid) {
       return;

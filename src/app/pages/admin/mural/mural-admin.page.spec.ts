@@ -1,10 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { AdminMuralPage } from './mural-admin.page';
 import { MuralQuestion, MuralWinner } from '../../../models/mural.model';
@@ -25,7 +22,7 @@ function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
     answerVideoId: null,
     promotedTo: null,
     createdAt: '2026-08-09T18:00:00.000Z',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -35,7 +32,7 @@ describe('AdminMuralPage', () => {
   function setup(
     votacao: MuralQuestion[],
     coleta: MuralQuestion[] = [],
-    winners: MuralWinner[] = []
+    winners: MuralWinner[] = [],
   ) {
     TestBed.configureTestingModule({
       imports: [AdminMuralPage],
@@ -43,8 +40,8 @@ describe('AdminMuralPage', () => {
         provideZonelessChangeDetection(),
         provideRouter([]),
         provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+        provideHttpClientTesting(),
+      ],
     });
 
     http = TestBed.inject(HttpTestingController);
@@ -53,9 +50,7 @@ describe('AdminMuralPage', () => {
 
     // As três saem juntas num `forkJoin` (spec 016): a pauta fica acima das
     // listas e, encadeada, seria a última a aparecer.
-    const perguntas = http.match((req) =>
-      req.url.endsWith('/mural/perguntas')
-    );
+    const perguntas = http.match((req) => req.url.endsWith('/mural/perguntas'));
     expect(perguntas.length).toBe(2);
 
     const porFase = (fase: string) =>
@@ -63,9 +58,7 @@ describe('AdminMuralPage', () => {
 
     porFase('votacao').flush(votacao);
     porFase('coleta').flush(coleta);
-    http
-      .expectOne((req) => req.url.endsWith('/mural/vencedoras'))
-      .flush(winners);
+    http.expectOne((req) => req.url.endsWith('/mural/vencedoras')).flush(winners);
     fixture.detectChanges();
 
     return { fixture, el: fixture.nativeElement as HTMLElement };
@@ -74,13 +67,13 @@ describe('AdminMuralPage', () => {
   /** O primeiro botão da tela com este rótulo. */
   function botao(el: HTMLElement, rotulo: string): HTMLButtonElement {
     return Array.from(el.querySelectorAll('.row__actions .btn')).find((node) =>
-      node.textContent?.includes(rotulo)
+      node.textContent?.includes(rotulo),
     ) as HTMLButtonElement;
   }
 
   function confirmar(el: HTMLElement, rotulo: string): void {
     const acao = Array.from(el.querySelectorAll('.modal .btn')).find((node) =>
-      node.textContent?.includes(rotulo)
+      node.textContent?.includes(rotulo),
     ) as HTMLButtonElement;
     acao.click();
   }
@@ -92,7 +85,7 @@ describe('AdminMuralPage', () => {
   it('lista as perguntas das duas semanas vivas', () => {
     const { el } = setup(
       [question({ id: 'a', title: 'Em votação agora' })],
-      [question({ id: 'b', title: 'Escrita esta semana', phase: 'coleta' })]
+      [question({ id: 'b', title: 'Escrita esta semana', phase: 'coleta' })],
     );
 
     expect(el.textContent).toContain('Em votação agora');
@@ -105,15 +98,13 @@ describe('AdminMuralPage', () => {
    * sozinho não diz qual deles vai sumir.
    */
   it('mostra o texto da pergunta no diálogo de confirmação', () => {
-    const { fixture, el } = setup([
-      question({ title: 'Uma pergunta bem específica' })
-    ]);
+    const { fixture, el } = setup([question({ title: 'Uma pergunta bem específica' })]);
 
     (el.querySelector('.btn--danger') as HTMLButtonElement).click();
     fixture.detectChanges();
 
     expect(el.querySelector('.modal__message')?.textContent).toContain(
-      'Uma pergunta bem específica'
+      'Uma pergunta bem específica',
     );
   });
 
@@ -126,7 +117,7 @@ describe('AdminMuralPage', () => {
     // Cancelar não pode disparar requisição nenhuma — o http.verify() do
     // afterEach não existe aqui, mas o expectOne abaixo reprovaria uma segunda.
     const cancelar = Array.from(el.querySelectorAll('.modal .btn')).find((node) =>
-      node.textContent?.includes('Cancelar')
+      node.textContent?.includes('Cancelar'),
     ) as HTMLButtonElement;
     cancelar.click();
     fixture.detectChanges();
@@ -134,14 +125,12 @@ describe('AdminMuralPage', () => {
     (el.querySelector('.btn--danger') as HTMLButtonElement).click();
     fixture.detectChanges();
 
-    const confirmar = Array.from(el.querySelectorAll('.modal .btn')).find(
-      (node) => node.textContent?.includes('Remover')
+    const confirmar = Array.from(el.querySelectorAll('.modal .btn')).find((node) =>
+      node.textContent?.includes('Remover'),
     ) as HTMLButtonElement;
     confirmar.click();
 
-    http
-      .expectOne((req) => req.url.includes('/admin/mural/perguntas/'))
-      .flush(null);
+    http.expectOne((req) => req.url.includes('/admin/mural/perguntas/')).flush(null);
   });
 
   /**
@@ -156,17 +145,15 @@ describe('AdminMuralPage', () => {
         {
           weekId: '2026-08-02',
           origem: 'voto',
-          question: question({ badgeId: 'angular', title: 'A vencedora' })
-        }
-      ]
+          question: question({ badgeId: 'angular', title: 'A vencedora' }),
+        },
+      ],
     );
 
     const atalho = Array.from(el.querySelectorAll('a')).find((node) =>
-      node.textContent?.includes('Cadastrar o vídeo')
+      node.textContent?.includes('Cadastrar o vídeo'),
     );
-    expect(atalho?.getAttribute('href')).toContain(
-      '/dashboard/admin/trilha/angular'
-    );
+    expect(atalho?.getAttribute('href')).toContain('/dashboard/admin/trilha/angular');
   });
 
   /**
@@ -175,7 +162,7 @@ describe('AdminMuralPage', () => {
   it('a pergunta adiantada sai da coleta e entra na votação', () => {
     const { fixture, el } = setup(
       [],
-      [question({ id: 'x', title: 'Vai ser adiantada', phase: 'coleta' })]
+      [question({ id: 'x', title: 'Vai ser adiantada', phase: 'coleta' })],
     );
 
     const adiantar = botao(el, 'Adiantar para votação');
@@ -191,8 +178,8 @@ describe('AdminMuralPage', () => {
           id: 'x',
           title: 'Vai ser adiantada',
           phase: 'votacao',
-          promotedTo: 'votacao'
-        })
+          promotedTo: 'votacao',
+        }),
       );
     fixture.detectChanges();
 
@@ -208,7 +195,7 @@ describe('AdminMuralPage', () => {
   it('falhando o adiantamento, o cartão volta para onde estava e a mensagem aparece', () => {
     const { fixture, el } = setup(
       [],
-      [question({ id: 'x', title: 'Vai falhar', phase: 'coleta' })]
+      [question({ id: 'x', title: 'Vai falhar', phase: 'coleta' })],
     );
 
     botao(el, 'Adiantar para votação').click();
@@ -222,9 +209,7 @@ describe('AdminMuralPage', () => {
 
     expect(secao(el, 'coleta-titulo').textContent).toContain('Vai falhar');
     expect(secao(el, 'votacao-titulo').textContent).not.toContain('Vai falhar');
-    expect(el.querySelector('[role="alert"]')?.textContent).toContain(
-      'Não consegui adiantar'
-    );
+    expect(el.querySelector('[role="alert"]')?.textContent).toContain('Não consegui adiantar');
   });
 
   /**
@@ -239,8 +224,8 @@ describe('AdminMuralPage', () => {
         question({ id: 'q1', title: 'Primeira', phase: 'coleta' }),
         question({ id: 'q2', title: 'Segunda', phase: 'coleta' }),
         question({ id: 'q3', title: 'Terceira', phase: 'coleta' }),
-        question({ id: 'q4', title: 'Quarta', phase: 'coleta' })
-      ]
+        question({ id: 'q4', title: 'Quarta', phase: 'coleta' }),
+      ],
     );
 
     // O primeiro "Adiantar para votação" da tela é o da pergunta q1.
@@ -255,14 +240,14 @@ describe('AdminMuralPage', () => {
           id: 'q1',
           title: 'Primeira',
           phase: 'votacao',
-          promotedTo: 'votacao'
-        })
+          promotedTo: 'votacao',
+        }),
       );
     fixture.detectChanges();
 
-    const restantes = Array.from(
-      secao(el, 'coleta-titulo').querySelectorAll('.row__title')
-    ).map((node) => node.textContent?.trim());
+    const restantes = Array.from(secao(el, 'coleta-titulo').querySelectorAll('.row__title')).map(
+      (node) => node.textContent?.trim(),
+    );
 
     expect(restantes).toEqual(['Segunda', 'Terceira', 'Quarta']);
     // Nenhuma requisição de recarregamento foi disparada.
@@ -276,8 +261,8 @@ describe('AdminMuralPage', () => {
   it('pergunta já em votação não tem o botão de adiantar para votação', () => {
     const { el } = setup([question({ id: 'v', title: 'Já em votação' })]);
 
-    const rotulos = Array.from(el.querySelectorAll('.row__actions .btn')).map(
-      (node) => node.textContent?.trim()
+    const rotulos = Array.from(el.querySelectorAll('.row__actions .btn')).map((node) =>
+      node.textContent?.trim(),
     );
 
     expect(rotulos).not.toContain('Adiantar para votação');
@@ -290,12 +275,12 @@ describe('AdminMuralPage', () => {
         id: 'p',
         title: 'Já na pauta',
         phase: 'encerrada',
-        promotedTo: 'encerrada'
-      })
+        promotedTo: 'encerrada',
+      }),
     ]);
 
-    const rotulos = Array.from(el.querySelectorAll('.row__actions .btn')).map(
-      (node) => node.textContent?.trim()
+    const rotulos = Array.from(el.querySelectorAll('.row__actions .btn')).map((node) =>
+      node.textContent?.trim(),
     );
 
     expect(rotulos).toEqual(['Remover']);
@@ -309,11 +294,117 @@ describe('AdminMuralPage', () => {
         {
           weekId: '2026-08-02',
           origem: 'voto',
-          question: question({ answerVideoId: 'angular__aaaaaaaaaaa' })
-        }
-      ]
+          question: question({ answerVideoId: 'angular__aaaaaaaaaaa' }),
+        },
+      ],
     );
 
     expect(el.textContent).not.toContain('Cadastrar o vídeo');
+  });
+  /**
+   * **O que a spec 024 conserta do lado do painel.**
+   *
+   * O `body` sempre veio nas três listas e esta tela o descartava: o admin
+   * decidia adiantar, remover ou gravar lendo um título de 140 caracteres.
+   */
+  it('a linha de votação abre a pergunta com o contexto inteiro', () => {
+    const { fixture, el } = setup([question({ body: 'O contexto que a lista não mostrava.' })]);
+
+    (el.querySelector('.row .linha-abrir') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const dialogo = el.querySelector('app-question-detail-dialog dialog')!;
+    expect(dialogo.hasAttribute('open')).toBeTrue();
+    expect(dialogo.textContent).toContain('O contexto que a lista não mostrava.');
+    // Nada de requisição nova: a pergunta é a que o forkJoin já trouxe.
+    http.verify();
+  });
+
+  /**
+   * **Um modal por vez** (decisão 6): o da pergunta fecha antes de a
+   * confirmação abrir, ou o `Esc` passa a fechar um dos dois sem ninguém saber
+   * qual.
+   */
+  it('adiantar pelo diálogo fecha a pergunta e abre a confirmação', async () => {
+    const { fixture, el } = setup([question()]);
+
+    (el.querySelector('.row .linha-abrir') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const acao = Array.from(el.querySelectorAll('app-question-detail-dialog .btn')).find((node) =>
+      node.textContent?.includes('Responder logo'),
+    ) as HTMLButtonElement;
+    acao.click();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    fixture.detectChanges();
+
+    expect(el.querySelector('app-question-detail-dialog dialog')!.hasAttribute('open')).toBeFalse();
+    expect(el.textContent).toContain('Responder esta pergunta logo?');
+  });
+
+  /**
+   * A invariante da spec 016 continua de pé quando a promoção parte do diálogo:
+   * **um cartão só se move**, e o ciclo não anda para ninguém.
+   */
+  it('confirmar a promoção vinda do diálogo move um cartão só', async () => {
+    const { fixture, el } = setup(
+      [question({ id: 'a', title: 'A que vai sair' })],
+      [question({ id: 'b', title: 'A que fica', phase: 'coleta' })],
+    );
+
+    (el.querySelector('.row .linha-abrir') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const acao = Array.from(el.querySelectorAll('app-question-detail-dialog .btn')).find((node) =>
+      node.textContent?.includes('Responder logo'),
+    ) as HTMLButtonElement;
+    acao.click();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    fixture.detectChanges();
+
+    const confirmar = Array.from(el.querySelectorAll('button')).find((node) =>
+      node.textContent?.trim().startsWith('Pôr na pauta'),
+    ) as HTMLButtonElement;
+    confirmar.click();
+    fixture.detectChanges();
+
+    http
+      .expectOne((req) => req.url.includes('/admin/mural/perguntas/a/fase'))
+      .flush(question({ id: 'a', phase: 'encerrada', promotedTo: 'encerrada' }));
+    fixture.detectChanges();
+
+    expect(el.textContent).not.toContain('A que vai sair');
+    expect(el.textContent).toContain('A que fica');
+  });
+
+  /**
+   * A pauta é a linha que mais precisa abrir: é dela que sai a decisão de
+   * gravar. O link do vídeo é o mesmo da linha, com o `resposta` na query
+   * (spec 017), e não uma segunda forma de montá-lo.
+   */
+  it('a linha da pauta abre com o caminho para gravar o vídeo', () => {
+    const naPauta = question({
+      id: 'c',
+      phase: 'encerrada',
+      badgeId: 'poo',
+      title: 'A que espera vídeo',
+      body: 'Com contexto e tudo.',
+    });
+
+    const { fixture, el } = setup(
+      [],
+      [],
+      [{ weekId: '2026-08-02', origem: 'voto', question: naPauta }],
+    );
+
+    (el.querySelector('.pauta__row .linha-abrir') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const dialogo = el.querySelector('app-question-detail-dialog dialog')!;
+    expect(dialogo.textContent).toContain('Com contexto e tudo.');
+
+    const link = dialogo.querySelector('a.btn') as HTMLAnchorElement;
+    expect(link.textContent).toContain('Cadastrar o vídeo de resposta');
+    expect(link.getAttribute('href')).toBe('/dashboard/admin/trilha/poo?resposta=c');
   });
 });

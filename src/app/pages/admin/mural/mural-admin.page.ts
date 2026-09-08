@@ -6,18 +6,15 @@ import {
   computed,
   inject,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
+import { QuestionDetailDialog } from '../../../components/question-detail-dialog/question-detail-dialog';
 import { MuralService } from '../../../services/mural.service';
-import {
-  MuralQuestion,
-  MuralWinner,
-  PromotionTarget
-} from '../../../models/mural.model';
+import { MuralQuestion, MuralWinner, PromotionTarget } from '../../../models/mural.model';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
@@ -30,16 +27,27 @@ interface PendingAction {
 @Component({
   selector: 'app-admin-mural-page',
   standalone: true,
-  imports: [RouterLink, ConfirmDialog],
+  imports: [RouterLink, ConfirmDialog, QuestionDetailDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './mural-admin.page.html',
-  styleUrl: './mural-admin.page.scss'
+  styleUrl: './mural-admin.page.scss',
 })
 export class AdminMuralPage implements OnInit {
   private readonly mural = inject(MuralService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly confirmDialog = viewChild.required(ConfirmDialog);
+
+  /** A pergunta por inteiro, sempre renderizada e aberta por `open(pergunta)`. */
+  private readonly detalhe = viewChild.required(QuestionDetailDialog);
+
+  /**
+   * Qual pergunta está aberta no diálogo.
+   *
+   * É dela que as ações projetadas se ligam: o diálogo é burro e recebe os
+   * botões prontos, e este sinal é o que diz sobre qual pergunta eles agem.
+   */
+  protected readonly perguntaAberta = signal<MuralQuestion | null>(null);
 
   protected readonly state = signal<LoadState>('loading');
   protected readonly votacao = signal<readonly MuralQuestion[]>([]);
@@ -59,9 +67,7 @@ export class AdminMuralPage implements OnInit {
    * o rótulo, o admin não distingue a escolha da comunidade da própria.
    */
   protected readonly pauta = computed(() =>
-    this.winners().filter(
-      (linha) => linha.question && !linha.question.answerVideoId
-    )
+    this.winners().filter((linha) => linha.question && !linha.question.answerVideoId),
   );
 
   /**
@@ -92,9 +98,7 @@ export class AdminMuralPage implements OnInit {
     }
   });
 
-  protected readonly isDanger = computed(
-    () => this.pendingTarget()?.kind === 'remover'
-  );
+  protected readonly isDanger = computed(() => this.pendingTarget()?.kind === 'remover');
 
   /**
    * A mensagem carrega **o texto da pergunta** e **a consequência**.
@@ -146,7 +150,7 @@ export class AdminMuralPage implements OnInit {
     forkJoin({
       votacao: this.mural.listQuestions('votacao'),
       coleta: this.mural.listQuestions('coleta'),
-      winners: this.mural.listWinners()
+      winners: this.mural.listWinners(),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -156,7 +160,7 @@ export class AdminMuralPage implements OnInit {
           this.winners.set(winners);
           this.state.set('ready');
         },
-        error: () => this.state.set('error')
+        error: () => this.state.set('error'),
       });
   }
 
@@ -177,6 +181,28 @@ export class AdminMuralPage implements OnInit {
       default:
         return [];
     }
+  }
+
+  /**
+   * Abre a pergunta por inteiro (spec 024).
+   *
+   * Sem requisição: a pergunta é a que o `forkJoin` do `load()` já trouxe, com
+   * o `body` que esta tela descartava.
+   */
+  protected abrirPergunta(question: MuralQuestion): void {
+    this.perguntaAberta.set(question);
+    this.detalhe().open(question);
+  }
+
+  /**
+   * Se esta pergunta é uma das que esperam vídeo.
+   *
+   * Sai da própria pergunta, e **não de uma busca na pauta**: encerrada e sem
+   * vídeo é exatamente o que a pauta lista, e perguntar à lista faria o diálogo
+   * depender de qual das três listas a pergunta veio.
+   */
+  protected esperandoVideo(question: MuralQuestion): boolean {
+    return question.phase === 'encerrada' && !question.answerVideoId;
   }
 
   protected promotionLabel(fase: PromotionTarget): string {
@@ -213,6 +239,10 @@ export class AdminMuralPage implements OnInit {
   }
 
   private ask(action: PendingAction): void {
+    // Um modal por vez (decisão 6): se a ação partiu do diálogo da pergunta, ele
+    // fecha antes de a confirmação abrir. Dois <dialog> empilhados no top layer
+    // deixam o Esc fechando um dos dois sem ninguém saber qual.
+    this.detalhe().close();
     this.actionError.set(null);
     this.pending = action;
     this.pendingTarget.set(action);
@@ -228,8 +258,7 @@ export class AdminMuralPage implements OnInit {
           this.votacao.update((list) => without(list, question.id));
           this.coleta.update((list) => without(list, question.id));
         },
-        error: () =>
-          this.actionError.set('Não consegui remover a pergunta agora.')
+        error: () => this.actionError.set('Não consegui remover a pergunta agora.'),
       });
   }
 
@@ -262,35 +291,28 @@ export class AdminMuralPage implements OnInit {
           this.votacao.set(antesVotacao);
           this.coleta.set(antesColeta);
           this.actionError.set('Não consegui adiantar a pergunta agora.');
-        }
+        },
       });
   }
 
   /** Põe a pergunta na seção da fase dela, e tira das outras. */
   private aplicar(question: MuralQuestion): void {
     this.votacao.update((list) =>
-      question.phase === 'votacao'
-        ? replaceOrAppend(list, question)
-        : without(list, question.id)
+      question.phase === 'votacao' ? replaceOrAppend(list, question) : without(list, question.id),
     );
     this.coleta.update((list) =>
-      question.phase === 'coleta'
-        ? replaceOrAppend(list, question)
-        : without(list, question.id)
+      question.phase === 'coleta' ? replaceOrAppend(list, question) : without(list, question.id),
     );
   }
 }
 
-function without(
-  list: readonly MuralQuestion[],
-  id: string
-): readonly MuralQuestion[] {
+function without(list: readonly MuralQuestion[], id: string): readonly MuralQuestion[] {
   return list.filter((item) => item.id !== id);
 }
 
 function replaceOrAppend(
   list: readonly MuralQuestion[],
-  question: MuralQuestion
+  question: MuralQuestion,
 ): readonly MuralQuestion[] {
   return list.some((item) => item.id === question.id)
     ? list.map((item) => (item.id === question.id ? question : item))
