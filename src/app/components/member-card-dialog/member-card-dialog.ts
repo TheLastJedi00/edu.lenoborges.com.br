@@ -6,7 +6,7 @@ import {
   inject,
   output,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { MemberService } from '../../services/member.service';
 import { PublicMember } from '../../models/auth.model';
@@ -244,7 +244,7 @@ type LoadState = 'loading' | 'ready' | 'error' | 'gone';
       background: var(--screen);
       color: var(--ink);
     }
-  `
+  `,
 })
 export class MemberCardDialog {
   private readonly members = inject(MemberService);
@@ -252,8 +252,7 @@ export class MemberCardDialog {
   /** Avisa quem hospeda que o cartão fechou, para limpar o uid aberto. */
   readonly closed = output<void>();
 
-  private readonly dialogRef =
-    viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+  private readonly dialogRef = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly bodyRef = viewChild.required<ElementRef<HTMLElement>>('body');
 
   protected readonly state = signal<LoadState>('loading');
@@ -273,9 +272,7 @@ export class MemberCardDialog {
 
     const progresso = describeProgress(atual.grade);
 
-    return progresso.phase === 'gym'
-      ? `${progresso.badges} de 8 insígnias`
-      : progresso.label;
+    return progresso.phase === 'gym' ? `${progresso.badges} de 8 insígnias` : progresso.label;
   });
 
   /**
@@ -297,8 +294,7 @@ export class MemberCardDialog {
       },
       // 404 tem estado próprio, com frase própria: é a conta excluída, e não
       // uma falha. Qualquer outro erro é erro.
-      error: (error: unknown) =>
-        this.state.set(httpStatus(error) === 404 ? 'gone' : 'error')
+      error: (error: unknown) => this.state.set(httpStatus(error) === 404 ? 'gone' : 'error'),
     });
   }
 
@@ -306,7 +302,20 @@ export class MemberCardDialog {
     this.dialogRef().nativeElement.close();
   }
 
+  /**
+   * Fechar volta ao estado de abertura, e **não só esquece o membro**.
+   *
+   * `member.set(null)` sozinho deixava `state` em `'ready'`, e o `@default` do
+   * template — que lê `member()!.name` — era reavaliado com nulo e lançava
+   * `TypeError` na detecção de mudanças. **Em zoneless isso derruba o ciclo**, e
+   * o sintoma aparece longe daqui: a próxima tela que muda um sinal não
+   * redesenha. Foi assim que, com a spec 024, o diálogo da pergunta passou a
+   * abrir vazio depois de alguém ter aberto e fechado um cartão de membro.
+   *
+   * Os dois sinais são um estado só; separá-los foi o defeito.
+   */
   protected onNativeClose(): void {
+    this.state.set('loading');
     this.member.set(null);
     this.closed.emit();
   }
