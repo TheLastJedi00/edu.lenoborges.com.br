@@ -11,19 +11,19 @@
 
 ---
 
-# Fase 01: A conversão de insígnia num lugar só []
+# Fase 01: A conversão de insígnia num lugar só [x]
 
 Fase de fundação, sem mudança visível. Ao fim dela existe uma função pura para o rótulo da
 insígnia, e o `QuestionCard` já usa.
 
-- [] Task 01: `src/app/core/mural/badge-title.spec.ts` — testes antes: id que existe na trilha
+- [x] Task 01: `src/app/core/mural/badge-title.spec.ts` — testes antes: id que existe na trilha
   devolve o título da etapa; id que não existe devolve **o próprio id**; lista vazia devolve o id.
   O fallback é o que a spec 010 já escolheu, e o teste é o que impede a próxima refatoração de
   trocá-lo por string vazia.
-- [] Task 02: `src/app/core/mural/badge-title.ts` — `tituloDaInsignia(stages: readonly TrackStage[],
+- [x] Task 02: `src/app/core/mural/badge-title.ts` — `tituloDaInsignia(stages: readonly TrackStage[],
   badgeId: string): string`. Função pura, sem `inject`, sem serviço: quem tem o serviço é quem
   chama.
-- [] Task 03: `src/app/components/question-card/question-card.ts` — o `computed` de `badgeTitle`
+- [x] Task 03: `src/app/components/question-card/question-card.ts` — o `computed` de `badgeTitle`
   passa a chamar `tituloDaInsignia(this.community.trackStages(), this.question().badgeId)`. O
   comentário que explica o fallback muda de casa junto com a regra, e não fica duplicado.
 
