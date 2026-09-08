@@ -121,14 +121,31 @@ Ao fim desta fase, o admin lê a pergunta inteira antes de adiantar, remover ou 
 
 ---
 
-# Fase 05: Acabamento e verificação []
+# Fase 05: Acabamento e verificação [x]
 
-- [] Task 01: verificação no Chrome em 360px de largura, nas duas telas: pergunta de 1000
+- [x] Task 01: verificação no Chrome em 360px de largura, nas duas telas: pergunta de 1000
   caracteres rolando dentro do diálogo sem estourar a página, prévia de 3 linhas cortando no
   cartão, e o alvo esticado sem roubar o toque do voto.
-- [] Task 02: acessibilidade — tabulação entra no cartão uma vez só, `Esc` fecha, o foco volta para
+- [x] Task 02: acessibilidade — tabulação entra no cartão uma vez só, `Esc` fecha, o foco volta para
   o botão que abriu, o `aria-label` do alvo nomeia a pergunta, e o diálogo tem `aria-labelledby`
   apontando para o `<h2>` do título.
-- [] Task 03: `npm run lint` e `npm test` limpos, e leitura final do `context.md` para conferir que
+- [x] Task 03: `npm run lint` e `npm test` limpos, e leitura final do `context.md` para conferir que
   nenhuma decisão mudou no caminho. Se mudou, ela sobe para o topo do `context.md` como alteração
   de escopo, pela regra 5 do fluxo.
+
+---
+
+## O que a fase 05 achou
+
+A verificação em 360px pegou o defeito que o CSS escondia: **o `::after` de um `<button>` é
+recortado no box do próprio botão pelo Chrome**, então o alvo esticado cobria só o texto do
+título. Ele virou um `<button>` sobreposto de verdade, nos três lugares, e a decisão 3 do
+`context.md` foi corrigida com a nota de escopo no topo.
+
+**A medida ficou geométrica, e não por `elementFromPoint`.** A página do Karma desenha as próprias
+caixas por cima do fixture, e "quem está debaixo deste ponto" acaba respondendo sobre elas — o
+teste mede o retângulo do alvo contra o do cartão e a pilha declarada do voto e do autor, que é o
+que decide o comportamento na tela.
+
+`npm run lint` **não existe neste repositório** (não há alvo `lint` no `angular.json`). A
+formatação é a do prettier do `package.json`, e foi aplicada em tudo que a spec tocou.
