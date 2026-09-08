@@ -23,7 +23,29 @@ import { tituloDaInsignia } from '../../core/mural/badge-title';
     <article class="card" [class.card--mine]="question().isMine">
       <div class="card__body">
         <p class="card__badge u-mono">{{ badgeTitle() }}</p>
-        <h3 class="card__title">{{ question().title }}</h3>
+        <!--
+          O alvo esticado (spec 024, decisão 3): o título é o botão, e o
+          o ::after dele cobre o cartão inteiro. É o que faz "clicar no cartão"
+          sem aninhar botão dentro de botão, que é HTML inválido e se comporta
+          diferente em cada navegador. O voto e o nome do autor sobem por cima
+          dele no .scss, e continuam sendo eles mesmos no leitor de tela.
+        -->
+        <h3 class="card__title">
+          <button
+            type="button"
+            class="card__abrir"
+            [attr.aria-label]="'Abrir a pergunta: ' + question().title"
+            (click)="abrir.emit(question())"
+          >
+            {{ question().title }}
+          </button>
+        </h3>
+        <!--
+          Prévia de três linhas, e não o texto inteiro. São até 1000 caracteres,
+          e em 360px uma pergunta longa empurra as outras cinco para fora da
+          tela: a lista deixa de ser lista. O texto inteiro está a um toque, no
+          diálogo.
+        -->
         @if (question().body) {
           <p class="card__text">{{ question().body }}</p>
         }
@@ -88,6 +110,7 @@ import { tituloDaInsignia } from '../../core/mural/badge-title';
     }
 
     .card {
+      position: relative;
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 0.75rem;
@@ -96,6 +119,21 @@ import { tituloDaInsignia } from '../../core/mural/badge-title';
       border: var(--border-w) solid var(--border-soft);
       border-radius: var(--radius-lg);
       background: var(--paper);
+      cursor: pointer;
+      transition:
+        border-color var(--motion-1, 120ms) var(--ease-out, ease),
+        box-shadow var(--motion-1, 120ms) var(--ease-out, ease);
+    }
+
+    /*
+     * O realce não é enfeite: sem ele o alvo esticado é invisível, e ninguém
+     * descobre que dá para abrir — que é exatamente o defeito que a spec 024
+     * conserta. O :focus-within põe o teclado no mesmo pé do ponteiro.
+     */
+    .card:hover,
+    .card:focus-within {
+      border-color: var(--accent-deep);
+      box-shadow: var(--shadow-hard-sm);
     }
 
     .card--mine {
@@ -119,7 +157,50 @@ import { tituloDaInsignia } from '../../core/mural/badge-title';
       line-height: 1.25;
     }
 
+    /*
+     * O botão que abre: parece o título, e não um botão.
+     *
+     * O ::after é o alvo de verdade — cobre o cartão inteiro, e por isso o
+     * clique em qualquer lugar abre. O contorno de foco vai no ::after
+     * também, ou ele desenharia uma caixa só em volta do texto do título,
+     * mentindo sobre o tamanho do alvo.
+     */
+    .card__abrir {
+      padding: 0;
+      border: none;
+      background: none;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .card__abrir::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-lg);
+    }
+
+    .card__abrir:focus-visible {
+      outline: none;
+    }
+
+    .card__abrir:focus-visible::after {
+      outline: 2px solid var(--accent-deep);
+      outline-offset: 2px;
+    }
+
+    /*
+     * A prévia de três linhas (spec 024, decisão 4). O texto inteiro mora no
+     * diálogo: sem o corte aqui, "abrir para ler" não significaria nada, porque
+     * já estava tudo na lista.
+     */
     .card__text {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
       margin: 0.35rem 0 0;
       color: var(--ink-soft);
       line-height: 1.5;
@@ -133,7 +214,17 @@ import { tituloDaInsignia } from '../../core/mural/badge-title';
 
     /* O nome clicável continua parecendo o nome: sublinhado pontilhado, e não um
        link azul — ele abre um cartão, não navega para lugar nenhum. */
+
+    /*
+     * O nome do autor e o voto ficam ACIMA do alvo esticado.
+     *
+     * Sem o z-index, o ::after do título cobriria os dois e o cartão passaria a
+     * ter um clique só, o de abrir — engolindo justamente o toque mais repetido
+     * do app inteiro, que é o voto.
+     */
     .card__autor-botao {
+      position: relative;
+      z-index: 1;
       padding: 0;
       border: none;
       background: none;
@@ -179,6 +270,8 @@ import { tituloDaInsignia } from '../../core/mural/badge-title';
      * inteiro, e fica onde o polegar já está.
      */
     .vote {
+      position: relative;
+      z-index: 1;
       display: grid;
       justify-items: center;
       gap: 0.1rem;
@@ -249,7 +342,7 @@ import { tituloDaInsignia } from '../../core/mural/badge-title';
         transition: none;
       }
     }
-  `
+  `,
 })
 export class QuestionCard {
   private readonly community = inject(CommunityService);
@@ -259,6 +352,14 @@ export class QuestionCard {
   readonly votable = input<boolean>(false);
 
   readonly toggle = output<MuralQuestion>();
+
+  /**
+   * Pediram para ler a pergunta inteira (spec 024).
+   *
+   * Quem abre o diálogo é a página, pelo mesmo princípio do `authorClick`: o
+   * cartão diz o que aconteceu, e não o que fazer a respeito.
+   */
+  readonly abrir = output<MuralQuestion>();
 
   /**
    * Pediram para ver quem escreveu (spec 019).
@@ -277,6 +378,6 @@ export class QuestionCard {
    * na trilha volta como ele mesmo) tem que ser o mesmo nos dois lugares.
    */
   protected readonly badgeTitle = computed(() =>
-    tituloDaInsignia(this.community.trackStages(), this.question().badgeId)
+    tituloDaInsignia(this.community.trackStages(), this.question().badgeId),
   );
 }

@@ -17,14 +17,14 @@ const PERGUNTA: MuralQuestion = {
   isMine: false,
   answerVideoId: null,
   promotedTo: null,
-  createdAt: '2026-08-16T12:00:00.000Z'
+  createdAt: '2026-08-16T12:00:00.000Z',
 };
 
 describe('QuestionCard', () => {
   function montar(question: MuralQuestion) {
     TestBed.configureTestingModule({
       imports: [QuestionCard],
-      providers: [provideZonelessChangeDetection()]
+      providers: [provideZonelessChangeDetection()],
     });
 
     const fixture = TestBed.createComponent(QuestionCard);
@@ -63,7 +63,7 @@ describe('QuestionCard', () => {
     const { fixture, el } = montar({
       ...PERGUNTA,
       authorUid: null,
-      authorName: 'Membro removido'
+      authorName: 'Membro removido',
     });
 
     let emitiu = false;
@@ -90,8 +90,62 @@ describe('QuestionCard', () => {
   it('o rótulo acessível do botão diz de quem é o perfil', () => {
     const { el } = montar(PERGUNTA);
 
-    expect(botaoDoAutor(el)!.getAttribute('aria-label')).toBe(
-      'Ver o perfil de Ana'
+    expect(botaoDoAutor(el)!.getAttribute('aria-label')).toBe('Ver o perfil de Ana');
+  });
+
+  /**
+   * O alvo esticado (spec 024, decisão 3): o título é o botão, e o ::after dele
+   * cobre o cartão inteiro.
+   */
+  it('o título abre a pergunta', () => {
+    const { fixture, el } = montar(PERGUNTA);
+
+    let emitido: MuralQuestion | undefined;
+    fixture.componentInstance.abrir.subscribe((q) => (emitido = q));
+
+    const botao = el.querySelector<HTMLButtonElement>('.card__abrir');
+    expect(botao!.getAttribute('aria-label')).toBe(
+      'Abrir a pergunta: Quando usar herança em vez de composição?',
     );
+
+    botao!.click();
+    expect(emitido?.id).toBe(PERGUNTA.id);
+  });
+
+  /**
+   * **Os dois testes que o alvo esticado convida a quebrar.**
+   *
+   * O ::after do título cobre o cartão inteiro, e sem o z-index do voto e do
+   * autor ele engoliria os dois — o cartão passaria a ter um clique só, e o
+   * toque mais repetido do app viraria "abrir a pergunta".
+   */
+  it('teste-trava: votar não abre a pergunta', () => {
+    const { fixture, el } = montar(PERGUNTA);
+    fixture.componentRef.setInput('votable', true);
+    fixture.detectChanges();
+
+    let abriu = false;
+    let votou = false;
+    fixture.componentInstance.abrir.subscribe(() => (abriu = true));
+    fixture.componentInstance.toggle.subscribe(() => (votou = true));
+
+    el.querySelector<HTMLButtonElement>('.vote')!.click();
+
+    expect(votou).toBeTrue();
+    expect(abriu).toBeFalse();
+  });
+
+  it('teste-trava: clicar no autor não abre a pergunta', () => {
+    const { fixture, el } = montar(PERGUNTA);
+
+    let abriu = false;
+    let pediuOAutor = false;
+    fixture.componentInstance.abrir.subscribe(() => (abriu = true));
+    fixture.componentInstance.authorClick.subscribe(() => (pediuOAutor = true));
+
+    botaoDoAutor(el)!.click();
+
+    expect(pediuOAutor).toBeTrue();
+    expect(abriu).toBeFalse();
   });
 });
