@@ -29,12 +29,12 @@ insígnia, e o `QuestionCard` já usa.
 
 ---
 
-# Fase 02: O diálogo da pergunta []
+# Fase 02: O diálogo da pergunta [x]
 
 O componente burro que todas as telas vão usar. Ao fim desta fase ele existe, está testado e ainda
 não é aberto por ninguém.
 
-- [] Task 01: `src/app/components/question-detail-dialog/question-detail-dialog.ts` +
+- [x] Task 01: `src/app/components/question-detail-dialog/question-detail-dialog.ts` +
   `.html` + `.scss` — `app-question-detail-dialog`, `ChangeDetectionStrategy.OnPush`, no molde do
   `MemberCardDialog`: `<dialog>` nativo, `open(question: MuralQuestion)` guardando a pergunta num
   `signal` e chamando `showModal()`, `close()`, fechamento por `Esc` e por clique fora, foco no
@@ -49,16 +49,16 @@ não é aberto por ninguém.
   4. Rodapé de metadados: autor, `dataPorExtenso(createdAt)` de `core/datas`, e a contagem de votos
      como texto estático (decisão 5, o diálogo não vota).
   5. `<ng-content select="[acoes]">` no rodapé, antes do botão "Fechar" (decisão 2).
-- [] Task 02: o nome do autor no diálogo — `<button>` **só quando `authorUid` existe**, emitindo
+- [x] Task 02: o nome do autor no diálogo — `<button>` **só quando `authorUid` existe**, emitindo
   `authorClick`; sem uid, texto puro, sem cursor, sem foco, sem `role`. A comparação é com nulo, e
   nunca com o valor sentinela do backend (spec 019). Emitir **fecha o diálogo** antes de avisar o
   host (decisão 6).
-- [] Task 03: `question-detail-dialog.spec.ts` — título, corpo inteiro renderizado, a frase de
+- [x] Task 03: `question-detail-dialog.spec.ts` — título, corpo inteiro renderizado, a frase de
   corpo vazio, a fase por extenso nos três valores, o selo de adiantada, o selo "a sua", a data
   formatada, a contagem de votos, o nome do autor como botão com uid e como texto sem uid, o
   `authorClick` fechando o diálogo, e a ausência de qualquer botão de voto dentro do diálogo (é o
   teste de armadilha da decisão 5).
-- [] Task 04: `.scss` do diálogo — overlay, cartão, `animate-enter` na abertura e `animate-leave` no
+- [x] Task 04: `.scss` do diálogo — overlay, cartão, `animate-enter` na abertura e `animate-leave` no
   fechamento, gradiente suave no cabeçalho no mesmo tom do `MemberCardDialog`, corpo com rolagem
   própria (`max-height` e `overflow-y: auto`) para os 1000 caracteres em 360px, e
   `prefers-reduced-motion: reduce` desligando a animação.
