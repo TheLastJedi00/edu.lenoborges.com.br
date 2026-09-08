@@ -9,7 +9,7 @@ const ETAPAS: readonly TrackStage[] = [
     area: 'Back-End',
     title: 'Insígnia da POO',
     icon: 'java',
-    topics: []
+    topics: [],
   },
   {
     id: 'logica',
@@ -18,8 +18,8 @@ const ETAPAS: readonly TrackStage[] = [
     area: 'Fundamentos',
     title: 'Insígnia da Lógica',
     icon: 'ts-js',
-    topics: []
-  }
+    topics: [],
+  },
 ];
 
 describe('tituloDaInsignia', () => {

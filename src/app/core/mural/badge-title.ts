@@ -16,9 +16,6 @@ import { TrackStage } from '../../models/community.model';
  * Id que não está na trilha volta como ele mesmo — dado antigo, etapa
  * renomeada. Melhor um rótulo feio que um cartão sem assunto.
  */
-export function tituloDaInsignia(
-  stages: readonly TrackStage[],
-  badgeId: string
-): string {
+export function tituloDaInsignia(stages: readonly TrackStage[], badgeId: string): string {
   return stages.find((stage) => stage.id === badgeId)?.title ?? badgeId;
 }
