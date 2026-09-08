@@ -96,27 +96,27 @@ Ao fim desta fase, clicar no cartão do mural abre a pergunta, nas três abas.
 
 ---
 
-# Fase 04: O painel do admin abre a pergunta []
+# Fase 04: O painel do admin abre a pergunta [x]
 
 Ao fim desta fase, o admin lê a pergunta inteira antes de adiantar, remover ou gravar o vídeo.
 
-- [] Task 01: `src/app/pages/admin/mural/mural-admin.page.html` + `.ts` — o
+- [x] Task 01: `src/app/pages/admin/mural/mural-admin.page.html` + `.ts` — o
   `app-question-detail-dialog` entra na página, sempre renderizado, com um `signal`
   `perguntaAberta` guardando qual pergunta está em tela (é dele que as ações projetadas se ligam).
-- [] Task 02: as linhas de "Em votação" e "Esta semana" viram alvo esticado (decisão 3), com o
+- [x] Task 02: as linhas de "Em votação" e "Esta semana" viram alvo esticado (decisão 3), com o
   título como botão e os botões de adiantar e remover com `z-index: 1`. Os botões continuam na
   linha: quem já sabe o que quer fazer não precisa abrir nada.
-- [] Task 03: as ações projetadas no rodapé do diálogo — `promotionsFor(perguntaAberta())` e o
+- [x] Task 03: as ações projetadas no rodapé do diálogo — `promotionsFor(perguntaAberta())` e o
   botão de remover, chamando os mesmos `askPromote` / `askRemove` de hoje. O diálogo **fecha antes**
   de o `ConfirmDialog` abrir (decisão 6), e a confirmação segue com o texto que já existe.
-- [] Task 04: as linhas da pauta ("Esperando vídeo") viram alvo esticado e abrem o diálogo com o
+- [x] Task 04: as linhas da pauta ("Esperando vídeo") viram alvo esticado e abrem o diálogo com o
   link "Cadastrar o vídeo de resposta" projetado em `[acoes]`, com o mesmo `routerLink` e o mesmo
   `queryParams: { resposta: id }` da linha (spec 017). Sem segunda forma de montar esse link.
-- [] Task 05: `mural-admin.page.spec.ts` — abrir pela linha de votação mostra o corpo; a promoção
+- [x] Task 05: `mural-admin.page.spec.ts` — abrir pela linha de votação mostra o corpo; a promoção
   disparada de dentro do diálogo fecha o diálogo e abre a confirmação; confirmar continua movendo
   **um cartão só**, que é a invariante da spec 016; abrir pela pauta mostra o link do vídeo com o
   `resposta` correto na query.
-- [] Task 06: `mural-admin.page.scss` — realce de linha, `cursor: pointer` e `focus-visible` nas
+- [x] Task 06: `mural-admin.page.scss` — realce de linha, `cursor: pointer` e `focus-visible` nas
   três listas e na pauta, no mesmo tom do resto do painel.
 
 ---
