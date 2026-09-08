@@ -149,3 +149,31 @@ que decide o comportamento na tela.
 
 `npm run lint` **não existe neste repositório** (não há alvo `lint` no `angular.json`). A
 formatação é a do prettier do `package.json`, e foi aplicada em tudo que a spec tocou.
+
+---
+
+## A passada de navegador (pilha local completa)
+
+Feita no Chrome com a API em `localhost:3000` (apontada para o projeto de preview, porque a
+máquina não tem Java e o emulador não sobe) e o front em `localhost:4200`, com duas contas de
+teste criadas e removidas ao fim: um membro Great Tier e um administrador.
+
+**Do lado do membro:** clicar em área vazia do cartão abre a pergunta inteira; o voto continua
+contando sem abrir nada; o nome do autor fecha a pergunta e abre o cartão do membro; a aba
+"Respondidas" abre a linha e as sete semanas em branco não têm alvo. Em viewport de 357px, medido
+dentro de um iframe da mesma origem: prévia cortada em 3 linhas (72px), diálogo de 304px cabendo
+na tela, corpo rolando por dentro, rodapé alcançável e nenhuma rolagem horizontal.
+
+**Do lado do admin:** a pauta e as duas listas abrem; as ações vão projetadas no rodapé; adiantar
+pelo diálogo fecha a pergunta e abre a confirmação; confirmar moveu **um cartão só**, com o selo
+"Adiantada", e a outra pergunta ficou onde estava; a linha da pauta abre com o link
+`/dashboard/admin/trilha/poo?resposta=<id>`.
+
+**O hit-testing que o Karma não conseguiu medir foi medido aqui**, com `elementFromPoint` na
+página real: o vazio do cartão e o título respondem `card__abrir`; o voto responde `vote`; o nome
+do autor responde `card__autor-botao`; e no painel cada botão de ação responde por si. O único
+ponto que não é do alvo é o canto arredondado (raio de 24px), onde o clique cai no host e não faz
+nada.
+
+**A passada achou um defeito**, anterior a esta spec e registrado em `fix.md`: fechar o cartão do
+membro derrubava a detecção de mudanças, e o sintoma aparecia no diálogo da pergunta, vazio.
