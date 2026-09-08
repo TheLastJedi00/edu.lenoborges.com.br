@@ -216,12 +216,7 @@
 .skeleton {
   height: 4rem;
   border-radius: var(--radius-lg);
-  background: linear-gradient(
-    90deg,
-    var(--screen) 25%,
-    var(--screen-lit) 37%,
-    var(--screen) 63%
-  );
+  background: linear-gradient(90deg, var(--screen) 25%, var(--screen-lit) 37%, var(--screen) 63%);
   background-size: 400% 100%;
   animation: skeleton-slide 1.4s ease-in-out infinite;
 }
@@ -239,4 +234,68 @@
   .skeleton {
     animation: none;
   }
+}
+
+/*
+ * As linhas do painel abrem a pergunta (spec 024, decisão 7), com o mesmo alvo
+ * esticado do cartão do Mural: o título é o botão, o ::after dele cobre a
+ * linha, e as ações sobem por cima com z-index.
+ *
+ * Os botões continuam na linha, e não só dentro do diálogo: quem já sabe o que
+ * quer fazer não precisa abrir nada.
+ */
+.row,
+.pauta__row {
+  position: relative;
+  transition:
+    border-color var(--motion-1, 120ms) var(--ease-out, ease),
+    box-shadow var(--motion-1, 120ms) var(--ease-out, ease);
+}
+
+.row:hover,
+.row:focus-within,
+.pauta__row:hover,
+.pauta__row:focus-within {
+  border-color: var(--accent-deep);
+}
+
+.linha-abrir {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.linha-abrir::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+}
+
+.linha-abrir:focus-visible {
+  outline: none;
+}
+
+.linha-abrir:focus-visible::after {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 2px;
+}
+
+/* Sem isto o alvo esticado engole os botões da linha, e o painel fica com um
+   clique só: o de abrir. */
+.row__actions,
+.pauta__row .btn {
+  position: relative;
+  z-index: 1;
+}
+
+/* As ações projetadas no rodapé do diálogo, empilhadas no celular. */
+.dialogo-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
