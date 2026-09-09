@@ -67,7 +67,19 @@ visível com a causa. Duas consequências práticas:
 
 > **Relatado por Leno, 2026-09-08.** No modal de vídeo de resposta na trilha, o check de marcar como
 > assistido (e ganhar XP) fica **por cima do iframe** quando o vídeo é retrato (Short). Em paisagem
-> não acontece.
+> não acontece, e **no desktop também não: é exclusivo do celular.**
+
+![O check por cima do vídeo em retrato, no celular](fix-2-retrato-no-celular.jpg)
+
+## O que a captura mostra
+O vídeo é pintado até depois do fim da caixa que a tela reservou para ele: a linha do check
+("Assistido", com a caixa marcada) aparece **sobre a última faixa do vídeo**, e a frase dos 10 XP cai
+logo abaixo, já fora do quadro. A moldura arredondada continua desenhada por baixo do check, o que
+descarta a explicação mais simples — não é o vídeo que invadiu o check, é o layout que reservou
+**menos altura do que o vídeo ocupa**.
+
+O balão da pergunta e o título estão no lugar certo: o que escorregou foi só o par moldura/check, que
+é exatamente onde as três specs se encontram.
 
 ## Onde isso mora
 Três specs se encontram nesse ponto da tela, e nenhuma delas é a 024:
@@ -99,6 +111,18 @@ próximo item, que é o check.
 Isso explica por que só acontece em retrato: `--paisagem` só declara `aspect-ratio: 16 / 9`, sem teto
 de altura, então não há conflito para o navegador desempatar.
 
+### E por que só no celular
+A conta fecha com os números do aparelho da captura. O modal é `min(26rem, 100vw - 2rem)`: num
+telefone de ~390px dá ~361px, e menos os `1.25rem` de padding de cada lado a moldura fica com
+~321px. A proporção 9/16 pede **~571px de altura**, e `60dvh` num viewport de ~850px corta em
+**~510px**. A diferença, ~60px, é da ordem da faixa que o check cobre na imagem.
+
+Há um segundo suspeito que **só existe no celular**, e ele precisa ser testado junto: `dvh` é
+dinâmico. A barra do navegador recolhe ao rolar, `60dvh` muda de valor durante a interação, e uma
+track de grid que não é recalculada nesse instante deixa exatamente esta assinatura — a caixa pintada
+com um valor, o espaço reservado com outro. No desktop o `dvh` não se mexe, e essa é a diferença
+mais óbvia entre os dois ambientes.
+
 **Nada disso é conclusão — é a suspeita que a medição precisa confirmar ou derrubar.** A regra do
 repositório vale aqui: traga a medida antes de acusar o CSS.
 
@@ -112,10 +136,14 @@ repositório vale aqui: traga a medida antes de acusar o CSS.
 - [] Task 02: Repetir a medida em **paisagem** e no **vídeo fora do modal** (a lista da trilha, que
   usa `width: auto; max-height: 68vh`). Se a sobreposição aparecer também fora do modal, o defeito é
   da moldura da spec 017 e não do modal da 021 — e o conserto muda de lugar.
-- [] Task 03: Medir em **360px e no desktop**, porque o retrato tem regras diferentes por media
-  query (`max-height: 68vh` no celular, `width: min(22rem, 100%)` a partir de 48rem) e o modal
-  sobrescreve as duas. O defeito pode existir em um só dos dois, e um conserto testado no tamanho
-  errado passa despercebido.
+- [] Task 03: Medir em **360px e no desktop**, e **o celular é o caso que manda**: o defeito só
+  aparece lá, então conserto verificado no desktop não prova nada. O retrato tem regras diferentes por
+  media query (`max-height: 68vh` no celular, `width: min(22rem, 100%)` a partir de 48rem) e o modal
+  sobrescreve as duas.
+- [] Task 03b: Testar a hipótese do **`dvh` dinâmico**: medir moldura e check com a barra do
+  navegador aberta, rolar até ela recolher e medir de novo, sem fechar o modal. Se a sobreposição
+  aparecer ou mudar de tamanho nesse momento, a unidade dinâmica é a causa — e o conserto é trocá-la
+  por uma estática, ou tirar o teto do eixo errado, nunca ajustar o número.
 - [] Task 04: **Corrigir tirando a contradição, e não empilhando `z-index`.** A direção provável é
   deixar um eixo mandar e derivar o outro pela proporção: dar altura à moldura
   (`height: min(60dvh, …)`) e devolver `width: auto` com `max-width: 100%`, como já é fora do modal.
@@ -126,5 +154,6 @@ repositório vale aqui: traga a medida antes de acusar o CSS.
   `.video__frame`. É a mesma forma da medida que a spec 024 usa no cartão, e é o que falha hoje.
 - [] Task 06: Conferir que o balão da pergunta (spec 017) continua acima do vídeo e que o check
   segue com alvo de toque de 44px nos dois formatos — a correção mexe na caixa que os três dividem.
-- [] Task 07: Nova passada de navegador nos dois formatos, com o vídeo tocando, e registro do
-  resultado aqui embaixo.
+- [] Task 07: Nova passada de navegador nos dois formatos, com o vídeo tocando, **em viewport de
+  celular de verdade** — o iframe de mesma origem que a spec 024 usou serve, e a rolagem que recolhe a
+  barra precisa entrar no roteiro — e registro do resultado aqui embaixo.
