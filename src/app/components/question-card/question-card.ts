@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { MuralQuestion } from '../../models/mural.model';
 import { CommunityService } from '../../services/community.service';
+import { tituloDaInsignia } from '../../core/mural/badge-title';
 
 /**
  * Uma pergunta do Mural.
@@ -20,9 +21,37 @@ import { CommunityService } from '../../services/community.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <article class="card" [class.card--mine]="question().isMine">
+      <!--
+        O alvo esticado (spec 024, decisão 3): um botão sobreposto do tamanho do
+        cartão, e o título continua sendo título.
+
+        Ele é um elemento de verdade, e não um ::after do próprio título, porque
+        o Chrome recorta o pseudo-elemento de um <button> no box do botão: o
+        alvo parecia cobrir o cartão no CSS e, medido com elementFromPoint, não
+        cobria nada além do texto. O teste de hit-testing da fase 05 é o que
+        pega isso.
+
+        Aninhar o voto e o nome do autor dentro de um botão de abrir seria
+        <button> dentro de <button>, que é HTML inválido; sobrepondo, os dois
+        sobem por cima com z-index e continuam sendo eles mesmos no leitor de
+        tela.
+      -->
+      <button
+        type="button"
+        class="card__abrir"
+        [attr.aria-label]="'Abrir a pergunta: ' + question().title"
+        (click)="abrir.emit(question())"
+      ></button>
+
       <div class="card__body">
         <p class="card__badge u-mono">{{ badgeTitle() }}</p>
         <h3 class="card__title">{{ question().title }}</h3>
+        <!--
+          Prévia de três linhas, e não o texto inteiro. São até 1000 caracteres,
+          e em 360px uma pergunta longa empurra as outras cinco para fora da
+          tela: a lista deixa de ser lista. O texto inteiro está a um toque, no
+          diálogo.
+        -->
         @if (question().body) {
           <p class="card__text">{{ question().body }}</p>
         }
@@ -87,6 +116,7 @@ import { CommunityService } from '../../services/community.service';
     }
 
     .card {
+      position: relative;
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 0.75rem;
@@ -95,6 +125,21 @@ import { CommunityService } from '../../services/community.service';
       border: var(--border-w) solid var(--border-soft);
       border-radius: var(--radius-lg);
       background: var(--paper);
+      cursor: pointer;
+      transition:
+        border-color var(--motion-1, 120ms) var(--ease-out, ease),
+        box-shadow var(--motion-1, 120ms) var(--ease-out, ease);
+    }
+
+    /*
+     * O realce não é enfeite: sem ele o alvo esticado é invisível, e ninguém
+     * descobre que dá para abrir — que é exatamente o defeito que a spec 024
+     * conserta. O :focus-within põe o teclado no mesmo pé do ponteiro.
+     */
+    .card:hover,
+    .card:focus-within {
+      border-color: var(--accent-deep);
+      box-shadow: var(--shadow-hard-sm);
     }
 
     .card--mine {
@@ -118,7 +163,38 @@ import { CommunityService } from '../../services/community.service';
       line-height: 1.25;
     }
 
+    /*
+     * O alvo, invisível e do tamanho do cartão.
+     *
+     * Fica embaixo de tudo na pilha (sem z-index) e por cima do fundo: o texto
+     * continua selecionável nos lugares em que não há outro alvo, e o voto e o
+     * nome do autor sobem com z-index: 1.
+     */
+    .card__abrir {
+      position: absolute;
+      inset: 0;
+      padding: 0;
+      border: none;
+      border-radius: var(--radius-lg);
+      background: none;
+      cursor: pointer;
+    }
+
+    .card__abrir:focus-visible {
+      outline: 2px solid var(--accent-deep);
+      outline-offset: 2px;
+    }
+
+    /*
+     * A prévia de três linhas (spec 024, decisão 4). O texto inteiro mora no
+     * diálogo: sem o corte aqui, "abrir para ler" não significaria nada, porque
+     * já estava tudo na lista.
+     */
     .card__text {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
       margin: 0.35rem 0 0;
       color: var(--ink-soft);
       line-height: 1.5;
@@ -132,7 +208,17 @@ import { CommunityService } from '../../services/community.service';
 
     /* O nome clicável continua parecendo o nome: sublinhado pontilhado, e não um
        link azul — ele abre um cartão, não navega para lugar nenhum. */
+
+    /*
+     * O nome do autor e o voto ficam ACIMA do alvo esticado.
+     *
+     * Sem o z-index, o botão sobreposto cobriria os dois e o cartão passaria a
+     * ter um clique só, o de abrir — engolindo justamente o toque mais repetido
+     * do app inteiro, que é o voto.
+     */
     .card__autor-botao {
+      position: relative;
+      z-index: 1;
       padding: 0;
       border: none;
       background: none;
@@ -178,6 +264,8 @@ import { CommunityService } from '../../services/community.service';
      * inteiro, e fica onde o polegar já está.
      */
     .vote {
+      position: relative;
+      z-index: 1;
       display: grid;
       justify-items: center;
       gap: 0.1rem;
@@ -248,7 +336,7 @@ import { CommunityService } from '../../services/community.service';
         transition: none;
       }
     }
-  `
+  `,
 })
 export class QuestionCard {
   private readonly community = inject(CommunityService);
@@ -258,6 +346,14 @@ export class QuestionCard {
   readonly votable = input<boolean>(false);
 
   readonly toggle = output<MuralQuestion>();
+
+  /**
+   * Pediram para ler a pergunta inteira (spec 024).
+   *
+   * Quem abre o diálogo é a página, pelo mesmo princípio do `authorClick`: o
+   * cartão diz o que aconteceu, e não o que fazer a respeito.
+   */
+  readonly abrir = output<MuralQuestion>();
 
   /**
    * Pediram para ver quem escreveu (spec 019).
@@ -271,15 +367,11 @@ export class QuestionCard {
   /**
    * O título da insígnia, e não o id.
    *
-   * `poo` não diz nada para quem está lendo o mural; "Insígnia da POO" diz. Se o
-   * id não estiver na trilha — dado antigo, ou etapa renomeada —, o próprio id
-   * aparece: melhor um rótulo feio que um cartão sem assunto.
+   * A conversão mora em `core/mural/badge-title` desde a spec 024, porque o
+   * diálogo da pergunta precisa do mesmo rótulo — e o fallback (id que não está
+   * na trilha volta como ele mesmo) tem que ser o mesmo nos dois lugares.
    */
-  protected readonly badgeTitle = computed(
-    () =>
-      this.community
-        .trackStages()
-        .find((stage) => stage.id === this.question().badgeId)?.title ??
-      this.question().badgeId
+  protected readonly badgeTitle = computed(() =>
+    tituloDaInsignia(this.community.trackStages(), this.question().badgeId),
   );
 }

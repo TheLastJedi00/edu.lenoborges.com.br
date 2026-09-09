@@ -1,10 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { MemberCardDialog } from './member-card-dialog';
 import { PublicMember } from '../../models/auth.model';
 
@@ -15,7 +12,7 @@ const ANA: PublicMember = {
   grade: 3,
   xp: 340,
   linkedin: null,
-  instagram: null
+  instagram: null,
 };
 
 describe('MemberCardDialog', () => {
@@ -27,8 +24,8 @@ describe('MemberCardDialog', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+        provideHttpClientTesting(),
+      ],
     });
 
     http = TestBed.inject(HttpTestingController);
@@ -78,16 +75,14 @@ describe('MemberCardDialog', () => {
     responder({
       ...ANA,
       linkedin: 'https://www.linkedin.com/in/ana-prado',
-      instagram: 'https://www.instagram.com/anaprado'
+      instagram: 'https://www.instagram.com/anaprado',
     });
     fixture.detectChanges();
 
-    const links = Array.from(
-      el.querySelectorAll<HTMLAnchorElement>('.redes__link')
-    );
+    const links = Array.from(el.querySelectorAll<HTMLAnchorElement>('.redes__link'));
     expect(links.map((a) => a.href)).toEqual([
       'https://www.linkedin.com/in/ana-prado',
-      'https://www.instagram.com/anaprado'
+      'https://www.instagram.com/anaprado',
     ]);
     expect(links.every((a) => a.rel.includes('noopener'))).toBeTrue();
   });
@@ -106,9 +101,7 @@ describe('MemberCardDialog', () => {
       .flush(null, { status: 404, statusText: 'Not Found' });
     fixture.detectChanges();
 
-    expect(el.textContent).toContain(
-      'Esse membro não faz mais parte da comunidade.'
-    );
+    expect(el.textContent).toContain('Esse membro não faz mais parte da comunidade.');
     expect(el.querySelector('[role="alert"]')).toBeNull();
   });
 
@@ -140,9 +133,7 @@ describe('MemberCardDialog', () => {
     responder({ ...ANA, xp: 350 });
     fixture.detectChanges();
 
-    expect(
-      (fixture.nativeElement as HTMLElement).textContent
-    ).toContain('350');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('350');
   });
 
   /**
@@ -153,15 +144,49 @@ describe('MemberCardDialog', () => {
     const { fixture, el } = montar();
 
     fixture.componentInstance.open('uid-2');
-    http.expectOne((req) => req.url.endsWith('/members/uid-2')).flush({
-      ...ANA,
-      phone: '47999990000',
-      email: 'ana@exemplo.com'
-    });
+    http
+      .expectOne((req) => req.url.endsWith('/members/uid-2'))
+      .flush({
+        ...ANA,
+        phone: '47999990000',
+        email: 'ana@exemplo.com',
+      });
     fixture.detectChanges();
 
     expect(el.textContent).not.toContain('47999990000');
     expect(el.textContent).not.toContain('ana@exemplo.com');
+  });
+
+  /**
+   * **O teste-trava do fechamento** (achado na passada de navegador da spec
+   * 024).
+   *
+   * `member.set(null)` sozinho deixava `state` em `'ready'`, e o `@default` do
+   * template — que lê `member()!.name` — era reavaliado com nulo e lançava
+   * `TypeError` dentro da detecção de mudanças. Em zoneless o ciclo cai junto, e
+   * o sintoma aparece em outra tela: o diálogo da pergunta abria vazio, com o
+   * sinal dele preenchido.
+   *
+   * O teste chama o mesmo caminho do `Esc` e do clique fora, e a prova é a
+   * ausência de erro somada ao estado de volta ao início.
+   */
+  it('teste-trava: fechar não deixa o template lendo um membro nulo', async () => {
+    const { fixture, el } = montar();
+
+    fixture.componentInstance.open('uid-2');
+    http.expectOne((req) => req.url.endsWith('/members/uid-2')).flush(ANA);
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Ana Prado');
+
+    fixture.componentInstance.close();
+    // O `close` do <dialog> nativo só chega no quadro seguinte.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Sem a correção, este detectChanges lança:
+    // TypeError: Cannot read properties of null (reading 'name')
+    expect(() => fixture.detectChanges()).not.toThrow();
+    expect(el.textContent).not.toContain('Ana Prado');
+    expect(el.textContent).toContain('Carregando o perfil');
   });
 
   afterEach(() => http.verify());

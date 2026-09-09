@@ -1,0 +1,95 @@
+<!--
+  O diálogo da pergunta (spec 024).
+
+  O `<dialog>` é sempre este, e o miolo troca: `open(pergunta)` guarda a
+  pergunta e chama `showModal()`. O corpo fica FORA do `@if` porque é ele que
+  recebe o foco na abertura — em zoneless, um `viewChild` dentro do `@if` ainda
+  não existe no instante em que `open()` roda.
+-->
+<dialog
+  #dialog
+  class="modal"
+  aria-labelledby="qd-titulo"
+  (close)="onNativeClose()"
+  (click)="onBackdropClick($event)"
+>
+  <div class="modal__body" tabindex="0" #body>
+    @if (question(); as pergunta) {
+      <p class="qd__eyebrow u-mono">
+        <span>{{ badgeTitle() }}</span>
+        <span class="qd__ponto" aria-hidden="true">·</span>
+        <span>{{ faseTexto() }}</span>
+        <!--
+          Os selos leem `promotedTo` e `isMine`, e mais nada. Nenhuma comparação
+          de `weekId` com relógio aqui: a fase tem um dono só, e ele é o
+          servidor (decisão 10).
+        -->
+        @if (pergunta.promotedTo) {
+          <span class="qd__selo qd__selo--fast">adiantada</span>
+        }
+        @if (pergunta.isMine) {
+          <span class="qd__selo">a sua</span>
+        }
+      </p>
+
+      <h2 class="qd__titulo" id="qd-titulo">{{ pergunta.title }}</h2>
+
+      <!--
+        Texto puro, por interpolação, com `white-space: pre-wrap` para preservar
+        as quebras que a pessoa digitou. **Nada de innerHTML e nada de
+        bypassSecurityTrustHtml**: o campo é texto puro no backend justamente
+        para que a superfície de XSS não apareça no primeiro pedido de "deixa o
+        código em <pre>" (spec 010, decisão 10).
+      -->
+      @if (pergunta.body) {
+        <p class="qd__corpo">{{ pergunta.body }}</p>
+      } @else {
+        <!-- Ausência dita é informação. Espaço em branco é tela quebrada. -->
+        <p class="qd__corpo qd__corpo--vazio">Quem perguntou não escreveu mais contexto.</p>
+      }
+
+      <p class="qd__meta u-mono">
+        <!--
+          O nome vira botão SÓ quando há para onde clicar (spec 019), e a
+          comparação é com nulo, nunca com o valor sentinela do backend. Clicar
+          FECHA este diálogo antes de avisar a página: dois <dialog> empilhados
+          deixam o Esc imprevisível (decisão 6).
+        -->
+        @if (pergunta.authorUid) {
+          <button
+            type="button"
+            class="qd__autor"
+            [attr.aria-label]="'Ver o perfil de ' + pergunta.authorName"
+            (click)="abrirAutor(pergunta)"
+          >
+            {{ pergunta.authorName }}
+          </button>
+        } @else {
+          <span>{{ pergunta.authorName }}</span>
+        }
+        <span class="qd__ponto" aria-hidden="true">·</span>
+        <span>{{ dataDaPergunta() }}</span>
+        <span class="qd__ponto" aria-hidden="true">·</span>
+        <!--
+          O número é estático, e é decisão: quem vota é o cartão, no lado do
+          polegar. Um voto disparado daqui seria a segunda implementação do voto
+          otimista, com rollback próprio para divergir da primeira (decisão 5).
+        -->
+        <span>{{ votosTexto() }}</span>
+      </p>
+    }
+  </div>
+
+  <!--
+    O rodapé fica fora do `@if` porque `<ng-content>` dentro de bloco de
+    controle é projetado uma vez só: a página projeta as ações dela aqui, e é
+    isso que mantém este componente burro, sem saber que existe um painel de
+    administração (decisão 2).
+  -->
+  <footer class="modal__foot">
+    <div class="modal__acoes">
+      <ng-content select="[acoes]" />
+    </div>
+    <button type="button" class="btn btn--cancel" (click)="close()">Fechar</button>
+  </footer>
+</dialog>

@@ -1,15 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting
-} from '@angular/common/http/testing';
-import {
-  ActivatedRoute,
-  convertToParamMap,
-  provideRouter
-} from '@angular/router';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { MuralPage } from './mural.page';
 import { MuralQuestion, MuralState } from '../../models/mural.model';
 
@@ -20,7 +13,7 @@ const STATE: MuralState = {
   currentWeekEndsAt: '2099-01-03T03:00:00.000Z',
   canAsk: true,
   myQuestionId: null,
-  myQuestion: null
+  myQuestion: null,
 };
 
 function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
@@ -39,7 +32,7 @@ function question(overrides: Partial<MuralQuestion> = {}): MuralQuestion {
     answerVideoId: null,
     promotedTo: null,
     createdAt: '2026-08-09T18:00:00.000Z',
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -53,8 +46,8 @@ describe('MuralPage', () => {
         provideZonelessChangeDetection(),
         provideRouter([]),
         provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+        provideHttpClientTesting(),
+      ],
     });
 
     http = TestBed.inject(HttpTestingController);
@@ -64,9 +57,7 @@ describe('MuralPage', () => {
     http.expectOne((req) => req.url.endsWith('/mural')).flush(state);
     fixture.detectChanges();
 
-    http
-      .expectOne((req) => req.url.endsWith('/mural/perguntas'))
-      .flush(questions);
+    http.expectOne((req) => req.url.endsWith('/mural/perguntas')).flush(questions);
     fixture.detectChanges();
 
     return { fixture, el: fixture.nativeElement as HTMLElement };
@@ -89,11 +80,11 @@ describe('MuralPage', () => {
     // listas diferentes por causa de um voto que ainda não sincronizou.
     const { el } = setup([
       question({ id: 'b', title: 'Segunda na resposta', voteCount: 9 }),
-      question({ id: 'a', title: 'Primeira na resposta', voteCount: 1 })
+      question({ id: 'a', title: 'Primeira na resposta', voteCount: 1 }),
     ]);
 
     const titulos = Array.from(el.querySelectorAll('.card__title')).map((node) =>
-      node.textContent?.trim()
+      node.textContent?.trim(),
     );
     expect(titulos).toEqual(['Segunda na resposta', 'Primeira na resposta']);
   });
@@ -112,9 +103,7 @@ describe('MuralPage', () => {
     expect(el.querySelector('.vote__count')?.textContent?.trim()).toBe('4');
     expect(el.querySelector('.vote--on')).not.toBeNull();
 
-    http
-      .expectOne((req) => req.url.endsWith('/voto'))
-      .flush(null);
+    http.expectOne((req) => req.url.endsWith('/voto')).flush(null);
   });
 
   it('reverte o voto quando a requisição falha', () => {
@@ -140,7 +129,7 @@ describe('MuralPage', () => {
     const { fixture, el } = setup([question()]);
 
     const abaColeta = Array.from(el.querySelectorAll('.tab')).find((node) =>
-      node.textContent?.includes('Esta semana')
+      node.textContent?.includes('Esta semana'),
     ) as HTMLButtonElement;
     abaColeta.click();
     fixture.detectChanges();
@@ -188,8 +177,8 @@ describe('MuralPage', () => {
         id: '2026-08-16__uid-1',
         weekId: '2026-08-16',
         phase: 'coleta',
-        isMine: true
-      })
+        isMine: true,
+      }),
     });
 
     expect(el.textContent).toContain('Editar minha pergunta');
@@ -211,14 +200,14 @@ describe('MuralPage', () => {
       weekId: '2026-08-16',
       phase: 'votacao',
       promotedTo: 'votacao',
-      isMine: true
+      isMine: true,
     });
 
     const { el } = setup([adiantada], {
       ...STATE,
       canAsk: false,
       myQuestionId: '2026-08-16__uid-1',
-      myQuestion: adiantada
+      myQuestion: adiantada,
     });
 
     expect(el.textContent).toContain('adiantada');
@@ -233,35 +222,35 @@ describe('MuralPage', () => {
     const { fixture, el } = setup([question()]);
 
     const respondidas = Array.from(el.querySelectorAll('button')).find((node) =>
-      node.textContent?.includes('Respondidas')
+      node.textContent?.includes('Respondidas'),
     ) as HTMLButtonElement;
     respondidas.click();
     fixture.detectChanges();
 
-    http.expectOne((req) => req.url.endsWith('/mural/vencedoras')).flush([
-      {
-        weekId: '2026-08-16',
-        origem: 'adiantada',
-        question: question({ id: 'a', title: 'A que foi adiantada' })
-      },
-      {
-        weekId: '2026-08-02',
-        origem: 'voto',
-        question: question({ id: 'b', title: 'A que venceu o voto' })
-      }
-    ]);
+    http
+      .expectOne((req) => req.url.endsWith('/mural/vencedoras'))
+      .flush([
+        {
+          weekId: '2026-08-16',
+          origem: 'adiantada',
+          question: question({ id: 'a', title: 'A que foi adiantada' }),
+        },
+        {
+          weekId: '2026-08-02',
+          origem: 'voto',
+          question: question({ id: 'b', title: 'A que venceu o voto' }),
+        },
+      ]);
     fixture.detectChanges();
 
-    const linhas = Array.from(el.querySelectorAll('.winner')).map(
-      (node) => node.textContent ?? ''
-    );
+    const linhas = Array.from(el.querySelectorAll('.winner')).map((node) => node.textContent ?? '');
 
-    expect(
-      linhas.find((texto) => texto.includes('A que foi adiantada'))
-    ).toContain('vai ser respondida');
-    expect(
-      linhas.find((texto) => texto.includes('A que venceu o voto'))
-    ).toContain('venceu a semana');
+    expect(linhas.find((texto) => texto.includes('A que foi adiantada'))).toContain(
+      'vai ser respondida',
+    );
+    expect(linhas.find((texto) => texto.includes('A que venceu o voto'))).toContain(
+      'venceu a semana',
+    );
   });
 
   /**
@@ -283,11 +272,11 @@ describe('MuralPage', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              queryParamMap: convertToParamMap({ ordem: 'recentes' })
-            }
-          }
-        }
-      ]
+              queryParamMap: convertToParamMap({ ordem: 'recentes' }),
+            },
+          },
+        },
+      ],
     });
 
     http = TestBed.inject(HttpTestingController);
@@ -297,17 +286,123 @@ describe('MuralPage', () => {
     http.expectOne((req) => req.url.endsWith('/mural')).flush(STATE);
     fixture.detectChanges();
 
-    const request = http.expectOne((req) =>
-      req.url.endsWith('/mural/perguntas')
-    );
+    const request = http.expectOne((req) => req.url.endsWith('/mural/perguntas'));
     expect(request.request.params.get('fase')).toBe('coleta');
     expect(request.request.params.get('ordem')).toBe('recentes');
     request.flush([]);
     fixture.detectChanges();
 
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.tab--on')?.textContent?.trim()).toBe(
-      'Esta semana'
-    );
+    expect(el.querySelector('.tab--on')?.textContent?.trim()).toBe('Esta semana');
+  });
+  /**
+   * **O que a spec 024 conserta.**
+   *
+   * O corpo sempre veio da API e a lista o cortava em três linhas; é o diálogo
+   * que mostra o texto inteiro. E ele não custa requisição nenhuma: a pergunta
+   * é a mesma que o cartão já tinha.
+   */
+  it('clicar no cartão abre a pergunta inteira, sem pedir nada à API', () => {
+    const longa =
+      'Tenho duas classes que compartilham três métodos.\n' +
+      'Herdar de uma base resolve, mas parece errado quando só uma delas usa o terceiro.';
+
+    const { fixture, el } = setup([question({ body: longa })]);
+
+    (el.querySelector('.card__abrir') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const dialogo = el.querySelector('app-question-detail-dialog dialog');
+    expect(dialogo!.hasAttribute('open')).toBeTrue();
+    expect(dialogo!.textContent).toContain('só uma delas usa o terceiro');
+    // Nenhuma chamada nova: o diálogo lê o que a lista já trouxe.
+    http.verify();
+  });
+
+  /**
+   * O link da trilha é projetado pela página em `[acoes]` (decisão 2): o
+   * diálogo é burro e não conhece a trilha.
+   */
+  it('a pergunta respondida abre com o caminho para a resposta', () => {
+    const { fixture, el } = setup([question()]);
+
+    const respondidas = Array.from(el.querySelectorAll('button')).find((node) =>
+      node.textContent?.includes('Respondidas'),
+    ) as HTMLButtonElement;
+    respondidas.click();
+    fixture.detectChanges();
+
+    http
+      .expectOne((req) => req.url.endsWith('/mural/vencedoras'))
+      .flush([
+        {
+          weekId: '2026-08-02',
+          origem: 'voto',
+          question: question({
+            id: 'c',
+            title: 'A que ganhou vídeo',
+            body: 'O contexto que a lista não mostrava.',
+            answerVideoId: 'vid-1',
+          }),
+        },
+      ]);
+    fixture.detectChanges();
+
+    (el.querySelector('.winner__abrir') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const dialogo = el.querySelector('app-question-detail-dialog dialog')!;
+    expect(dialogo.textContent).toContain('O contexto que a lista não mostrava.');
+    expect(dialogo.querySelector('[acoes]')!.textContent).toContain('Ver a resposta na trilha');
+  });
+
+  /**
+   * **Um modal por vez** (decisão 6). Dois `<dialog>` empilhados no top layer
+   * funcionam, mas o `Esc` fecha o de cima e deixa o de baixo aberto atrás, e
+   * ninguém consegue prever qual dos dois vai fechar.
+   */
+  it('o autor dentro do diálogo fecha a pergunta e abre o cartão do membro', async () => {
+    const { fixture, el } = setup([question()]);
+
+    (el.querySelector('.card__abrir') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    (el.querySelector('.qd__autor') as HTMLButtonElement).click();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    fixture.detectChanges();
+
+    expect(el.querySelector('app-question-detail-dialog dialog')!.hasAttribute('open')).toBeFalse();
+    expect(el.querySelector('app-member-card-dialog dialog')!.hasAttribute('open')).toBeTrue();
+
+    http
+      .expectOne((req) => req.url.endsWith('/members/uid-autor'))
+      .flush({
+        id: 'uid-autor',
+        name: 'Leno',
+        bio: null,
+        grade: 3,
+        xp: 30,
+        linkedin: null,
+        instagram: null,
+      });
+  });
+
+  /**
+   * O voto continua no cartão, no lado do polegar (decisão 5): o diálogo lê e
+   * não vota, e por isso abrir a pergunta não muda nada do voto.
+   */
+  it('votar continua funcionando com a pergunta aberta', () => {
+    const { fixture, el } = setup([question()]);
+
+    (el.querySelector('.card__abrir') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(el.querySelector('app-question-detail-dialog .vote')).toBeNull();
+
+    (el.querySelector('.vote') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(el.querySelector('.vote__count')?.textContent?.trim()).toBe('4');
+    http.expectOne((req) => req.url.endsWith('/voto')).flush(null);
   });
 });

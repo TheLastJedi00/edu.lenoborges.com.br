@@ -217,12 +217,7 @@
 .skeleton {
   height: 5.5rem;
   border-radius: var(--radius-lg);
-  background: linear-gradient(
-    90deg,
-    var(--screen) 25%,
-    var(--screen-lit) 37%,
-    var(--screen) 63%
-  );
+  background: linear-gradient(90deg, var(--screen) 25%, var(--screen-lit) 37%, var(--screen) 63%);
   background-size: 400% 100%;
   animation: skeleton-slide 1.4s ease-in-out infinite;
 }
@@ -244,4 +239,44 @@
   .tab {
     transition: none;
   }
+}
+
+/*
+ * A linha respondida também abre (spec 024, decisão 8), com o mesmo alvo
+ * esticado do cartão: o título é o botão, e o ::after dele cobre a linha. O
+ * link "Ver a resposta na trilha" sobe por cima, ou ele seria engolido pelo
+ * alvo e a aba perderia o único caminho que ela tem para o vídeo.
+ */
+.winner:has(.winner__abrir) {
+  position: relative;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-1, 120ms) var(--ease-out, ease),
+    box-shadow var(--motion-1, 120ms) var(--ease-out, ease);
+}
+
+.winner:has(.winner__abrir):hover,
+.winner:focus-within {
+  border-color: var(--accent-deep);
+  box-shadow: var(--shadow-hard-sm);
+}
+
+.winner__abrir {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: none;
+  cursor: pointer;
+}
+
+.winner__abrir:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 2px;
+}
+
+.winner__link {
+  position: relative;
+  z-index: 1;
 }

@@ -769,8 +769,58 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
       expect(dialog.querySelector('.video__frame .visto__input')).toBeNull();
     });
 
+    /**
+     * **A trava do fix 2 da spec 024**, e ela é sobre a regra, não sobre pixels.
+     *
+     * O check ficava desenhado por cima do vídeo em retrato, e só no celular. A
+     * causa não era o check nem a proporção: o `.resposta__corpo` era um grid, o
+     * corpo tem altura limitada pelo diálogo, e uma track `auto` é comprimida
+     * quando falta espaço. O `min-height: auto` do item não protegia nada,
+     * porque o conteúdo da moldura é um `<iframe>` de `height: 100%` — altura
+     * mínima zero. Track comprimida com a caixa pintada do tamanho da proporção
+     * é o vídeo passando por cima do que vem depois.
+     *
+     * **O teste é de CSS computado, e isso é uma concessão consciente.** A
+     * medida geométrica seria melhor, e foi tentada: em Karma ela passa mesmo
+     * com o layout defeituoso, porque o `<dialog>` aqui não é comprimido como no
+     * aparelho — um teste que não falha sem a correção é conforto falso, e por
+     * isso ele não ficou. A prova do defeito e da correção é a medição no
+     * navegador, com os números no `fix.md` da spec 024.
+     *
+     * O que esta trava garante é o que ela consegue garantir de verdade: que
+     * ninguém devolva o layout que comprime, sem ler o porquê.
+     */
+    it('teste-trava: o corpo do modal é coluna de flex que não encolhe, e não um grid', () => {
+      const { fixture, el } = setup('logica');
+      flushWith([resposta()]);
+      fixture.detectChanges();
+
+      (el.querySelector('.ver-resposta') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      const dialog = el.querySelector('dialog.resposta') as HTMLDialogElement;
+      const corpo = dialog.querySelector('.resposta__corpo') as HTMLElement;
+      const frame = dialog.querySelector('.video__frame') as HTMLElement;
+
+      const doDialogo = getComputedStyle(dialog);
+      const doCorpo = getComputedStyle(corpo);
+      const daMoldura = getComputedStyle(frame);
+
+      // O diálogo é coluna de flex, e o corpo é quem rola dentro dele.
+      expect(doDialogo.display).toBe('flex');
+      expect(doDialogo.flexDirection).toBe('column');
+      expect(doCorpo.minHeight).toBe('0px');
+      expect(doCorpo.overflowY).toBe('auto');
+
+      // E dentro do corpo nada encolhe: quando falta espaço, quem cede é a
+      // rolagem acima, nunca a altura do vídeo.
+      expect(doCorpo.display).toBe('flex');
+      expect(daMoldura.flexShrink).toBe('0');
+    });
+
     // A marca é leitura, e não controle (decisão 6): sem ela a pessoa abre o
     // modal só para descobrir se já viu.
+
     it('o cartão fechado diz se já foi assistido, sem virar controle', () => {
       const { fixture, el } = setup('logica');
       flushWith([resposta({ watched: true })]);

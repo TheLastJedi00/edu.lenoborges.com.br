@@ -436,8 +436,14 @@
   color: var(--ink);
 }
 
+/* Coluna de flex, e não grid (fix 2 da spec 024): é ela que faz o corpo rolar
+   dentro do diálogo em vez de vazar por baixo dele. Com grid, o corpo ficava
+   maior que o próprio modal — em 697px de viewport, 732px de corpo dentro de
+   649px de diálogo — e o `overflow: hidden` de cima recortava justamente o
+   check, que é o que paga o XP. */
 .resposta[open] {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   animation: anim-rise 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -446,11 +452,39 @@
   backdrop-filter: blur(4px);
 }
 
+/* Coluna de flex, e **não de grid** (fix 2 da spec 024).
+
+   Era `display: grid`, e essa era a causa da sobreposição no celular: o corpo
+   tem altura fixa (vem do diálogo), e uma track `auto` de grid é comprimida
+   quando falta espaço. O `min-height: auto` do item deveria impedir isso, mas
+   aqui ele vale zero — o conteúdo da moldura é um `<iframe>` de `height: 100%`,
+   que não tem altura mínima própria, e a proporção não entra nessa conta. Com a
+   track comprimida e a caixa pintada do tamanho que a proporção pede, o vídeo é
+   desenhado por cima do que vem depois, que é o check.
+
+   Medido em 393px de largura, antes: track de 407px contra vídeo de 454px em
+   viewport de 757, com o check 37px por dentro do vídeo; em 697, 71px de
+   transbordo.
+
+   `flex: 0 0 auto` diz o que o layout precisava saber: **nenhum destes itens
+   encolhe**. Quando faltar espaço, quem resolve é o `overflow-y` daqui, que já
+   existia — rolar é o comportamento certo, e sobrepor nunca foi. */
 .resposta__corpo {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  /* `flex: 1 1 auto` + `min-height: 0` é o par que faz um filho com
+     `overflow-y` rolar dentro de um pai de altura limitada. Sem o `min-height`,
+     o mínimo automático é o conteúdo inteiro, o corpo se recusa a encolher e
+     empurra o fim do modal para fora da tela. */
+  flex: 1 1 auto;
+  min-height: 0;
   gap: 0.75rem;
   padding: 1.25rem;
   overflow-y: auto;
+}
+
+.resposta__corpo > * {
+  flex: 0 0 auto;
 }
 
 .resposta__head {
@@ -488,18 +522,26 @@
 }
 
 /* Dentro do modal o retrato não tem coluna com que competir: ele é o conteúdo.
-   A largura da moldura é a do diálogo, e o teto de altura da spec 017 continua
-   valendo para o vídeo caber junto do balão e do check. */
-.resposta .video__frame--retrato {
-  width: 100%;
-  max-height: 60dvh;
-}
+   O limite continua sendo "caber junto do balão e do check", mas ele é escrito
+   como **teto de largura**, e não de altura.
 
-@media (min-width: 48rem) {
-  .resposta .video__frame--retrato {
-    width: 100%;
-    max-height: 60dvh;
-  }
+   Antes era `width: 100%` com `max-height: 60dvh`, e **isso não era a causa da
+   sobreposição** — a medição derrubou essa suspeita: trocar o teto de altura
+   pelo de largura não mudou um pixel do transbordo, que é do layout do corpo e
+   está explicado lá em cima.
+
+   O teto virou de largura mesmo assim, e por um motivo próprio: com `width:
+   100%` a altura pedida pela proporção passa de 700px num modal de 26rem, o
+   `max-height` corta, e a moldura fica mais larga que o vídeo — sobra fundo dos
+   dois lados, o mesmo defeito que a spec 017 já tinha resolvido fora do modal
+   com `width: auto`. Um eixo definido e o outro derivado é o que mantém a
+   moldura colada no vídeo.
+
+   O valor é o de antes, convertido pela proporção: o vídeo continua sem passar
+   de 60dvh de altura. */
+.resposta .video__frame--retrato {
+  width: min(100%, calc(60dvh * 9 / 16));
+  max-height: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
