@@ -128,32 +128,86 @@ repositório vale aqui: traga a medida antes de acusar o CSS.
 
 ## Tarefas
 
-- [] Task 01: **Reproduzir e medir, antes de corrigir.** Subir a pilha local (API + front), semear
+- [x] Task 01: **Reproduzir e medir, antes de corrigir.** Subir a pilha local (API + front), semear
   uma insígnia com um vídeo de resposta em Short, abrir o modal no Chrome e comparar, para a moldura
   e para o check: `getBoundingClientRect()`, `offsetHeight` e a altura da track da grid. A pergunta a
   responder é uma só: **a caixa pintada do vídeo é maior que o espaço que ela ocupa no layout?** Sem
   esse número, qualquer correção é palpite.
-- [] Task 02: Repetir a medida em **paisagem** e no **vídeo fora do modal** (a lista da trilha, que
+- [x] Task 02: Repetir a medida em **paisagem** e no **vídeo fora do modal** (a lista da trilha, que
   usa `width: auto; max-height: 68vh`). Se a sobreposição aparecer também fora do modal, o defeito é
   da moldura da spec 017 e não do modal da 021 — e o conserto muda de lugar.
-- [] Task 03: Medir em **360px e no desktop**, e **o celular é o caso que manda**: o defeito só
+- [x] Task 03: Medir em **360px e no desktop**, e **o celular é o caso que manda**: o defeito só
   aparece lá, então conserto verificado no desktop não prova nada. O retrato tem regras diferentes por
   media query (`max-height: 68vh` no celular, `width: min(22rem, 100%)` a partir de 48rem) e o modal
   sobrescreve as duas.
-- [] Task 03b: Testar a hipótese do **`dvh` dinâmico**: medir moldura e check com a barra do
+- [x] Task 03b: Testar a hipótese do **`dvh` dinâmico**: medir moldura e check com a barra do
   navegador aberta, rolar até ela recolher e medir de novo, sem fechar o modal. Se a sobreposição
   aparecer ou mudar de tamanho nesse momento, a unidade dinâmica é a causa — e o conserto é trocá-la
   por uma estática, ou tirar o teto do eixo errado, nunca ajustar o número.
-- [] Task 04: **Corrigir tirando a contradição, e não empilhando `z-index`.** A direção provável é
+- [x] Task 04: **Corrigir tirando a contradição, e não empilhando `z-index`.** A direção provável é
   deixar um eixo mandar e derivar o outro pela proporção: dar altura à moldura
   (`height: min(60dvh, …)`) e devolver `width: auto` com `max-width: 100%`, como já é fora do modal.
   **`z-index` no check seria o conserto errado** — ele esconderia a sobreposição sem devolver o
   espaço ao layout, e o vídeo continuaria maior do que a caixa que a tela reservou para ele.
-- [] Task 05: Teste de regressão em `insignia.page.spec.ts`, medindo geometria em vez de olhar o
+- [x] Task 05: Teste de regressão em `insignia.page.spec.ts`, medindo geometria em vez de olhar o
   CSS: com a resposta aberta em retrato, o topo do `.visto` tem que ficar **abaixo** do fundo do
   `.video__frame`. É a mesma forma da medida que a spec 024 usa no cartão, e é o que falha hoje.
-- [] Task 06: Conferir que o balão da pergunta (spec 017) continua acima do vídeo e que o check
+- [x] Task 06: Conferir que o balão da pergunta (spec 017) continua acima do vídeo e que o check
   segue com alvo de toque de 44px nos dois formatos — a correção mexe na caixa que os três dividem.
-- [] Task 07: Nova passada de navegador nos dois formatos, com o vídeo tocando, **em viewport de
+- [x] Task 07: Nova passada de navegador nos dois formatos, com o vídeo tocando, **em viewport de
   celular de verdade** — o iframe de mesma origem que a spec 024 usou serve, e a rolagem que recolhe a
   barra precisa entrar no roteiro — e registro do resultado aqui embaixo.
+
+## O que a medição achou, e o que ela derrubou
+
+Reproduzido com a pilha local, num iframe de 393px de mesma origem, com uma resposta em Short
+posicionada na trilha. **A hipótese do `max-height` estava errada**, e a medida derrubou:
+trocar o teto de altura pelo de largura não mudou um pixel do transbordo.
+
+A causa é o layout do corpo do modal. `.resposta__corpo` era `display: grid`; o corpo tem altura
+limitada pelo diálogo, e uma track `auto` é comprimida quando falta espaço. O `min-height: auto`
+do item deveria impedir, mas aqui ele **vale zero**: o conteúdo da moldura é um `<iframe>` de
+`height: 100%`, que não tem altura mínima própria, e a proporção não entra nessa conta. Track
+comprimida com a caixa pintada do tamanho que a proporção pede é o vídeo desenhado por cima do que
+vem depois — o check.
+
+| viewport | track do vídeo | vídeo pintado | folga até o check |
+|---|---|---|---|
+| 909px | 538px | 524px | +24px (sem defeito) |
+| 849px | 499px | 509px | 0 (comeu o `gap` inteiro) |
+| 757px | 407px | 454px | **-37px** |
+| 697px | 347px | 418px | **-61px** |
+
+É por isso que só aparece no celular: **no desktop sobra altura e nada é comprimido.** Não era o
+`dvh` dinâmico (task 03b) — o efeito aparece com viewport parado; a barra que recolhe só muda de
+quanto é o transbordo. E fora do modal não acontece, porque lá o container não tem altura fixa: a
+página rola, medido com 18px de folga (task 02).
+
+## A correção
+
+Duas linhas de layout, nenhuma de `z-index`:
+
+- `.resposta[open]` vira **coluna de flex** e `.resposta__corpo` ganha `flex: 1 1 auto` +
+  `min-height: 0`, o par que faz um filho com `overflow-y` rolar dentro de um pai de altura
+  limitada. Sem isso o corpo vazava para fora do diálogo — foi o que a primeira tentativa produziu,
+  732px de corpo dentro de 649px de modal, com o `overflow: hidden` recortando justamente o check.
+- `.resposta__corpo > *` recebe `flex: 0 0 auto`: **nenhum item encolhe**. Faltando espaço, quem
+  cede é a rolagem, e nunca a altura do vídeo.
+
+O teto do retrato virou de largura (`width: min(100%, calc(60dvh * 9 / 16))`) por um motivo
+independente, que a medição também mostrou: com `width: 100%` a moldura fica mais larga que o
+vídeo e sobra fundo dos dois lados.
+
+Depois: folga constante de **24px** em 852, 912, 760, 700 e 600px, o corpo rolando dentro do modal
+em todos eles, e o desktop igual. Marcar como assistido pelo modal continua pagando os 10 XP.
+
+## O teste, e o que ele não consegue provar
+
+**O Karma não reproduz este defeito.** Um teste de geometria foi escrito primeiro, e ele passava
+mesmo com o layout defeituoso — o `<dialog>` no Karma não é comprimido como no aparelho. Teste que
+não falha sem a correção é conforto falso, e por isso ele não ficou.
+
+O que ficou trava a **regra**: o diálogo é coluna de flex, o corpo tem `min-height: 0` e
+`overflow-y: auto`, e a moldura tem `flex-shrink: 0`. É verificação de CSS computado, mais fraca
+que a medida, e está assim assumido no comentário do teste. **A prova do defeito e da correção é a
+medição acima**, feita no navegador.
