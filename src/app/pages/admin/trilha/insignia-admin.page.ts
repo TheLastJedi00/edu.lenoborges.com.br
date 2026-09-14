@@ -13,6 +13,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
 import { VideoForm } from '../../../components/video-form/video-form';
 import { TrainingForm } from '../../../components/training-form/training-form';
+import { AiGenerateTrainingsDialog } from '../../../components/ai-generate-trainings-dialog/ai-generate-trainings-dialog';
 import { AdminService } from '../../../services/admin.service';
 import { CommunityService } from '../../../services/community.service';
 import { MuralService } from '../../../services/mural.service';
@@ -21,15 +22,17 @@ import { AnsweredQuestion, BadgeVideo, BadgeVideoTab } from '../../../models/tra
 import type {
   CreateTrainingRequest,
   Training,
+  TrainingInput,
   UpdateTrainingRequest,
 } from '../../../models/training.model';
+import { firstValueFrom } from 'rxjs';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
 @Component({
   selector: 'app-admin-insignia-page',
   standalone: true,
-  imports: [RouterLink, VideoForm, TrainingForm, ConfirmDialog],
+  imports: [RouterLink, VideoForm, TrainingForm, AiGenerateTrainingsDialog, ConfirmDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './insignia-admin.page.html',
   styleUrl: './insignia-admin.page.scss',
@@ -92,6 +95,14 @@ export class AdminInsigniaPage implements OnInit {
   /** O desafio sendo editado, ou `null` quando o formulário é de criação. */
   protected readonly editandoTreino = signal<Training | null>(null);
   protected readonly formTreinoAberto = signal(false);
+  /**
+   * O modal de geração por IA vive dentro de um `@if`.
+   *
+   * Instanciá-lo com a página mantém um `<dialog>` fechado no DOM guardando o
+   * rascunho da última geração, e reabrir traria de volta o que o admin acabou
+   * de descartar.
+   */
+  protected readonly iaAberta = signal(false);
   protected readonly salvandoTreino = signal(false);
   protected readonly erroDoTreino = signal<string | null>(null);
   protected readonly erroDaOrdemDoTreino = signal<string | null>(null);
@@ -393,6 +404,60 @@ export class AdminInsigniaPage implements OnInit {
     this.editandoTreino.set(null);
     this.formTreinoAberto.set(true);
     this.erroDoTreino.set(null);
+  }
+
+  protected abrirGeracaoComIa(): void {
+    this.erroDoTreino.set(null);
+    this.iaAberta.set(true);
+  }
+
+  protected fecharGeracaoComIa(): void {
+    this.iaAberta.set(false);
+  }
+
+  /**
+   * Grava os rascunhos aprovados, **um `POST` por desafio**.
+   *
+   * Não existe rota de `bulk` para treinamentos e esta spec não cria uma
+   * (spec 025, decisão 1). As chamadas vão em `Promise.all` porque são
+   * independentes; a `position` é calculada no servidor como "última + 1",
+   * então a ordem final é a de chegada, e reordenar é a rota de reorder.
+   *
+   * **A falha parcial aparece na tela.** Salvar cinco e perder dois em silêncio
+   * é o pior desfecho possível aqui: o admin fecha o modal achando que gravou
+   * tudo, e o rascunho não mora em lugar nenhum para ele tentar de novo. Por
+   * isso a lista é recarregada do servidor no fim, e não montada em memória:
+   * depois de uma falha no meio, só o servidor sabe o que de fato entrou.
+   */
+  protected async salvarGerados(rascunhos: readonly TrainingInput[]): Promise<void> {
+    this.salvandoTreino.set(true);
+    this.erroDoTreino.set(null);
+
+    const resultados = await Promise.allSettled(
+      rascunhos.map((rascunho) =>
+        firstValueFrom(
+          this.admin.createTraining(this.badgeId(), {
+            title: rascunho.title,
+            description: rascunho.description,
+            objective: rascunho.objective,
+            hints: rascunho.hints,
+          }),
+        ),
+      ),
+    );
+
+    const falhas = resultados.filter((item) => item.status === 'rejected').length;
+
+    this.carregarTreinamentos();
+    this.salvandoTreino.set(false);
+
+    if (falhas > 0) {
+      this.erroDoTreino.set(
+        falhas === rascunhos.length
+          ? 'Não consegui salvar os desafios gerados. Nenhum entrou na lista.'
+          : `Salvei ${rascunhos.length - falhas} de ${rascunhos.length}. Os que faltaram não foram gravados.`,
+      );
+    }
   }
 
   protected editarTreino(training: Training): void {
