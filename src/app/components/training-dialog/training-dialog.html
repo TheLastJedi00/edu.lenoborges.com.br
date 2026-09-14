@@ -24,10 +24,19 @@
 
   <p class="td__descricao">{{ t.description }}</p>
 
-  <p class="td__objetivo">
-    <span class="u-mono td__objetivo-rotulo">Objetivo</span>
-    <span class="td__objetivo-texto">{{ t.objective }}</span>
-  </p>
+  <!--
+    **Treinamento anterior à spec 025 não tem objetivo**, e o converter do
+    backend o devolve como texto vazio. Sem este `@if`, a caixa em destaque
+    aparece com o rótulo "Objetivo" e nada embaixo -- foi o que apareceu ao
+    abrir um desafio legado no preview. O `@if` some com a caixa inteira, que é
+    o certo: não há objetivo a mostrar, e não é um campo vazio a preencher.
+  -->
+  @if (t.objective) {
+    <p class="td__objetivo">
+      <span class="u-mono td__objetivo-rotulo">Objetivo</span>
+      <span class="td__objetivo-texto">{{ t.objective }}</span>
+    </p>
+  }
 
   <!--
     Lista ORDENADA de verdade. A numeração é informação — "volte à dica 3" só
