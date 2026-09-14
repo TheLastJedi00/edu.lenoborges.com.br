@@ -432,7 +432,7 @@ export class InsigniaPage implements OnInit {
     this.erroDoTreino.set(null);
 
     this.trainings
-      .complete(aberto.id)
+      .complete(aberto.id, 0)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (resultado) => {

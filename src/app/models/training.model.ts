@@ -1,5 +1,7 @@
+import { QuestionDifficulty } from './games.model';
+
 /**
- * A Arena de Treinamento (spec 023).
+ * A Arena de Treinamento (spec 023, evoluída pela 025).
  *
  * Desafios práticos de código dentro da trilha, entre a lista de vídeos e o GYM
  * Challenge. Concluir paga o XP do desafio **uma vez, para sempre**; comentar é
@@ -11,12 +13,24 @@ export interface Training {
   readonly title: string;
   readonly description: string;
   /**
-   * Os passos a executar, na ordem.
+   * O resultado esperado do desafio (spec 025).
    *
-   * É um array, e não um texto com quebras de linha: a tela desenha um `<ol>`
-   * semântico. Achatá-lo aqui empurraria a numeração para o CSS.
+   * Separado da `description` de propósito: a descrição conta o cenário, e o
+   * objetivo diz onde se chega. Enquanto os dois moravam no mesmo texto, o
+   * membro lia um parágrafo e adivinhava qual frase era o alvo.
    */
-  readonly steps: readonly string[];
+  readonly objective: string;
+  /**
+   * As dicas de raciocínio, na ordem em que o pensamento caminha (spec 025).
+   *
+   * **Não é mais o passo a passo da execução**, que era o que `steps` guardava
+   * na spec 023: é a dica que o membro abre quando trava, e **cada uma custa
+   * 1 XP** do prêmio do desafio. Por isso a ordem importa mais do que antes --
+   * abrir a quinta antes da primeira entrega o final da história.
+   *
+   * A tela **não desenha todas de uma vez**: a dica fechada nem chega ao DOM.
+   */
+  readonly hints: readonly string[];
   /**
    * O vídeo de apoio, ou nulo quando não há anexo.
    *
@@ -115,7 +129,8 @@ export interface TrainingCompletionResult {
 export interface CreateTrainingRequest {
   readonly title: string;
   readonly description: string;
-  readonly steps: readonly string[];
+  readonly objective: string;
+  readonly hints: readonly string[];
   readonly videoUrl?: string;
   readonly xpAmount?: number;
 }
@@ -126,6 +141,47 @@ export type UpdateTrainingRequest = Partial<CreateTrainingRequest> & {
 
 export interface CreateCommentRequest {
   readonly content: string;
+}
+
+/**
+ * O pedido de geração por IA (spec 025).
+ *
+ * Espelha o `GenerateQuestionsRequest` de `games.model.ts`, inclusive no
+ * `difficulty`, que reusa o mesmo tipo: são as mesmas três opções na mesma
+ * tela de admin, e um segundo tipo idêntico divergiria na primeira mudança.
+ */
+export interface GenerateTrainingsRequest {
+  readonly prompt: string;
+  readonly difficulty: QuestionDifficulty;
+  /** O teto é 10, e não 30 como nas questões: um treinamento é bem maior. */
+  readonly count: number;
+}
+
+/** Um treinamento proposto pela IA. **Sem `id`, porque nada foi gravado.** */
+export interface TrainingInput {
+  readonly title: string;
+  readonly description: string;
+  readonly objective: string;
+  readonly hints: readonly string[];
+}
+
+/**
+ * O rascunho da IA (spec 025).
+ *
+ * **Nada foi gravado.** O que existe aqui é uma proposta; o que a torna
+ * treinamento é o admin clicar em salvar, e aí a página dispara um
+ * `POST /admin/badges/:badgeId/trainings` por rascunho aprovado -- **não existe
+ * rota de `bulk` para treinamentos**.
+ */
+export interface GeneratedTrainings {
+  readonly trainings: readonly TrainingInput[];
+  /**
+   * Quantos o modelo devolveu fora do formato e foram descartados.
+   *
+   * **A tela precisa mostrar este número**: sem ele, um rascunho de 3 quando se
+   * pediu 5 parece um limite do produto em vez de um modelo que errou.
+   */
+  readonly discarded: number;
 }
 
 export interface ReorderTrainingsRequest {
