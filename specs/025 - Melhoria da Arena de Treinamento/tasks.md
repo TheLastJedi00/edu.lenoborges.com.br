@@ -66,7 +66,22 @@ Ao fim desta fase o modal oculta as dicas, cobra 1 XP por dica e recalcula o pr�
 - [x] Task 01: Revisar o modal com leitor de tela. Com a dica fechada fora do DOM, não há `aria-hidden` a colocar; o que falta é o botão de revelar anunciar o que vai acontecer (`aria-label` com o custo) e a dica revelada entrar numa região com `aria-live="polite"`, senão quem não vê a tela não sabe que algo apareceu.
 - [x] Task 02: Conferir o `prefers-reduced-motion` na animação de revelação e no modal de geração.
 - [x] Task 03: `npm test` limpo e `ng build` passando.
-  799 testes verdes (Karma em Chrome headless) e `ng build` sem erro. **A Arena não foi aberta no
-  navegador contra a API de verdade**: ela exige sessão, e subir o backend local depende de
-  credencial do Firebase (e o emulador, de Java, que não está instalado nesta máquina). O que foi
-  verificado no Chrome de verdade é o bundle servindo e a suíte, que renderiza o modal inteiro.
+  800 testes verdes (Karma em Chrome headless) e `ng build` sem erro.
+
+  **A spec foi percorrida no Chrome contra a API de verdade**, com o back local ligado ao
+  `dev-liga-dev` (preview) e o front em `localhost:4200`, com um membro criado para isso. O que a
+  execução provou, e que teste nenhum provava:
+  - O **fallback `steps` -> `hints` funciona contra o Firestore real**: os dois desafios criados pela
+    spec 023 aparecem como "1 dica" e "2 dicas", sem script de migração.
+  - O desafio novo grava **só `hints`**, sem `steps` órfão, e com `objective`.
+  - O texto da dica fechada **não está no DOM** -- conferido pela árvore de acessibilidade da página
+    real, não só por teste unitário --, e o botão anuncia "Revelar a dica 1 de 3, custa 1 XP".
+  - Revelar duas dicas levou o cabeçalho de "Prêmio máximo: 30 XP" para "Prêmio atual: 28 XP", o
+    botão para "Concluir Desafio (+28 XP)", e o servidor pagou **+28 XP**, gravando
+    `xpAwarded: 28, hintsUsed: 2` na conclusão e `xp: 28` no perfil.
+  - Concluído, o desafio abriu as três dicas -- inclusive a nunca revelada -- e o preço sumiu.
+  - A geração por IA respondeu `503` com a mensagem que oferece o cadastro à mão (a API local não
+    tem `GEMINI_API_KEY`), que é o contrato travado no e2e.
+
+  **A execução achou um defeito que os testes não achavam**: desafio anterior à spec vem com
+  `objective: ''` e a tela pintava a caixa de Objetivo vazia. Corrigido com um `@if`, com teste.
