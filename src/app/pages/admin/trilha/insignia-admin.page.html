@@ -216,8 +216,8 @@
               <p class="video__title">{{ treino.title }}</p>
               <p class="video__id u-mono">
                 {{ treino.xpAmount }} XP ·
-                {{ treino.steps.length }}
-                {{ treino.steps.length === 1 ? 'passo' : 'passos' }}
+                {{ treino.hints.length }}
+                {{ treino.hints.length === 1 ? 'dica' : 'dicas' }}
               </p>
             </div>
 
@@ -284,10 +284,27 @@
         />
       </div>
     } @else {
-      <button type="button" class="btn" (click)="abrirFormTreino()">Novo desafio</button>
+      <div class="arena__acoes">
+        <button type="button" class="btn" (click)="abrirFormTreino()">Novo desafio</button>
+        <button type="button" class="btn btn--ghost" (click)="abrirGeracaoComIa()">
+          Gerar com IA
+        </button>
+      </div>
     }
   </section>
 </section>
+
+<!--
+  O modal fica dentro de um `@if`: fechado, ele sai do DOM e leva o rascunho
+  junto, que é o que faz reabrir começar do zero.
+-->
+@if (iaAberta()) {
+  <app-ai-generate-trainings-dialog
+    [badgeId]="badgeId()"
+    (saved)="salvarGerados($event)"
+    (closed)="fecharGeracaoComIa()"
+  />
+}
 
 <app-confirm-dialog
   [title]="confirmTitle()"

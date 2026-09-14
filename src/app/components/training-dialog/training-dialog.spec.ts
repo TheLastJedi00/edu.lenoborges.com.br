@@ -9,7 +9,8 @@ function desafio(extra: Partial<Training> = {}): Training {
     badgeId: 'logica',
     title: 'Refatore o laço em três funções',
     description: 'Um exercício de leitura antes de escrever.',
-    steps: ['Clone o repositório', 'Rode os testes', 'Extraia as funções'],
+    objective: 'Um laço lido de cima a baixo sem rolar a tela.',
+    hints: ['Repare no que o laço acumula', 'Uma delas dá nome a uma função', 'Extraia a menor'],
     videoUrl: null,
     xpAmount: 30,
     position: 0,
@@ -61,20 +62,144 @@ describe('TrainingDialog', () => {
     fixture = TestBed.createComponent(TrainingDialog);
   });
 
-  describe('os passos', () => {
+  function revelar(host: HTMLElement): void {
+    host.querySelector<HTMLButtonElement>('.td__revelar')!.click();
+    fixture.detectChanges();
+  }
+
+  describe('o objetivo', () => {
+    it('aparece com rótulo próprio, separado da descrição', () => {
+      const objetivo = render().querySelector('.td__objetivo')!;
+
+      expect(objetivo.textContent).toContain('Objetivo');
+      expect(objetivo.textContent).toContain('Um laço lido de cima a baixo');
+    });
+
+    /**
+     * **Treinamento anterior à spec 025 não tem objetivo**, e o converter do
+     * backend o devolve como texto vazio. Sem a guarda, a caixa em destaque
+     * aparece com o rótulo e nada embaixo — foi o que apareceu ao abrir um
+     * desafio legado no preview.
+     */
+    it('some inteiro quando o desafio é anterior à spec e não tem objetivo', () => {
+      const host = render({ training: desafio({ objective: '' }) });
+
+      expect(host.querySelector('.td__objetivo')).toBeNull();
+    });
+  });
+
+  describe('as dicas', () => {
     /**
      * `<ol>` de verdade, e não `<ul>` com contador no CSS.
      *
-     * A numeração é informação — "volte ao passo 3" só faz sentido se os passos
-     * forem numerados —, e quem ouve a tela precisa ouvir "lista numerada".
+     * A numeração é informação — "volte à dica 3" só faz sentido se as dicas
+     * forem numeradas —, e quem ouve a tela precisa ouvir "lista numerada".
      */
-    it('renderiza os passos numa lista ordenada, na ordem recebida', () => {
-      const host = render();
-      const itens = host.querySelectorAll('ol.td__lista li');
+    it('desenha um item por dica, numa lista ordenada', () => {
+      expect(render().querySelectorAll('ol.td__lista li').length).toBe(3);
+    });
 
-      expect(itens.length).toBe(3);
-      expect(itens[0].textContent).toContain('Clone o repositório');
-      expect(itens[2].textContent).toContain('Extraia as funções');
+    /**
+     * **O teste que protege a mecânica inteira** (spec 025).
+     *
+     * A dica fechada **não entra no DOM**. Não é `filter: blur()` e não é
+     * `aria-hidden`: os dois deixam o texto no HTML, onde o leitor de tela lê e
+     * o inspecionar elemento mostra, e a cobrança de 1 XP vira uma censura que
+     * qualquer um contorna — sem erro, sem log, e sem ninguém perceber.
+     */
+    it('o texto da dica fechada não está no DOM', () => {
+      const host = render();
+
+      expect(host.textContent).not.toContain('Repare no que o laço acumula');
+      expect(host.innerHTML).not.toContain('Repare no que o laço acumula');
+    });
+
+    it('revelar abre uma dica por vez, na ordem', () => {
+      const host = render();
+
+      revelar(host);
+
+      expect(host.textContent).toContain('Repare no que o laço acumula');
+      expect(host.textContent).not.toContain('Uma delas dá nome a uma função');
+    });
+
+    it('o botão some quando a última dica abre', () => {
+      const host = render();
+
+      revelar(host);
+      revelar(host);
+      expect(host.querySelector('.td__revelar')).not.toBeNull();
+
+      revelar(host);
+      expect(host.querySelector('.td__revelar')).toBeNull();
+    });
+
+    /**
+     * **Desafio concluído não mostra preço nenhum.** Sem XP a perder, cobrar
+     * por uma dica seria cobrar por nada.
+     */
+    it('concluído mostra todas as dicas abertas e nenhum botão de revelar', () => {
+      const host = render({ training: desafio({ completed: true }) });
+
+      expect(host.textContent).toContain('Repare no que o laço acumula');
+      expect(host.textContent).toContain('Extraia a menor');
+      expect(host.querySelector('.td__revelar')).toBeNull();
+      expect(host.querySelector('.td__premio')).toBeNull();
+    });
+  });
+
+  /**
+   * **Com a dica fechada fora do DOM, não há `aria-hidden` a colocar.**
+   *
+   * O que falta é o contrário: quem não vê a tela precisa saber o que o botão
+   * vai custar antes de apertar, e precisa saber que algo apareceu depois.
+   */
+  describe('a leitura de tela', () => {
+    it('o botão de revelar anuncia qual dica e o custo', () => {
+      const rotulo = render()
+        .querySelector('.td__revelar')!
+        .getAttribute('aria-label')!;
+
+      expect(rotulo).toContain('dica 1 de 3');
+      expect(rotulo).toContain('1 XP');
+    });
+
+    it('a dica revelada entra numa região viva', () => {
+      const host = render();
+
+      revelar(host);
+
+      const regiao = host.querySelector('ol.td__lista[aria-live="polite"]')!;
+
+      expect(regiao.textContent).toContain('Repare no que o laço acumula');
+    });
+  });
+
+  describe('o prêmio', () => {
+    it('começa no valor cheio do desafio', () => {
+      expect(render().querySelector('.td__premio')!.textContent).toContain('30 XP');
+    });
+
+    it('cai 1 XP por dica revelada', () => {
+      const host = render();
+
+      revelar(host);
+      revelar(host);
+
+      expect(host.querySelector('.td__premio')!.textContent).toContain('28 XP');
+    });
+
+    /** A tela nunca promete um valor negativo, como o servidor nunca o paga. */
+    it('não passa de zero por baixo', () => {
+      const host = render({
+        training: desafio({ xpAmount: 2, hints: ['Uma', 'Duas', 'Três'] }),
+      });
+
+      revelar(host);
+      revelar(host);
+      revelar(host);
+
+      expect(host.querySelector('.td__premio')!.textContent).toContain('0 XP');
     });
   });
 
@@ -242,14 +367,34 @@ describe('TrainingDialog', () => {
       expect(host.querySelector<HTMLButtonElement>('.td__concluir')!.disabled).toBeTrue();
     });
 
-    it('emite a intenção de concluir', () => {
+    it('emite a intenção de concluir, com as dicas reveladas', () => {
       const host = render();
-      let pediu = false;
+      let dicas: number | undefined;
 
-      fixture.componentInstance.concluir.subscribe(() => (pediu = true));
+      fixture.componentInstance.concluir.subscribe((quantas) => (dicas = quantas));
+      revelar(host);
+      revelar(host);
       host.querySelector<HTMLButtonElement>('.td__concluir')!.click();
 
-      expect(pediu).toBeTrue();
+      expect(dicas).toBe(2);
+    });
+
+    it('emite zero quando nenhuma dica foi aberta', () => {
+      const host = render();
+      let dicas: number | undefined;
+
+      fixture.componentInstance.concluir.subscribe((quantas) => (dicas = quantas));
+      host.querySelector<HTMLButtonElement>('.td__concluir')!.click();
+
+      expect(dicas).toBe(0);
+    });
+
+    it('o botão mostra o prêmio atual', () => {
+      const host = render();
+
+      revelar(host);
+
+      expect(host.querySelector('.td__concluir')!.textContent).toContain('29 XP');
     });
   });
 
@@ -274,7 +419,9 @@ describe('TrainingDialog', () => {
     fixture.componentRef.setInput('xpGanho', 30);
     fixture.detectChanges();
 
-    const regiao = (fixture.nativeElement as HTMLElement).querySelector('[aria-live="polite"]');
+    const regiao = (fixture.nativeElement as HTMLElement).querySelector(
+      '.td__xp[aria-live="polite"]',
+    );
 
     expect(regiao?.textContent).toContain('+30 XP');
   });

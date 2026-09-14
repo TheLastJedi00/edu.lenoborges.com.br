@@ -1,0 +1,198 @@
+<dialog
+  #dialog
+  class="ait"
+  aria-labelledby="titulo-ia-treinos"
+  (cancel)="$event.preventDefault(); tentarFechar()"
+>
+  <header class="ait__head">
+    <h2 class="ait__title" id="titulo-ia-treinos">Gerar treinamentos com IA</h2>
+    <button type="button" class="ait__close" (click)="tentarFechar()" aria-label="Fechar">
+      Fechar
+    </button>
+  </header>
+
+  @if (passo() === 'gerar') {
+    <form class="ait__form" [formGroup]="form" (ngSubmit)="gerar()">
+      <label class="ait__label" for="prompt-treinos">Tema</label>
+      <textarea
+        id="prompt-treinos"
+        class="ait__area"
+        formControlName="prompt"
+        rows="4"
+        placeholder="Desafios sobre laços de repetição em Java, partindo de um problema do dia a dia."
+      ></textarea>
+      <p class="ait__help">
+        Quanto mais específico, melhor. O nome da insígnia vai junto no prompt, e as dicas vêm como
+        raciocínio, nunca como o código pronto.
+      </p>
+
+      <div class="ait__row">
+        <div class="ait__field">
+          <label class="ait__label" for="difficulty-treinos">Dificuldade</label>
+          <select id="difficulty-treinos" class="ait__select" formControlName="difficulty">
+            @for (item of difficulties; track item[0]) {
+              <option [value]="item[0]">{{ item[1] }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="ait__field">
+          <label class="ait__label" for="count-treinos">Quantidade</label>
+          <select id="count-treinos" class="ait__select" formControlName="count">
+            <option [value]="3">3 desafios</option>
+            <option [value]="5">5 desafios</option>
+            <option [value]="10">10 desafios</option>
+          </select>
+        </div>
+      </div>
+
+      @if (erro()) {
+        <p class="ait__error" role="alert">{{ erro() }}</p>
+      }
+
+      <button type="submit" class="ait__submit" [disabled]="form.invalid || gerando()">
+        {{ gerando() ? 'Gerando...' : 'Gerar treinamentos' }}
+      </button>
+
+      <!--
+        Esqueleto, e não spinner: a espera é longa e o esqueleto diz o que está
+        vindo — desafio, objetivo e uma lista de dicas.
+      -->
+      @if (gerando()) {
+        <ul class="skeleton" aria-hidden="true">
+          @for (row of [0, 1, 2]; track row) {
+            <li class="skeleton__item">
+              <span class="skeleton__line skeleton__line--title"></span>
+              <span class="skeleton__line"></span>
+              <span class="skeleton__line"></span>
+              <span class="skeleton__line"></span>
+            </li>
+          }
+        </ul>
+      }
+    </form>
+  }
+
+  @if (passo() === 'revisar') {
+    <div class="ait__review">
+      <!--
+        O número de descartados precisa aparecer: sem ele, um rascunho de 3
+        quando se pediu 5 parece um limite do produto em vez de um modelo que
+        errou o formato.
+      -->
+      @if (descartados() > 0) {
+        <p class="ait__discarded" role="status">
+          {{ descartados() }}
+          {{ descartados() === 1 ? 'desafio veio' : 'desafios vieram' }}
+          fora do formato e {{ descartados() === 1 ? 'foi descartado' : 'foram descartados' }}.
+        </p>
+      }
+
+      @if (rascunho().length === 0) {
+        <p class="ait__empty">
+          Nenhum desafio utilizável veio dessa vez. Reescreva o tema e tente de novo.
+        </p>
+      }
+
+      <ul class="ait__list">
+        @for (item of rascunho(); track item.key) {
+          <li class="ait__item">
+            <div class="ait__item-head">
+              <label class="ait__pick">
+                <input
+                  type="checkbox"
+                  [checked]="item.selected"
+                  (change)="alternarSelecao(item.key)"
+                />
+                <span>Incluir</span>
+              </label>
+              <button type="button" class="ait__drop" (click)="remover(item.key)">Excluir</button>
+            </div>
+
+            <label class="ait__label" [attr.for]="'titulo-' + item.key">Título</label>
+            <input
+              class="ait__input"
+              type="text"
+              [id]="'titulo-' + item.key"
+              [value]="item.value.title"
+              (input)="editarTexto(item.key, 'title', $any($event.target).value)"
+              autocomplete="off"
+            />
+
+            <label class="ait__label" [attr.for]="'desc-' + item.key">Desafio</label>
+            <textarea
+              class="ait__area ait__area--curta"
+              rows="3"
+              [id]="'desc-' + item.key"
+              [value]="item.value.description"
+              (input)="editarTexto(item.key, 'description', $any($event.target).value)"
+            ></textarea>
+
+            <label class="ait__label" [attr.for]="'obj-' + item.key">Objetivo</label>
+            <input
+              class="ait__input"
+              type="text"
+              [id]="'obj-' + item.key"
+              [value]="item.value.objective"
+              (input)="editarTexto(item.key, 'objective', $any($event.target).value)"
+              autocomplete="off"
+            />
+
+            <p class="ait__label">Dicas</p>
+            <p class="ait__help">Cada dica que o membro abrir custa 1 XP do prêmio deste desafio.</p>
+            <ul class="ait__dicas">
+              @for (dica of item.value.hints; track $index) {
+                <li class="ait__dica">
+                  <span class="u-mono ait__dica-num" aria-hidden="true">{{ $index + 1 }}</span>
+                  <input
+                    class="ait__input"
+                    type="text"
+                    [value]="dica"
+                    [attr.aria-label]="'Dica ' + ($index + 1)"
+                    (input)="editarDica(item.key, $index, $any($event.target).value)"
+                    autocomplete="off"
+                  />
+                  <button
+                    type="button"
+                    class="ait__drop"
+                    [disabled]="item.value.hints.length <= 1"
+                    [attr.aria-label]="'Remover a dica ' + ($index + 1)"
+                    (click)="removerDica(item.key, $index)"
+                  >
+                    Remover
+                  </button>
+                </li>
+              }
+            </ul>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!--
+      A barra fixa do rodapé: a contagem e o botão ficam à vista enquanto o
+      admin rola dez desafios.
+    -->
+    <footer class="ait__foot">
+      <p class="u-mono ait__count">Selecionados: {{ selecionados() }}/{{ rascunho().length }}</p>
+      <button
+        type="button"
+        class="ait__submit"
+        [disabled]="selecionados() === 0"
+        (click)="salvar()"
+      >
+        Salvar selecionados
+      </button>
+    </footer>
+  }
+</dialog>
+
+<app-confirm-dialog
+  #confirmar
+  title="Descartar o rascunho?"
+  message="Os desafios gerados não foram salvos, e o rascunho não fica guardado em lugar nenhum. Fechar agora perde tudo o que você revisou."
+  confirmLabel="Descartar"
+  cancelLabel="Continuar revisando"
+  [danger]="true"
+  (confirmed)="fecharDeVerdade()"
+/>

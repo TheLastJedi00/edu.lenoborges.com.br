@@ -24,38 +24,58 @@
   @if (form.controls.description.touched && form.controls.description.invalid) {
     <p class="tf__erro">A descrição é obrigatória.</p>
   }
+  <p class="tf__hint">O cenário do desafio. Onde o membro precisa chegar é o objetivo, abaixo.</p>
+
+  <label class="tf__label" for="tf-objective">Objetivo</label>
+  <input
+    id="tf-objective"
+    class="tf__input"
+    type="text"
+    formControlName="objective"
+    placeholder="Um laço lido de cima a baixo sem rolar a tela."
+    autocomplete="off"
+    enterkeyhint="next"
+  />
+  @if (form.controls.objective.touched && form.controls.objective.invalid) {
+    <p class="tf__erro">O objetivo é obrigatório e tem no mínimo 3 letras.</p>
+  }
+  <p class="tf__hint">O resultado esperado, em uma frase.</p>
 
   <!--
-    Os passos são um `FormArray`, e não um textarea com quebras de linha: mover
-    o passo três para cima é reordenar dois controles, e não recortar e colar.
+    As dicas são um `FormArray`, e não um textarea com quebras de linha: mover
+    a dica três para cima é reordenar dois controles, e não recortar e colar.
   -->
-  <fieldset class="tf__passos" formArrayName="steps">
-    <legend class="tf__label">Passos</legend>
+  <fieldset class="tf__passos" formArrayName="hints">
+    <legend class="tf__label">Dicas</legend>
+    <p class="tf__hint">
+      As dicas ficam fechadas para o membro, na ordem do raciocínio. Cada uma que ele abrir custa 1
+      XP do prêmio deste desafio, então escreva pensando no que vale esse preço.
+    </p>
 
-    @for (passo of passos.controls; track $index) {
+    @for (dica of dicas.controls; track $index) {
       <div class="tf__passo">
         <span class="u-mono tf__passo-num" aria-hidden="true">{{ $index + 1 }}</span>
         <input
           class="tf__input tf__passo-campo"
           type="text"
           [formControlName]="$index"
-          [attr.aria-label]="'Passo ' + ($index + 1)"
-          placeholder="Clone o repositório"
+          [attr.aria-label]="'Dica ' + ($index + 1)"
+          placeholder="Precisamos de uma variável inteira para guardar a idade."
           autocomplete="off"
         />
         <button
           type="button"
           class="tf__remover"
-          [disabled]="passos.length <= 1"
-          [attr.aria-label]="'Remover o passo ' + ($index + 1)"
-          (click)="removerPasso($index)"
+          [disabled]="dicas.length <= 1"
+          [attr.aria-label]="'Remover a dica ' + ($index + 1)"
+          (click)="removerDica($index)"
         >
           Remover
         </button>
       </div>
     }
 
-    <button type="button" class="tf__adicionar" (click)="adicionarPasso()">Adicionar passo</button>
+    <button type="button" class="tf__adicionar" (click)="adicionarDica()">Adicionar dica</button>
   </fieldset>
 
   <label class="tf__label" for="tf-video">Link do vídeo (opcional)</label>
