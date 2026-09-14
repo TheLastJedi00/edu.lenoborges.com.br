@@ -16,6 +16,8 @@ import type { TierId } from '../models/auth.model';
 import type {
   AdminTrainingCommentList,
   CreateTrainingRequest,
+  GeneratedTrainings,
+  GenerateTrainingsRequest,
   Training,
   TrainingComment,
   TrainingList,
@@ -232,6 +234,27 @@ export class AdminService {
   ): Observable<GeneratedQuestions> {
     return this.http.post<GeneratedQuestions>(
       `${this.base}/badges/${badgeId}/questions/generate`,
+      body,
+    );
+  }
+
+  /**
+   * Gera um rascunho de treinamentos com IA. **Não grava nada** (spec 025).
+   *
+   * O que grava é o `createTraining`, uma chamada por rascunho aprovado --
+   * **não existe rota de `bulk` para treinamentos**, e a página dispara as
+   * chamadas em `Promise.all`. A `position` é calculada no servidor, então a
+   * ordem final é a de chegada; reordenar é a rota de reorder.
+   *
+   * `503` aqui significa "a IA não está configurada ou não respondeu", e a tela
+   * precisa dizer isso: é o único erro desta rota que não é culpa do prompt.
+   */
+  generateTrainings(
+    badgeId: string,
+    body: GenerateTrainingsRequest,
+  ): Observable<GeneratedTrainings> {
+    return this.http.post<GeneratedTrainings>(
+      `${this.base}/badges/${badgeId}/trainings/generate`,
       body,
     );
   }

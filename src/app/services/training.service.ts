@@ -47,11 +47,19 @@ export class TrainingService {
    * somar o `xpAmount` localmente — a soma acertaria no primeiro clique de cada
    * desafio e erraria em todos os seguintes, e o erro só apareceria quando
    * alguém recarregasse a página e visse o número cair.
+   *
+   * **O `hintsUsed` desconta 1 XP por dica revelada** (spec 025), e por isso o
+   * `xpAmount` do card deixou de ser o valor pago. O servidor corta esse número
+   * no total de dicas do desafio e nunca paga negativo — ele não tem como
+   * conferir quantas foram realmente abertas, e isso é aceito de propósito.
    */
-  complete(trainingId: string): Observable<TrainingCompletionResult> {
+  complete(
+    trainingId: string,
+    hintsUsed: number,
+  ): Observable<TrainingCompletionResult> {
     return this.http.post<TrainingCompletionResult>(
       `${environment.apiUrl}/trainings/${trainingId}/complete`,
-      {},
+      { hintsUsed },
     );
   }
 
