@@ -9,7 +9,8 @@ function desafio(extra: Partial<Training> = {}): Training {
     badgeId: 'logica',
     title: 'Refatore o laço em três funções',
     description: 'Um exercício de leitura antes de escrever.',
-    steps: ['Clone o repositório', 'Rode os testes'],
+    objective: 'Um laço lido de cima a baixo sem rolar a tela.',
+    hints: ['Repare no que o laço acumula', 'Extraia a menor parte'],
     videoUrl: null,
     xpAmount: 30,
     position: 0,
@@ -55,10 +56,10 @@ describe('TrainingCard', () => {
   });
 
   it('conta os passos, no singular e no plural', () => {
-    expect(render(desafio({ steps: ['Um'] })).textContent).toContain('1 passo');
+    expect(render(desafio({ hints: ['Uma'] })).textContent).toContain('1 dica');
 
     fixture = TestBed.createComponent(TrainingCard);
-    expect(render(desafio({ steps: ['Um', 'Dois'] })).textContent).toContain('2 passos');
+    expect(render(desafio({ hints: ['Uma', 'Duas'] })).textContent).toContain('2 dicas');
   });
 
   describe('o selo de concluído', () => {

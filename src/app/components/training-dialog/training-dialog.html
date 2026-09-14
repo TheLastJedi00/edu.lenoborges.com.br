@@ -5,6 +5,16 @@
     <div class="td__head-texto">
       <p class="u-mono td__eyebrow">Arena de Treinamento</p>
       <h2 class="td__titulo">{{ t.title }}</h2>
+      <!--
+        O prêmio é dinâmico: cada dica aberta tira 1 XP. Desafio concluído não
+        anuncia preço nenhum, porque já não há o que perder.
+      -->
+      @if (!concluido()) {
+        <p class="u-mono td__premio">
+          {{ dicasReveladas() === 0 ? 'Prêmio máximo' : 'Prêmio atual' }}:
+          <span class="td__premio-valor">{{ premioAtual() }} XP</span>
+        </p>
+      }
     </div>
 
     <button type="button" class="td__fechar" aria-label="Fechar o desafio" (click)="fechar.emit()">
@@ -14,18 +24,53 @@
 
   <p class="td__descricao">{{ t.description }}</p>
 
+  <p class="td__objetivo">
+    <span class="u-mono td__objetivo-rotulo">Objetivo</span>
+    <span class="td__objetivo-texto">{{ t.objective }}</span>
+  </p>
+
   <!--
-    Lista ORDENADA de verdade. A numeração é informação — "volte ao passo 3" só
-    faz sentido se os passos forem numerados —, e um `<ul>` com contador no CSS
+    Lista ORDENADA de verdade. A numeração é informação — "volte à dica 3" só
+    faz sentido se as dicas forem numeradas —, e um `<ul>` com contador no CSS
     diria "lista com 4 itens" para quem ouve, em vez de "lista numerada".
+
+    **A dica fechada NÃO renderiza o texto** (spec 025). Não é `filter: blur()`
+    e não é `aria-hidden`: os dois deixam o texto no HTML, onde o leitor de
+    tela lê e o inspecionar elemento mostra, e a cobrança de 1 XP vira uma
+    censura que qualquer um contorna — sem erro, sem log, e sem ninguém
+    perceber. O `@if` resolve a acessibilidade e a mecânica no mesmo lugar.
   -->
-  <section class="td__passos" aria-labelledby="td-passos">
-    <h3 class="td__secao" id="td-passos">Passos</h3>
-    <ol class="td__lista">
-      @for (passo of t.steps; track $index) {
-        <li class="td__passo">{{ passo }}</li>
+  <section class="td__passos" aria-labelledby="td-dicas">
+    <h3 class="td__secao" id="td-dicas">Dicas</h3>
+
+    <ol class="td__lista" aria-live="polite">
+      @for (dica of t.hints; track $index) {
+        <li class="td__passo" [class.td__passo--fechada]="!dicaAberta($index)">
+          @if (dicaAberta($index)) {
+            <span class="animate-enter">{{ dica }}</span>
+          } @else {
+            <span class="u-mono td__dica-selo">Dica fechada</span>
+          }
+        </li>
       }
     </ol>
+
+    @if (podeRevelar()) {
+      <button
+        type="button"
+        class="td__revelar"
+        [attr.aria-label]="
+          'Revelar a dica ' + (dicasReveladas() + 1) + ' de ' + t.hints.length + ', custa 1 XP'
+        "
+        (click)="revelarProxima()"
+      >
+        Revelar próxima dica (-1 XP)
+      </button>
+      <p class="td__revelar-nota">
+        As dicas abrem na ordem do raciocínio, uma por vez. Cada uma custa 1 XP do prêmio deste
+        desafio.
+      </p>
+    }
   </section>
 
   @if (embedUrl(); as url) {
@@ -135,9 +180,9 @@
         type="button"
         class="td__concluir"
         [disabled]="completing()"
-        (click)="concluir.emit()"
+        (click)="concluir.emit(dicasReveladas())"
       >
-        {{ completing() ? 'Concluindo...' : 'Concluir Desafio' }}
+        {{ completing() ? 'Concluindo...' : 'Concluir Desafio (+' + premioAtual() + ' XP)' }}
       </button>
     }
 

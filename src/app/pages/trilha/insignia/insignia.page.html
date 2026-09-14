@@ -413,7 +413,7 @@
       [hasMore]="cursorComentarios() !== null"
       [xpGanho]="xpGanhoNoTreino()"
       [erro]="erroDoTreino()"
-      (concluir)="concluirTreinamento()"
+      (concluir)="concluirTreinamento($event)"
       (comentar)="comentarTreinamento($event)"
       (carregarMais)="carregarComentarios()"
       (fechar)="fecharTreinamento()"

@@ -419,9 +419,13 @@ export class InsigniaPage implements OnInit {
    * O XP vem do corpo da resposta e vai para o `AuthStore` — **nunca uma soma
    * local**. Concluir de novo paga zero, então somar o `xpAmount` aqui acertaria
    * no primeiro clique de cada desafio e erraria em todos os seguintes, com o
-   * erro aparecendo só quando alguém recarregasse a página.
+   * erro aparecendo só quando alguém recarregasse a página. **Nem o prêmio
+   * calculado na tela serve** (spec 025): o desconto das dicas é conferido no
+   * servidor, que corta o número no total de dicas do desafio.
+   *
+   * `dicasUsadas` vem do modal, que é onde o contador vive.
    */
-  protected concluirTreinamento(): void {
+  protected concluirTreinamento(dicasUsadas: number): void {
     const aberto = this.treinamentoAberto();
 
     if (!aberto || aberto.completed || this.concluindoTreino()) {
@@ -432,7 +436,7 @@ export class InsigniaPage implements OnInit {
     this.erroDoTreino.set(null);
 
     this.trainings
-      .complete(aberto.id, 0)
+      .complete(aberto.id, dicasUsadas)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (resultado) => {

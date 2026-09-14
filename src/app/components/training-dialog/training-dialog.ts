@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IconClose } from '../icons/icon-close';
 import { IconCheck } from '../icons/icon-check';
@@ -51,12 +59,64 @@ export class TrainingDialog {
   readonly xpGanho = input<number | null>(null);
   readonly erro = input<string | null>(null);
 
-  readonly concluir = output<void>();
+  /** Emite **quantas dicas foram reveladas**, que é o que o servidor cobra. */
+  readonly concluir = output<number>();
   readonly comentar = output<string>();
   readonly carregarMais = output<void>();
   readonly fechar = output<void>();
 
+  /**
+   * Quantas dicas o membro já abriu, **e o estado morre com o modal**.
+   *
+   * A página instancia este componente dentro de um `@if` (spec 023), então
+   * fechar e reabrir já nasce zerado -- **não existe `effect` de reset**, que
+   * seria uma segunda fonte de verdade para a mesma coisa.
+   *
+   * **Fechar e voltar entrega as dicas de graça, e isso é aceito de propósito**
+   * (spec 025). Persistir exigiria uma escrita por dica revelada, três vezes
+   * mais cara para cobrar 1 XP, e o servidor já não tem como conferir esse
+   * número de qualquer forma. É um vazamento conhecido e barato, e fechá-lo
+   * custaria mais do que ele vale.
+   */
+  protected readonly dicasReveladas = signal(0);
+
   protected readonly concluido = computed(() => this.training().completed);
+
+  /**
+   * O prêmio que este desafio ainda paga: 1 XP a menos por dica aberta.
+   *
+   * **É o número que a tela pinta, e não o que ela paga** — quem paga é o
+   * servidor, e o `xp` do perfil continua vindo da resposta. O `max` repete
+   * aqui a regra de lá para a tela nunca prometer um valor negativo.
+   */
+  protected readonly premioAtual = computed(() =>
+    Math.max(0, this.training().xpAmount - this.dicasReveladas()),
+  );
+
+  /**
+   * **Desafio concluído não tem dica a pagar.** Sem XP a perder, cobrar por uma
+   * dica seria cobrar por nada: elas aparecem todas abertas e o botão some.
+   */
+  protected readonly podeRevelar = computed(
+    () => !this.concluido() && this.dicasReveladas() < this.training().hints.length,
+  );
+
+  protected revelarProxima(): void {
+    if (!this.podeRevelar()) {
+      return;
+    }
+
+    this.dicasReveladas.update((quantas) => quantas + 1);
+  }
+
+  /**
+   * Se a dica de índice `i` deve ser **renderizada**.
+   *
+   * É renderização, e não visibilidade: a dica fechada não entra no DOM.
+   */
+  protected dicaAberta(indice: number): boolean {
+    return this.concluido() || indice < this.dicasReveladas();
+  }
 
   /**
    * A URL do vídeo de apoio, marcada como confiável.
