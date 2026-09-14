@@ -324,7 +324,8 @@ describe('AdminService', () => {
         .createTraining('logica', {
           title: 'Refatore o laço',
           description: 'Descrição',
-          steps: ['Passo um'],
+          objective: 'Objetivo',
+          hints: ['Dica uma'],
         })
         .subscribe();
 
@@ -334,9 +335,37 @@ describe('AdminService', () => {
       expect(req.request.body).toEqual({
         title: 'Refatore o laço',
         description: 'Descrição',
-        steps: ['Passo um'],
+        objective: 'Objetivo',
+        hints: ['Dica uma'],
       });
       req.flush({ id: 'trn-1' });
+    });
+
+    /**
+     * A geração **não grava nada** (spec 025): o que grava é a criação de
+     * sempre, uma chamada por rascunho aprovado -- não existe rota de `bulk`
+     * para treinamentos.
+     */
+    it('gera rascunho de treinamentos com IA', () => {
+      service
+        .generateTrainings('logica', {
+          prompt: 'Desafios sobre laços de repetição em um caso real.',
+          difficulty: 'medium',
+          count: 3,
+        })
+        .subscribe();
+
+      const req = http.expectOne((r) =>
+        r.url.endsWith('/admin/badges/logica/trainings/generate'),
+      );
+
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({
+        prompt: 'Desafios sobre laços de repetição em um caso real.',
+        difficulty: 'medium',
+        count: 3,
+      });
+      req.flush({ trainings: [], discarded: 2 });
     });
 
     it('edita pelo id do desafio, sem a insígnia na URL', () => {

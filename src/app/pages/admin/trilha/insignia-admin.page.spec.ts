@@ -483,7 +483,8 @@ describe('AdminInsigniaPage', () => {
         badgeId: 'logica',
         title,
         description: 'Descrição',
-        steps: ['Um'],
+        objective: 'Objetivo',
+        hints: ['Uma'],
         videoUrl: null,
         xpAmount: 30,
         position,
@@ -543,7 +544,8 @@ describe('AdminInsigniaPage', () => {
       };
       preencher('#tf-title', 'Segundo');
       preencher('#tf-desc', 'Descrição');
-      preencher('.tf__passo-campo', 'Clone o repositório');
+      preencher('#tf-objective', 'Objetivo');
+      preencher('.tf__passo-campo', 'Repare no que o laço acumula');
       fixture.detectChanges();
       form.dispatchEvent(new Event('submit'));
 

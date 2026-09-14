@@ -9,7 +9,8 @@ function desafio(extra: Partial<Training> = {}): Training {
     badgeId: 'logica',
     title: 'Refatore o laço',
     description: 'Descrição do desafio',
-    steps: ['Um', 'Dois'],
+    objective: 'Objetivo do desafio',
+    hints: ['Uma', 'Duas'],
     videoUrl: null,
     xpAmount: 30,
     position: 0,
@@ -118,13 +119,15 @@ describe('TrainingForm', () => {
 
       preencher('#tf-title', '  Refatore o laço  ');
       preencher('#tf-desc', 'Descrição');
-      preencher('.tf__passo-campo', 'Clone o repositório');
+      preencher('#tf-objective', 'Objetivo');
+      preencher('.tf__passo-campo', 'Repare no que o laço acumula');
       submeter();
 
       expect(corpo).toEqual({
         title: 'Refatore o laço',
         description: 'Descrição',
-        steps: ['Clone o repositório'],
+        objective: 'Objetivo',
+        hints: ['Repare no que o laço acumula'],
         xpAmount: 30,
       });
     });
@@ -143,7 +146,8 @@ describe('TrainingForm', () => {
 
       preencher('#tf-title', 'Refatore o laço');
       preencher('#tf-desc', 'Descrição');
-      preencher('.tf__passo-campo', 'Clone o repositório');
+      preencher('#tf-objective', 'Objetivo');
+      preencher('.tf__passo-campo', 'Repare no que o laço acumula');
       submeter();
 
       expect('videoUrl' in (corpo ?? {})).toBeFalse();
@@ -157,7 +161,8 @@ describe('TrainingForm', () => {
 
       preencher('#tf-title', 'Refatore o laço');
       preencher('#tf-desc', 'Descrição');
-      preencher('.tf__passo-campo', 'Clone o repositório');
+      preencher('#tf-objective', 'Objetivo');
+      preencher('.tf__passo-campo', 'Repare no que o laço acumula');
       preencher('#tf-video', 'https://youtu.be/dQw4w9WgXcQ');
       submeter();
 

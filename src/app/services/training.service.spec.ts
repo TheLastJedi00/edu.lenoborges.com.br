@@ -83,13 +83,27 @@ describe('TrainingService', () => {
   });
 
   describe('complete', () => {
-    it('bate em POST /trainings/:id/complete, sem corpo', () => {
-      service.complete('trn-1').subscribe();
+    it('bate em POST /trainings/:id/complete com as dicas usadas', () => {
+      service.complete('trn-1', 2).subscribe();
 
       const req = http.expectOne((r) => r.url.endsWith('/trainings/trn-1/complete'));
 
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual({});
+      expect(req.request.body).toEqual({ hintsUsed: 2 });
+      req.flush({ trainingId: 'trn-1', completed: true, xpAwarded: 28, xp: 28 });
+    });
+
+    /**
+     * Sem dica revelada o corpo vai com zero, e não vazio: o servidor trata os
+     * dois do mesmo jeito, e mandar o número deixa a requisição dizendo o que
+     * aconteceu em vez de deixar o leitor deduzir do silêncio.
+     */
+    it('manda zero quando nenhuma dica foi revelada', () => {
+      service.complete('trn-1', 0).subscribe();
+
+      const req = http.expectOne((r) => r.url.endsWith('/trainings/trn-1/complete'));
+
+      expect(req.request.body).toEqual({ hintsUsed: 0 });
       req.flush({ trainingId: 'trn-1', completed: true, xpAwarded: 30, xp: 30 });
     });
 
@@ -102,7 +116,7 @@ describe('TrainingService', () => {
     it('devolve o xp do servidor sem recalcular nada', () => {
       let received: TrainingCompletionResult | undefined;
 
-      service.complete('trn-1').subscribe((result) => (received = result));
+      service.complete('trn-1', 0).subscribe((result) => (received = result));
 
       http
         .expectOne((r) => r.url.endsWith('/trainings/trn-1/complete'))

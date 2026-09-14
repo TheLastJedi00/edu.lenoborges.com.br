@@ -862,7 +862,8 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
         badgeId: 'logica',
         title: 'Refatore o laço',
         description: 'Um exercício de leitura antes de escrever.',
-        steps: ['Clone o repositório', 'Rode os testes'],
+        objective: 'Um laço lido de cima a baixo sem rolar a tela.',
+        hints: ['Repare no que o laço acumula', 'Extraia a menor parte'],
         videoUrl: null,
         xpAmount: 30,
         position: 0,
@@ -980,7 +981,11 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
         fixture.detectChanges();
       }
 
-      it('abre ao clicar no card, com os passos do desafio', () => {
+      /**
+       * O modal abre com o objetivo à vista e **as dicas fechadas** (spec 025):
+       * o texto da dica não chega ao DOM antes de o membro pagar por ela.
+       */
+      it('abre ao clicar no card, com o objetivo e as dicas fechadas', () => {
         const { fixture, el } = setup('logica');
         flushTrilha([desafio()]);
         fixture.detectChanges();
@@ -988,7 +993,8 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
         abrir(fixture, el);
 
         expect(el.querySelector('app-training-dialog')).not.toBeNull();
-        expect(el.textContent).toContain('Clone o repositório');
+        expect(el.textContent).toContain('Um laço lido de cima a baixo');
+        expect(el.textContent).not.toContain('Repare no que o laço acumula');
       });
 
       /**
