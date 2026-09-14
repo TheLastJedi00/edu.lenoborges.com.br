@@ -331,6 +331,28 @@
   line-height: 1.2;
 }
 
+/*
+ * As duas ações da Arena, empilhadas no celular e lado a lado quando cabe
+ * (Mobile First). O "Gerar com IA" é secundário de propósito: criar à mão é o
+ * caminho previsível, e a geração é o atalho.
+ */
+.arena__acoes {
+  display: grid;
+  gap: 0.6rem;
+}
+
+@media (min-width: 34rem) {
+  .arena__acoes {
+    grid-template-columns: auto auto;
+    justify-content: start;
+  }
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+}
+
 /* O botão de editar é o único `.icon-btn` com palavra em vez de glifo. */
 .arena__editar {
   width: auto;
