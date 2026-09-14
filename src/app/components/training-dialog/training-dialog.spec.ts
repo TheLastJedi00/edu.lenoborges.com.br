@@ -74,6 +74,18 @@ describe('TrainingDialog', () => {
       expect(objetivo.textContent).toContain('Objetivo');
       expect(objetivo.textContent).toContain('Um laço lido de cima a baixo');
     });
+
+    /**
+     * **Treinamento anterior à spec 025 não tem objetivo**, e o converter do
+     * backend o devolve como texto vazio. Sem a guarda, a caixa em destaque
+     * aparece com o rótulo e nada embaixo — foi o que apareceu ao abrir um
+     * desafio legado no preview.
+     */
+    it('some inteiro quando o desafio é anterior à spec e não tem objetivo', () => {
+      const host = render({ training: desafio({ objective: '' }) });
+
+      expect(host.querySelector('.td__objetivo')).toBeNull();
+    });
   });
 
   describe('as dicas', () => {
