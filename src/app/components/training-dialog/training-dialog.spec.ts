@@ -136,6 +136,33 @@ describe('TrainingDialog', () => {
     });
   });
 
+  /**
+   * **Com a dica fechada fora do DOM, não há `aria-hidden` a colocar.**
+   *
+   * O que falta é o contrário: quem não vê a tela precisa saber o que o botão
+   * vai custar antes de apertar, e precisa saber que algo apareceu depois.
+   */
+  describe('a leitura de tela', () => {
+    it('o botão de revelar anuncia qual dica e o custo', () => {
+      const rotulo = render()
+        .querySelector('.td__revelar')!
+        .getAttribute('aria-label')!;
+
+      expect(rotulo).toContain('dica 1 de 3');
+      expect(rotulo).toContain('1 XP');
+    });
+
+    it('a dica revelada entra numa região viva', () => {
+      const host = render();
+
+      revelar(host);
+
+      const regiao = host.querySelector('ol.td__lista[aria-live="polite"]')!;
+
+      expect(regiao.textContent).toContain('Repare no que o laço acumula');
+    });
+  });
+
   describe('o prêmio', () => {
     it('começa no valor cheio do desafio', () => {
       expect(render().querySelector('.td__premio')!.textContent).toContain('30 XP');
