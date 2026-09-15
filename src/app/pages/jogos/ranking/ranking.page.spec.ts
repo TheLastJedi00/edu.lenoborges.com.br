@@ -21,6 +21,7 @@ function linha(
     xp: 1000 - position * 10,
     badgeCount: 0,
     positionChange: null,
+    avatarUrl: null,
     ...extra
   };
 }
@@ -145,6 +146,7 @@ describe('RankingPage', () => {
       grade: 1,
       linkedin: null,
       instagram: null,
+      avatarUrl: null,
       emailOptOut: false,
       profileCompleted: true,
       role: null,

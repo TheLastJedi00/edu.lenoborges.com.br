@@ -77,6 +77,18 @@ export interface MemberProfile {
   /** URL completa do perfil no Instagram, ou nulo. */
   readonly instagram: string | null;
   /**
+   * A foto de perfil, ou nulo (spec 027).
+   *
+   * **Não é opcional**, seguindo `linkedin` e `instagram`: a API sempre manda o
+   * campo, e `null` é "não tem foto". Um `?` aqui faria a tela precisar distinguir
+   * "não tem" de "não veio", que são a mesma coisa para quem desenha.
+   *
+   * A URL carrega um `?v=` que muda a cada troca — o caminho no bucket é fixo,
+   * para a foto nova sobrescrever a velha, e sem o parâmetro o navegador serviria
+   * a anterior do cache.
+   */
+  readonly avatarUrl: string | null;
+  /**
    * Se este membro saiu da lista de e-mails (spec 014).
    *
    * **É o inverso do interruptor da tela**: `emailOptOut: true` desenha o
@@ -149,6 +161,14 @@ export interface PublicMember {
   readonly xp: number;
   readonly linkedin: string | null;
   readonly instagram: string | null;
+  /**
+   * A foto do membro, ou nulo (spec 027).
+   *
+   * **Vem mesmo com as redes escondidas**, e a assimetria é decisão do backend: o
+   * interruptor governa vínculo a uma conta de fora, e a foto já aparece no
+   * Ranking, que é tela aberta a toda a liga.
+   */
+  readonly avatarUrl: string | null;
 }
 
 export interface UpdateProfileRequest {

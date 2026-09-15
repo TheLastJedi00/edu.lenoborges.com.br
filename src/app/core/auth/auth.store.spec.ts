@@ -12,6 +12,7 @@ const PERFIL: MemberProfile = {
   grade: 3,
   linkedin: null,
   instagram: null,
+  avatarUrl: null,
   emailOptOut: false,
   profileCompleted: true,
   role: null,
@@ -57,6 +58,35 @@ describe('AuthStore · XP (spec 019)', () => {
     expect(store.xp()).toBe(350);
     expect(store.profile()?.name).toBe('Membro');
     expect(store.profileCompleted()).toBeTrue();
+  });
+
+  it('setAvatarUrl escreve a foto e nao mexe em mais nada', () => {
+    store.setProfile(PERFIL);
+
+    store.setAvatarUrl('https://s/b/avatars/uid-1?v=1');
+
+    expect(store.profile()?.avatarUrl).toBe('https://s/b/avatars/uid-1?v=1');
+    // O resto do perfil fica intacto: e um campo so que muda, e o XP do fixture
+    // continua onde estava.
+    expect(store.profile()?.name).toBe('Membro');
+    expect(store.xp()).toBe(340);
+  });
+
+  it('setAvatarUrl aceita null, que e a remocao da foto', () => {
+    store.setProfile({ ...PERFIL, avatarUrl: 'https://s/b/avatars/uid-1?v=1' });
+
+    store.setAvatarUrl(null);
+
+    expect(store.profile()?.avatarUrl).toBeNull();
+  });
+
+  it('teste-trava: setAvatarUrl sem perfil carregado NAO cria um perfil pela metade', () => {
+    // Mesma razao do setXp abaixo: um perfil pela metade deixa
+    // `profileCompleted` falso, e o guard de onboarding sequestra quem so trocou
+    // a foto.
+    store.setAvatarUrl('https://s/b/avatars/uid-1?v=1');
+
+    expect(store.profile()).toBeNull();
   });
 
   /**

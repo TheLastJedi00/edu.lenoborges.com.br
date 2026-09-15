@@ -232,6 +232,7 @@ describe('DesafioPage', () => {
         grade: 1,
         linkedin: null,
         instagram: null,
+        avatarUrl: null,
         emailOptOut: false,
         profileCompleted: true,
         role: null,

@@ -17,6 +17,7 @@ const MOCK_PROFILE: MemberProfile = {
   grade: 1,
   linkedin: null,
   instagram: null,
+  avatarUrl: null,
   emailOptOut: false,
   profileCompleted: true,
   role: null,
@@ -477,6 +478,92 @@ describe('AuthService (TDD)', () => {
 
       expect(profile.name).toBeNull();
       expect(store.profileCompleted()).toBeFalse();
+    });
+  });
+
+  describe('spec 027 — a foto de perfil', () => {
+    const URL_FOTO =
+      'https://storage.googleapis.com/bucket/avatars/user-123?v=1757000000000';
+
+    it('setAvatar manda multipart para POST /me/avatar', async () => {
+      const blob = new Blob([new Uint8Array([1, 2, 3])], { type: 'image/webp' });
+      const pending = firstValueFrom(service.setAvatar(blob));
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/me/avatar`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body instanceof FormData).toBeTrue();
+      expect((req.request.body as FormData).get('file')).toBeTruthy();
+
+      req.flush({ avatarUrl: URL_FOTO });
+      await pending;
+    });
+
+    /**
+     * **A trava desta task.** O navegador precisa escrever o `boundary` do
+     * multipart, e ele só faz isso quando o header não está definido. Um
+     * `Content-Type: multipart/form-data` fixado à mão produz um corpo que o
+     * servidor não consegue separar em partes, e o erro que volta não fala de
+     * header nenhum.
+     */
+    it('teste-trava: não define Content-Type à mão', () => {
+      const blob = new Blob([new Uint8Array([1])], { type: 'image/webp' });
+      service.setAvatar(blob).subscribe();
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/me/avatar`);
+      expect(req.request.headers.has('Content-Type')).toBeFalse();
+
+      req.flush({ avatarUrl: URL_FOTO });
+    });
+
+    it('setAvatar escreve a foto no store, sem pedir o perfil de novo', async () => {
+      store.setProfile({ ...MOCK_PROFILE, avatarUrl: null });
+      const blob = new Blob([new Uint8Array([1])], { type: 'image/webp' });
+      const pending = firstValueFrom(service.setAvatar(blob));
+
+      httpMock
+        .expectOne(`${environment.apiUrl}/me/avatar`)
+        .flush({ avatarUrl: URL_FOTO });
+      await pending;
+
+      expect(store.profile()?.avatarUrl).toBe(URL_FOTO);
+      // A rota já devolveu a URL persistida: um GET /me aqui seria uma requisição
+      // para saber o que a resposta anterior acabou de dizer.
+      httpMock.expectNone(`${environment.apiUrl}/me`);
+    });
+
+    it('setAvatar devolve a URL para quem chamou', async () => {
+      const blob = new Blob([new Uint8Array([1])], { type: 'image/webp' });
+      const pending = firstValueFrom(service.setAvatar(blob));
+
+      httpMock
+        .expectOne(`${environment.apiUrl}/me/avatar`)
+        .flush({ avatarUrl: URL_FOTO });
+
+      expect(await pending).toBe(URL_FOTO);
+    });
+
+    it('removeAvatar chama DELETE e zera o store', async () => {
+      store.setProfile({ ...MOCK_PROFILE, avatarUrl: URL_FOTO });
+      const pending = firstValueFrom(service.removeAvatar());
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/me/avatar`);
+      expect(req.request.method).toBe('DELETE');
+      req.flush(null, { status: 204, statusText: 'No Content' });
+      await pending;
+
+      expect(store.profile()?.avatarUrl).toBeNull();
+    });
+
+    it('a foto do store não muda quando a requisição falha', async () => {
+      store.setProfile({ ...MOCK_PROFILE, avatarUrl: URL_FOTO });
+      const pending = firstValueFrom(service.removeAvatar()).catch(() => 'erro');
+
+      httpMock
+        .expectOne(`${environment.apiUrl}/me/avatar`)
+        .flush({ message: 'nao deu' }, { status: 500, statusText: 'Erro' });
+      await pending;
+
+      expect(store.profile()?.avatarUrl).toBe(URL_FOTO);
     });
   });
 });
