@@ -15,34 +15,34 @@
 
 ---
 
-# Fase 01: Dependência, modelos e serviços []
+# Fase 01: Dependência, modelos e serviços [x]
 
 Ao fim desta fase a integração conhece as rotas e os campos novos. Nenhuma tela muda de aparência.
 
-- [] Task 01: `package.json` — `npm i ngx-image-cropper` (9.x; `peerDependencies` de Angular
+- [x] Task 01: `package.json` — `npm i ngx-image-cropper` (9.x; `peerDependencies` de Angular
   `>=17.3.0`, satisfeito pelo 20.3 daqui).
   **É a primeira dependência de UI do repositório**, que hoje tem exatamente Angular e rxjs, e vale
   escrever no commit o que ela resolve: não é o recorte, é o **gesto** — arrastar e dar zoom com mouse e
   com o dedo, mais a rotação do EXIF que toda foto de celular traz e que faz o retrato chegar deitado.
   Conferir o tamanho que ela acrescenta ao bundle no `ng build` e anotar no commit.
-- [] Task 02: `src/app/models/auth.model.ts` —
+- [x] Task 02: `src/app/models/auth.model.ts` —
   - `MemberProfile` ganha `readonly avatarUrl: string | null;` — **não opcional**, seguindo `linkedin` e
     `instagram`: a API sempre manda o campo, e `null` é "não tem foto".
   - `PublicMember` ganha `readonly avatarUrl: string | null;`, que é o card público da spec 019.
   - **`UpdateProfileRequest` não é tocado** (decisão 1): a foto não passa por `PATCH /me/profile`, que
     exige nome, telefone e bio.
-- [] Task 03: `src/app/models/games.model.ts` — `RankingEntry` ganha
+- [x] Task 03: `src/app/models/games.model.ts` — `RankingEntry` ganha
   `readonly avatarUrl: string | null;`. O campo vem na mesma resposta que já traz `nickname` e `xp`, e o
   comentário diz por quê: o placar não lê a coleção de perfis, e buscar o avatar por membro
   transformaria uma tela em N requisições.
-- [] Task 04: `src/app/models/training.model.ts` — o payload da conclusão vira um objeto:
+- [x] Task 04: `src/app/models/training.model.ts` — o payload da conclusão vira um objeto:
   `CompleteTrainingRequest` com `hintsUsed?: number`, `mainCode?: string` e `resultImageUrl?: string`.
   Os três opcionais, pela razão que o back já registrou no DTO: a tela antiga manda `{}` na janela entre
   os dois deploys.
-- [] Task 05: `src/app/core/auth/auth.store.ts` e `.spec.ts` — `setAvatarUrl(avatarUrl: string | null)`,
+- [x] Task 05: `src/app/core/auth/auth.store.ts` e `.spec.ts` — `setAvatarUrl(avatarUrl: string | null)`,
   decalcado do `setXp` logo acima: lê o perfil atual, sai se não houver, e reescreve só esse campo.
   Existe para a foto nova aparecer no aside e no card sem um `GET /me` novo.
-- [] Task 06: `src/app/core/auth/auth.service.spec.ts` e `.ts` — **teste antes**:
+- [x] Task 06: `src/app/core/auth/auth.service.spec.ts` e `.ts` — **teste antes**:
   - `setAvatar(file: Blob)`: monta `FormData` com o campo `file` e faz `POST /me/avatar`, respondendo
     `{ avatarUrl }`, e no `tap` chama `authStore.setAvatarUrl`.
     **Não montar `Content-Type` na mão**: o navegador precisa escrever o `boundary` do multipart, e um
@@ -51,13 +51,21 @@ Ao fim desta fase a integração conhece as rotas e os campos novos. Nenhuma tel
   - As duas moram aqui pela mesma razão do `setSocialLinksPublic` e do `setNickname`: são escritas em
     `/me`. O comentário aponta para o vizinho, que já explica por que não é campo de
     `PATCH /me/profile`.
-- [] Task 07: `src/app/services/training.service.spec.ts` e `.ts` — **teste antes**:
+- [x] Task 07: `src/app/services/training.service.spec.ts` e `.ts` — **teste antes**:
   - `complete(trainingId, request: CompleteTrainingRequest)` — a assinatura deixa de ser posicional.
     Trocar `complete(id, hintsUsed)` por um objeto é o que impede o terceiro argumento de entrar na
     ordem errada quando `mainCode` e `resultImageUrl` chegarem juntos.
   - `uploadResultImage(trainingId, file: Blob)`: `FormData` em
     `POST /trainings/:trainingId/result-image`, respondendo `{ resultImageUrl }`.
   - Testar o `403` da rota de upload chegando ao chamador, porque é ele que a tela traduz.
+
+
+> **Fase 01 concluida.** 813 testes verdes, `ng build` ok. O `ngx-image-cropper` **nao entrou no
+> bundle inicial** -- nada o importa ainda, e ele vai cair no chunk do modal quando a fase 03 o usar.
+>
+> Dezessete fixtures de spec precisaram do campo novo, todas apontadas pelo compilador. O
+> `insignia.page.ts` foi adaptado para a assinatura nova do `complete` mantendo o comportamento de
+> hoje: a submissao de verdade e da fase 04.
 
 ---
 
