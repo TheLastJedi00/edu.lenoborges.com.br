@@ -54,6 +54,11 @@
           [class.podium__item--mine]="entry.uid === meuUid()"
         >
           <span class="u-mono podium__position">#{{ entry.position }}</span>
+          <app-avatar
+            size="md"
+            [avatarUrl]="entry.avatarUrl"
+            [name]="entry.nickname"
+          />
           <span class="podium__nick">{{ entry.nickname }}</span>
           <app-position-delta [change]="entry.positionChange" />
           <span class="u-mono podium__xp">{{ entry.xp }} XP</span>
@@ -93,7 +98,16 @@
                   <span class="u-mono">{{ entry.position }}</span>
                   <app-position-delta [change]="entry.positionChange" />
                 </td>
-                <td class="table__nick">{{ entry.nickname }}</td>
+                <td class="table__nick">
+                  <span class="table__who">
+                    <app-avatar
+                      size="sm"
+                      [avatarUrl]="entry.avatarUrl"
+                      [name]="entry.nickname"
+                    />
+                    <span class="table__nickname">{{ entry.nickname }}</span>
+                  </span>
+                </td>
                 <td class="table__num u-mono">{{ entry.xp }}</td>
                 <td class="table__num u-mono">{{ entry.badgeCount }}</td>
               </tr>

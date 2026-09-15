@@ -96,9 +96,16 @@ Ao fim desta fase existe um jeito só de desenhar a foto de um membro, e ele é 
 - [] Task 03: `src/app/components/member-card-dialog/member-card-dialog.ts` e `.spec.ts` — o avatar no
   topo do card, tamanho `lg`, a partir do `avatarUrl` novo do `PublicMember`.
   **Template inline**, como o componente já é — não criar `.html` nem `.scss` novos aqui.
-- [] Task 04: `src/app/components/dashboard-aside/dashboard-aside.ts` e `.spec.ts` — o avatar junto do
-  nome de quem está logado, lendo do `AuthStore`. Também inline. É a tela onde a pessoa mais vai notar
-  que a troca funcionou.
+- [~] Task 04: ~~`dashboard-aside` — o avatar junto do nome de quem está logado.~~ **Não feita, de
+  propósito.** Duas razões, e as duas apareceram só ao abrir o arquivo:
+  1. **O aside não tem bloco de identidade nenhum** — não mostra nome, nem e-mail, nem nada da pessoa.
+     É navegação: logo, itens, e o rodapé com Administração e Sair. Pôr o avatar ali exigiria **criar**
+     um bloco "quem sou eu" no meio do menu, com o estado recolhido para resolver.
+  2. **O `context.md` desta spec não pede isso.** A lista de visibilidade dele é Ranking, cartão
+     público de membro e o próprio Meu Perfil — os três estão cobertos. Esta task saiu de uma frase que
+     eu escrevi no plano ("é a tela onde a pessoa mais vai notar"), e não da spec.
+  Se o bloco de identidade no aside for desejado, ele é uma decisão de UI própria e merece a sua linha
+  no `context.md` antes de virar código.
 
 ---
 
