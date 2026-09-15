@@ -213,23 +213,54 @@ Ao fim desta fase o membro manda o código, e o Great Dev+ manda a foto do resul
 
 ---
 
-# Fase 05: Acessibilidade e fechamento []
+# Fase 05: Acessibilidade e fechamento [~]
 
-- [] Task 01: Revisar o modal de avatar com leitor de tela. O cropper é uma área de manipulação
+- [x] Task 01: Revisar o modal de avatar com leitor de tela. O cropper é uma área de manipulação
   visual, então o que precisa existir é a alternativa por teclado: o `cropperFrameAriaLabel` preenchido,
   o botão de confirmar alcançável por tab, e o foco voltando para o botão que abriu o modal quando ele
   fecha. Se o arrasto não tiver caminho por teclado, a tela diz isso em texto em vez de fingir que tem.
-- [] Task 02: Conferir o `prefers-reduced-motion` na entrada do modal e na troca da foto, e o
+- [x] Task 02: Conferir o `prefers-reduced-motion` na entrada do modal e na troca da foto, e o
   `animate-enter` / `animate-leave` nos dois diálogos novos.
-- [] Task 03: Mobile First de verdade, no Chrome em 360px: o cropper com o dedo, a tabela do ranking com
+- [~] Task 03: **Não feita** (ver a nota no fim da fase). Mobile First de verdade, no Chrome em 360px: o cropper com o dedo, a tabela do ranking com
   o avatar novo, e a área de resposta do `training-dialog` sem estourar a largura do modal.
-- [] Task 04: `npm test` limpo e `ng build` passando. Anotar o custo no bundle do `ngx-image-cropper`.
-- [] Task 05: Percorrer a spec no Chrome contra a API de verdade, com o back local ligado ao
+- [x] Task 04: `npm test` limpo e `ng build` passando. Anotar o custo no bundle do `ngx-image-cropper`.
+- [~] Task 05: **Não feita** (ver a nota no fim da fase). Percorrer a spec no Chrome contra a API de verdade, com o back local ligado ao
   `dev-liga-dev`. O que só a execução prova: o EXIF de uma foto tirada no celular chegando de pé, o
   `?v=` da URL derrubando o cache depois da segunda troca, o membro sem gamertag continuando fora do
   placar depois de pôr foto, o Dev Tier levando `403` se forçar a rota de upload, e a foto aparecendo no
   aside sem recarregar a página.
-- [] Task 06: Marcar as emendas nas specs afetadas, conferindo que cada uma bate com o que foi
+- [x] Task 06: Marcar as emendas nas specs afetadas, conferindo que cada uma bate com o que foi
   implementado: a **005** e a **013** com `Deprecated` na recusa do avatar, e a **019**, **022**, **023**
   e **025** com o bloco de emendas no topo do `context.md`. A seção "Specs Afetadas" desta spec já lista
   as seis.
+
+> **Fase 05 parcial.** 865 testes verdes, `ng build` limpo, carregamento inicial em **100.96 kB**
+> transferidos. As Tasks 01, 02, 04 e 06 estão feitas; **a 03 e a 05 não**, e as duas pelo mesmo
+> motivo — estão escritas embaixo.
+>
+> O que a Task 01 achou de concreto: **o `<dialog>` é removido pelo `@if` do host, e não fechado**, e
+> um dialog arrancado do DOM não devolve o foco para o botão que o abriu. Corrigido com `close()` no
+> `onDestroy`, com teste. E a moldura do recorte **tem** caminho por teclado (a biblioteca move com as
+> setas), que a tela agora diz — era a diferença entre acessível e tecnicamente acessível.
+>
+> A Task 02 virou uma remoção: o `styles.scss` global já zera `animation` e `transition` de tudo com
+> `!important`, então a regra local de `prefers-reduced-motion` no modal era uma segunda fonte para a
+> mesma decisão.
+>
+> **Task 03 (Mobile First em 360px) — não feita.** O `ng serve` sobe e a landing responde, mas o
+> redimensionamento da janela pelo Chrome não pegou (o `innerWidth` ficou em 1536 mesmo depois de a
+> extensão reportar sucesso), e — o que importa mais — **as três telas a conferir exigem sessão
+> logada**: o Ranking, o Meu Perfil e o modal da Arena. O CSS foi escrito com a razão ao lado
+> (`min-width: 0` na coluna do gamertag, `flex-direction` trocando em 22rem e 24rem) e os testes
+> cobrem a estrutura, mas **conferir estrutura não é conferir que nada estoura** — isso fica em aberto.
+>
+> **Task 05 (percorrer contra o `dev-liga-dev`) — não feita, e é o mesmo bloqueio.** Ela escreve num
+> projeto Firebase de verdade: cria membro, sobe arquivo no bucket de preview e exige o
+> `firebase deploy --only storage --project dev-liga-dev` antes, porque as regras novas não estão
+> publicadas. Fica para quando houver autorização explícita.
+>
+> **O que só essa execução vai provar**, e vale listar para quem a fizer: o EXIF de uma foto tirada no
+> celular chegando de pé; o `?v=` derrubando o cache na segunda troca; o membro sem gamertag
+> continuando fora do placar depois de pôr foto; o Dev Tier levando `403` se forçar a rota de upload; a
+> foto aparecendo sem recarregar a página; e **se o Storage está habilitado no `dev-liga-dev`** — o
+> `makePublic()` falha se o bucket nunca foi criado, e nenhum teste daqui pega isso.
