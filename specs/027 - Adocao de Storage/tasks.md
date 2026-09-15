@@ -165,11 +165,11 @@ Ao fim desta fase o membro recorta, envia e remove a própria foto.
 
 ---
 
-# Fase 04: Submissão na Arena []
+# Fase 04: Submissão na Arena [x]
 
 Ao fim desta fase o membro manda o código, e o Great Dev+ manda a foto do resultado.
 
-- [] Task 01: `src/app/components/training-dialog/training-dialog.ts`, `.html`, `.scss` — a área de
+- [x] Task 01: `src/app/components/training-dialog/training-dialog.ts`, `.html`, `.scss` — a área de
   resposta antes de "Concluir Desafio":
   - `textarea` para o `mainCode`, com a instrução acima dele: **"Use Ctrl+A, Ctrl+C e Ctrl+V para copiar
     e colar apenas o conteúdo da classe main."** Disponível para todos os tiers.
@@ -178,7 +178,7 @@ Ao fim desta fase o membro manda o código, e o Great Dev+ manda a foto do resul
   - O desafio já concluído mostra o que foi enviado, em leitura, e não o formulário — a segunda
     conclusão não reescreve a submissão (o back grava a da primeira), e oferecer o campo prometeria uma
     edição que não existe.
-- [] Task 02: `training-dialog.ts` e `.html` — o envio da foto, atrás do tier:
+- [x] Task 02: `training-dialog.ts` e `.html` — o envio da foto, atrás do tier:
   - O gate é o **`authStore.isPaid`, que já existe** (`tier() !== 'dev-tier'`) — não criar um segundo
     computed com a mesma conta.
   - Dev Tier vê a área desabilitada com o badge "O envio de fotos com o resultado é uma feature
@@ -190,14 +190,26 @@ Ao fim desta fase o membro manda o código, e o Great Dev+ manda a foto do resul
   - A miniatura do que foi enviado, com opção de trocar.
   - O `403` da rota virando a mesma mensagem do badge — a tela não oferece o botão, mas a trava de
     verdade é a do servidor, e se ela falar é ela que manda.
-- [] Task 03: `training-dialog.spec.ts` — o `textarea` aparece para Dev Tier; a área de foto está
+- [x] Task 03: `training-dialog.spec.ts` — o `textarea` aparece para Dev Tier; a área de foto está
   desabilitada com o badge para Dev Tier e habilitada para Great Dev; selecionar dispara o upload uma
   vez; concluir emite `hintsUsed`, `mainCode` e `resultImageUrl` juntos; concluir fica travado enquanto
   o upload não termina; desafio concluído mostra a submissão em leitura.
-- [] Task 04: `src/app/pages/trilha/insignia/insignia.page.ts` e `.spec.ts` — o
+- [x] Task 04: `src/app/pages/trilha/insignia/insignia.page.ts` e `.spec.ts` — o
   `concluirTreinamento(request)` repassa o objeto inteiro para `trainings.complete(id, request)`.
   **O `AuthStore` continua recebendo `resultado.xp`, o valor do servidor** — nunca uma soma local. É a
   decisão da spec 023, e o comentário do método já diz isso.
+
+
+> **Fase 04 concluida.** 864 testes verdes, build limpo.
+>
+> **Tres colisoes com testes existentes**, e as tres do mesmo tipo: seletor generico. A classe
+> `.td__resposta` ja era a resposta do **admin** a um comentario (a secao nova virou `.td__envio`), e
+> dois testes do portao de comentarios usavam `querySelector('textarea')` e
+> `toContain('exclusiva para membros')` -- que passaram a pegar o campo de codigo e o aviso da foto.
+> Os tres foram consertados no teste antigo, apontando para o que eles realmente afirmam.
+>
+> A frase da recusa virou constante em `training.constants.ts` depois de as duas copias divergirem em
+> uma letra.
 
 ---
 

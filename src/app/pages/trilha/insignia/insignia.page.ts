@@ -30,7 +30,13 @@ import type { ChallengeState } from '../../../models/games.model';
 import { TrainingService } from '../../../services/training.service';
 import { TrainingCard } from '../../../components/training-card/training-card';
 import { TrainingDialog } from '../../../components/training-dialog/training-dialog';
-import type { Training, TrainingComment } from '../../../models/training.model';
+import type {
+  CompleteTrainingRequest,
+  Training,
+  TrainingComment,
+} from '../../../models/training.model';
+import { httpStatus } from '../../../core/http-error';
+import { FOTO_RESULTADO_RECUSADA } from '../../../models/training.constants';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
@@ -140,6 +146,64 @@ export class InsigniaPage implements OnInit {
    * servidor. Ela existe para não oferecer um campo que vai ser recusado.
    */
   protected readonly podeComentar = computed(() => this.authStore.isPaid());
+
+  /**
+   * Se este membro pode mandar a foto do resultado (spec 027).
+   *
+   * **E o mesmo `isPaid` do `podeComentar` acima, e nao um computed novo com a
+   * mesma conta.** As duas travas sao "Great Dev Tier ou acima", e a do produto e
+   * uma so: o dia em que o tier de corte mudar, ele muda no `AuthStore`.
+   *
+   * **A trava de verdade e a da rota**, que responde 403 antes de gravar o arquivo.
+   * Isto aqui e cortesia -- nao oferecer o que vai ser recusado.
+   */
+  protected readonly podeEnviarFoto = computed(() => this.authStore.isPaid());
+
+  // O upload da foto de resultado (spec 027). Vive na pagina porque e ela que fala
+  // com o servico; o modal so avisa que um arquivo foi escolhido.
+  protected readonly enviandoFoto = signal(false);
+  protected readonly fotoDoResultado = signal<string | null>(null);
+  protected readonly erroDaFoto = signal<string | null>(null);
+
+  /**
+   * Sobe a foto **na hora da selecao**, e nao no submit (spec 027, decisao 2).
+   *
+   * Um upload disparado junto do "Concluir Desafio" faria a conclusao -- que paga XP
+   * -- depender de um envio que pode falhar no meio, com o XP ja em jogo. Aqui a
+   * pessoa ve o estado de envio, o erro, e tenta de novo antes de concluir.
+   *
+   * **O 403 e traduzido para a frase do tier**, e nao repassado cru: ele so acontece
+   * se alguem contornar a tela, mas quando acontece a mensagem tem que dizer o que
+   * fazer.
+   */
+  protected enviarFotoDoResultado(file: File): void {
+    const aberto = this.treinamentoAberto();
+
+    if (!aberto || this.enviandoFoto()) {
+      return;
+    }
+
+    this.enviandoFoto.set(true);
+    this.erroDaFoto.set(null);
+
+    this.trainings
+      .uploadResultImage(aberto.id, file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (url) => {
+          this.fotoDoResultado.set(url);
+          this.enviandoFoto.set(false);
+        },
+        error: (erro: unknown) => {
+          this.erroDaFoto.set(
+            httpStatus(erro) === 403
+              ? FOTO_RESULTADO_RECUSADA
+              : 'Não consegui enviar a foto agora. Tente de novo.',
+          );
+          this.enviandoFoto.set(false);
+        },
+      });
+  }
 
   private botaoQueAbriuTreino: HTMLElement | null = null;
 
@@ -423,9 +487,10 @@ export class InsigniaPage implements OnInit {
    * calculado na tela serve** (spec 025): o desconto das dicas é conferido no
    * servidor, que corta o número no total de dicas do desafio.
    *
-   * `dicasUsadas` vem do modal, que é onde o contador vive.
+   * A submissao inteira vem do modal, que e onde o contador de dicas, o codigo e a
+   * URL da foto vivem (spec 027).
    */
-  protected concluirTreinamento(dicasUsadas: number): void {
+  protected concluirTreinamento(submissao: CompleteTrainingRequest): void {
     const aberto = this.treinamentoAberto();
 
     if (!aberto || aberto.completed || this.concluindoTreino()) {
@@ -436,7 +501,7 @@ export class InsigniaPage implements OnInit {
     this.erroDoTreino.set(null);
 
     this.trainings
-      .complete(aberto.id, { hintsUsed: dicasUsadas })
+      .complete(aberto.id, submissao)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (resultado) => {
@@ -530,6 +595,14 @@ export class InsigniaPage implements OnInit {
     this.cursorComentarios.set(null);
     this.xpGanhoNoTreino.set(null);
     this.erroDoTreino.set(null);
+    // **A foto do resultado morre com o modal, e esta linha nao e higiene** (spec
+    // 027): a URL e cunhada para UM `trainingId`, e o servidor recusa a de outro
+    // desafio com 400. Sem isto, abrir o desafio 2 depois de anexar foto no 1
+    // mandaria a foto do 1 na conclusao do 2 -- que e recusada, num erro que fala
+    // de URL invalida e nao de foto trocada.
+    this.fotoDoResultado.set(null);
+    this.erroDaFoto.set(null);
+    this.enviandoFoto.set(false);
     this.botaoQueAbriuTreino?.focus();
     this.botaoQueAbriuTreino = null;
   }

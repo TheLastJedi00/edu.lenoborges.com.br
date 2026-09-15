@@ -1,7 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TrainingDialog } from './training-dialog';
-import { Training, TrainingComment } from '../../models/training.model';
+import {
+  CompleteTrainingRequest,
+  Training,
+  TrainingComment,
+} from '../../models/training.model';
 
 function desafio(extra: Partial<Training> = {}): Training {
   return {
@@ -41,6 +45,10 @@ describe('TrainingDialog', () => {
       canComment?: boolean;
       hasMore?: boolean;
       completing?: boolean;
+      canSendPhoto?: boolean;
+      uploadingPhoto?: boolean;
+      resultImageUrl?: string | null;
+      erroDaFoto?: string | null;
     } = {},
   ): HTMLElement {
     fixture.componentRef.setInput('training', inputs.training ?? desafio());
@@ -48,6 +56,16 @@ describe('TrainingDialog', () => {
     fixture.componentRef.setInput('canComment', inputs.canComment ?? false);
     fixture.componentRef.setInput('hasMore', inputs.hasMore ?? false);
     fixture.componentRef.setInput('completing', inputs.completing ?? false);
+    fixture.componentRef.setInput('canSendPhoto', inputs.canSendPhoto ?? false);
+    fixture.componentRef.setInput(
+      'uploadingPhoto',
+      inputs.uploadingPhoto ?? false,
+    );
+    fixture.componentRef.setInput(
+      'resultImageUrl',
+      inputs.resultImageUrl ?? null,
+    );
+    fixture.componentRef.setInput('erroDaFoto', inputs.erroDaFoto ?? null);
     fixture.detectChanges();
 
     return fixture.nativeElement as HTMLElement;
@@ -303,15 +321,22 @@ describe('TrainingDialog', () => {
       const host = render({ canComment: false, comments: [comentario()] });
 
       expect(host.textContent).toContain('exclusiva para membros do Great Tier');
-      expect(host.querySelector('textarea')).toBeNull();
+      // `.td__campo` e nao `textarea`: desde a spec 027 existe um segundo textarea
+      // no modal, o do codigo da submissao, e ele nao tem nada a ver com o portao
+      // dos comentarios. Um seletor generico aqui faz este teste falhar por causa
+      // de uma mudanca em outra secao.
+      expect(host.querySelector('.td__campo')).toBeNull();
       expect(host.textContent).toContain('Travei no passo 3.');
     });
 
     it('com permissão, mostra o campo e não mostra a mensagem', () => {
       const host = render({ canComment: true });
 
-      expect(host.querySelector('textarea')).not.toBeNull();
-      expect(host.textContent).not.toContain('exclusiva para membros');
+      expect(host.querySelector('.td__campo')).not.toBeNull();
+      // A frase inteira do portao dos comentarios, e nao um prefixo: a spec 027
+      // trouxe um segundo aviso de tier -- o da foto de resultado -- que comeca com
+      // as mesmas palavras.
+      expect(host.textContent).not.toContain('exclusiva para membros do Great Tier');
     });
 
     it('emite o texto digitado e limpa o campo', () => {
@@ -369,24 +394,24 @@ describe('TrainingDialog', () => {
 
     it('emite a intenção de concluir, com as dicas reveladas', () => {
       const host = render();
-      let dicas: number | undefined;
+      let pedido: CompleteTrainingRequest | undefined;
 
-      fixture.componentInstance.concluir.subscribe((quantas) => (dicas = quantas));
+      fixture.componentInstance.concluir.subscribe((p) => (pedido = p));
       revelar(host);
       revelar(host);
       host.querySelector<HTMLButtonElement>('.td__concluir')!.click();
 
-      expect(dicas).toBe(2);
+      expect(pedido?.hintsUsed).toBe(2);
     });
 
     it('emite zero quando nenhuma dica foi aberta', () => {
       const host = render();
-      let dicas: number | undefined;
+      let pedido: CompleteTrainingRequest | undefined;
 
-      fixture.componentInstance.concluir.subscribe((quantas) => (dicas = quantas));
+      fixture.componentInstance.concluir.subscribe((p) => (pedido = p));
       host.querySelector<HTMLButtonElement>('.td__concluir')!.click();
 
-      expect(dicas).toBe(0);
+      expect(pedido?.hintsUsed).toBe(0);
     });
 
     it('o botão mostra o prêmio atual', () => {
@@ -424,5 +449,195 @@ describe('TrainingDialog', () => {
     );
 
     expect(regiao?.textContent).toContain('+30 XP');
+  });
+
+  describe('a submissao da resposta (spec 027)', () => {
+    function codigo(host: HTMLElement): HTMLTextAreaElement {
+      return host.querySelector<HTMLTextAreaElement>('.td__codigo')!;
+    }
+
+    function digitar(host: HTMLElement, texto: string): void {
+      const campo = codigo(host);
+      campo.value = texto;
+      campo.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+    }
+
+    it('o campo de codigo aparece para qualquer tier', () => {
+      const host = render({ canSendPhoto: false });
+
+      expect(codigo(host)).not.toBeNull();
+      expect(host.textContent).toContain('Ctrl+A, Ctrl+C e Ctrl+V');
+    });
+
+    it('emite o codigo junto das dicas', () => {
+      const host = render();
+      let pedido: CompleteTrainingRequest | undefined;
+      fixture.componentInstance.concluir.subscribe((p) => (pedido = p));
+
+      revelar(host);
+      digitar(host, 'public static void main(String[] a) {}');
+      host.querySelector<HTMLButtonElement>('.td__concluir')!.click();
+
+      expect(pedido).toEqual({
+        hintsUsed: 1,
+        mainCode: 'public static void main(String[] a) {}',
+      });
+    });
+
+    /**
+     * **Campo vazio não entra no corpo.** Mandar `mainCode: ''` faria o servidor
+     * gravar string vazia onde `null` é a verdade, e a diferença aparece no dia em
+     * que alguém for conferir quem entregou código.
+     */
+    it('teste-trava: codigo vazio nao vai no corpo', () => {
+      const host = render();
+      let pedido: CompleteTrainingRequest | undefined;
+      fixture.componentInstance.concluir.subscribe((p) => (pedido = p));
+
+      digitar(host, '   ');
+      host.querySelector<HTMLButtonElement>('.td__concluir')!.click();
+
+      expect(pedido).toEqual({ hintsUsed: 0 });
+      expect('mainCode' in (pedido ?? {})).toBeFalse();
+    });
+
+    describe('o portao da foto', () => {
+      it('Dev Tier ve o aviso e nao ve o botao de anexar', () => {
+        const host = render({ canSendPhoto: false });
+
+        expect(host.textContent).toContain(
+          'exclusiva para membros Great Dev e superiores',
+        );
+        expect(host.querySelector('.td__foto-input')).toBeNull();
+      });
+
+      it('Great Dev ve o botao e nao ve o aviso', () => {
+        const host = render({ canSendPhoto: true });
+
+        expect(host.querySelector('.td__foto-input')).not.toBeNull();
+        expect(host.textContent).not.toContain(
+          'exclusiva para membros Great Dev',
+        );
+      });
+
+      it('escolher o arquivo emite uma vez, para a pagina subir', () => {
+        const host = render({ canSendPhoto: true });
+        const enviados: File[] = [];
+        fixture.componentInstance.fotoEscolhida.subscribe((f) =>
+          enviados.push(f),
+        );
+
+        const input = host.querySelector<HTMLInputElement>('.td__foto-input')!;
+        const file = new File([new Uint8Array([1])], 'r.png', {
+          type: 'image/png',
+        });
+        Object.defineProperty(input, 'files', { value: [file] });
+        input.dispatchEvent(new Event('change'));
+        fixture.detectChanges();
+
+        expect(enviados).toEqual([file]);
+      });
+
+      it('mostra a miniatura do que subiu, e oferece trocar', () => {
+        const host = render({
+          canSendPhoto: true,
+          resultImageUrl: 'https://s/b/trainings/u/t?v=1',
+        });
+
+        expect(
+          host
+            .querySelector<HTMLImageElement>('.td__foto')!
+            .getAttribute('src'),
+        ).toBe('https://s/b/trainings/u/t?v=1');
+        expect(host.textContent).toContain('Trocar a foto');
+      });
+
+      it('mostra o erro do upload sem apagar o resto da tela', () => {
+        const host = render({
+          canSendPhoto: true,
+          erroDaFoto: 'Nao consegui enviar a foto agora. Tente de novo.',
+        });
+
+        expect(host.querySelector('[role="alert"]')?.textContent).toContain(
+          'Nao consegui enviar a foto',
+        );
+        expect(codigo(host)).not.toBeNull();
+      });
+
+      it('a URL da foto entra no corpo da conclusao', () => {
+        const host = render({
+          canSendPhoto: true,
+          resultImageUrl: 'https://s/b/trainings/u/t?v=1',
+        });
+        let pedido: CompleteTrainingRequest | undefined;
+        fixture.componentInstance.concluir.subscribe((p) => (pedido = p));
+
+        host.querySelector<HTMLButtonElement>('.td__concluir')!.click();
+
+        expect(pedido?.resultImageUrl).toBe('https://s/b/trainings/u/t?v=1');
+      });
+    });
+
+    /**
+     * **A trava desta fase.** O upload acontece na seleção, e concluir antes de a
+     * URL chegar mandaria a conclusão sem a foto que a pessoa acabou de escolher —
+     * e a segunda conclusão não reescreve a submissão, então ela perderia a foto
+     * para sempre.
+     */
+    it('teste-trava: concluir fica travado enquanto a foto sobe', () => {
+      const host = render({ canSendPhoto: true, uploadingPhoto: true });
+
+      const botao = host.querySelector<HTMLButtonElement>('.td__concluir')!;
+      expect(botao.disabled).toBeTrue();
+      expect(botao.textContent).toContain('Aguarde a foto');
+    });
+
+    describe('o desafio ja concluido', () => {
+      it('mostra o codigo enviado em leitura, e nao um formulario', () => {
+        const host = render({
+          training: desafio({
+            completed: true,
+            submission: {
+              mainCode: 'o que eu entreguei',
+              resultImageUrl: null,
+            },
+          }),
+        });
+
+        expect(codigo(host)).toBeNull();
+        expect(host.querySelector('.td__codigo-lido')?.textContent).toContain(
+          'o que eu entreguei',
+        );
+      });
+
+      it('mostra a foto enviada', () => {
+        const host = render({
+          training: desafio({
+            completed: true,
+            submission: {
+              mainCode: null,
+              resultImageUrl: 'https://s/b/trainings/u/t?v=1',
+            },
+          }),
+        });
+
+        expect(
+          host
+            .querySelector<HTMLImageElement>('.td__foto')!
+            .getAttribute('src'),
+        ).toBe('https://s/b/trainings/u/t?v=1');
+      });
+
+      it('diz que nao houve anexo quando a conclusao e anterior a spec', () => {
+        // Conclusao anterior a 027 chega com os dois campos nulos, e a secao vazia
+        // pareceria defeito.
+        const host = render({
+          training: desafio({ completed: true, submission: null }),
+        });
+
+        expect(host.textContent).toContain('sem anexar uma resposta');
+      });
+    });
   });
 });
