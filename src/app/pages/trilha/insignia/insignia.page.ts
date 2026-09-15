@@ -461,6 +461,47 @@ export class InsigniaPage implements OnInit {
     this.erroDoTreino.set(null);
     this.treinamentoDialog()?.nativeElement.showModal();
     this.carregarComentarios();
+    this.carregarSubmissao(training);
+  }
+
+  /**
+   * Busca a submissao de um desafio ja concluido (spec 027).
+   *
+   * **A listagem nao traz a `submission` de proposito** -- um `mainCode` de
+   * 20000 caracteres por desafio seria o corpo de uma tela inteira para desenhar
+   * cartoes que nao mostram codigo --, entao quem abre um desafio concluido precisa
+   * de uma leitura a mais. So para o concluido: quem ainda vai fazer nao tem
+   * submissao a mostrar.
+   *
+   * **Sem isto a tela mente.** Ela dizia "voce concluiu este desafio sem anexar uma
+   * resposta" para quem tinha anexado -- o campo simplesmente nao chegava ali.
+   *
+   * Falha em silencio: o que se perde e a leitura do que foi enviado, e derrubar o
+   * modal por causa dela seria trocar um pedaco da tela pelo nada.
+   */
+  private carregarSubmissao(training: Training): void {
+    if (!training.completed || training.submission !== undefined) {
+      return;
+    }
+
+    this.trainings
+      .getTraining(training.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (completo: Training) =>
+          this.guardarSubmissao(training.id, completo.submission ?? null),
+        error: () => undefined,
+      });
+  }
+
+  /** Grava a submissao no item da lista, que e de onde o modal le. */
+  private guardarSubmissao(
+    trainingId: string,
+    submission: Training['submission'],
+  ): void {
+    this.trainingList.update((lista) =>
+      lista.map((item) => (item.id === trainingId ? { ...item, submission } : item)),
+    );
   }
 
   protected fecharTreinamento(): void {
@@ -507,6 +548,13 @@ export class InsigniaPage implements OnInit {
         next: (resultado) => {
           this.authStore.setXp(resultado.xp);
           this.aplicarConclusao(aberto.id);
+          // O que ela acabou de mandar vira o que a tela mostra em leitura, sem
+          // pedir o detalhe de volta: o servidor grava a submissao da PRIMEIRA
+          // conclusao, e numa primeira conclusao esta e ela.
+          this.guardarSubmissao(aberto.id, {
+            mainCode: submissao.mainCode ?? null,
+            resultImageUrl: submissao.resultImageUrl ?? null,
+          });
           // Zero não anima: a conclusão repetida é sucesso, mas não é ganho, e
           // um "+0 XP" na tela seria uma comemoração vazia.
           this.xpGanhoNoTreino.set(resultado.xpAwarded > 0 ? resultado.xpAwarded : null);

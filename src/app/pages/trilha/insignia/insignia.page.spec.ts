@@ -1104,6 +1104,50 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
         expect(el.textContent).toContain('Travei no passo 3');
       });
 
+      /**
+       * **Teste-trava nascido de um defeito que so apareceu no navegador.**
+       *
+       * A listagem nao traz a `submission` de proposito, e a pagina abria o modal
+       * com o objeto da listagem -- entao quem tinha anexado codigo e foto lia
+       * "voce concluiu este desafio sem anexar uma resposta". Cada lado tinha
+       * teste: a rota devolvia a submissao, o modal sabia desenha-la. Faltava
+       * alguem ir busca-la.
+       */
+      it('teste-trava: abrir um desafio concluido busca a submissao e a mostra', async () => {
+        const { fixture, el } = setup('logica');
+        flushTrilha([desafio({ completed: true })]);
+        fixture.detectChanges();
+        abrir(fixture, el);
+
+        // A leitura a mais, que so acontece para o concluido.
+        http.expectOne((req) => req.url.endsWith('/trainings/trn-1')).flush(
+          desafio({
+            completed: true,
+            submission: {
+              mainCode: 'o que eu entreguei',
+              resultImageUrl: null,
+            },
+          }),
+        );
+        fixture.detectChanges();
+
+        expect(el.querySelector('.td__codigo-lido')?.textContent).toContain(
+          'o que eu entreguei',
+        );
+        expect(el.textContent).not.toContain('sem anexar uma resposta');
+      });
+
+      it('teste-trava: desafio NAO concluido nao paga a leitura a mais', async () => {
+        // Quem ainda vai fazer nao tem submissao a mostrar, e o http.verify() do
+        // teste reprova qualquer requisicao que sobre.
+        const { fixture, el } = setup('logica');
+        flushTrilha([desafio({ completed: false })]);
+        fixture.detectChanges();
+        abrir(fixture, el);
+
+        http.expectNone((req) => req.url.endsWith('/trainings/trn-1'));
+      });
+
       describe('a foto do resultado (spec 027)', () => {
         const PNG = new File([new Uint8Array([1, 2, 3])], 'r.png', {
           type: 'image/png',
