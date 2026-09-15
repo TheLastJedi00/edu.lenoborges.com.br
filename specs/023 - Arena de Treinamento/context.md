@@ -29,6 +29,8 @@ três, porque elas têm importâncias diferentes — sem vídeo não há trilha,
 seção a menos, e um `forkJoin` derrubaria a tela inteira por causa da menos importante. O comentário
 em `insignia.page.ts` diz o mesmo, ao lado do código.
 
+**A spec 027 adicionou a área de resposta ao modal.** Antes de concluir o desafio, o membro terá um formulário onde o Dev Tier poderá colar o código em um textarea (`mainCode`) e os membros Great Dev+ poderão anexar a foto do resultado (`resultImageUrl`). O payload do `complete` recebe esses dados.
+
 ---
 
 ## Decisões

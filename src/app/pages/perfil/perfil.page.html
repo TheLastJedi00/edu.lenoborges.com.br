@@ -35,6 +35,43 @@
       <section class="block" aria-labelledby="titulo-dados">
         <h2 class="block__title" id="titulo-dados">Seus dados</h2>
 
+        <!--
+          A foto (spec 027). Fica no topo de "Seus dados" e fora do formulário de
+          propósito: ela grava sozinha, numa rota própria, e um campo de foto
+          dentro do form faria parecer que ela só vai junto do "Salvar".
+        -->
+        <div class="foto-perfil">
+          <app-avatar
+            size="lg"
+            [avatarUrl]="profile()?.avatarUrl ?? null"
+            [name]="profile()?.name ?? null"
+          />
+          <div class="foto-perfil__acoes">
+            <button
+              type="button"
+              class="btn btn--cancel"
+              data-test="abrir-foto"
+              (click)="fotoAberta.set(true)"
+            >
+              {{ profile()?.avatarUrl ? 'Trocar foto' : 'Adicionar foto' }}
+            </button>
+            <p class="foto-perfil__help">
+              Ela aparece no Ranking e no seu cartão de membro.
+            </p>
+          </div>
+        </div>
+
+        @if (fotoAberta()) {
+          <app-avatar-dialog
+            [temFoto]="!!profile()?.avatarUrl"
+            [enviando]="enviandoFoto()"
+            [erro]="fotoError()"
+            (saved)="salvarFoto($event)"
+            (removed)="removerFoto()"
+            (closed)="fecharFoto()"
+          />
+        }
+
         <form class="form" [formGroup]="dadosForm" (ngSubmit)="salvarDados()" novalidate>
           <label class="field">
             <span class="field__label">Nome completo</span>

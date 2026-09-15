@@ -13,6 +13,7 @@ const ANA: PublicMember = {
   xp: 340,
   linkedin: null,
   instagram: null,
+  avatarUrl: null,
 };
 
 describe('MemberCardDialog', () => {

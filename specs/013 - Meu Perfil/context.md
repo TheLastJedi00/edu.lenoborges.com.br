@@ -201,8 +201,7 @@ confusão sem ganho.
 
 - **Perfil público de membro e lista de membros** (decisão 13). É onde as redes sociais passariam a ser
   vistas por terceiros, e é decisão de privacidade que merece spec própria.
-- **Foto de perfil.** Nenhuma tela do produto mostra avatar, e armazenamento de imagem é infraestrutura
-  nova.
+- **[DEPRECADO pela spec 027] Foto de perfil.** A spec 027 introduziu a funcionalidade de upload de avatares com Storage.
 - **Exportar meus dados.** É o outro direito da LGPD, e é spec própria nos dois repositórios.
 - **Desfazer a exclusão.** Não existe carência: o backend apaga na hora (decisão 9 da spec 013 dele).
 - **Preferências de notificação.** O cartão do painel promete "preferências de notificações" desde a spec

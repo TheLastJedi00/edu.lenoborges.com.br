@@ -17,6 +17,7 @@ const PERFIL_XP: MemberProfile = {
   grade: 1,
   linkedin: null,
   instagram: null,
+  avatarUrl: null,
   emailOptOut: false,
   profileCompleted: true,
   role: null,
@@ -1067,7 +1068,10 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
         ]);
 
         expect(el.textContent).toContain('exclusiva para membros do Great Tier');
-        expect(el.querySelector('app-training-dialog textarea')).toBeNull();
+        // `.td__campo` e nao `textarea`: desde a spec 027 o modal tem um
+        // segundo textarea, o do codigo da submissao, que nao tem nada a ver com o
+        // portao dos comentarios.
+        expect(el.querySelector('app-training-dialog .td__campo')).toBeNull();
         expect(el.textContent).toContain('Travei no passo 2');
       });
 
@@ -1098,6 +1102,200 @@ describe('InsigniaPage · abas de conteúdo (spec 010)', () => {
         fixture.detectChanges();
 
         expect(el.textContent).toContain('Travei no passo 3');
+      });
+
+      /**
+       * **Teste-trava nascido de um defeito que so apareceu no navegador.**
+       *
+       * A listagem nao traz a `submission` de proposito, e a pagina abria o modal
+       * com o objeto da listagem -- entao quem tinha anexado codigo e foto lia
+       * "voce concluiu este desafio sem anexar uma resposta". Cada lado tinha
+       * teste: a rota devolvia a submissao, o modal sabia desenha-la. Faltava
+       * alguem ir busca-la.
+       */
+      it('teste-trava: abrir um desafio concluido busca a submissao e a mostra', async () => {
+        const { fixture, el } = setup('logica');
+        flushTrilha([desafio({ completed: true })]);
+        fixture.detectChanges();
+        abrir(fixture, el);
+
+        // A leitura a mais, que so acontece para o concluido.
+        http.expectOne((req) => req.url.endsWith('/trainings/trn-1')).flush(
+          desafio({
+            completed: true,
+            submission: {
+              mainCode: 'o que eu entreguei',
+              resultImageUrl: null,
+            },
+          }),
+        );
+        fixture.detectChanges();
+
+        expect(el.querySelector('.td__codigo-lido')?.textContent).toContain(
+          'o que eu entreguei',
+        );
+        expect(el.textContent).not.toContain('sem anexar uma resposta');
+      });
+
+      it('teste-trava: desafio NAO concluido nao paga a leitura a mais', async () => {
+        // Quem ainda vai fazer nao tem submissao a mostrar, e o http.verify() do
+        // teste reprova qualquer requisicao que sobre.
+        const { fixture, el } = setup('logica');
+        flushTrilha([desafio({ completed: false })]);
+        fixture.detectChanges();
+        abrir(fixture, el);
+
+        http.expectNone((req) => req.url.endsWith('/trainings/trn-1'));
+      });
+
+      describe('a foto do resultado (spec 027)', () => {
+        const PNG = new File([new Uint8Array([1, 2, 3])], 'r.png', {
+          type: 'image/png',
+        });
+
+        /** Dispara a escolha do arquivo no input escondido do modal. */
+        function escolherFoto(
+          fixture: { detectChanges: () => void },
+          el: HTMLElement,
+        ) {
+          const input = el.querySelector<HTMLInputElement>('.td__foto-input')!;
+          Object.defineProperty(input, 'files', { value: [PNG] });
+          input.dispatchEvent(new Event('change'));
+          fixture.detectChanges();
+        }
+
+        it('o Great Dev sobe a foto e ela entra no corpo da conclusao', () => {
+          const { fixture, el } = setup('logica');
+          TestBed.inject(AuthStore).setProfile({
+            ...PERFIL_XP,
+            tier: 'great-dev-tier',
+          });
+          flushTrilha([desafio()]);
+          fixture.detectChanges();
+          abrir(fixture, el);
+
+          escolherFoto(fixture, el);
+          http
+            .expectOne((req) => req.url.endsWith('/trainings/trn-1/result-image'))
+            .flush({ resultImageUrl: 'https://s/b/trainings/u/trn-1?v=1' });
+          fixture.detectChanges();
+
+          el.querySelector<HTMLButtonElement>('.td__concluir')!.click();
+          const conclusao = http.expectOne((req) =>
+            req.url.endsWith('/trainings/trn-1/complete'),
+          );
+
+          expect(conclusao.request.body).toEqual({
+            hintsUsed: 0,
+            resultImageUrl: 'https://s/b/trainings/u/trn-1?v=1',
+          });
+          conclusao.flush({
+            trainingId: 'trn-1',
+            completed: true,
+            xpAwarded: 30,
+            xp: 130,
+          });
+        });
+
+        it('o Dev Tier nao ve o campo de foto, e nada sobe', () => {
+          const { fixture, el } = setup('logica');
+          TestBed.inject(AuthStore).setProfile({ ...PERFIL_XP, tier: 'dev-tier' });
+          flushTrilha([desafio()]);
+          fixture.detectChanges();
+          abrir(fixture, el);
+
+          expect(el.querySelector('.td__foto-input')).toBeNull();
+          expect(el.textContent).toContain('exclusiva para membros Great Dev');
+          http.expectNone((req) => req.url.includes('/result-image'));
+        });
+
+        it('o 403 da rota vira a frase do tier, e nao o texto cru do http', () => {
+          const { fixture, el } = setup('logica');
+          TestBed.inject(AuthStore).setProfile({
+            ...PERFIL_XP,
+            tier: 'great-dev-tier',
+          });
+          flushTrilha([desafio()]);
+          fixture.detectChanges();
+          abrir(fixture, el);
+
+          escolherFoto(fixture, el);
+          http
+            .expectOne((req) => req.url.endsWith('/trainings/trn-1/result-image'))
+            .flush(
+              { message: 'qualquer coisa do backend' },
+              { status: 403, statusText: 'Forbidden' },
+            );
+          fixture.detectChanges();
+
+          expect(el.textContent).toContain(
+            'exclusiva para membros Great Dev e superiores',
+          );
+        });
+
+        it('a falha do upload nao trava o concluir sem a foto', () => {
+          // Quem tentou anexar e nao conseguiu ainda pode concluir com o codigo: o
+          // upload e um enfeite da submissao, nao um requisito dela.
+          const { fixture, el } = setup('logica');
+          TestBed.inject(AuthStore).setProfile({
+            ...PERFIL_XP,
+            tier: 'great-dev-tier',
+          });
+          flushTrilha([desafio()]);
+          fixture.detectChanges();
+          abrir(fixture, el);
+
+          escolherFoto(fixture, el);
+          http
+            .expectOne((req) => req.url.endsWith('/trainings/trn-1/result-image'))
+            .flush({}, { status: 500, statusText: 'Erro' });
+          fixture.detectChanges();
+
+          const botao = el.querySelector<HTMLButtonElement>('.td__concluir')!;
+          expect(botao.disabled).toBeFalse();
+
+          botao.click();
+          const conclusao = http.expectOne((req) =>
+            req.url.endsWith('/trainings/trn-1/complete'),
+          );
+          expect(conclusao.request.body).toEqual({ hintsUsed: 0 });
+          conclusao.flush({
+            trainingId: 'trn-1',
+            completed: true,
+            xpAwarded: 30,
+            xp: 130,
+          });
+        });
+
+        /**
+         * **A trava desta fase.** A URL é cunhada para UM `trainingId`, e o servidor
+         * recusa a de outro desafio com 400. Sem a limpeza no fechamento, abrir o
+         * desafio 2 depois de anexar foto no 1 mandaria a foto do 1 na conclusão do 2 —
+         * recusada, num erro que fala de URL inválida e não de foto trocada.
+         */
+        it('teste-trava: a foto nao sobrevive ao fechar o modal', () => {
+          const { fixture, el } = setup('logica');
+          TestBed.inject(AuthStore).setProfile({
+            ...PERFIL_XP,
+            tier: 'great-dev-tier',
+          });
+          flushTrilha([desafio(), desafio({ id: 'trn-2', title: 'Segundo' })]);
+          fixture.detectChanges();
+          abrir(fixture, el);
+
+          escolherFoto(fixture, el);
+          http
+            .expectOne((req) => req.url.endsWith('/trainings/trn-1/result-image'))
+            .flush({ resultImageUrl: 'https://s/b/trainings/u/trn-1?v=1' });
+          fixture.detectChanges();
+
+          // Fecha e reabre: a miniatura do desafio anterior não pode estar lá.
+          el.querySelector<HTMLButtonElement>('.td__fechar')!.click();
+          fixture.detectChanges();
+          abrir(fixture, el);
+
+          expect(el.querySelector('.td__foto')).toBeNull();
+        });
       });
     });
 

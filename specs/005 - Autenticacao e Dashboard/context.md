@@ -447,7 +447,7 @@ no ar, incluindo o teste de F5 dentro do dashboard, que é onde token em memóri
 - Progressão de Grau, ranking e pontuação. O Grau é lido, nunca alterado.
 - Login social e 2FA. Confirmado: e-mail e senha.
 - Alterar e-mail da conta, excluir conta e upload de avatar. *(Os dois primeiros entraram na spec
-  013; avatar continua fora.)*
+  013; o avatar entrou na 027 — esta parte está **DEPRECADA pela spec 027**.)*
 - Tela de "editar perfil" separada. `PATCH /me/profile` já existe, mas nesta spec só o onboarding o
   usa; a tela de edição chega com o botão Meu Perfil. *(Chegou: é a spec 013.)*
 - Página de política de privacidade completa e qualquer mudança no `WaitlistDialog` da 004.

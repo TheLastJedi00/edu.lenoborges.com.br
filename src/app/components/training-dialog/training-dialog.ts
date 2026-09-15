@@ -10,8 +10,13 @@ import {
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IconClose } from '../icons/icon-close';
 import { IconCheck } from '../icons/icon-check';
-import { Training, TrainingComment } from '../../models/training.model';
+import {
+  CompleteTrainingRequest,
+  Training,
+  TrainingComment,
+} from '../../models/training.model';
 import { dataPorExtenso } from '../../core/datas';
+import { FOTO_RESULTADO_RECUSADA } from '../../models/training.constants';
 
 /**
  * O conteúdo do modal de um desafio (spec 023, decisão 2).
@@ -59,8 +64,32 @@ export class TrainingDialog {
   readonly xpGanho = input<number | null>(null);
   readonly erro = input<string | null>(null);
 
-  /** Emite **quantas dicas foram reveladas**, que é o que o servidor cobra. */
-  readonly concluir = output<number>();
+  /**
+   * Se este membro pode mandar a foto do resultado (spec 027).
+   *
+   * **Chega pronto da pagina**, que le o `isPaid` do `AuthStore` -- pela
+   * mesma razao escrita no `canComment` acima: a regra mora num lugar so, e
+   * recalcula-la aqui seria a segunda copia. E ela **nao esconde a area**: quem nao
+   * pode ve o aviso, porque um recurso que nao aparece nao vende upgrade.
+   */
+  readonly canSendPhoto = input(false);
+  /** Um upload de foto em voo. Trava o concluir ate a URL chegar. */
+  readonly uploadingPhoto = input(false);
+  /** A URL que a rota de upload devolveu, ou nulo. Vem da pagina. */
+  readonly resultImageUrl = input<string | null>(null);
+  /** O erro do upload, separado do erro da conclusao. */
+  readonly erroDaFoto = input<string | null>(null);
+
+  /**
+   * Emite a submissao inteira (spec 027).
+   *
+   * Era `output<number>` com as dicas reveladas. Virou objeto porque agora sao
+   * tres coisas, e um segundo `output` para o codigo faria a pagina costurar dois
+   * eventos que descrevem um unico clique.
+   */
+  readonly concluir = output<CompleteTrainingRequest>();
+  /** O arquivo que a pessoa acabou de escolher, para a pagina subir. */
+  readonly fotoEscolhida = output<File>();
   readonly comentar = output<string>();
   readonly carregarMais = output<void>();
   readonly fechar = output<void>();
@@ -78,7 +107,67 @@ export class TrainingDialog {
    * número de qualquer forma. É um vazamento conhecido e barato, e fechá-lo
    * custaria mais do que ele vale.
    */
+  /** A frase da recusa, importada para nao existir uma segunda redacao dela. */
+  protected readonly fotoRecusada = FOTO_RESULTADO_RECUSADA;
+
   protected readonly dicasReveladas = signal(0);
+
+  /**
+   * O codigo colado pelo membro (spec 027).
+   *
+   * Mora num signal, e nao num `FormControl`: nao ha validacao a fazer aqui --
+   * o teto de 20000 e do servidor, e um campo vazio e uma conclusao sem codigo,
+   * que e permitida. Morre com o modal, como as dicas.
+   */
+  protected readonly mainCode = signal('');
+
+  /**
+   * O que a tela manda ao concluir.
+   *
+   * **Campo vazio nao entra no corpo.** Mandar `mainCode: ''` faria o servidor
+   * gravar string vazia onde `null` e a verdade -- e a diferenca aparece no dia
+   * em que alguem for conferir quem entregou codigo.
+   */
+  protected submissao(): CompleteTrainingRequest {
+    const codigo = this.mainCode().trim();
+    const foto = this.resultImageUrl();
+
+    return {
+      hintsUsed: this.dicasReveladas(),
+      ...(codigo ? { mainCode: codigo } : {}),
+      ...(foto ? { resultImageUrl: foto } : {}),
+    };
+  }
+
+  /**
+   * Se o botao de concluir pode ser clicado.
+   *
+   * **Trava enquanto a foto sobe** (spec 027, decisao 2): o upload acontece na
+   * selecao, e concluir antes de a URL chegar mandaria a conclusao sem a foto que a
+   * pessoa acabou de escolher -- e a segunda conclusao nao reescreve a submissao,
+   * entao ela perderia a foto para sempre.
+   */
+  protected readonly podeConcluir = computed(
+    () => !this.completing() && !this.uploadingPhoto(),
+  );
+
+  /**
+   * A foto escolhida sobe **na hora**, e nao no submit.
+   *
+   * Um upload disparado junto do "Concluir Desafio" faria a conclusao -- que paga XP
+   * -- depender de um envio que pode falhar no meio, com o XP ja em jogo.
+   */
+  protected aoEscolherFoto(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    this.fotoEscolhida.emit(file);
+    // O input e limpo para escolher o mesmo arquivo de novo disparar o change.
+    input.value = '';
+  }
 
   protected readonly concluido = computed(() => this.training().completed);
 

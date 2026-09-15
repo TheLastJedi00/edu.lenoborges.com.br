@@ -147,6 +147,27 @@ export class AuthStore {
    * falso, e o guard de onboarding sequestraria quem só marcou um vídeo. O
    * número certo chega no `GET /me` seguinte de qualquer forma.
    */
+  /**
+   * Escreve a foto nova no perfil que ja esta em memoria (spec 027).
+   *
+   * **Existe para a foto aparecer no aside e no cartao sem um `GET /me` novo.** A
+   * rota de avatar ja devolve a URL persistida, entao pedir o perfil inteiro de
+   * volta seria uma requisicao para saber o que a resposta anterior acabou de
+   * dizer.
+   *
+   * Decalcado do `setXp` abaixo, com a mesma guarda e pela mesma razao: sem perfil
+   * carregado nao inventa um, senao `profileCompleted` fica falso e o guard de
+   * onboarding sequestra quem so trocou a foto.
+   */
+  setAvatarUrl(avatarUrl: string | null): void {
+    const current = this.profile();
+    if (!current) {
+      return;
+    }
+
+    this.profile.set({ ...current, avatarUrl });
+  }
+
   setXp(xp: number): void {
     const current = this.profile();
     if (!current) {

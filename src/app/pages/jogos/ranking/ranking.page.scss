@@ -251,3 +251,22 @@
   passos. Um bloco vazio aqui seria ruído; esta nota existe para que a próxima
   pessoa a auditar a spec saiba que a falta foi verificada, e não esquecida.
 */
+
+/*
+  A foto ao lado do gamertag na tabela (spec 027).
+
+  O "min-width: 0" no texto é o que faz o gamertag longo quebrar em vez de
+  empurrar a coluna de XP para fora da tela em 360px de largura: item de flex não
+  encolhe abaixo do próprio conteúdo sem isso, e a tabela do ranking é a tela que
+  mais sofre com largura estreita.
+*/
+.table__who {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.table__nickname {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

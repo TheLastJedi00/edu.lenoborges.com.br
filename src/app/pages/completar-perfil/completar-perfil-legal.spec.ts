@@ -34,6 +34,7 @@ function perfil(pendentes: typeof TERMOS[]): MemberProfile {
     grade: 1,
     linkedin: null,
     instagram: null,
+    avatarUrl: null,
     emailOptOut: false,
     profileCompleted: false,
     role: null,

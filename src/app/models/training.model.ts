@@ -54,6 +54,26 @@ export interface Training {
    * `false` — não existe "não sei", e a tela não precisa de um terceiro estado.
    */
   readonly completed: boolean;
+  /**
+   * O que **este membro** enviou ao concluir, ou nulo (spec 027).
+   *
+   * **So vem em `GET /trainings/:id`, nunca na listagem** -- e por isso e
+   * opcional aqui: o `mainCode` chega a 20000 caracteres, e mandar isso por
+   * desafio numa lista de vinte seria o corpo de uma tela inteira para desenhar
+   * cartoes que nao mostram codigo. Campo ausente na lista, `null` no detalhe de
+   * quem nao concluiu.
+   *
+   * **E a submissao da PRIMEIRA conclusao.** Concluir de novo nao escreve nada, e
+   * a tela mostra este valor em leitura em vez de um formulario -- que prometeria
+   * uma edicao que nao existe.
+   */
+  readonly submission?: TrainingSubmission | null;
+}
+
+/** O que o membro enviou ao concluir (spec 027). */
+export interface TrainingSubmission {
+  readonly mainCode: string | null;
+  readonly resultImageUrl: string | null;
 }
 
 export interface TrainingList {
@@ -124,6 +144,36 @@ export interface TrainingCompletionResult {
   readonly xpAwarded: number;
   /** O total do membro depois da escrita. É este número que a tela pinta. */
   readonly xp: number;
+}
+
+/**
+ * O corpo da conclusao de um desafio (spec 027).
+ *
+ * **Os tres sao opcionais, e isso e decisao.** O front e o back entram juntos mas
+ * nao sobem no mesmo segundo, e na janela entre os dois deploys a tela antiga manda
+ * `{}`. Com campo obrigatorio, essa janela seria um 400 em cima de quem acabou de
+ * concluir um desafio.
+ *
+ * **Virou objeto em vez de argumentos posicionais** (era `complete(id, hintsUsed)`):
+ * com tres campos, a ordem posicional e um lugar a mais para trocar dois valores do
+ * mesmo tipo sem o compilador notar.
+ */
+export interface CompleteTrainingRequest {
+  readonly hintsUsed?: number;
+  /** O conteudo da classe `main`, colado pelo membro. Qualquer tier. */
+  readonly mainCode?: string;
+  /**
+   * A URL que `POST /trainings/:id/result-image` devolveu.
+   *
+   * **Exclusiva do Great Dev Tier em diante**, e a API recusa qualquer URL que ela
+   * mesma nao tenha cunhado para este membro e este desafio.
+   */
+  readonly resultImageUrl?: string;
+}
+
+/** A resposta de `POST /trainings/:id/result-image` (spec 027). */
+export interface ResultImageResponse {
+  readonly resultImageUrl: string;
 }
 
 export interface CreateTrainingRequest {

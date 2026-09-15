@@ -1,8 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
+  CompleteTrainingRequest,
+  ResultImageResponse,
   Training,
   TrainingComment,
   TrainingCommentList,
@@ -55,12 +57,39 @@ export class TrainingService {
    */
   complete(
     trainingId: string,
-    hintsUsed: number,
+    request: CompleteTrainingRequest,
   ): Observable<TrainingCompletionResult> {
     return this.http.post<TrainingCompletionResult>(
       `${environment.apiUrl}/trainings/${trainingId}/complete`,
-      { hintsUsed },
+      request,
     );
+  }
+
+  /**
+   * Sobe a foto do resultado e devolve a URL para mandar no `complete` (spec 027).
+   *
+   * **Rota separada da conclusao de proposito.** A foto sobe na hora em que o
+   * membro a escolhe, e nao junto do submit: um upload disparado no `complete`
+   * faria a conclusao -- que paga XP -- depender de um envio que pode falhar no
+   * meio, com o XP ja em jogo.
+   *
+   * **A trava de tier de verdade esta nesta rota**, que responde `403` para o Dev
+   * Tier antes de gravar o arquivo. A tela nao oferecer o botao e cortesia, nao
+   * seguranca.
+   *
+   * **Sem `Content-Type` definido a mao**, pela razao escrita no `setAvatar` do
+   * `AuthService`: o navegador precisa escrever o `boundary`.
+   */
+  uploadResultImage(trainingId: string, file: Blob): Observable<string> {
+    const form = new FormData();
+    form.append('file', file, 'resultado.jpg');
+
+    return this.http
+      .post<ResultImageResponse>(
+        `${environment.apiUrl}/trainings/${trainingId}/result-image`,
+        form,
+      )
+      .pipe(map(({ resultImageUrl }) => resultImageUrl));
   }
 
   /**
