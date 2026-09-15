@@ -15,34 +15,34 @@
 
 ---
 
-# Fase 01: Dependência, modelos e serviços []
+# Fase 01: Dependência, modelos e serviços [x]
 
 Ao fim desta fase a integração conhece as rotas e os campos novos. Nenhuma tela muda de aparência.
 
-- [] Task 01: `package.json` — `npm i ngx-image-cropper` (9.x; `peerDependencies` de Angular
+- [x] Task 01: `package.json` — `npm i ngx-image-cropper` (9.x; `peerDependencies` de Angular
   `>=17.3.0`, satisfeito pelo 20.3 daqui).
   **É a primeira dependência de UI do repositório**, que hoje tem exatamente Angular e rxjs, e vale
   escrever no commit o que ela resolve: não é o recorte, é o **gesto** — arrastar e dar zoom com mouse e
   com o dedo, mais a rotação do EXIF que toda foto de celular traz e que faz o retrato chegar deitado.
   Conferir o tamanho que ela acrescenta ao bundle no `ng build` e anotar no commit.
-- [] Task 02: `src/app/models/auth.model.ts` —
+- [x] Task 02: `src/app/models/auth.model.ts` —
   - `MemberProfile` ganha `readonly avatarUrl: string | null;` — **não opcional**, seguindo `linkedin` e
     `instagram`: a API sempre manda o campo, e `null` é "não tem foto".
   - `PublicMember` ganha `readonly avatarUrl: string | null;`, que é o card público da spec 019.
   - **`UpdateProfileRequest` não é tocado** (decisão 1): a foto não passa por `PATCH /me/profile`, que
     exige nome, telefone e bio.
-- [] Task 03: `src/app/models/games.model.ts` — `RankingEntry` ganha
+- [x] Task 03: `src/app/models/games.model.ts` — `RankingEntry` ganha
   `readonly avatarUrl: string | null;`. O campo vem na mesma resposta que já traz `nickname` e `xp`, e o
   comentário diz por quê: o placar não lê a coleção de perfis, e buscar o avatar por membro
   transformaria uma tela em N requisições.
-- [] Task 04: `src/app/models/training.model.ts` — o payload da conclusão vira um objeto:
+- [x] Task 04: `src/app/models/training.model.ts` — o payload da conclusão vira um objeto:
   `CompleteTrainingRequest` com `hintsUsed?: number`, `mainCode?: string` e `resultImageUrl?: string`.
   Os três opcionais, pela razão que o back já registrou no DTO: a tela antiga manda `{}` na janela entre
   os dois deploys.
-- [] Task 05: `src/app/core/auth/auth.store.ts` e `.spec.ts` — `setAvatarUrl(avatarUrl: string | null)`,
+- [x] Task 05: `src/app/core/auth/auth.store.ts` e `.spec.ts` — `setAvatarUrl(avatarUrl: string | null)`,
   decalcado do `setXp` logo acima: lê o perfil atual, sai se não houver, e reescreve só esse campo.
   Existe para a foto nova aparecer no aside e no card sem um `GET /me` novo.
-- [] Task 06: `src/app/core/auth/auth.service.spec.ts` e `.ts` — **teste antes**:
+- [x] Task 06: `src/app/core/auth/auth.service.spec.ts` e `.ts` — **teste antes**:
   - `setAvatar(file: Blob)`: monta `FormData` com o campo `file` e faz `POST /me/avatar`, respondendo
     `{ avatarUrl }`, e no `tap` chama `authStore.setAvatarUrl`.
     **Não montar `Content-Type` na mão**: o navegador precisa escrever o `boundary` do multipart, e um
@@ -51,7 +51,7 @@ Ao fim desta fase a integração conhece as rotas e os campos novos. Nenhuma tel
   - As duas moram aqui pela mesma razão do `setSocialLinksPublic` e do `setNickname`: são escritas em
     `/me`. O comentário aponta para o vizinho, que já explica por que não é campo de
     `PATCH /me/profile`.
-- [] Task 07: `src/app/services/training.service.spec.ts` e `.ts` — **teste antes**:
+- [x] Task 07: `src/app/services/training.service.spec.ts` e `.ts` — **teste antes**:
   - `complete(trainingId, request: CompleteTrainingRequest)` — a assinatura deixa de ser posicional.
     Trocar `complete(id, hintsUsed)` por um objeto é o que impede o terceiro argumento de entrar na
     ordem errada quando `mainCode` e `resultImageUrl` chegarem juntos.
@@ -59,13 +59,21 @@ Ao fim desta fase a integração conhece as rotas e os campos novos. Nenhuma tel
     `POST /trainings/:trainingId/result-image`, respondendo `{ resultImageUrl }`.
   - Testar o `403` da rota de upload chegando ao chamador, porque é ele que a tela traduz.
 
+
+> **Fase 01 concluida.** 813 testes verdes, `ng build` ok. O `ngx-image-cropper` **nao entrou no
+> bundle inicial** -- nada o importa ainda, e ele vai cair no chunk do modal quando a fase 03 o usar.
+>
+> Dezessete fixtures de spec precisaram do campo novo, todas apontadas pelo compilador. O
+> `insignia.page.ts` foi adaptado para a assinatura nova do `complete` mantendo o comportamento de
+> hoje: a submissao de verdade e da fase 04.
+
 ---
 
-# Fase 02: O componente de avatar []
+# Fase 02: O componente de avatar [x]
 
 Ao fim desta fase existe um jeito só de desenhar a foto de um membro, e ele é usado em três telas.
 
-- [] Task 01: `src/app/components/avatar/` (`.ts`, `.html`, `.scss`, `.spec.ts`) — `app-avatar`,
+- [x] Task 01: `src/app/components/avatar/` (`.ts`, `.html`, `.scss`, `.spec.ts`) — `app-avatar`,
   componente burro: `input()` de `avatarUrl: string | null`, `name: string | null` e um `size`
   (`'sm' | 'md' | 'lg'`).
   **O fallback é novo, não uma substituição** (decisão 1): hoje não existe avatar em tela nenhuma e
@@ -81,16 +89,30 @@ Ao fim desta fase existe um jeito só de desenhar a foto de um membro, e ele é 
     e uma imagem quebrada no meio do placar é pior que as iniciais.
   - `.scss`: círculo com `aspect-ratio: 1`, `object-fit: cover`, e o gradiente suave do projeto no
     fundo das iniciais.
-- [] Task 02: `src/app/pages/jogos/ranking/ranking.page.html` e `.spec.ts` — `app-avatar` ao lado do
+- [x] Task 02: `src/app/pages/jogos/ranking/ranking.page.html` e `.spec.ts` — `app-avatar` ao lado do
   `nickname`, nos dois lugares que o desenham: o pódio (`podium__nick`) e a tabela (`table__nick`).
   Mobile First: na tabela o avatar é `sm` e não empurra a coluna de XP para fora em 360px de largura —
   conferir no Chrome com o viewport estreito, que é onde essa tabela sempre sofre.
-- [] Task 03: `src/app/components/member-card-dialog/member-card-dialog.ts` e `.spec.ts` — o avatar no
+- [x] Task 03: `src/app/components/member-card-dialog/member-card-dialog.ts` e `.spec.ts` — o avatar no
   topo do card, tamanho `lg`, a partir do `avatarUrl` novo do `PublicMember`.
   **Template inline**, como o componente já é — não criar `.html` nem `.scss` novos aqui.
-- [] Task 04: `src/app/components/dashboard-aside/dashboard-aside.ts` e `.spec.ts` — o avatar junto do
-  nome de quem está logado, lendo do `AuthStore`. Também inline. É a tela onde a pessoa mais vai notar
-  que a troca funcionou.
+- [~] Task 04: ~~`dashboard-aside` — o avatar junto do nome de quem está logado.~~ **Não feita, de
+  propósito.** Duas razões, e as duas apareceram só ao abrir o arquivo:
+  1. **O aside não tem bloco de identidade nenhum** — não mostra nome, nem e-mail, nem nada da pessoa.
+     É navegação: logo, itens, e o rodapé com Administração e Sair. Pôr o avatar ali exigiria **criar**
+     um bloco "quem sou eu" no meio do menu, com o estado recolhido para resolver.
+  2. **O `context.md` desta spec não pede isso.** A lista de visibilidade dele é Ranking, cartão
+     público de membro e o próprio Meu Perfil — os três estão cobertos. Esta task saiu de uma frase que
+     eu escrevi no plano ("é a tela onde a pessoa mais vai notar"), e não da spec.
+  Se o bloco de identidade no aside for desejado, ele é uma decisão de UI própria e merece a sua linha
+  no `context.md` antes de virar código.
+
+
+> **Fase 02 concluida (com a Task 04 recusada).** 825 testes verdes, bundle inicial em 370.94 kB
+> (100.39 kB transferidos) -- o cropper ainda nao entra, porque nada o importa ate a fase 03.
+>
+> O que a fase provou que o plano nao sabia: **o `dashboard-aside` nao tem bloco de identidade
+> nenhum**, e o `context.md` nao pede a foto ali. A Task 04 fica marcada `[~]` com a razao escrita.
 
 ---
 

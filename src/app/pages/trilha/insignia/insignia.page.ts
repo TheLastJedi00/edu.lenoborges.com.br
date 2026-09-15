@@ -436,7 +436,7 @@ export class InsigniaPage implements OnInit {
     this.erroDoTreino.set(null);
 
     this.trainings
-      .complete(aberto.id, dicasUsadas)
+      .complete(aberto.id, { hintsUsed: dicasUsadas })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (resultado) => {

@@ -18,6 +18,7 @@ export const PERFIL: MemberProfile = {
   grade: 3,
   linkedin: null,
   instagram: null,
+  avatarUrl: null,
   emailOptOut: false,
   profileCompleted: true,
   role: null,

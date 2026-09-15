@@ -302,6 +302,55 @@ export class AuthService {
   }
 
   /**
+   * Envia ou troca a foto de perfil (spec 027).
+   *
+   * Mora aqui pela mesma razao do `setSocialLinksPublic` acima: e uma escrita em
+   * `/me`. E e **rota propria, nao um campo de `PATCH /me/profile`**, pelo motivo
+   * escrito ali ao lado -- aquela rota exige nome, telefone e bio, e trocar a foto
+   * por ela faria o modal reenviar o cadastro inteiro.
+   *
+   * **O arquivo vai para a nossa API, e nao para o Storage.** A spec 005 decidiu
+   * que este front nao fala com o Firebase e a spec 020 manteve isso ao preco de
+   * tres rotas publicas na API para tratar o `oobCode`; uma foto de perfil nao e
+   * motivo para instalar o SDK web no bundle.
+   *
+   * **Nao existe `Content-Type` definido aqui, e isso e deliberado.** O navegador
+   * precisa escrever o `boundary` do multipart, e so faz isso quando o header nao
+   * esta definido -- um `multipart/form-data` fixado a mao produz um corpo que o
+   * servidor nao separa em partes, e o erro que volta nao fala de header nenhum.
+   *
+   * Atualiza o `AuthStore` no sucesso, e **nao pede o perfil de novo**: a rota
+   * devolve a URL ja persistida, entao um `GET /me` aqui seria uma requisicao para
+   * saber o que a resposta acabou de dizer.
+   */
+  setAvatar(file: Blob): Observable<string> {
+    const form = new FormData();
+    form.append('file', file, 'avatar.webp');
+
+    return this.http
+      .post<{ avatarUrl: string }>(`${environment.apiUrl}/me/avatar`, form)
+      .pipe(
+        tap(({ avatarUrl }) => this.authStore.setAvatarUrl(avatarUrl)),
+        map(({ avatarUrl }) => avatarUrl),
+      );
+  }
+
+  /**
+   * Tira a foto de perfil (spec 027).
+   *
+   * **Existe porque trocar nao e o mesmo que tirar**: sem ela, quem subiu a foto
+   * errada so pode substituir por outra, e nunca voltar a nao ter nenhuma.
+   */
+  removeAvatar(): Observable<void> {
+    return this.http
+      .delete<void>(`${environment.apiUrl}/me/avatar`)
+      .pipe(
+        tap(() => this.authStore.setAvatarUrl(null)),
+        map(() => undefined),
+      );
+  }
+
+  /**
    * Escolhe a gamertag, uma vez e para sempre (spec 022, decisão 16).
    *
    * Mora aqui pela mesma razão do `setSocialLinksPublic` acima: é uma escrita em
