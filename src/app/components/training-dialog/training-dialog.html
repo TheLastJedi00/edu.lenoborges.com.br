@@ -178,6 +178,83 @@
     }
   </section>
 
+  <!--
+    A resposta (spec 027). Fica antes do rodapé, porque é o que a pessoa preenche
+    ANTES de clicar em concluir.
+
+    Concluído mostra o que foi enviado, em leitura: a segunda conclusão não
+    reescreve a submissão, e um formulário ali prometeria uma edição que não existe.
+  -->
+  <section class="td__envio" aria-labelledby="td-envio-titulo">
+    <h3 class="td__sub" id="td-envio-titulo">Sua resposta</h3>
+
+    @if (concluido()) {
+      @if (training().submission?.mainCode; as codigo) {
+        <p class="td__envio-rotulo u-mono">Código enviado</p>
+        <pre class="td__codigo-lido">{{ codigo }}</pre>
+      }
+      @if (training().submission?.resultImageUrl; as foto) {
+        <p class="td__envio-rotulo u-mono">Resultado enviado</p>
+        <img class="td__foto" [src]="foto" alt="A foto do resultado que você enviou" />
+      }
+      @if (!training().submission?.mainCode && !training().submission?.resultImageUrl) {
+        <p class="td__aviso">Você concluiu este desafio sem anexar uma resposta.</p>
+      }
+    } @else {
+      <label class="td__envio-rotulo" for="td-codigo">
+        Use Ctrl+A, Ctrl+C e Ctrl+V para copiar e colar apenas o conteúdo da classe
+        main.
+      </label>
+      <textarea
+        id="td-codigo"
+        class="td__codigo"
+        rows="6"
+        maxlength="20000"
+        spellcheck="false"
+        placeholder="public static void main(String[] args) { ... }"
+        [value]="mainCode()"
+        (input)="mainCode.set($any($event.target).value)"
+      ></textarea>
+
+      @if (canSendPhoto()) {
+        <div class="td__foto-area">
+          @if (resultImageUrl(); as enviada) {
+            <img class="td__foto" [src]="enviada" alt="A foto do resultado que você enviou" />
+          }
+
+          <label class="td__foto-botao" [class.is-disabled]="uploadingPhoto()">
+            <input
+              type="file"
+              class="td__foto-input"
+              accept="image/jpeg,image/png,image/webp"
+              [disabled]="uploadingPhoto()"
+              (change)="aoEscolherFoto($event)"
+            />
+            <span>
+              @if (uploadingPhoto()) {
+                Enviando a foto...
+              } @else if (resultImageUrl()) {
+                Trocar a foto do resultado
+              } @else {
+                Anexar foto do resultado
+              }
+            </span>
+          </label>
+
+          @if (erroDaFoto(); as mensagem) {
+            <p class="td__erro" role="alert">{{ mensagem }}</p>
+          }
+        </div>
+      } @else {
+        <!--
+          Desabilitada e VISÍVEL, não ausente: é o mesmo desenho da trava de
+          comentários, e um recurso que não aparece não vende upgrade.
+        -->
+        <p class="td__aviso td__aviso--tier">{{ fotoRecusada }}</p>
+      }
+    }
+  </section>
+
   <footer class="td__pe">
     @if (concluido()) {
       <p class="td__selo">
@@ -188,10 +265,16 @@
       <button
         type="button"
         class="td__concluir"
-        [disabled]="completing()"
-        (click)="concluir.emit(dicasReveladas())"
+        [disabled]="!podeConcluir()"
+        (click)="concluir.emit(submissao())"
       >
-        {{ completing() ? 'Concluindo...' : 'Concluir Desafio (+' + premioAtual() + ' XP)' }}
+        @if (completing()) {
+          Concluindo...
+        } @else if (uploadingPhoto()) {
+          Aguarde a foto...
+        } @else {
+          {{ 'Concluir Desafio (+' + premioAtual() + ' XP)' }}
+        }
       </button>
     }
 
