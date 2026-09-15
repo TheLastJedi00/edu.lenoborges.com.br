@@ -19,13 +19,15 @@ import { IconLinkedin } from '../../components/icons/icon-linkedin';
 import { Logo } from '../../shared/logo/logo';
 import { AuthService } from '../../core/auth/auth.service';
 import { AuthStore } from '../../core/auth/auth.store';
-import { httpErrorMessage } from '../../core/http-error';
+import { httpErrorMessage, httpStatus } from '../../core/http-error';
 import { normalizeName, normalizePhone } from '../../core/normalize';
 import { toInstagramUrl, toLinkedinUrl } from '../../core/social-url';
 import { MemberProfile } from '../../models/auth.model';
 import { LegalDocumentSummary } from '../../models/legal.model';
 import { LegalAcceptDialog } from '../../components/legal-accept-dialog/legal-accept-dialog';
 import { LegalService } from '../../core/legal/legal.service';
+import { Avatar } from '../../components/avatar/avatar';
+import { AvatarDialog } from '../../components/avatar-dialog/avatar-dialog';
 import { dataCurta, dataDeVersao } from '../../core/datas';
 
 type LoadState = 'loading' | 'ready' | 'error';
@@ -53,7 +55,9 @@ type LoadState = 'loading' | 'ready' | 'error';
     IconLinkedin,
     IconInstagram,
     Logo,
-    LegalAcceptDialog
+    LegalAcceptDialog,
+    Avatar,
+    AvatarDialog
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './perfil.page.html',
@@ -236,6 +240,89 @@ export class PerfilPage implements OnInit {
    * **inclusive os de senha**.
    */
   protected readonly acessoAberto = signal<'email' | 'senha' | null>(null);
+
+  // A foto (spec 027). O modal vive dentro de um @if: montado fechado, ele chamaria
+  // showModal() no ngAfterViewInit dele e abriria sozinho ao entrar na tela.
+  protected readonly fotoAberta = signal(false);
+  protected readonly enviandoFoto = signal(false);
+  protected readonly fotoError = signal<string | null>(null);
+
+  /**
+   * Envia o recorte e fecha o modal.
+   *
+   * **Nao recarrega o perfil no sucesso.** O `AuthService` ja escreveu a URL no
+   * `AuthStore`, e a tela inteira -- este cabecalho e o cartao de membro -- le de
+   * la. Um `GET /me` aqui seria uma requisicao para saber o que a resposta
+   * acabou de dizer.
+   *
+   * **No erro o modal fica aberto**, com a mensagem e o recorte na tela: fechar
+   * faria a pessoa recortar de novo para tentar de novo.
+   */
+  async salvarFoto(blob: Blob): Promise<void> {
+    if (this.enviandoFoto()) {
+      return;
+    }
+
+    this.enviandoFoto.set(true);
+    this.fotoError.set(null);
+
+    try {
+      const avatarUrl = await firstValueFrom(this.authService.setAvatar(blob));
+      this.profile.update((atual) => (atual ? { ...atual, avatarUrl } : atual));
+      this.fotoAberta.set(false);
+    } catch (error: unknown) {
+      this.fotoError.set(this.mensagemDaFoto(error));
+    } finally {
+      this.enviandoFoto.set(false);
+    }
+  }
+
+  async removerFoto(): Promise<void> {
+    if (this.enviandoFoto()) {
+      return;
+    }
+
+    this.enviandoFoto.set(true);
+    this.fotoError.set(null);
+
+    try {
+      await firstValueFrom(this.authService.removeAvatar());
+      this.profile.update((atual) =>
+        atual ? { ...atual, avatarUrl: null } : atual
+      );
+      this.fotoAberta.set(false);
+    } catch (error: unknown) {
+      this.fotoError.set(this.mensagemDaFoto(error));
+    } finally {
+      this.enviandoFoto.set(false);
+    }
+  }
+
+  protected fecharFoto(): void {
+    if (!this.enviandoFoto()) {
+      this.fotoAberta.set(false);
+      this.fotoError.set(null);
+    }
+  }
+
+  /**
+   * Traduz a recusa da API em algo acionavel.
+   *
+   * **O 413 e o 400 nao dizem a mesma coisa para quem le.** O corpo do backend
+   * explica o 400 ("precisa ser jpeg, png ou webp"), mas o 413 vem do limite do
+   * multer, sem corpo nosso -- e "Http failure response" na frente de quem tentou
+   * mandar uma foto do celular nao diz o que fazer.
+   */
+  private mensagemDaFoto(error: unknown): string {
+    if (httpStatus(error) === 413) {
+      return 'Essa imagem é grande demais. O limite é 5 MB.';
+    }
+
+    return httpErrorMessage(
+      error,
+      'Não consegui salvar sua foto agora. Tente de novo.'
+    );
+  }
 
   protected readonly emailForm = this.fb.nonNullable.group({
     newEmail: ['', [Validators.required, Validators.email]],

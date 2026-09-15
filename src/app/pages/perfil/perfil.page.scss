@@ -465,3 +465,36 @@
   color: var(--ink-soft);
   line-height: 1.5;
 }
+
+/*
+  A foto de perfil (spec 027).
+
+  Em linha a partir de 24rem e em coluna abaixo disso: com o avatar grande e o
+  botão lado a lado, o texto de apoio fica com duas palavras por linha em 360px.
+*/
+.foto-perfil {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.foto-perfil__acoes {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.foto-perfil__help {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+
+@media (min-width: 24rem) {
+  .foto-perfil {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+}

@@ -116,11 +116,11 @@ Ao fim desta fase existe um jeito só de desenhar a foto de um membro, e ele é 
 
 ---
 
-# Fase 03: Trocar a foto no Meu Perfil []
+# Fase 03: Trocar a foto no Meu Perfil [x]
 
 Ao fim desta fase o membro recorta, envia e remove a própria foto.
 
-- [] Task 01: `src/app/components/avatar-dialog/` (`.ts`, `.html`, `.scss`, `.spec.ts`) — o modal
+- [x] Task 01: `src/app/components/avatar-dialog/` (`.ts`, `.html`, `.scss`, `.spec.ts`) — o modal
   dedicado, no molde dos outros diálogos do projeto (`nickname-dialog`, `delete-account-dialog`):
   - Um `<input type="file" accept="image/jpeg,image/png,image/webp">` escondido atrás de um botão do
     projeto, e o `image-cropper` do `ngx-image-cropper` aparecendo depois da escolha.
@@ -140,14 +140,28 @@ Ao fim desta fase o membro recorta, envia e remove a própria foto.
   - Emite `saved` com o `Blob` e `removed`; **ele não chama serviço nenhum** — quem chama é a página.
   - O `.spec.ts` trava o fluxo: escolher habilita o recorte, confirmar emite o `Blob`, e o `imageCropped`
     por si só não emite nada.
-- [] Task 02: `src/app/pages/perfil/perfil.page.html`, `.ts`, `.scss` e `.spec.ts` — a seção da foto no
+- [x] Task 02: `src/app/pages/perfil/perfil.page.html`, `.ts`, `.scss` e `.spec.ts` — a seção da foto no
   topo de "Seus dados", com o `app-avatar` no tamanho `lg` e o botão que abre o `avatar-dialog` dentro de
   um `@if`.
   No `saved`, chamar `auth.setAvatar(blob)`; no `removed`, `auth.removeAvatar()`. O `AuthStore` já
   atualiza a tela toda pelo `setAvatarUrl`, então **não recarregar o perfil** depois.
   Erro fica na tela com a saída, no molde das outras seções desta página.
-- [] Task 03: `src/app/pages/perfil/perfil.page.spec.ts` — o `403` e o `413` da rota virando mensagem
+- [x] Task 03: `src/app/pages/perfil/perfil.page.spec.ts` — o `403` e o `413` da rota virando mensagem
   que diz o que fazer ("a imagem precisa ter no máximo 5 MB"), e não o texto cru do backend.
+
+
+> **Fase 03 concluida.** 846 testes verdes. O cropper caiu no chunk lazy do `perfil-page` (86.74 kB
+> brutos, 19.30 kB transferidos), entao o carregamento inicial ficou em **100.98 kB** transferidos --
+> antes da spec eram 100.39 kB, e a diferenca e o `app-avatar` no Ranking, nao a biblioteca.
+>
+> Duas coisas que so apareceram ao rodar:
+>
+> - **`ng build` confere template com mais rigor que `ng test`.** O `[imageFile]` da biblioteca aceita
+>   `File | undefined` e o signal e `File | null`; a suite passava e o build de producao nao.
+> - **A biblioteca emite dos outputs dela na destruicao** e o Karma loga `NG0953` por isso. E do
+>   `image-cropper`, nao nosso: o aviso aparece a partir do primeiro teste que o monta. O guard que
+>   entrou no `onCancel` e por um motivo proprio -- um `closed` chegando ao host depois de ele ja ter
+>   fechado o modal e a receita do modal que reabre.
 
 ---
 
