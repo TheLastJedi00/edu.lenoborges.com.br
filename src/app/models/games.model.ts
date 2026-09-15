@@ -139,6 +139,16 @@ export interface RankingEntry {
    * zero diria "não mudou", que é outra afirmação.
    */
   readonly positionChange: number | null;
+  /**
+   * A foto do membro, ou nulo (spec 027).
+   *
+   * **Vem na mesma resposta que já traz `nickname` e `xp`**, da coleção `ranking`.
+   * O placar não lê a coleção de perfis: buscar o avatar por membro transformaria
+   * uma tela em N requisições para trazer uma URL por linha.
+   *
+   * `null` cai nas iniciais do `app-avatar`.
+   */
+  readonly avatarUrl: string | null;
 }
 
 export interface RankingPage {

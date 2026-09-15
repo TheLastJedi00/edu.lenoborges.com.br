@@ -15,6 +15,7 @@ import { describeProgress } from '../../core/progress/progress';
 import { XpCount } from '../xp-count/xp-count';
 import { IconLinkedin } from '../icons/icon-linkedin';
 import { IconInstagram } from '../icons/icon-instagram';
+import { Avatar } from '../avatar/avatar';
 
 type LoadState = 'loading' | 'ready' | 'error' | 'gone';
 
@@ -35,7 +36,7 @@ type LoadState = 'loading' | 'ready' | 'error' | 'gone';
  */
 @Component({
   selector: 'app-member-card-dialog',
-  imports: [XpCount, IconLinkedin, IconInstagram],
+  imports: [XpCount, IconLinkedin, IconInstagram, Avatar],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <dialog #dialog class="modal" (close)="onNativeClose()">
@@ -62,8 +63,15 @@ type LoadState = 'loading' | 'ready' | 'error' | 'gone';
           @default {
             <article class="cartao">
               <header class="cartao__head">
-                <h2 class="cartao__nome">{{ member()!.name ?? 'Membro' }}</h2>
-                <p class="cartao__etapa u-mono">{{ etapa() }}</p>
+                <app-avatar
+                  size="lg"
+                  [avatarUrl]="member()!.avatarUrl"
+                  [name]="member()!.name"
+                />
+                <div class="cartao__quem">
+                  <h2 class="cartao__nome">{{ member()!.name ?? 'Membro' }}</h2>
+                  <p class="cartao__etapa u-mono">{{ etapa() }}</p>
+                </div>
               </header>
 
               <app-xp-count [xp]="member()!.xp" />
@@ -166,9 +174,31 @@ type LoadState = 'loading' | 'ready' | 'error' | 'gone';
       justify-items: start;
     }
 
+    /*
+      A foto ao lado do nome (spec 027). Em coluna no telefone e em linha a partir
+      de 22rem: com o avatar grande, nome e etapa lado a lado apertam o texto num
+      cartao que abre dentro de um modal.
+    */
     .cartao__head {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      text-align: center;
+    }
+
+    .cartao__quem {
       display: grid;
       gap: 0.2rem;
+      min-width: 0;
+    }
+
+    @media (min-width: 22rem) {
+      .cartao__head {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+      }
     }
 
     .cartao__nome {

@@ -15,7 +15,8 @@ const ANA: PublicMember = {
   grade: 3,
   xp: 340,
   linkedin: null,
-  instagram: null
+  instagram: null,
+  avatarUrl: null
 };
 
 describe('MemberService', () => {

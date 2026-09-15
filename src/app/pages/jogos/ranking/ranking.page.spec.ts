@@ -21,6 +21,7 @@ function linha(
     xp: 1000 - position * 10,
     badgeCount: 0,
     positionChange: null,
+    avatarUrl: null,
     ...extra
   };
 }
@@ -145,6 +146,7 @@ describe('RankingPage', () => {
       grade: 1,
       linkedin: null,
       instagram: null,
+      avatarUrl: null,
       emailOptOut: false,
       profileCompleted: true,
       role: null,
@@ -197,5 +199,24 @@ describe('RankingPage', () => {
     const root = flush(pagina());
 
     expect(root.querySelector('.table-wrap')).not.toBeNull();
+  });
+
+  it('desenha a foto no podio e na tabela, e as iniciais para quem nao tem (spec 027)', () => {
+    const root = flush(
+      pagina({
+        entries: [
+          linha(1, 'a', { avatarUrl: 'https://s/b/avatars/a?v=1' }),
+          linha(2, 'b'),
+          linha(3, 'c'),
+          linha(4, 'd', { avatarUrl: 'https://s/b/avatars/d?v=1' })
+        ]
+      })
+    );
+
+    // Quatro avatares, um por linha, e duas fotos: as outras duas caem nas
+    // iniciais do proprio app-avatar, que e o unico lugar que decide isso.
+    expect(root.querySelectorAll('app-avatar')).toHaveSize(4);
+    expect(root.querySelectorAll('app-avatar img')).toHaveSize(2);
+    expect(root.querySelectorAll('app-avatar .avatar__initials')).toHaveSize(2);
   });
 });

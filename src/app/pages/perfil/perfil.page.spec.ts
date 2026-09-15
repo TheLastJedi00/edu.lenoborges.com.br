@@ -18,6 +18,7 @@ export const PERFIL: MemberProfile = {
   grade: 3,
   linkedin: null,
   instagram: null,
+  avatarUrl: null,
   emailOptOut: false,
   profileCompleted: true,
   role: null,
@@ -53,7 +54,9 @@ describe('PerfilPage', () => {
       'changePassword',
       'deleteAccount',
       'setEmailPreference',
-      'setSocialLinksPublic'
+      'setSocialLinksPublic',
+      'setAvatar',
+      'removeAvatar'
     ]);
 
     await TestBed.configureTestingModule({
@@ -835,6 +838,148 @@ describe('PerfilPage', () => {
       expect(bloco.querySelector('.form__error')?.getAttribute('role')).toBe(
         'alert'
       );
+    });
+  });
+
+  describe('a foto de perfil (spec 027)', () => {
+    const RECORTE = new Blob([new Uint8Array([1, 2, 3])], { type: 'image/webp' });
+    const URL_FOTO = 'https://s/b/avatars/prof-123?v=1757000000000';
+
+    function botaoDaFoto(): HTMLButtonElement {
+      return fixture.nativeElement.querySelector('[data-test="abrir-foto"]');
+    }
+
+    it('o botao convida a adicionar quando nao ha foto, e a trocar quando ha', async () => {
+      await montar({ ...PERFIL, avatarUrl: null });
+      expect(botaoDaFoto().textContent?.trim()).toBe('Adicionar foto');
+
+      await montar({ ...PERFIL, avatarUrl: URL_FOTO });
+      expect(botaoDaFoto().textContent?.trim()).toBe('Trocar foto');
+    });
+
+    it('o modal so existe depois de clicar, e nao montado fechado', async () => {
+      // Montado fechado ele chamaria showModal() no ngAfterViewInit e abriria
+      // sozinho ao entrar na tela.
+      await montar();
+      expect(
+        fixture.nativeElement.querySelector('app-avatar-dialog')
+      ).toBeNull();
+
+      botaoDaFoto().click();
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('app-avatar-dialog')
+      ).toBeTruthy();
+    });
+
+    it('salvar chama o service e fecha o modal', async () => {
+      await montar({ ...PERFIL, avatarUrl: null });
+      authService.setAvatar.and.returnValue(of(URL_FOTO));
+
+      await component.salvarFoto(RECORTE);
+      fixture.detectChanges();
+
+      expect(authService.setAvatar).toHaveBeenCalledWith(RECORTE);
+      expect(
+        fixture.nativeElement.querySelector('app-avatar-dialog')
+      ).toBeNull();
+    });
+
+    /**
+     * **A trava desta task.** O `AuthService` já escreveu a URL no `AuthStore`, e a
+     * tela lê de lá. Um `getMe` aqui seria uma requisição para saber o que a
+     * resposta acabou de dizer.
+     */
+    it('teste-trava: salvar nao recarrega o perfil', async () => {
+      await montar({ ...PERFIL, avatarUrl: null });
+      authService.setAvatar.and.returnValue(of(URL_FOTO));
+      authService.getMe.calls.reset();
+
+      await component.salvarFoto(RECORTE);
+
+      expect(authService.getMe).not.toHaveBeenCalled();
+    });
+
+    it('a foto nova aparece no cabecalho sem recarregar', async () => {
+      await montar({ ...PERFIL, avatarUrl: null });
+      authService.setAvatar.and.returnValue(of(URL_FOTO));
+
+      await component.salvarFoto(RECORTE);
+      fixture.detectChanges();
+
+      const img = fixture.nativeElement.querySelector('app-avatar img');
+      expect(img?.getAttribute('src')).toBe(URL_FOTO);
+    });
+
+    it('remover zera a foto e fecha o modal', async () => {
+      await montar({ ...PERFIL, avatarUrl: URL_FOTO });
+      authService.removeAvatar.and.returnValue(of(undefined));
+
+      await component.removerFoto();
+      fixture.detectChanges();
+
+      expect(authService.removeAvatar).toHaveBeenCalled();
+      expect(fixture.nativeElement.querySelector('app-avatar img')).toBeNull();
+    });
+
+    it('o 413 vira uma mensagem que diz o limite, e nao o texto cru do http', async () => {
+      await montar({ ...PERFIL, avatarUrl: null });
+      authService.setAvatar.and.returnValue(
+        throwError(
+          () => new HttpErrorResponse({ status: 413, statusText: 'Too Large' })
+        )
+      );
+      botaoDaFoto().click();
+      fixture.detectChanges();
+
+      await component.salvarFoto(RECORTE);
+      fixture.detectChanges();
+
+      const alerta = fixture.nativeElement.querySelector(
+        'app-avatar-dialog [role="alert"]'
+      );
+      expect(alerta?.textContent).toContain('5 MB');
+    });
+
+    it('o 400 usa a mensagem do backend, que explica o formato', async () => {
+      await montar({ ...PERFIL, avatarUrl: null });
+      authService.setAvatar.and.returnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 400,
+              error: { message: 'A imagem precisa ser jpeg, png, webp.' }
+            })
+        )
+      );
+      botaoDaFoto().click();
+      fixture.detectChanges();
+
+      await component.salvarFoto(RECORTE);
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('app-avatar-dialog [role="alert"]')
+          ?.textContent
+      ).toContain('jpeg');
+    });
+
+    it('teste-trava: o modal fica aberto no erro, para tentar de novo', async () => {
+      // Fechar no erro faria a pessoa recortar de novo para tentar de novo.
+      await montar({ ...PERFIL, avatarUrl: null });
+      authService.setAvatar.and.returnValue(
+        throwError(() => new HttpErrorResponse({ status: 500 }))
+      );
+      botaoDaFoto().click();
+      fixture.detectChanges();
+
+      await component.salvarFoto(RECORTE);
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector('app-avatar-dialog')
+      ).toBeTruthy();
     });
   });
 });

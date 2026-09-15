@@ -15,34 +15,34 @@
 
 ---
 
-# Fase 01: Dependência, modelos e serviços []
+# Fase 01: Dependência, modelos e serviços [x]
 
 Ao fim desta fase a integração conhece as rotas e os campos novos. Nenhuma tela muda de aparência.
 
-- [] Task 01: `package.json` — `npm i ngx-image-cropper` (9.x; `peerDependencies` de Angular
+- [x] Task 01: `package.json` — `npm i ngx-image-cropper` (9.x; `peerDependencies` de Angular
   `>=17.3.0`, satisfeito pelo 20.3 daqui).
   **É a primeira dependência de UI do repositório**, que hoje tem exatamente Angular e rxjs, e vale
   escrever no commit o que ela resolve: não é o recorte, é o **gesto** — arrastar e dar zoom com mouse e
   com o dedo, mais a rotação do EXIF que toda foto de celular traz e que faz o retrato chegar deitado.
   Conferir o tamanho que ela acrescenta ao bundle no `ng build` e anotar no commit.
-- [] Task 02: `src/app/models/auth.model.ts` —
+- [x] Task 02: `src/app/models/auth.model.ts` —
   - `MemberProfile` ganha `readonly avatarUrl: string | null;` — **não opcional**, seguindo `linkedin` e
     `instagram`: a API sempre manda o campo, e `null` é "não tem foto".
   - `PublicMember` ganha `readonly avatarUrl: string | null;`, que é o card público da spec 019.
   - **`UpdateProfileRequest` não é tocado** (decisão 1): a foto não passa por `PATCH /me/profile`, que
     exige nome, telefone e bio.
-- [] Task 03: `src/app/models/games.model.ts` — `RankingEntry` ganha
+- [x] Task 03: `src/app/models/games.model.ts` — `RankingEntry` ganha
   `readonly avatarUrl: string | null;`. O campo vem na mesma resposta que já traz `nickname` e `xp`, e o
   comentário diz por quê: o placar não lê a coleção de perfis, e buscar o avatar por membro
   transformaria uma tela em N requisições.
-- [] Task 04: `src/app/models/training.model.ts` — o payload da conclusão vira um objeto:
+- [x] Task 04: `src/app/models/training.model.ts` — o payload da conclusão vira um objeto:
   `CompleteTrainingRequest` com `hintsUsed?: number`, `mainCode?: string` e `resultImageUrl?: string`.
   Os três opcionais, pela razão que o back já registrou no DTO: a tela antiga manda `{}` na janela entre
   os dois deploys.
-- [] Task 05: `src/app/core/auth/auth.store.ts` e `.spec.ts` — `setAvatarUrl(avatarUrl: string | null)`,
+- [x] Task 05: `src/app/core/auth/auth.store.ts` e `.spec.ts` — `setAvatarUrl(avatarUrl: string | null)`,
   decalcado do `setXp` logo acima: lê o perfil atual, sai se não houver, e reescreve só esse campo.
   Existe para a foto nova aparecer no aside e no card sem um `GET /me` novo.
-- [] Task 06: `src/app/core/auth/auth.service.spec.ts` e `.ts` — **teste antes**:
+- [x] Task 06: `src/app/core/auth/auth.service.spec.ts` e `.ts` — **teste antes**:
   - `setAvatar(file: Blob)`: monta `FormData` com o campo `file` e faz `POST /me/avatar`, respondendo
     `{ avatarUrl }`, e no `tap` chama `authStore.setAvatarUrl`.
     **Não montar `Content-Type` na mão**: o navegador precisa escrever o `boundary` do multipart, e um
@@ -51,7 +51,7 @@ Ao fim desta fase a integração conhece as rotas e os campos novos. Nenhuma tel
   - As duas moram aqui pela mesma razão do `setSocialLinksPublic` e do `setNickname`: são escritas em
     `/me`. O comentário aponta para o vizinho, que já explica por que não é campo de
     `PATCH /me/profile`.
-- [] Task 07: `src/app/services/training.service.spec.ts` e `.ts` — **teste antes**:
+- [x] Task 07: `src/app/services/training.service.spec.ts` e `.ts` — **teste antes**:
   - `complete(trainingId, request: CompleteTrainingRequest)` — a assinatura deixa de ser posicional.
     Trocar `complete(id, hintsUsed)` por um objeto é o que impede o terceiro argumento de entrar na
     ordem errada quando `mainCode` e `resultImageUrl` chegarem juntos.
@@ -59,13 +59,21 @@ Ao fim desta fase a integração conhece as rotas e os campos novos. Nenhuma tel
     `POST /trainings/:trainingId/result-image`, respondendo `{ resultImageUrl }`.
   - Testar o `403` da rota de upload chegando ao chamador, porque é ele que a tela traduz.
 
+
+> **Fase 01 concluida.** 813 testes verdes, `ng build` ok. O `ngx-image-cropper` **nao entrou no
+> bundle inicial** -- nada o importa ainda, e ele vai cair no chunk do modal quando a fase 03 o usar.
+>
+> Dezessete fixtures de spec precisaram do campo novo, todas apontadas pelo compilador. O
+> `insignia.page.ts` foi adaptado para a assinatura nova do `complete` mantendo o comportamento de
+> hoje: a submissao de verdade e da fase 04.
+
 ---
 
-# Fase 02: O componente de avatar []
+# Fase 02: O componente de avatar [x]
 
 Ao fim desta fase existe um jeito só de desenhar a foto de um membro, e ele é usado em três telas.
 
-- [] Task 01: `src/app/components/avatar/` (`.ts`, `.html`, `.scss`, `.spec.ts`) — `app-avatar`,
+- [x] Task 01: `src/app/components/avatar/` (`.ts`, `.html`, `.scss`, `.spec.ts`) — `app-avatar`,
   componente burro: `input()` de `avatarUrl: string | null`, `name: string | null` e um `size`
   (`'sm' | 'md' | 'lg'`).
   **O fallback é novo, não uma substituição** (decisão 1): hoje não existe avatar em tela nenhuma e
@@ -81,24 +89,38 @@ Ao fim desta fase existe um jeito só de desenhar a foto de um membro, e ele é 
     e uma imagem quebrada no meio do placar é pior que as iniciais.
   - `.scss`: círculo com `aspect-ratio: 1`, `object-fit: cover`, e o gradiente suave do projeto no
     fundo das iniciais.
-- [] Task 02: `src/app/pages/jogos/ranking/ranking.page.html` e `.spec.ts` — `app-avatar` ao lado do
+- [x] Task 02: `src/app/pages/jogos/ranking/ranking.page.html` e `.spec.ts` — `app-avatar` ao lado do
   `nickname`, nos dois lugares que o desenham: o pódio (`podium__nick`) e a tabela (`table__nick`).
   Mobile First: na tabela o avatar é `sm` e não empurra a coluna de XP para fora em 360px de largura —
   conferir no Chrome com o viewport estreito, que é onde essa tabela sempre sofre.
-- [] Task 03: `src/app/components/member-card-dialog/member-card-dialog.ts` e `.spec.ts` — o avatar no
+- [x] Task 03: `src/app/components/member-card-dialog/member-card-dialog.ts` e `.spec.ts` — o avatar no
   topo do card, tamanho `lg`, a partir do `avatarUrl` novo do `PublicMember`.
   **Template inline**, como o componente já é — não criar `.html` nem `.scss` novos aqui.
-- [] Task 04: `src/app/components/dashboard-aside/dashboard-aside.ts` e `.spec.ts` — o avatar junto do
-  nome de quem está logado, lendo do `AuthStore`. Também inline. É a tela onde a pessoa mais vai notar
-  que a troca funcionou.
+- [~] Task 04: ~~`dashboard-aside` — o avatar junto do nome de quem está logado.~~ **Não feita, de
+  propósito.** Duas razões, e as duas apareceram só ao abrir o arquivo:
+  1. **O aside não tem bloco de identidade nenhum** — não mostra nome, nem e-mail, nem nada da pessoa.
+     É navegação: logo, itens, e o rodapé com Administração e Sair. Pôr o avatar ali exigiria **criar**
+     um bloco "quem sou eu" no meio do menu, com o estado recolhido para resolver.
+  2. **O `context.md` desta spec não pede isso.** A lista de visibilidade dele é Ranking, cartão
+     público de membro e o próprio Meu Perfil — os três estão cobertos. Esta task saiu de uma frase que
+     eu escrevi no plano ("é a tela onde a pessoa mais vai notar"), e não da spec.
+  Se o bloco de identidade no aside for desejado, ele é uma decisão de UI própria e merece a sua linha
+  no `context.md` antes de virar código.
+
+
+> **Fase 02 concluida (com a Task 04 recusada).** 825 testes verdes, bundle inicial em 370.94 kB
+> (100.39 kB transferidos) -- o cropper ainda nao entra, porque nada o importa ate a fase 03.
+>
+> O que a fase provou que o plano nao sabia: **o `dashboard-aside` nao tem bloco de identidade
+> nenhum**, e o `context.md` nao pede a foto ali. A Task 04 fica marcada `[~]` com a razao escrita.
 
 ---
 
-# Fase 03: Trocar a foto no Meu Perfil []
+# Fase 03: Trocar a foto no Meu Perfil [x]
 
 Ao fim desta fase o membro recorta, envia e remove a própria foto.
 
-- [] Task 01: `src/app/components/avatar-dialog/` (`.ts`, `.html`, `.scss`, `.spec.ts`) — o modal
+- [x] Task 01: `src/app/components/avatar-dialog/` (`.ts`, `.html`, `.scss`, `.spec.ts`) — o modal
   dedicado, no molde dos outros diálogos do projeto (`nickname-dialog`, `delete-account-dialog`):
   - Um `<input type="file" accept="image/jpeg,image/png,image/webp">` escondido atrás de um botão do
     projeto, e o `image-cropper` do `ngx-image-cropper` aparecendo depois da escolha.
@@ -118,22 +140,36 @@ Ao fim desta fase o membro recorta, envia e remove a própria foto.
   - Emite `saved` com o `Blob` e `removed`; **ele não chama serviço nenhum** — quem chama é a página.
   - O `.spec.ts` trava o fluxo: escolher habilita o recorte, confirmar emite o `Blob`, e o `imageCropped`
     por si só não emite nada.
-- [] Task 02: `src/app/pages/perfil/perfil.page.html`, `.ts`, `.scss` e `.spec.ts` — a seção da foto no
+- [x] Task 02: `src/app/pages/perfil/perfil.page.html`, `.ts`, `.scss` e `.spec.ts` — a seção da foto no
   topo de "Seus dados", com o `app-avatar` no tamanho `lg` e o botão que abre o `avatar-dialog` dentro de
   um `@if`.
   No `saved`, chamar `auth.setAvatar(blob)`; no `removed`, `auth.removeAvatar()`. O `AuthStore` já
   atualiza a tela toda pelo `setAvatarUrl`, então **não recarregar o perfil** depois.
   Erro fica na tela com a saída, no molde das outras seções desta página.
-- [] Task 03: `src/app/pages/perfil/perfil.page.spec.ts` — o `403` e o `413` da rota virando mensagem
+- [x] Task 03: `src/app/pages/perfil/perfil.page.spec.ts` — o `403` e o `413` da rota virando mensagem
   que diz o que fazer ("a imagem precisa ter no máximo 5 MB"), e não o texto cru do backend.
+
+
+> **Fase 03 concluida.** 846 testes verdes. O cropper caiu no chunk lazy do `perfil-page` (86.74 kB
+> brutos, 19.30 kB transferidos), entao o carregamento inicial ficou em **100.98 kB** transferidos --
+> antes da spec eram 100.39 kB, e a diferenca e o `app-avatar` no Ranking, nao a biblioteca.
+>
+> Duas coisas que so apareceram ao rodar:
+>
+> - **`ng build` confere template com mais rigor que `ng test`.** O `[imageFile]` da biblioteca aceita
+>   `File | undefined` e o signal e `File | null`; a suite passava e o build de producao nao.
+> - **A biblioteca emite dos outputs dela na destruicao** e o Karma loga `NG0953` por isso. E do
+>   `image-cropper`, nao nosso: o aviso aparece a partir do primeiro teste que o monta. O guard que
+>   entrou no `onCancel` e por um motivo proprio -- um `closed` chegando ao host depois de ele ja ter
+>   fechado o modal e a receita do modal que reabre.
 
 ---
 
-# Fase 04: Submissão na Arena []
+# Fase 04: Submissão na Arena [x]
 
 Ao fim desta fase o membro manda o código, e o Great Dev+ manda a foto do resultado.
 
-- [] Task 01: `src/app/components/training-dialog/training-dialog.ts`, `.html`, `.scss` — a área de
+- [x] Task 01: `src/app/components/training-dialog/training-dialog.ts`, `.html`, `.scss` — a área de
   resposta antes de "Concluir Desafio":
   - `textarea` para o `mainCode`, com a instrução acima dele: **"Use Ctrl+A, Ctrl+C e Ctrl+V para copiar
     e colar apenas o conteúdo da classe main."** Disponível para todos os tiers.
@@ -142,7 +178,7 @@ Ao fim desta fase o membro manda o código, e o Great Dev+ manda a foto do resul
   - O desafio já concluído mostra o que foi enviado, em leitura, e não o formulário — a segunda
     conclusão não reescreve a submissão (o back grava a da primeira), e oferecer o campo prometeria uma
     edição que não existe.
-- [] Task 02: `training-dialog.ts` e `.html` — o envio da foto, atrás do tier:
+- [x] Task 02: `training-dialog.ts` e `.html` — o envio da foto, atrás do tier:
   - O gate é o **`authStore.isPaid`, que já existe** (`tier() !== 'dev-tier'`) — não criar um segundo
     computed com a mesma conta.
   - Dev Tier vê a área desabilitada com o badge "O envio de fotos com o resultado é uma feature
@@ -154,34 +190,174 @@ Ao fim desta fase o membro manda o código, e o Great Dev+ manda a foto do resul
   - A miniatura do que foi enviado, com opção de trocar.
   - O `403` da rota virando a mesma mensagem do badge — a tela não oferece o botão, mas a trava de
     verdade é a do servidor, e se ela falar é ela que manda.
-- [] Task 03: `training-dialog.spec.ts` — o `textarea` aparece para Dev Tier; a área de foto está
+- [x] Task 03: `training-dialog.spec.ts` — o `textarea` aparece para Dev Tier; a área de foto está
   desabilitada com o badge para Dev Tier e habilitada para Great Dev; selecionar dispara o upload uma
   vez; concluir emite `hintsUsed`, `mainCode` e `resultImageUrl` juntos; concluir fica travado enquanto
   o upload não termina; desafio concluído mostra a submissão em leitura.
-- [] Task 04: `src/app/pages/trilha/insignia/insignia.page.ts` e `.spec.ts` — o
+- [x] Task 04: `src/app/pages/trilha/insignia/insignia.page.ts` e `.spec.ts` — o
   `concluirTreinamento(request)` repassa o objeto inteiro para `trainings.complete(id, request)`.
   **O `AuthStore` continua recebendo `resultado.xp`, o valor do servidor** — nunca uma soma local. É a
   decisão da spec 023, e o comentário do método já diz isso.
 
+
+> **Fase 04 concluida.** 864 testes verdes, build limpo.
+>
+> **Tres colisoes com testes existentes**, e as tres do mesmo tipo: seletor generico. A classe
+> `.td__resposta` ja era a resposta do **admin** a um comentario (a secao nova virou `.td__envio`), e
+> dois testes do portao de comentarios usavam `querySelector('textarea')` e
+> `toContain('exclusiva para membros')` -- que passaram a pegar o campo de codigo e o aviso da foto.
+> Os tres foram consertados no teste antigo, apontando para o que eles realmente afirmam.
+>
+> A frase da recusa virou constante em `training.constants.ts` depois de as duas copias divergirem em
+> uma letra.
+
 ---
 
-# Fase 05: Acessibilidade e fechamento []
+# Fase 05: Acessibilidade e fechamento [x]
 
-- [] Task 01: Revisar o modal de avatar com leitor de tela. O cropper é uma área de manipulação
+- [x] Task 01: Revisar o modal de avatar com leitor de tela. O cropper é uma área de manipulação
   visual, então o que precisa existir é a alternativa por teclado: o `cropperFrameAriaLabel` preenchido,
   o botão de confirmar alcançável por tab, e o foco voltando para o botão que abriu o modal quando ele
   fecha. Se o arrasto não tiver caminho por teclado, a tela diz isso em texto em vez de fingir que tem.
-- [] Task 02: Conferir o `prefers-reduced-motion` na entrada do modal e na troca da foto, e o
+- [x] Task 02: Conferir o `prefers-reduced-motion` na entrada do modal e na troca da foto, e o
   `animate-enter` / `animate-leave` nos dois diálogos novos.
-- [] Task 03: Mobile First de verdade, no Chrome em 360px: o cropper com o dedo, a tabela do ranking com
+- [x] Task 03: **Feita em 430px** (ver "O check de tela estreita" no fim do arquivo). Mobile First de verdade, no Chrome em 360px: o cropper com o dedo, a tabela do ranking com
   o avatar novo, e a área de resposta do `training-dialog` sem estourar a largura do modal.
-- [] Task 04: `npm test` limpo e `ng build` passando. Anotar o custo no bundle do `ngx-image-cropper`.
-- [] Task 05: Percorrer a spec no Chrome contra a API de verdade, com o back local ligado ao
+- [x] Task 04: `npm test` limpo e `ng build` passando. Anotar o custo no bundle do `ngx-image-cropper`.
+- [x] Task 05: **Feita** (ver "A execução contra o dev-liga-dev" no fim do arquivo). Percorrer a spec no Chrome contra a API de verdade, com o back local ligado ao
   `dev-liga-dev`. O que só a execução prova: o EXIF de uma foto tirada no celular chegando de pé, o
   `?v=` da URL derrubando o cache depois da segunda troca, o membro sem gamertag continuando fora do
   placar depois de pôr foto, o Dev Tier levando `403` se forçar a rota de upload, e a foto aparecendo no
   aside sem recarregar a página.
-- [] Task 06: Marcar as emendas nas specs afetadas, conferindo que cada uma bate com o que foi
+- [x] Task 06: Marcar as emendas nas specs afetadas, conferindo que cada uma bate com o que foi
   implementado: a **005** e a **013** com `Deprecated` na recusa do avatar, e a **019**, **022**, **023**
   e **025** com o bloco de emendas no topo do `context.md`. A seção "Specs Afetadas" desta spec já lista
   as seis.
+
+> **Fase 05 parcial.** 865 testes verdes, `ng build` limpo, carregamento inicial em **100.96 kB**
+> transferidos. As Tasks 01, 02, 04 e 06 estão feitas; **a 03 e a 05 não**, e as duas pelo mesmo
+> motivo — estão escritas embaixo.
+>
+> O que a Task 01 achou de concreto: **o `<dialog>` é removido pelo `@if` do host, e não fechado**, e
+> um dialog arrancado do DOM não devolve o foco para o botão que o abriu. Corrigido com `close()` no
+> `onDestroy`, com teste. E a moldura do recorte **tem** caminho por teclado (a biblioteca move com as
+> setas), que a tela agora diz — era a diferença entre acessível e tecnicamente acessível.
+>
+> A Task 02 virou uma remoção: o `styles.scss` global já zera `animation` e `transition` de tudo com
+> `!important`, então a regra local de `prefers-reduced-motion` no modal era uma segunda fonte para a
+> mesma decisão.
+>
+> **Task 03 (Mobile First em 360px) — não feita.** O `ng serve` sobe e a landing responde, mas o
+> redimensionamento da janela pelo Chrome não pegou (o `innerWidth` ficou em 1536 mesmo depois de a
+> extensão reportar sucesso), e — o que importa mais — **as três telas a conferir exigem sessão
+> logada**: o Ranking, o Meu Perfil e o modal da Arena. O CSS foi escrito com a razão ao lado
+> (`min-width: 0` na coluna do gamertag, `flex-direction` trocando em 22rem e 24rem) e os testes
+> cobrem a estrutura, mas **conferir estrutura não é conferir que nada estoura** — isso fica em aberto.
+>
+> **Task 05 (percorrer contra o `dev-liga-dev`) — não feita, e é o mesmo bloqueio.** Ela escreve num
+> projeto Firebase de verdade: cria membro, sobe arquivo no bucket de preview e exige o
+> `firebase deploy --only storage --project dev-liga-dev` antes, porque as regras novas não estão
+> publicadas. Fica para quando houver autorização explícita.
+>
+> **O que só essa execução vai provar**, e vale listar para quem a fizer: o EXIF de uma foto tirada no
+> celular chegando de pé; o `?v=` derrubando o cache na segunda troca; o membro sem gamertag
+> continuando fora do placar depois de pôr foto; o Dev Tier levando `403` se forçar a rota de upload; a
+> foto aparecendo sem recarregar a página; e **se o Storage está habilitado no `dev-liga-dev`** — o
+> `makePublic()` falha se o bucket nunca foi criado, e nenhum teste daqui pega isso.
+
+---
+
+## A execução contra o `dev-liga-dev`
+
+Feita com o backend local apontado para o projeto de preview e o front em
+`localhost:4200`, com dois membros criados para isso (um Dev Tier, um Great Dev) e
+apagados no fim — conta, perfil, linha do placar, conclusões e os arquivos do bucket.
+
+**O Storage está habilitado no `dev-liga-dev`**, que era a dúvida que nenhum teste
+resolvia: o `makePublic()` funciona e a URL responde `200` com `image/png`.
+
+### Três defeitos que só a execução pegou
+
+Os três têm a mesma forma, e vale dizer qual: **cada lado tinha teste, e a ponte
+entre eles não tinha nenhum.**
+
+1. **A foto não ia junto ao entrar no placar pela gamertag.** O `upsert` preservava
+   "o `avatarUrl` da linha atual", e quem põe a foto antes de escolher a gamertag não
+   tem linha — o nulo ganhava. O comentário que eu tinha escrito no `updateAvatar`
+   afirmava o contrário, que o `upsert` lia a foto do perfil. Ele não lia.
+2. **O `avatarUrl` não saía no DTO do ranking.** Estava gravado no Firestore, o
+   converter lia, o repository tinha teste, o `app-avatar` sabia desenhar — e o DTO no
+   meio não levava o campo. A foto simplesmente não chegava na tela.
+3. **O desafio concluído dizia "sem anexar uma resposta" para quem tinha anexado.**
+   A listagem não traz a `submission` de propósito, e a página abria o modal com o
+   objeto da listagem. Faltava alguém ir buscar o detalhe.
+
+Os três viraram correção com teste-trava, e os testes novos afirmam **a travessia**,
+não cada lado: o do ranking afirma o valor saindo do `page()` do service, e não do
+repository, porque era o `toDto` que faltava.
+
+### O que a execução confirmou funcionando
+
+- O boot exige a `FIREBASE_STORAGE_BUCKET` e sobe com o valor real.
+- Upload → `profiles` + `ranking` + URL pública com `?v=`, em 2,5s.
+- O recorte da biblioteca sai em **200x200 exatos**, WebP, e a foto nova aparece na
+  tela **sem recarregar a página** — o `?v=` derruba o cache.
+- Arquivo de texto com nome e `Content-Type` de PNG: `400` com mensagem que diz o
+  formato aceito.
+- Membro **sem gamertag não ganha linha no placar** ao pôr foto.
+- `DELETE /me/avatar` idempotente (`204` duas vezes), objeto fora do bucket, e os dois
+  documentos zerados.
+- Dev Tier: `403` na rota de upload **e** no `complete`, com a frase que oferece a
+  saída; na tela, o campo de código presente e o aviso no lugar do botão de foto.
+- As três recusas de URL no `complete`: de outro membro, de host de fora, e do desafio
+  errado do mesmo membro.
+- A segunda conclusão paga `0`, o XP não se move, e **a submissão gravada segue sendo
+  a da primeira**.
+- O modal de foto abre com o foco em "Escolher imagem", e a moldura do recorte mostra
+  a dica do caminho por teclado.
+
+### O que continua sem conferir
+
+**A Task 03 (Mobile First em 360px).** O `resize_window` da extensão do Chrome
+reporta sucesso e o `innerWidth` não muda — a janela fica em 1536. O CSS foi escrito
+com a razão ao lado (`min-width: 0` na coluna do gamertag, `flex-direction` trocando
+em 22rem e 24rem) e os testes cobrem a estrutura, mas **estrutura não é a mesma coisa
+que nada estourando**. Fica para uma conferência no DevTools à mão, ou num navegador
+que aceite o redimensionamento.
+
+### O check de tela estreita
+
+Feito em **430px de viewport**, com a emulação de dispositivo do DevTools ligada e os
+dois servidores no ar contra o `dev-liga-dev`. Medido por script, e não a olho: para
+cada tela, a lista de todo elemento cuja borda direita passa da janela, mais o
+`scrollWidth` do documento.
+
+**Nenhuma das telas desta spec produziu um único elemento estourando, e nenhuma
+ganhou rolagem horizontal.** O único elemento fora da janela em qualquer medição é o
+`aside` do painel, inteiramente à esquerda com `right <= 0` — é o drawer fechado do
+celular, e o auditor o ignora de propósito.
+
+Os três casos que valia a pena forçar, porque são os que a spec introduziu:
+
+- **A tabela do Ranking com gamertag longa.** Semeadas linhas com nicks no teto de 20
+  caracteres. `JoaoPedroDaSilva_99` com avatar **quebrou em duas linhas** dentro de
+  uma célula de 175px, e as colunas de XP e INSÍGNIAS continuaram visíveis. É o
+  `min-width: 0` do `.table__nickname` fazendo o que existe para fazer: sem ele o
+  item de flex não encolhe abaixo do próprio conteúdo e empurra as colunas para fora.
+- **O bloco de código em leitura**, que é o caso mais arriscado porque o `<pre>` não
+  quebra linha por decisão. Conteúdo de **1177px dentro de um bloco de 352px**,
+  rolando **só ele**, com a página intacta. O `textarea` de digitação se comporta
+  igual.
+- **O modal da foto com o cropper.** Cabe com 19px de margem de cada lado (392 de 430),
+  a máscara redonda monta sobre uma foto em retrato de 900x1200, e os três botões
+  (Remover, Cancelar, Salvar) ficam na mesma linha sem rolagem vertical no modal.
+
+Também conferidos em 430px: a seção da foto em Meu Perfil, o modal do desafio inteiro
+com a área de resposta, e o aviso de tier do Dev Tier no lugar do botão de anexar.
+
+**O que não foi conferido:** larguras **abaixo de 430px**. O `resize_window` da
+extensão do Chrome reporta sucesso sem mudar o `innerWidth`, e `window.open` com
+dimensões é bloqueado — a largura veio da emulação de dispositivo que o usuário ligou
+à mão. As duas media queries que esta spec escreveu (`min-width: 22rem` no cartão de
+membro e `min-width: 24rem` na seção da foto) estão **ativas** em 430px, então o ramo
+em coluna delas, que é o de telas mais estreitas, continua sem passar por um olho.

@@ -82,9 +82,67 @@ describe('TrainingService', () => {
     });
   });
 
+  describe('uploadResultImage (spec 027)', () => {
+    it('manda multipart para a rota de foto e devolve a URL', () => {
+      const blob = new Blob([new Uint8Array([1, 2, 3])], { type: 'image/jpeg' });
+      let recebida: string | undefined;
+
+      service
+        .uploadResultImage('trn-1', blob)
+        .subscribe((url) => (recebida = url));
+
+      const req = http.expectOne((r) =>
+        r.url.endsWith('/trainings/trn-1/result-image'),
+      );
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body instanceof FormData).toBeTrue();
+      expect((req.request.body as FormData).get('file')).toBeTruthy();
+
+      req.flush({ resultImageUrl: 'https://s/b/trainings/u/trn-1?v=1' });
+
+      expect(recebida).toBe('https://s/b/trainings/u/trn-1?v=1');
+    });
+
+    /**
+     * **A trava desta task.** O navegador precisa escrever o `boundary` do
+     * multipart, e so faz isso quando o header nao esta definido. Fixar
+     * `multipart/form-data` a mao produz um corpo que o servidor nao separa em
+     * partes, e o erro que volta nao fala de header nenhum.
+     */
+    it('teste-trava: nao define Content-Type a mao', () => {
+      const blob = new Blob([new Uint8Array([1])], { type: 'image/jpeg' });
+      service.uploadResultImage('trn-1', blob).subscribe();
+
+      const req = http.expectOne((r) =>
+        r.url.endsWith('/trainings/trn-1/result-image'),
+      );
+      expect(req.request.headers.has('Content-Type')).toBeFalse();
+
+      req.flush({ resultImageUrl: 'https://s/b/trainings/u/trn-1?v=1' });
+    });
+
+    it('o 403 do tier chega a quem chamou, porque e a tela que traduz', () => {
+      let erro: unknown;
+      const blob = new Blob([new Uint8Array([1])], { type: 'image/jpeg' });
+
+      service
+        .uploadResultImage('trn-1', blob)
+        .subscribe({ error: (e: unknown) => (erro = e) });
+
+      http
+        .expectOne((r) => r.url.endsWith('/trainings/trn-1/result-image'))
+        .flush(
+          { message: 'Enviar a foto do resultado é do Great Dev Tier para cima.' },
+          { status: 403, statusText: 'Forbidden' },
+        );
+
+      expect(erro).toBeTruthy();
+    });
+  });
+
   describe('complete', () => {
     it('bate em POST /trainings/:id/complete com as dicas usadas', () => {
-      service.complete('trn-1', 2).subscribe();
+      service.complete('trn-1', { hintsUsed: 2 }).subscribe();
 
       const req = http.expectOne((r) => r.url.endsWith('/trainings/trn-1/complete'));
 
@@ -93,13 +151,34 @@ describe('TrainingService', () => {
       req.flush({ trainingId: 'trn-1', completed: true, xpAwarded: 28, xp: 28 });
     });
 
+    it('manda a submissao inteira quando ela existe', () => {
+      service
+        .complete('trn-1', {
+          hintsUsed: 1,
+          mainCode: 'public static void main() {}',
+          resultImageUrl: 'https://s/b/trainings/u/trn-1?v=1',
+        })
+        .subscribe();
+
+      const req = http.expectOne((r) =>
+        r.url.endsWith('/trainings/trn-1/complete'),
+      );
+
+      expect(req.request.body).toEqual({
+        hintsUsed: 1,
+        mainCode: 'public static void main() {}',
+        resultImageUrl: 'https://s/b/trainings/u/trn-1?v=1',
+      });
+      req.flush({ trainingId: 'trn-1', completed: true, xpAwarded: 29, xp: 29 });
+    });
+
     /**
      * Sem dica revelada o corpo vai com zero, e não vazio: o servidor trata os
      * dois do mesmo jeito, e mandar o número deixa a requisição dizendo o que
      * aconteceu em vez de deixar o leitor deduzir do silêncio.
      */
     it('manda zero quando nenhuma dica foi revelada', () => {
-      service.complete('trn-1', 0).subscribe();
+      service.complete('trn-1', { hintsUsed: 0 }).subscribe();
 
       const req = http.expectOne((r) => r.url.endsWith('/trainings/trn-1/complete'));
 
@@ -116,7 +195,9 @@ describe('TrainingService', () => {
     it('devolve o xp do servidor sem recalcular nada', () => {
       let received: TrainingCompletionResult | undefined;
 
-      service.complete('trn-1', 0).subscribe((result) => (received = result));
+      service
+        .complete('trn-1', { hintsUsed: 0 })
+        .subscribe((result) => (received = result));
 
       http
         .expectOne((r) => r.url.endsWith('/trainings/trn-1/complete'))

@@ -8,6 +8,7 @@ import {
 import { Logo } from '../../../shared/logo/logo';
 import { Reveal } from '../../../directives/reveal';
 import { PositionDelta } from '../../../components/position-delta/position-delta';
+import { Avatar } from '../../../components/avatar/avatar';
 import { RankingService } from '../../../services/ranking.service';
 import { AuthStore } from '../../../core/auth/auth.store';
 import { RankingEntry } from '../../../models/games.model';
@@ -28,7 +29,7 @@ import { RankingEntry } from '../../../models/games.model';
  */
 @Component({
   selector: 'app-ranking-page',
-  imports: [Logo, Reveal, PositionDelta],
+  imports: [Logo, Reveal, PositionDelta, Avatar],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './ranking.page.html',
   styleUrl: './ranking.page.scss'
