@@ -69,11 +69,11 @@ Ao fim desta fase a integração conhece as rotas e os campos novos. Nenhuma tel
 
 ---
 
-# Fase 02: O componente de avatar []
+# Fase 02: O componente de avatar [x]
 
 Ao fim desta fase existe um jeito só de desenhar a foto de um membro, e ele é usado em três telas.
 
-- [] Task 01: `src/app/components/avatar/` (`.ts`, `.html`, `.scss`, `.spec.ts`) — `app-avatar`,
+- [x] Task 01: `src/app/components/avatar/` (`.ts`, `.html`, `.scss`, `.spec.ts`) — `app-avatar`,
   componente burro: `input()` de `avatarUrl: string | null`, `name: string | null` e um `size`
   (`'sm' | 'md' | 'lg'`).
   **O fallback é novo, não uma substituição** (decisão 1): hoje não existe avatar em tela nenhuma e
@@ -89,11 +89,11 @@ Ao fim desta fase existe um jeito só de desenhar a foto de um membro, e ele é 
     e uma imagem quebrada no meio do placar é pior que as iniciais.
   - `.scss`: círculo com `aspect-ratio: 1`, `object-fit: cover`, e o gradiente suave do projeto no
     fundo das iniciais.
-- [] Task 02: `src/app/pages/jogos/ranking/ranking.page.html` e `.spec.ts` — `app-avatar` ao lado do
+- [x] Task 02: `src/app/pages/jogos/ranking/ranking.page.html` e `.spec.ts` — `app-avatar` ao lado do
   `nickname`, nos dois lugares que o desenham: o pódio (`podium__nick`) e a tabela (`table__nick`).
   Mobile First: na tabela o avatar é `sm` e não empurra a coluna de XP para fora em 360px de largura —
   conferir no Chrome com o viewport estreito, que é onde essa tabela sempre sofre.
-- [] Task 03: `src/app/components/member-card-dialog/member-card-dialog.ts` e `.spec.ts` — o avatar no
+- [x] Task 03: `src/app/components/member-card-dialog/member-card-dialog.ts` e `.spec.ts` — o avatar no
   topo do card, tamanho `lg`, a partir do `avatarUrl` novo do `PublicMember`.
   **Template inline**, como o componente já é — não criar `.html` nem `.scss` novos aqui.
 - [~] Task 04: ~~`dashboard-aside` — o avatar junto do nome de quem está logado.~~ **Não feita, de
@@ -106,6 +106,13 @@ Ao fim desta fase existe um jeito só de desenhar a foto de um membro, e ele é 
      eu escrevi no plano ("é a tela onde a pessoa mais vai notar"), e não da spec.
   Se o bloco de identidade no aside for desejado, ele é uma decisão de UI própria e merece a sua linha
   no `context.md` antes de virar código.
+
+
+> **Fase 02 concluida (com a Task 04 recusada).** 825 testes verdes, bundle inicial em 370.94 kB
+> (100.39 kB transferidos) -- o cropper ainda nao entra, porque nada o importa ate a fase 03.
+>
+> O que a fase provou que o plano nao sabia: **o `dashboard-aside` nao tem bloco de identidade
+> nenhum**, e o `context.md` nao pede a foto ali. A Task 04 fica marcada `[~]` com a razao escrita.
 
 ---
 
