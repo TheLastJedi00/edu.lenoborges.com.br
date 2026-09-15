@@ -7,6 +7,13 @@
 > composto mais `create()` dentro de um `WriteBatch`), mas quem for conferir o total precisa
 > saber que são três antes de concluir que o contador divergiu.
 
+## Emendas posteriores
+
+> **Emendada pela spec 027 (Adoção de Storage).** O `member-card-dialog` passa a mostrar a foto do
+> membro, pelo `avatarUrl` novo do `PublicMember`, desenhada pelo componente `app-avatar`. A foto
+> **não é governada pelo interruptor de redes sociais** desta spec: ele existe para vínculo a uma
+> conta fora daqui, e o avatar já aparece no Ranking, que é tela aberta a toda a liga.
+
 ## Objetivo
 A tela da insígnia lista vídeos e não guarda nada. Quem volta na terça não sabe onde parou na
 quinta-feira anterior, e a única resposta que o produto dá para "estou avançando?" é o contador de

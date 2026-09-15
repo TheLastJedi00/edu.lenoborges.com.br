@@ -4,6 +4,8 @@
 > último item da aba Aulas, e agora ele vem **depois dos desafios da Arena**. A ordem é a da
 > jornada: assistir, praticar, provar. O `emphasis` e o comportamento do card não mudaram.
 
+> **Emendada pela spec 027 (Adoção de Storage).** O Ranking passa a exibir a foto de perfil (`avatarUrl`) ao lado do nickname dos usuários, vinda da coleção `ranking`.
+
 ## Objetivo
 A tela de Jogos existe na promessa da spec 008 — "jogos e ranking" aparecem nos `perks` de todos os
 tiers, no vocabulário de GYM Battle, e em nenhuma tela. O aside tem um item desabilitado com "Em breve",

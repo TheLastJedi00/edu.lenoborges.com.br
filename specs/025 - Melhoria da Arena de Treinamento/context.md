@@ -8,6 +8,12 @@ O par desta spec no back é a **025**, e as duas entram juntas. *(Nota: A numera
 
 ---
 
+## Emendas posteriores
+
+**A spec 027 adicionou o envio de resultado na Arena.** O modal de Treinamento agora exibe uma área para submissão da resposta, seja em código para Dev Tier, ou com foto para Great Dev Tier e superiores. O payload de `complete` incorpora `mainCode` e `resultImageUrl`.
+
+---
+
 ## Decisões
 
 ### 1. Novo Formulário e Geração de IA no Painel de Admin
