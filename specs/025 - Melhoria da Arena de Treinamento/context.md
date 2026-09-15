@@ -13,8 +13,8 @@ O par desta spec no back é a **025**, e as duas entram juntas. *(Nota: A numera
 ### 1. Novo Formulário e Geração de IA no Painel de Admin
 No painel do administrador (`/dashboard/admin/trilha/:badgeId`):
 - O formulário de Treinamento troca a lista `Passos` por `Dicas` e introduz um campo novo de texto `Objetivo` (Objective). 
-- Um novo botão **"Gerar com IA"** é incluído na área de Arena de Treinamento. O botão abre um modal que pede o prompt (tema), a dificuldade e a quantidade.
-- **O modal é o mesmo desenho de dois passos do `AiGenerateDialog` da spec 022**: passo 1 gera, passo 2 revisa, e só o passo 2 grava. Os rascunhos nascem marcados, o admin **desmarca** o que não presta, edita o que quer e só então salva — e fechar com rascunho na tela pergunta antes, pelo `ConfirmDialog` que já existe, porque o rascunho não mora em lugar nenhum.
+- Um novo botão **"Gerar com IA"** é incluído na área de Arena de Treinamento. O botão abre um modal que pede o prompt (tema), a dificuldade e a quantidade — **3, 5 ou 10**, num `select` como o da spec 022, e o teto de 10 é do backend porque um treinamento é bem maior que uma questão.
+- **O modal é o mesmo desenho de dois passos do `AiGenerateDialog` da spec 022**, mas é um componente novo (`ai-generate-trainings-dialog`) e não aquele parametrizado: o da 022 importa o `QuestionEditor` e fala de alternativas e `correctIndex`, e generalizá-lo para dois formatos de rascunho custaria mais do que a duplicação do casco. Passo 1 gera, passo 2 revisa, e só o passo 2 grava. Os rascunhos nascem marcados, o admin **desmarca** o que não presta, edita o que quer e só então salva — e fechar com rascunho na tela pergunta antes, pelo `ConfirmDialog` que já existe, porque o rascunho não mora em lugar nenhum.
 - **Nada é gravado pela geração.** O que salva é a página, disparando um `POST /admin/badges/:badgeId/trainings` por rascunho aprovado em `Promise.all` — não existe rota de `bulk` para treinamentos e esta spec não cria uma. A `position` é calculada no servidor, então a ordem final é a de chegada; reordenar é a rota de reorder, que já existe.
 - O `discarded` que a API devolve **aparece na tela**: um rascunho de 3 quando se pediu 5 parece limite do produto em vez de um modelo que errou o formato.
 
@@ -60,3 +60,27 @@ export interface Training {
 `CreateTrainingRequest` e `UpdateTrainingRequest` trocam `steps` por `hints` e ganham `objective`. Nasce `GenerateTrainingsRequest` (`prompt`, `difficulty`, `count`) e `GeneratedTrainings` (`trainings`, `discarded`), no molde de `GenerateQuestionsRequest`/`GeneratedQuestions` em `games.model.ts`.
 
 A assinatura de `TrainingService.complete` passa a ser `complete(trainingId, hintsUsed)`, mandando `{ hintsUsed }` no corpo. A resposta (`TrainingCompletionResult`) não muda.
+
+---
+
+## Specs afetadas
+
+Pela regra do `clauderc.md`, cada decisão superada recebeu o bloco de `Deprecated` **no próprio
+arquivo da spec antiga**, apontando para esta. Nenhuma spec inteira cai.
+
+### Spec 023 (Arena de Treinamento) — decisões 2 e 4 **parcialmente Deprecated**
+Cai o que era `steps`: o item "Passos" do modal (decisão 2) e o campo "Passos" do formulário do admin
+(decisão 4). No lugar entram as **Dicas** fechadas a 1 XP cada e o campo **Objetivo**. Continua
+vigente tudo o mais daquela spec, e é bastante: a posição na trilha entre os vídeos e o GYM
+Challenge, o modal que **não fecha** ao concluir, a trava de tier nos comentários, as setas de
+reordenação, a cascata da exclusão e o painel centralizado de comentários do admin. O bloco de
+`Deprecated` está no topo do `context.md` dela.
+
+### Spec 022 (Jogos, GYM Challenge e Ranking) — vigente
+O `AiGenerateDialog` dela **não muda**: esta spec escreve um componente novo ao lado, pelo motivo da
+decisão 1. O card do GYM Challenge segue como último item da aba Aulas.
+
+### Spec 019 (Vídeos Assistidos e XP) — vigente, com uma ressalva registrada
+O XP continua vindo **da resposta do servidor** e nunca de soma local. O que muda é que o valor pago
+por um treinamento deixou de ser o `xpAmount` do card: ele é o `xpAmount` menos as dicas reveladas, e
+quem auditar o total precisa saber disso antes de acusar divergência.
