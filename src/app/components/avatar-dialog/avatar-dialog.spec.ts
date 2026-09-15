@@ -178,6 +178,23 @@ describe('AvatarDialog (spec 027)', () => {
     expect(root.querySelector('image-cropper')).toBeNull();
   });
 
+  /**
+   * **O modal e removido pelo `@if` do host, e nao fechado.** Um `<dialog>`
+   * arrancado do DOM nao devolve o foco para o botao que o abriu -- ele cai no
+   * `<body>`, e quem navega por teclado volta ao inicio da pagina. O `close()`
+   * no `onDestroy` e o que conserta isso, e este teste e o que prova que ele
+   * acontece.
+   */
+  it('fecha o dialog nativo ao ser destruido, para o foco voltar', () => {
+    montar();
+    const dialog = fixture.nativeElement.querySelector('dialog') as HTMLDialogElement;
+    expect(dialog.open).toBeTrue();
+
+    fixture.destroy();
+
+    expect(dialog.open).toBeFalse();
+  });
+
   it('escolher outro arquivo limpa o erro anterior', () => {
     const root = montar();
     escolher(arquivoFalso('foto.heic', 'image/heic'));
