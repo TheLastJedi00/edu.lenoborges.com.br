@@ -7,6 +7,11 @@
 > Uma branch `feat/` por fase, um commit por task, um push por fase. Testar no Chrome sempre.
 > O par no backend é a spec 023 de lá, e as duas entram juntas — as fases do back precisam
 > estar de pé antes da fase correspondente aqui virar tela funcionando.
+>
+> **Leia com a emenda da spec 025 junto** (registrada no topo do `context.md` desta spec): onde
+> estas tasks dizem `steps` / "Passos", o que existe hoje é `hints` / "Dicas", mais o campo
+> `objective`, e `complete` leva `{ hintsUsed }`. As tasks abaixo ficam como foram executadas — é o
+> registro do que foi feito, não a descrição do estado atual do código.
 
 ---
 
@@ -75,7 +80,12 @@ clicar abre o modal com passos, vídeo e comentários.
   tier exibida quando `canComment === false`, e o foco devolvido ao fechar.
 - [x] Task 05: `src/app/pages/trilha/insignia/insignia.page.ts` — passa a chamar
   `GET /badges/:badgeId/trainings` junto do `GET /badges/:badgeId/videos` e do
-  `GET /games/challenges/:badgeId`, **num `Promise.all`** (regra 8 do `clauderc`). Novos signals:
+  `GET /games/challenges/:badgeId`, **em paralelo** (regra 8 do `clauderc`).
+  **Executado em três `subscribe` independentes e não num `Promise.all`/`forkJoin`**: a regra pede
+  que as requisições não sejam serializadas, e não que compartilhem destino. As três têm importâncias
+  diferentes — sem vídeo não há trilha, sem Arena há trilha com uma seção a menos —, e um `forkJoin`
+  derrubaria a tela inteira quando a menos importante falhasse. A emenda está no topo do
+  `context.md`. Novos signals:
   `trainings`, `treinamentoAberto: Training | null`, `treinamentoComentarios: TrainingComment[]`.
 - [x] Task 06: `insignia.page.html` + `.scss` — na aba Aulas, a lista de `training-card` renderizada
   **depois dos vídeos e respostas posicionadas** e **antes do `gym-challenge-card`** da spec 022
@@ -194,11 +204,14 @@ navegador dá ao `<dialog>` aberto por `showModal()` — o `.resposta` da spec 0
 conserto (`inset: 0; margin: auto`) e o novo não. Medido depois: 137px de folga em cima e
 embaixo, centrado.
 
-O segundo **não é desta spec e não foi consertado**: com `preferRest`, todo `create()` sobre
-caminho ocupado pendura no backend em vez de rejeitar. Ele faz a **segunda** conclusão de um
-desafio não responder — e faz o mesmo com o "Já assisti" da spec 019. Está documentado em
-`eduleno-back/specs/023 - Arena de Treinamento/fix.md`, com a medição e o conserto. A tela daqui
-já trata a resposta idempotente corretamente: ela só nunca chega.
+O segundo **não era desta spec, e foi consertado no backend no mesmo dia**: com `preferRest`, todo
+`create()` sobre caminho ocupado pendurava em vez de rejeitar. Ele fazia a **segunda** conclusão de
+um desafio não responder — e o mesmo com o "Já assisti" da spec 019. A causa era o
+`firebase-admin@13`, cujo transporte REST não traduzia o erro de documento existente; a correção foi
+subir para o `^14.3.0`, que rejeita com `code 409`, e ensinar o `fake-firestore` a falar os dois
+códigos. Está medido e documentado em `eduleno-back/specs/023 - Arena de Treinamento/fix.md`, na
+branch `fix/preferrest-already-exists`. A tela daqui sempre tratou a resposta idempotente
+corretamente — o que faltava era a resposta chegar, e agora chega.
 
 ### O que ficou de fora
 

@@ -9,6 +9,28 @@ O par desta spec no backend é a **023**, e as duas entram juntas.
 
 ---
 
+## Emendas posteriores
+
+> Registrado aqui pela regra 5 do `clauderc.md` (alteração de escopo vai para o topo do
+> `context.md`) e pela regra de marcar como `Deprecated` o que ficou para trás.
+
+**A spec 025 substituiu os Passos por Dicas.** O que era uma lista aberta de passos de execução
+(`steps`) virou uma lista de dicas de raciocínio (`hints`) que nascem fechadas, custam **1 XP cada**
+ao serem reveladas, e convive com um campo novo, `objective`. A decisão 2 (item "Passos") e a
+decisão 4 (campo "Passos" do formulário) estão **Deprecated** por ela, e o
+`POST /trainings/:trainingId/complete` passou a levar `{ hintsUsed }` no corpo. O resto desta spec
+continua vigente: a posição na trilha, o modal que não fecha ao concluir, a trava de tier, as setas
+de reordenação, a cascata da exclusão e o painel centralizado de comentários.
+
+**A leitura da trilha não virou `Promise.all`.** A execução da fase 02 manteve as três requisições
+(vídeos, GYM Challenge e Arena) **paralelas, em três `subscribe` independentes**. O paralelismo é o
+que a regra 8 do `clauderc.md` pede e está cumprido; o que não se quis foi acoplar o destino das
+três, porque elas têm importâncias diferentes — sem vídeo não há trilha, sem Arena há trilha com uma
+seção a menos, e um `forkJoin` derrubaria a tela inteira por causa da menos importante. O comentário
+em `insignia.page.ts` diz o mesmo, ao lado do código.
+
+---
+
 ## Decisões
 
 ### 1. Localização e Ordenação na Trilha
@@ -24,6 +46,8 @@ Ao clicar em um card da Arena, abre-se um modal expansível.
 Estrutura do Modal:
 1. **Cabeçalho**: Título e Descrição expandidos.
 2. **Passos**: Uma lista enumerada de passos a serem executados no código.
+   **Deprecated pela spec 025**: os passos viraram **Dicas** fechadas, reveladas uma a uma a 1 XP
+   cada, e um campo novo de **Objetivo** aparece junto da descrição.
 3. **Vídeo**: Um card de player de vídeo renderizado condicionalmente (caso o admin tenha anexado um link).
 4. **Comentários**: Seção ao final exibindo os últimos 10 comentários em forma de lista plana (sem threads). Um botão "Mostrar mais" carrega os comentários anteriores. Quando o comentário tem `adminReply`, a resposta aparece recuada logo abaixo dele, com o nome de quem respondeu e a data. É o mesmo dado que o admin escreve na rota da decisão 5, e é ele que fecha o ciclo: sem essa área, o admin responde e o membro nunca vê.
 5. **Rodapé/Ação**: Um botão "Concluir Desafio" e um para fechar. 
@@ -31,9 +55,10 @@ Estrutura do Modal:
 **Comportamento de Conclusão**: Ao clicar em "Concluir Desafio", a API de conclusão é consumida. O modal exibe um feedback visual de sucesso (ex: animação de ganho de XP) mas **não fecha automaticamente**, permitindo que o usuário interaja com os comentários ou reveja o vídeo.
 
 ### 3. Restrição de Comentários por Tier
-Apenas membros do **Great Tier** têm permissão para comentar. 
+Comentar é do **Great Tier para cima** (`tier !== 'dev-tier'`), a mesma trava do Mural, lida da
+mesma fonte no `AuthStore`. O Dev Tier lê a conversa e não escreve nela. 
 A seção de comentários deve avaliar o tier do membro logado:
-- Se for Great Tier, exibe o campo (input/textarea) e botão de envio de comentário.
+- Se for Great Tier ou acima, exibe o campo (input/textarea) e botão de envio de comentário.
 - Se não for, exibe uma mensagem informativa (ex: "A seção de comentários da Arena de Treinamento é exclusiva para membros do Great Tier.") ocultando ou desabilitando o campo de envio.
 
 ### 4. Ações do Admin na Trilha
@@ -42,8 +67,11 @@ O admin poderá criar/editar treinamentos através de um formulário contendo:
 - Título.
 - Descrição.
 - Passos (interface que permite adicionar múltiplos itens de texto).
+  **Deprecated pela spec 025**: o `FormArray` continua sendo array, mas se chama **Dicas**, e entra
+  um campo de texto **Objetivo** ao lado da descrição.
 - Link do vídeo (opcional, URL).
-- XP do desafio (input numérico, default 30).
+- XP do desafio (input numérico, default 30). O valor que vale é sempre o `xpAmount` que o servidor
+  devolve; o 30 é só o preenchimento inicial do campo (`DEFAULT_TRAINING_XP`).
 
 **Ordenação**: A lista de treinamentos reordena por setas para cima e para baixo, de modo idêntico ao funcionamento da organização de vídeos, com atualização otimista em memória e rollback quando a API falha.
 

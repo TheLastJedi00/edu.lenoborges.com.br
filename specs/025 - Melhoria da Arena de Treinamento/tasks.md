@@ -85,3 +85,8 @@ Ao fim desta fase o modal oculta as dicas, cobra 1 XP por dica e recalcula o pr�
 
   **A execução achou um defeito que os testes não achavam**: desafio anterior à spec vem com
   `objective: ''` e a tela pintava a caixa de Objetivo vazia. Corrigido com um `@if`, com teste.
+
+- [x] Task 04: Marcar as emendas nas specs afetadas: a **023 deste repositório** com `Deprecated` nas
+  decisões 2 e 4 (Passos viraram Dicas, entrou o Objetivo) e o bloco de emendas no topo do
+  `context.md` dela, e a seção "Specs afetadas" no `context.md` desta. A **022** continua vigente: o
+  `AiGenerateDialog` dela não muda, porque o modal de treinamentos é componente novo ao lado.
