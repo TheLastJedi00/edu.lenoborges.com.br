@@ -56,6 +56,7 @@ const TIPOS_ACEITOS = 'image/jpeg,image/png,image/webp';
             type="button"
             class="btn btn--solid"
             data-test="escolher"
+            #primeiro
             (click)="abrirSeletor()"
           >
             Escolher imagem
@@ -80,6 +81,16 @@ const TIPOS_ACEITOS = 'image/jpeg,image/png,image/webp';
             (loadImageFailed)="aoFalharAImagem()"
           />
         </div>
+
+        <!--
+          O recorte tem caminho por teclado -- a biblioteca move a moldura com as
+          setas quando ela esta focada --, e sem esta linha ninguem descobre isso.
+          Dizer que existe e o que separa "acessivel" de "tecnicamente acessivel".
+        -->
+        <p class="foto__help">
+          Arraste para enquadrar, ou use as setas do teclado com a moldura
+          selecionada.
+        </p>
 
         <button
           type="button"
@@ -237,11 +248,9 @@ const TIPOS_ACEITOS = 'image/jpeg,image/png,image/webp';
       margin-right: auto;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .foto {
-        animation: none;
-      }
-    }
+    /* Sem regra de prefers-reduced-motion aqui: o styles.scss global ja zera
+       animation e transition de tudo com !important. Repetir seria uma segunda
+       fonte para a mesma decisao. */
   `,
 })
 export class AvatarDialog implements AfterViewInit {
@@ -261,6 +270,8 @@ export class AvatarDialog implements AfterViewInit {
     viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly inputRef =
     viewChild.required<ElementRef<HTMLInputElement>>('input');
+  private readonly primeiroBotao =
+    viewChild<ElementRef<HTMLButtonElement>>('primeiro');
 
   protected readonly arquivo = signal<File | null>(null);
   private readonly recorte = signal<Blob | null>(null);
@@ -286,11 +297,28 @@ export class AvatarDialog implements AfterViewInit {
   private destruido = false;
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => (this.destruido = true));
+    inject(DestroyRef).onDestroy(() => {
+      this.destruido = true;
+
+      // **O `close()` aqui e o que devolve o foco para o botao que abriu.** Os
+      // outros modais do projeto chamam `close()` e o navegador restaura o foco
+      // sozinho; este e removido pelo `@if` do host, e um elemento arrancado do
+      // DOM nao restaura nada -- o foco cai no `<body>` e quem navega por teclado
+      // volta ao inicio da pagina.
+      const dialog = this.dialogRef().nativeElement;
+      if (dialog.open) {
+        dialog.close();
+      }
+    });
   }
 
   ngAfterViewInit(): void {
     this.dialogRef().nativeElement.showModal();
+
+    // O foco vai para a acao principal, no molde do `ConfirmDialog`. Sem isto ele
+    // fica no `<dialog>`, e a primeira tecla de quem navega por teclado nao faz
+    // nada.
+    setTimeout(() => this.primeiroBotao()?.nativeElement.focus(), 50);
   }
 
   protected abrirSeletor(): void {
